@@ -6,13 +6,15 @@
 <title>paper-digest · Yi-Wei Chen</title>
 <style>
   :root {
-    --bg: #0f1115;
-    --panel: #161a22;
-    --border: #242a36;
-    --text: #e6e8ee;
-    --muted: #8b93a7;
-    --accent: #7aa2f7;
-    --accent-hover: #a5c3ff;
+    --bg: #fdfcf9;
+    --panel: #ffffff;
+    --border: #d0d7de;
+    --text: #1f2328;
+    --muted: #57606a;
+    --accent: #0969da;
+    --accent-hover: #0550ae;
+    --row-hover: #f6f5f1;
+    --th-bg: #f6f5f1;
   }
   * { box-sizing: border-box; }
   body {
@@ -21,6 +23,7 @@
     background: var(--bg);
     color: var(--text);
     line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
   }
   .container {
     max-width: 960px;
@@ -29,9 +32,11 @@
   }
   header { margin-bottom: 3rem; }
   h1 {
-    font-size: 2.25rem;
+    font-family: Georgia, "Source Serif Pro", "Noto Serif TC", serif;
+    font-size: 2.4rem;
     margin: 0 0 0.5rem;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.01em;
+    font-weight: 700;
   }
   .subtitle { color: var(--muted); margin: 0; }
   .meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.75rem; }
@@ -43,8 +48,6 @@
     border-collapse: collapse;
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    overflow: hidden;
   }
   th, td {
     padding: 0.9rem 1rem;
@@ -52,25 +55,29 @@
     border-bottom: 1px solid var(--border);
   }
   th {
-    background: #1c2230;
+    background: var(--th-bg);
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: var(--muted);
   }
+  td.paper, td.venue {
+    font-family: Georgia, "Source Serif Pro", "Noto Serif TC", serif;
+  }
   tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #1a1f2b; }
+  tr:hover td { background: var(--row-hover); }
   td a { color: var(--accent); text-decoration: none; }
   td a:hover { color: var(--accent-hover); text-decoration: underline; }
   .tag {
     display: inline-block;
-    padding: 0.15rem 0.5rem;
-    font-size: 0.75rem;
-    border-radius: 4px;
-    background: #1c2230;
-    color: var(--muted);
-    border: 1px solid var(--border);
+    padding: 0.1rem 0.5rem;
+    font-size: 0.78rem;
+    border-radius: 3px;
+    background: #eaeef2;
+    color: #1f2328;
+    border: 1px solid #d0d7de;
+    font-family: Georgia, serif;
   }
   .empty {
     text-align: center;
@@ -84,6 +91,15 @@
     border-top: 1px solid var(--border);
     color: var(--muted);
     font-size: 0.85rem;
+    font-family: Georgia, serif;
+    font-style: italic;
+  }
+  code {
+    background: #eaeef2;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-size: 0.85em;
+    font-style: normal;
   }
 </style>
 </head>
@@ -111,8 +127,8 @@
       <!-- Add new rows here. Example:
       <tr>
         <td>2026-05-29</td>
-        <td>E-SQL: Direct Schema Linking via Question Enrichment</td>
-        <td><span class="tag">arXiv 2024</span></td>
+        <td class="paper">E-SQL: Direct Schema Linking via Question Enrichment</td>
+        <td class="venue"><span class="tag">arXiv 2024</span></td>
         <td>
           <a href="summaries/zh-TW/2024-caferoglu-esql.html">繁中</a> ·
           <a href="summaries/en/2024-caferoglu-esql.html">EN</a>
