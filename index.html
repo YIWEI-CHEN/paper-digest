@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>paper-digest · Yi-Wei Chen</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #161a22;
+    --border: #242a36;
+    --text: #e6e8ee;
+    --muted: #8b93a7;
+    --accent: #7aa2f7;
+    --accent-hover: #a5c3ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem;
+  }
+  header { margin-bottom: 3rem; }
+  h1 {
+    font-size: 2.25rem;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+  .subtitle { color: var(--muted); margin: 0; }
+  .meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.75rem; }
+  .meta a { color: var(--accent); text-decoration: none; }
+  .meta a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  th, td {
+    padding: 0.9rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #1c2230;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #1a1f2b; }
+  td a { color: var(--accent); text-decoration: none; }
+  td a:hover { color: var(--accent-hover); text-decoration: underline; }
+  .tag {
+    display: inline-block;
+    padding: 0.15rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+    background: #1c2230;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .empty {
+    text-align: center;
+    color: var(--muted);
+    padding: 2rem;
+    font-style: italic;
+  }
+  footer {
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>📚 paper-digest</h1>
+    <p class="subtitle">Bilingual (繁體中文 / English) HTML summaries of papers I'm reading.</p>
+    <p class="meta">
+      Maintained by <a href="https://github.com/YIWEI-CHEN">@YIWEI-CHEN</a> ·
+      <a href="https://github.com/YIWEI-CHEN/paper-digest">source on GitHub</a>
+    </p>
+  </header>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Paper</th>
+        <th>Venue / Year</th>
+        <th>Summary</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Add new rows here. Example:
+      <tr>
+        <td>2026-05-29</td>
+        <td>E-SQL: Direct Schema Linking via Question Enrichment</td>
+        <td><span class="tag">arXiv 2024</span></td>
+        <td>
+          <a href="summaries/zh-TW/2024-caferoglu-esql.html">繁中</a> ·
+          <a href="summaries/en/2024-caferoglu-esql.html">EN</a>
+        </td>
+      </tr>
+      -->
+      <tr>
+        <td colspan="4" class="empty">No summaries yet — first one coming soon.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <footer>
+    Generated with the <code>arxiv-html-summary</code> skill in GitHub Copilot CLI.
+  </footer>
+</div>
+</body>
+</html>
