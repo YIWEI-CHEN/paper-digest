@@ -79,6 +79,8 @@
     border: 1px solid #d0d7de;
     font-family: Georgia, serif;
   }
+  .tag a { color: inherit; text-decoration: none; }
+  .tag a:hover { color: var(--accent); text-decoration: underline; }
   .empty {
     text-align: center;
     color: var(--muted);
@@ -119,7 +121,6 @@
   <table>
     <thead>
       <tr>
-        <th>Date</th>
         <th>Paper</th>
         <th>Venue / Year</th>
         <th>Summary</th>
@@ -128,7 +129,6 @@
     <tbody>
       <!-- Add new rows here. Example:
       <tr>
-        <td>2026-05-29</td>
         <td class="paper">E-SQL: Direct Schema Linking via Question Enrichment</td>
         <td class="venue"><span class="tag">arXiv 2024</span></td>
         <td>
@@ -138,7 +138,6 @@
       </tr>
       -->
       <tr>
-        <td>2026-05-29</td>
         <td class="paper">E-SQL: Direct Schema Linking via Question Enrichment in Text-to-SQL</td>
         <td class="venue"><span class="tag">arXiv 2024</span></td>
         <td>
@@ -146,15 +145,13 @@
         </td>
       </tr>
       <tr>
-        <td>2026-05-29</td>
         <td class="paper">CHESS: Contextual Harnessing for Efficient SQL Synthesis</td>
-        <td class="venue"><span class="tag">arXiv 2024</span></td>
+        <td class="venue"><span class="tag"><a href="https://icml.cc/virtual/2025/49375">ICML 2025</a></span></td>
         <td>
           <a href="summaries/zh-TW/chess.html">繁中</a>
         </td>
       </tr>
       <tr>
-        <td>2026-05-29</td>
         <td class="paper">ACT-SQL: In-Context Learning for Text-to-SQL with Automatically-Generated Chain-of-Thought</td>
         <td class="venue"><span class="tag">EMNLP 2023 Findings</span></td>
         <td>
