@@ -15,7 +15,6 @@ paper-digest/
 │   └── en/                 # English summaries
 │       └── <paper-slug>.html
 ├── assets/                 # Shared CSS / images / fonts
-├── papers/                 # Original PDFs (optional, gitignored if large)
 └── skills/
     └── arxiv-html-summary/ # Copilot CLI skill used to generate summaries
 ```

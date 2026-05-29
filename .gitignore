@@ -4,9 +4,6 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Original PDFs (often too large for git)
-papers/*.pdf
-
 # Python / scratch
 __pycache__/
 *.pyc
