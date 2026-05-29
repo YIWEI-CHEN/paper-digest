@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CHESS 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#141b25;--panel2:#1b2430;--ink:#e8edf4;--muted:#93a1b3;--line:#26313f;
+  --acc:#5ad1c0;--acc2:#f4a259;--acc3:#8c7bff;--hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;--disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:14px 0 14px 22px;color:var(--ink)}
+li{margin:7px 0}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700;line-height:1.1}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2024 · 論文導讀</div>
+    <h1 class="title">CHE<span class="sql">SS</span></h1>
+    <p class="subtitle">把 Text-to-SQL 拆成四個可插拔的 LLM agent — 用「最小但足夠」的脈絡餵給模型,在 BIRD 上達到 71.10% 同時把 LLM 呼叫量砍掉約 83%。</p>
+    <div class="meta-row">
+      <span class="tag lit">Multi-Agent</span>
+      <span class="tag lit">Text-to-SQL</span>
+      <span class="tag lit">Schema Pruning</span>
+      <span class="tag">LSH 檢索</span>
+      <span class="tag">LLM Unit Test</span>
+      <span class="tag">BIRD · Spider</span>
+    </div>
+    <p class="authors">Shayan Talaei, Mohammadreza Pourreza, Yu-Chen Chang, Azalia Mirhoseini, Amin Saberi · Stanford University 等 · <a href="https://arxiv.org/abs/2405.16755">arXiv:2405.16755</a> · <a href="https://github.com/ShayanTalaei/CHESS">github.com/ShayanTalaei/CHESS</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#method">02 四個 Agent</a>
+    <a href="#config">03 可組裝架構</a>
+    <a href="#data">04 資料集</a>
+    <a href="#exp">05 實驗結果</a>
+    <a href="#prompts">06 Prompt 原始碼</a>
+    <a href="#limit">07 限制與未來</a>
+  </div>
+</nav>
+
+<!-- ===================== 01 ===================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 為什麼真實資料庫上的 Text-to-SQL 這麼難</h2>
+    <p class="lead">把自然語言問題翻成 SQL,在學術小資料庫上 LLM 已經很強;但一旦面對「工業級」的真實資料庫,準確率就和人類拉開了約 30% 的差距。CHESS 想處理的正是這個落差。</p>
+
+    <p>作者把實務上的困難歸納成幾個彼此糾纏的挑戰:</p>
+    <div class="grid g2">
+      <div class="card"><h4>巨大且雜亂的 Schema</h4><p>真實資料庫動輒上千個欄位(論文舉例的金融 schema 有 <span class="hl2">4,337 個欄位</span>),全部塞進 prompt 不但超出 context、成本爆炸,還會用無關欄位干擾模型。</p></div>
+      <div class="card"><h4>需要「資料目錄 + 實際值」</h4><p>光看欄位名不夠。模型常常不知道某個類別欄位裡實際存的字串長什麼樣(例如 <code>'M'</code> 還是 <code>'Male'</code>),也讀不到 column description。</p></div>
+      <div class="card"><h4>錯誤會沿管線傳播</h4><p>多階段管線中,前面 schema 選錯一個欄位,後面 SQL 就整個崩掉 — error propagation 是準確率殺手。</p></div>
+      <div class="card"><h4>成本與隱私</h4><p>領先方法常對單題打上百次 LLM call、灌入完整 schema;這在生產環境既貴又難落地,且把整個資料庫送進專有 API 有隱私疑慮。</p></div>
+    </div>
+
+    <h3>核心主張</h3>
+    <div class="callout">
+      <p><strong>「Contextual Harnessing」=「脈絡馴服」。</strong>每個子任務只餵給 LLM <span class="hl">最小但足夠 (minimal yet sufficient)</span> 的脈絡 — 對的欄位、對的資料值、對的描述 — 而不是把整個資料庫倒給它。</p>
+    </div>
+    <p>論文的具體貢獻:把任務拆解成 <strong>四個專職 agent</strong>(IR / SS / CG / UT),每個對應一個挑戰;提出結合<span class="hl">關鍵字抽取 + LSH + 向量資料庫</span>的階層式檢索;設計能依題目複雜度<span class="hl">自適應修剪 schema</span> 的選擇器;用<span class="hl">注入雜訊</span>微調開源 DeepSeek 來抵抗上游錯誤;並完整開源、強調資料隱私。</p>
+  </div>
+</section>
+
+<!-- ===================== 02 ===================== -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>方法論 — 四個專職 Agent</h2>
+    <p class="lead">CHESS 是一個 multi-agent 工作流。每個 agent 內含若干 tool(工具),agent 負責決定呼叫哪些 tool、以什麼順序。下圖是預設管線。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 940 330" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <!-- input -->
+        <rect x="20" y="135" width="120" height="58" rx="9" fill="#0a0e14" stroke="#26313f"/>
+        <text x="80" y="160" fill="#e8edf4" font-size="12" text-anchor="middle">問題 + Hint</text>
+        <text x="80" y="178" fill="#5b6675" font-size="11" text-anchor="middle">+ DB</text>
+
+        <!-- IR -->
+        <rect x="172" y="40" width="170" height="250" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="257" y="62" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">IR · Information</text>
+        <text x="257" y="78" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">Retriever</text>
+        <rect x="186" y="98" width="142" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="257" y="116" fill="#93a1b3" font-size="10.5" text-anchor="middle">關鍵字抽取</text>
+        <text x="257" y="131" fill="#5b6675" font-size="9.5" text-anchor="middle">few-shot</text>
+        <rect x="186" y="150" width="142" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="257" y="168" fill="#93a1b3" font-size="10.5" text-anchor="middle">實體檢索</text>
+        <text x="257" y="183" fill="#5b6675" font-size="9.5" text-anchor="middle">LSH + edit dist</text>
+        <rect x="186" y="202" width="142" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="257" y="220" fill="#93a1b3" font-size="10.5" text-anchor="middle">脈絡檢索</text>
+        <text x="257" y="235" fill="#5b6675" font-size="9.5" text-anchor="middle">vector DB</text>
+
+        <!-- SS -->
+        <rect x="372" y="40" width="170" height="250" rx="12" fill="#141b25" stroke="#8c7bff" stroke-width="1.5"/>
+        <text x="457" y="62" fill="#8c7bff" font-size="13" text-anchor="middle" font-weight="700">SS · Schema</text>
+        <text x="457" y="78" fill="#8c7bff" font-size="13" text-anchor="middle" font-weight="700">Selector</text>
+        <rect x="386" y="98" width="142" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="457" y="116" fill="#93a1b3" font-size="10.5" text-anchor="middle">逐欄過濾</text>
+        <text x="457" y="131" fill="#5b6675" font-size="9.5" text-anchor="middle">binary classify</text>
+        <rect x="386" y="150" width="142" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="457" y="168" fill="#93a1b3" font-size="10.5" text-anchor="middle">選表</text>
+        <text x="457" y="183" fill="#5b6675" font-size="9.5" text-anchor="middle">CoT</text>
+        <rect x="386" y="202" width="142" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="457" y="220" fill="#93a1b3" font-size="10.5" text-anchor="middle">選欄(最小集)</text>
+        <text x="457" y="235" fill="#5b6675" font-size="9.5" text-anchor="middle">minimal cols</text>
+
+        <!-- CG -->
+        <rect x="572" y="80" width="160" height="170" rx="12" fill="#141b25" stroke="#f4a259" stroke-width="1.5"/>
+        <text x="652" y="102" fill="#f4a259" font-size="13" text-anchor="middle" font-weight="700">CG · Candidate</text>
+        <text x="652" y="118" fill="#f4a259" font-size="13" text-anchor="middle" font-weight="700">Generator</text>
+        <rect x="586" y="135" width="132" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="652" y="153" fill="#93a1b3" font-size="10.5" text-anchor="middle">生成候選 SQL</text>
+        <text x="652" y="168" fill="#5b6675" font-size="9.5" text-anchor="middle">CoT / 多樣本</text>
+        <rect x="586" y="188" width="132" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="652" y="206" fill="#93a1b3" font-size="10.5" text-anchor="middle">修訂 Revise</text>
+        <text x="652" y="221" fill="#5b6675" font-size="9.5" text-anchor="middle">執行回饋</text>
+
+        <!-- UT -->
+        <rect x="762" y="80" width="160" height="170" rx="12" fill="#141b25" stroke="#ff6b6b" stroke-width="1.5"/>
+        <text x="842" y="102" fill="#ff6b6b" font-size="13" text-anchor="middle" font-weight="700">UT · Unit</text>
+        <text x="842" y="118" fill="#ff6b6b" font-size="13" text-anchor="middle" font-weight="700">Tester</text>
+        <rect x="776" y="135" width="132" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="842" y="153" fill="#93a1b3" font-size="10.5" text-anchor="middle">生成 NL 單元測試</text>
+        <text x="842" y="168" fill="#5b6675" font-size="9.5" text-anchor="middle">LLM 出題</text>
+        <rect x="776" y="188" width="132" height="44" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="842" y="206" fill="#93a1b3" font-size="10.5" text-anchor="middle">評分挑選</text>
+        <text x="842" y="221" fill="#5b6675" font-size="9.5" text-anchor="middle">clustering + vote</text>
+
+        <!-- arrows -->
+        <line x1="140" y1="164" x2="168" y2="164" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="342" y1="164" x2="368" y2="164" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="542" y1="164" x2="568" y2="164" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="732" y1="164" x2="758" y2="164" stroke="#5ad1c0" marker-end="url(#arr)"/>
+      </svg>
+      <div class="figcap">圖 1 · CHESS 四 agent 管線:IR 找脈絡 → SS 修剪 schema → CG 生成 / 修訂 → UT 出單元測試挑最佳 (依論文 Figure 1 重繪)</div>
+    </div>
+
+    <h3>① Information Retriever (IR) — 找出「對的脈絡」</h3>
+    <p>把問題裡的線索對應到資料庫裡實際存在的值與描述,分三個 tool:</p>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>關鍵字抽取 Keyword Extraction</h4><p>用 few-shot prompt 要 LLM 從問題和 hint 裡抽出關鍵字、關鍵片語、命名實體,輸出成一個 Python list。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>實體檢索 Entity Retrieval</h4><p>把關鍵字拿去比對「資料庫裡實際存的值」。先用 <span class="hl">Locality Sensitive Hashing (LSH)</span> 做近似最近鄰,再用 edit distance(語法相似)和 embedding(語意相似)過濾。論文稱這把單題值檢索從 ~5 分鐘壓到 ~5 秒。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>脈絡檢索 Context Retrieval</h4><p>對 column / table 的描述(資料目錄)做語意檢索,存在向量資料庫(ChromaDB),取出與問題最相關的描述。</p></div></div>
+    </div>
+
+    <h3>② Schema Selector (SS) — 把上千欄位修剪成最小集</h3>
+    <p>三步漸進式過濾,每步都保留主鍵 / 外鍵(避免後續 JOIN 斷掉):</p>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>逐欄過濾 Filter Column</h4><p>把「每個欄位是否與問題相關」當成<span class="hl">二元分類</span>,孤立評估、可大規模平行,先砍掉海量無關欄位。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>選表 Select Tables</h4><p>在全域 schema 脈絡下用 chain-of-thought 評估每張表是否必要。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>選欄 Select Columns</h4><p>進一步收斂到「生成 SQL 真正必要」的最小欄位集,並對每欄給出理由。</p></div></div>
+    </div>
+    <div class="callout warn"><p><strong>為什麼這樣設計:</strong>schema 選擇的 <span class="hl2">precision 是端到端準確率的瓶頸</span> — 漏掉一欄(低 recall)直接讓題目無解,塞太多欄(低 precision)又干擾生成。三步法在維持高 recall 的同時把 precision 一路拉高(見 §05 Table 5)。</p></div>
+
+    <h3>③ Candidate Generator (CG) — 生成並自我修訂</h3>
+    <ul>
+      <li><strong>生成候選:</strong>把修剪後的 schema + 檢索到的值 + 描述,用 CoT prompt 餵給 LLM 產生 SQL。可生成單一候選,或在高算力設定下取樣多個(最多 20)。</li>
+      <li><strong>修訂 Revise:</strong>把候選 SQL 連同執行結果回灌,依一套「DBA 守則」修正常見錯誤(見 §06)。最多修訂 3 次。</li>
+      <li><strong>可選微調模型:</strong>用 BIRD 約 9,500 筆訓練樣本、<span class="hl">刻意注入雜訊</span>(放進名字相近的錯誤欄位)微調 DeepSeek Coder-33B,讓它對上游 schema 選錯更穩健。</li>
+    </ul>
+
+    <h3>④ Unit Tester (UT) — 用 LLM 出的自然語言單元測試挑最佳</h3>
+    <p>當 CG 產生多個候選時,UT 負責挑出最對的那個:</p>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>分群 Cluster</h4><p>依「執行結果」把候選分群 — 結果一樣的歸一群。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>生成單元測試</h4><p>要 LLM 產生一批<span class="hl">自然語言單元測試</span>(例:「答案 SQL 應該要 mention…/ 應該要 use…」),而且這些測試必須能<span class="hl">區分不同候選</span>。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>評分與投票</h4><p>對每個候選逐一判定通過/失敗,綜合得分後選出勝者。測試數量在約 10 個時效益飽和。</p></div></div>
+    </div>
+    <div class="callout"><p><strong>關鍵巧思:</strong>UT 不是拿 gold SQL 來對答案(那是作弊),而是讓 LLM 自己「出考題 + 改考卷」,本質是一種<span class="hl">由測試引導的 self-consistency 選擇</span>,取代單純多數投票。</p></div>
+  </div>
+</section>
+
+<!-- ===================== 03 ===================== -->
+<section id="config">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>核心貢獻 — 可依算力與隱私「組裝」的架構</h2>
+    <p class="lead">CHESS 最大的賣點不是某個單一 agent,而是這四個 agent 可以像積木一樣按需求拼裝。論文給出兩個代表性組態,落在「準確率↔成本」光譜的兩端。</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>CHESS(IR, CG, UT) · 高算力路線</h4>
+        <p>跳過 Schema Selector,改用強模型(Gemini-1.5-pro)<strong>取樣 20 個候選 + 10 個單元測試</strong>,讓 UT 把最好的挑出來。</p>
+        <p class="big" style="color:var(--acc)">71.10%</p>
+        <p>BIRD test EX — 與當時領先的專有方法差距 <span class="hl">不到 2%</span>,但 LLM 呼叫量約少 <span class="hl">83%</span>。</p>
+      </div>
+      <div class="card">
+        <h4>CHESS(IR, SS, CG) · 低算力 / 隱私路線</h4>
+        <p>加入 Schema Selector 修剪 schema,單一候選 + 最多 3 次修訂,<strong>不跑 UT</strong>。單題僅約 <span class="hl">6 次</span> GPT-4-turbo 呼叫(對手常 ~100 次)。</p>
+        <p class="big" style="color:var(--acc2)">65.00% <span style="font-size:18px;color:var(--muted)">/ 61.5%</span></p>
+        <p>BIRD dev EX:專有模型 65.00% · 全開源(Llama-3-70B + 微調 DeepSeek)61.5%,可完全本地部署、不外送資料。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Schema Selector 的工業價值:</strong>在一個 <span class="hl2">4,337 欄位</span> 的真實金融 schema 上,先用 SS 修剪再生成,相比直接塞完整 schema,達到 <span class="hl2">×5 的 token 用量縮減</span>,而且準確率還 <span class="hl2">+2%</span>(Pass@1 / Pass@5 ≈ 61% / 63%)。少即是多。</p>
+    </div>
+
+    <p>這也是論文標題「Efficient」的兩個來源:<strong>UT 路線</strong>靠少呼叫換高分;<strong>SS 路線</strong>靠修剪 schema 換低 token 與可落地性。使用者可依預算、模型可得性、隱私要求自由選擇。</p>
+  </div>
+</section>
+
+<!-- ===================== 04 ===================== -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>資料集與評估指標</h2>
+    <div class="grid g3">
+      <div class="card"><h4>BIRD</h4><p class="big">12,751</p><p>question–SQL 配對,橫跨 <strong>95 個大型資料庫</strong>、合計 33.4 GB、37 個專業領域。主戰場。</p></div>
+      <div class="card"><h4>Spider</h4><p class="big">2,147</p><p>測試樣本(200 個 DB schema)。Spider 沒有欄位描述,故 CHESS 在此關閉 context retrieval。</p></div>
+      <div class="card"><h4>SDS · 子抽樣 dev</h4><p class="big">147</p><p>BIRD dev 的 10% 子集:81 simple / 54 moderate / 12 challenging,用於低成本 ablation。</p></div>
+    </div>
+
+    <h3>指標</h3>
+    <ul>
+      <li><strong>Execution Accuracy (EX):</strong>主指標 — 預測 SQL 與 gold SQL 在資料庫上執行結果是否一致。</li>
+      <li><strong>Exact-Set-Match (EM):</strong>逐子句完全比對,false negative 高(寫法不同但結果對也算錯),非主指標。</li>
+      <li><strong>Valid Efficiency Score (VES):</strong>兼顧正確性與執行速度;因變異過大,論文未深入分析。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ===================== 05 ===================== -->
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>實驗結果</h2>
+    <p class="lead">兩條 CHESS 路線在 BIRD 上分居第一梯隊;在更成熟的 Spider 上也位居已發表方法第二。橘色為本文方法。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · BIRD 主結果(Execution Accuracy %)。橘色列為 CHESS 兩種組態</caption>
+        <thead><tr><th>方法</th><th>基礎模型</th><th>Dev EX</th><th>Test EX</th></tr></thead>
+        <tbody>
+          <tr><td>CHASE-SQL</td><td>Gemini</td><td class="num">73.01</td><td class="num">73.00</td></tr>
+          <tr><td>Distillery</td><td>GPT-4o</td><td class="num">67.21</td><td class="num">71.83</td></tr>
+          <tr class="best"><td class="ours">CHESS(IR, CG, UT)</td><td>Gemini-1.5-pro</td><td class="num">68.31</td><td class="num">71.10</td></tr>
+          <tr class="best"><td class="ours">CHESS(IR, SS, CG) · 專有</td><td>GPT-4-turbo</td><td class="num">65.00</td><td class="num">66.69</td></tr>
+          <tr><td>MCS-SQL</td><td>GPT-4</td><td class="num">63.36</td><td class="num">65.45</td></tr>
+          <tr class="best"><td class="ours">CHESS(IR, SS, CG) · 全開源</td><td>Llama-3-70B + FT DeepSeek</td><td class="num">61.5</td><td class="num">–</td></tr>
+          <tr><td>SFT CodeS-15B</td><td>CodeS</td><td class="num">58.47</td><td class="num">60.37</td></tr>
+          <tr><td>DTS-SQL</td><td>DeepSeek 7B</td><td class="num">55.8</td><td class="num">60.31</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-4</td><td class="num">59.59</td><td class="num">57.56</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1b · Spider 測試集(Execution Accuracy %)</caption>
+        <thead><tr><th>方法</th><th>EX</th></tr></thead>
+        <tbody>
+          <tr><td>MCS-SQL + GPT-4</td><td class="num">89.6</td></tr>
+          <tr class="best"><td class="ours">CHESS(IR, SS, CG)</td><td class="num">87.2</td></tr>
+          <tr><td>DAIL-SQL + GPT-4</td><td class="num">86.6</td></tr>
+          <tr><td>DIN-SQL + GPT-4</td><td class="num">85.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>模組消融 — 每個工具都在出力</h3>
+    <p>在 SDS(147 題)上拿掉單一工具,完整管線基準 = 64.62%:</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · 模組 ablation(SDS,EX %)。掉最多的是 Revise 與 Select Tables</caption>
+        <thead><tr><th>管線設定</th><th>EX</th><th>ΔEX</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">完整管線</td><td class="num">64.62</td><td class="num">–</td></tr>
+          <tr><td>− Revise 修訂</td><td class="num">57.82</td><td class="num">−6.80</td></tr>
+          <tr><td>− Select Tables 選表</td><td class="num">58.50</td><td class="num">−6.12</td></tr>
+          <tr><td>− Final Column Selection 選欄</td><td class="num">59.18</td><td class="num">−5.44</td></tr>
+          <tr><td>− Entity &amp; Context Retrieval</td><td class="num">59.86</td><td class="num">−4.76</td></tr>
+          <tr><td>僅 1 次 Revise</td><td class="num">61.22</td><td class="num">−3.40</td></tr>
+          <tr><td>− Individual Column Filtering</td><td class="num">61.90</td><td class="num">−2.72</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>模型組合消融 — 微調 DeepSeek 當生成器最划算</h3>
+    <p>三個欄位 = (Schema Selection 模型, Candidate Generation 模型, 其餘步驟模型):</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · 引擎組合 ablation(SDS,EX %)</caption>
+        <thead><tr><th>引擎組合 (SS, CG, 其餘)</th><th>EX</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">GPT-3.5 · 微調 DeepSeek · GPT-4</td><td class="num">64.62</td></tr>
+          <tr><td>Llama-3-70B · 微調 DeepSeek · Llama-3-70B</td><td class="num">59.86</td></tr>
+          <tr><td>GPT-3.5 · GPT-4 · GPT-4</td><td class="num">55.78</td></tr>
+          <tr><td>Llama-3-70B · Llama-3-70B · Llama-3-70B</td><td class="num">54.42</td></tr>
+          <tr><td>GPT-3.5 · GPT-3.5 · GPT-3.5</td><td class="num">49.65</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout"><p><strong>有意思的對照:</strong>把生成器從 GPT-4 換成<span class="hl">微調過的 DeepSeek</span>,整體 EX 從 55.78% → 64.62%(+8.84%)。雜訊注入微調出來的小模型,在這個任務上勝過通用大模型。</p></div>
+
+    <h3>依複雜度拆解 — 難題上的優勢最明顯</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · 依題目難度的 EX %(SDS)</caption>
+        <thead><tr><th>方法</th><th>Easy</th><th>Moderate</th><th>Challenging</th><th>Overall</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">CHESS(含微調)</td><td class="num">65.43</td><td class="num">64.81</td><td class="num">58.33</td><td class="num">64.62</td></tr>
+          <tr><td>CHESS(不含微調)</td><td class="num">60.49</td><td class="num">50.00</td><td class="num">50.00</td><td class="num">55.78</td></tr>
+          <tr><td>GPT-4-turbo baseline</td><td class="num">54.32</td><td class="num">35.18</td><td class="num">41.66</td><td class="num">46.25</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Schema Selector 的 precision / recall 演進</h3>
+    <p>這張表是 SS 三步法的核心證據:每一步都在「幾乎不掉 recall」的前提下大幅拉高 precision。欄位 precision 從 0.11 一路升到 0.71。</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Schema 選擇逐步的表/欄 recall &amp; precision</caption>
+        <thead><tr><th>步驟</th><th>Table Recall</th><th>Table Prec.</th><th>Col Recall</th><th>Col Prec.</th></tr></thead>
+        <tbody>
+          <tr><td>未過濾(完整 schema)</td><td class="num">1.00</td><td class="num">0.33</td><td class="num">1.00</td><td class="num">0.11</td></tr>
+          <tr><td>+ 逐欄過濾</td><td class="num">1.00</td><td class="num">0.33</td><td class="num">0.98</td><td class="num">0.21</td></tr>
+          <tr><td>+ 選表</td><td class="num">0.97</td><td class="num">0.89</td><td class="num">0.96</td><td class="num">0.45</td></tr>
+          <tr class="best"><td class="ours">+ 選欄(最終)</td><td class="num">0.96</td><td class="num">0.90</td><td class="num">0.94</td><td class="num">0.71</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 06 ===================== -->
+<section id="prompts">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Prompt 原始碼 — 直接讀 repo 裡的真本</h2>
+    <p class="lead">以下 prompt 直接擷取自官方 repo 的 <code>templates/</code> 目錄,而非論文附錄(兩者常有出入,程式碼為準)。挑選四個最能代表各 agent 風格的模板。</p>
+
+    <h3>IR · 關鍵字抽取(few-shot,輸出 Python list)</h3>
+    <pre><code><span class="cmt"># templates/template_extract_keywords.txt（節錄）</span>
+Objective: Analyze the given question and hint to identify and
+extract keywords, keyphrases, and named entities. ...
+
+<span class="cmt">Example 2:</span>
+Question: <span class="str">"In the Winter and Summer Olympics of 1988, which game
+  has the most number of competitors? ..."</span>
+Hint: <span class="str">"the most number of competitors refer to MAX(COUNT(person_id)); ..."</span>
+[<span class="str">"Winter Olympics"</span>, <span class="str">"Summer Olympics"</span>, <span class="str">"1988"</span>, <span class="str">"1988 Summer"</span>,
+ <span class="str">"number of competitors"</span>, <span class="str">"MAX(COUNT(person_id))"</span>, <span class="str">"games_name"</span>, ...]
+
+Question: {QUESTION}
+Hint: {HINT}
+<span class="cmt"># Only output the Python list, no explanations needed.</span></code></pre>
+
+    <h3>SS · 選表(chain-of-thought + 結構化 JSON)</h3>
+    <pre><code><span class="cmt"># templates/template_select_tables.txt（節錄）</span>
+You are an expert and very smart data analyst. ...
+Database Schema Overview:
+{DATABASE_SCHEMA}
+<span class="cmt"># 注意:相關值會以 "-- examples" 標在欄位名前面,作為關鍵 hint</span>
+
+Question: {QUESTION}
+Hint: {HINT}
+
+<span class="cmt"># For each selected table, explain why it is necessary.</span>
+{
+  <span class="fn">"chain_of_thought_reasoning"</span>: <span class="str">"..."</span>,
+  <span class="fn">"table_names"</span>: [<span class="str">"Table1"</span>, <span class="str">"Table2"</span>, ...]
+}
+<span class="cmt"># Take a deep breath ... If you do the task correctly,</span>
+<span class="cmt"># I will give you 1 million dollars.</span></code></pre>
+
+    <h3>CG · 修訂時餵給模型的「DBA 守則」(最具特色)</h3>
+    <pre><code><span class="cmt"># templates/template_revise_two.txt — Database admin instructions（節錄）</span>
+1. 找最高/最低值時,<span class="kw">ORDER BY + LIMIT 1</span> 優先於 MAX/MIN 子查詢。
+3. 沒指定欄位時,name 與 id 之間優先選 <span class="kw">id</span>。
+9. 用 <span class="str">|| ' ' ||</span> 串接字串是被禁止的,而且「punishable by death」。
+   Never concatenate columns in the SELECT clause.
+10. 多表 JOIN 時用別名 <span class="kw">T1, T2, T3</span> ... 並用別名引用欄位。
+11. 對欄位做運算/排序時,記得過濾該欄的 NULL 值。
+
+Predicted query: {SQL}
+Query result:    {QUERY_RESULT}
+<span class="cmt"># → 回傳 {"chain_of_thought_reasoning": ..., "revised_SQL": ...}</span></code></pre>
+
+    <h3>UT · 生成「能區分候選」的自然語言單元測試</h3>
+    <pre><code><span class="cmt"># templates/template_generate_unit_tests.txt（節錄）</span>
+Generate a set of {UNIT_TEST_CAP} unit tests that would evaluate
+the correctness of SQL queries that would answer the question.
+<span class="cmt"># 重點:每個測試要能「區分至少兩個候選」</span>
+
+- Format like <span class="str">'The answer SQL query should mention...'</span>,
+  <span class="str">'... should state...'</span>, <span class="str">'... should use...'</span>
+- VERY IMPORTANT: 只看 SQL 的「邏輯」,不要管輸出格式或數值。
+
+You are provided with different clusters of candidate responses.
+<span class="cmt"># 候選先依執行結果分群,測試要能區分每群內的候選</span>
+&lt;Thinking&gt; ... &lt;/Thinking&gt;
+&lt;Answer&gt; [<span class="str">'unit test #1'</span>, <span class="str">'unit test #2'</span>, ...] &lt;/Answer&gt;</code></pre>
+    <div class="callout"><p>repo 還附了配對的 <code>template_evaluate.txt</code>:把候選 + 單元測試一起餵回去,要 LLM 對每個候選輸出 <code>[Passed]</code> / <code>[Failed]</code> 列表 — 這就是 UT「改考卷」的那一步。</p></div>
+  </div>
+</section>
+
+<!-- ===================== 07 ===================== -->
+<section id="limit">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>限制與未來工作</h2>
+    <div class="callout hot"><p><strong>與人類仍有差距:</strong>在最難的 BIRD 上,人類的查詢合成準確率仍高於 CHESS,作者明言「未來工作應持續縮小這個 gap」。</p></div>
+    <div class="callout hot"><p><strong>Schema selection 是瓶頸:</strong>作者點名「更高 precision 的 schema 選擇方法」是最具槓桿的研究方向 — 它對端到端準確率有 outsize 的影響。</p></div>
+    <div class="callout hot"><p><strong>缺乏大規模 benchmark:</strong>現有 benchmark 不足以反映真實「大型資料庫」的挑戰;且 BIRD 本身存在<span class="hl2">語意模糊的問題與錯誤的 gold SQL</span>,壓低了可達到的天花板。</p></div>
+    <div class="callout hot"><p><strong>UT 仍靠通用模型:</strong>單元測試的出題與評分目前用通用 LLM;作者計畫未來<span class="hl2">專門微調測試生成/評估模型</span>,讓 UT 路線更可靠。</p></div>
+
+    <h3>一句話總結</h3>
+    <p class="lead">CHESS 證明了在 Text-to-SQL 上,<strong>「給模型更少、但更對的脈絡」</strong>往往勝過「給更多、打更多次」。把任務拆成可插拔的 IR / SS / CG / UT 四個 agent,使用者得以在準確率、成本、隱私之間自由取捨 — 而不是只能用一套昂貴的 monolithic pipeline。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Talaei, Pourreza, Chang, Mirhoseini, Saberi (2024) · CHESS: Contextual Harnessing for Efficient SQL Synthesis</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2405.16755">arXiv:2405.16755</a> · <a href="https://github.com/ShayanTalaei/CHESS">程式碼 ShayanTalaei/CHESS</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要,圖表為依論文內容重繪／整理;數值以原論文為準。Prompt 引用自官方 repo templates/ 目錄。</p>
+  </div>
+</footer>
+
+</body>
+</html>

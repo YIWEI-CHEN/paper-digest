@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-SQL 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:14px;overflow-x:auto;line-height:1.7}
+
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.up{color:var(--acc);font-weight:500}
+.down{color:var(--hot);font-weight:500}
+
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2024 · 論文導讀</div>
+    <h1 class="title">E-<span class="sql">SQL</span></h1>
+    <p class="subtitle">用「問句改寫」做直接 schema linking —— 把資料庫表/欄/值與條件直接塞進原問句,而不是過濾 schema,在 BIRD test set 達到 66.29% EX。</p>
+    <div class="meta-row">
+      <span class="tag lit">Question Enrichment</span>
+      <span class="tag lit">Direct Schema Linking</span>
+      <span class="tag lit">Candidate Predicates</span>
+      <span class="tag">Text-to-SQL</span>
+      <span class="tag">GPT-4o / GPT-4o-mini</span>
+      <span class="tag">BIRD · Spider</span>
+    </div>
+    <p class="authors">Hasan Alp Caferoğlu, Özgür Ulusoy · Bilkent University, Ankara, Turkey · <a href="https://arxiv.org/abs/2409.16751">arXiv:2409.16751</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#method">02 方法論</a>
+    <a href="#modules">03 四大模組</a>
+    <a href="#data">04 資料集與指標</a>
+    <a href="#exp">05 主要結果</a>
+    <a href="#ablation">06 消融研究</a>
+    <a href="#small">07 小模型實驗</a>
+    <a href="#prompts">08 Prompt 模板</a>
+    <a href="#future">09 限制與未來</a>
+  </div>
+</nav>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — Problem Statement</h2>
+    <p class="lead">Text-to-SQL 的目標是把自然語言問句翻譯成可執行 SQL,給非專家一個資料庫的自然語言介面。LLM 出現後仍有約 20% 的人類精度差距,意味著最先進的 pipeline 都還沒到「真實部署可用」的程度。</p>
+
+    <p>作者把問題拆成三類具體挑戰:</p>
+    <div class="grid g3">
+      <div class="card"><h4>複雜 schema</h4><p>真實資料庫表多、欄多,LLM 容易抓錯。</p></div>
+      <div class="card"><h4>使用者語意模糊</h4><p>問句裡的詞跟資料庫項目對不上(例如 "Fresno" vs "Fresno County Office of Education")。</p></div>
+      <div class="card"><h4>SQL 結構複雜</h4><p>多 JOIN、多條件、巢狀,LLM 寫出來不準。</p></div>
+    </div>
+
+    <h3>傳統路線:Schema Filtering — 但作者反對</h3>
+    <p>過去主流做法是<strong>過濾 schema</strong>(schema pruning):先把與問句無關的表/欄丟掉再餵給 LLM,代表性工作如 RESDSQL、DIN-SQL、C3、CHESS。但作者引用 Maamari et al. (2024) 並用自己的實驗證實:<span class="hl2">當使用最先進的 LLM(GPT-4o 級)時,schema filtering 反而會傷害效能</span>。原因是先進 LLM 已能自己做隱性 schema linking,顯式過濾反而可能誤刪正確 schema。</p>
+
+    <h3>本文的替代路徑:Question Enrichment</h3>
+    <p>不要動 schema,而是<span class="hl">把 schema 「壓」進問句裡</span>:把相關的 table、column、value、SQL 構造步驟,直接寫進使用者問句裡,讓 LLM 看到的問句本身就已經完成了 schema linking。再搭配從原始 candidate SQL 抽出的<span class="hl">候選 predicate</span>(用 LIKE 從 DB 抓出實際候選值),補上錯誤值/錯誤欄的修正空間。</p>
+
+    <div class="callout">
+      <p><strong>核心主張:</strong>direct schema linking via question reformulation 是比 schema filtering 更可靠的策略,特別是在複雜查詢上。</p>
+    </div>
+
+    <h3>五大貢獻</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>新典範:用問句改寫做 direct schema linking</h4><p>把資料庫項目與條件融入自然語言問句,形成 fully enriched question 來引導 SQL 生成。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>首篇用 question enrichment 同時提升 LLM 推理與 schema linking</h4><p>作者自稱在 Text-to-SQL 領域是第一篇從「改問句」這個角度切入。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>用 LIKE 算子生成候選 predicate</h4><p>從候選 SQL 抽 token,在 DB 上跑 <code>LIKE '%token%'</code> 找出實際存在的值,作為 prompt 增補。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>實證 schema filtering 在先進 LLM 下的負面影響</h4><p>不是不能用,而是用了會掉效能。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>小模型也能大幅受惠 enriched question</h4><p>DeepSeek Coder 7B 在 BIRD dev 從 37.02 → 56.45 EX(+19.43),無需微調。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>方法論 — E-SQL Pipeline 全景</h2>
+    <p class="lead">E-SQL 由四個主要模組組成,順序為 CSG → CPG → QE → SR。一個額外的 SF 模組僅用於消融比較,最終 pipeline 不包含 SF。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+
+        <!-- input -->
+        <rect x="20" y="160" width="140" height="48" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="90" y="182" fill="#93a1b3" font-size="12" text-anchor="middle">自然語言問句</text>
+        <text x="90" y="198" fill="#93a1b3" font-size="11" text-anchor="middle">+ schema + evidence</text>
+
+        <!-- CSG -->
+        <rect x="200" y="40" width="160" height="78" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="280" y="62" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">CSG</text>
+        <text x="280" y="80" fill="#e8edf4" font-size="11" text-anchor="middle">Candidate SQL</text>
+        <text x="280" y="95" fill="#e8edf4" font-size="11" text-anchor="middle">Generation</text>
+        <text x="280" y="110" fill="#93a1b3" font-size="10" text-anchor="middle">9-shot + CoT</text>
+
+        <!-- CPG -->
+        <rect x="200" y="245" width="160" height="78" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="280" y="267" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">CPG</text>
+        <text x="280" y="285" fill="#e8edf4" font-size="11" text-anchor="middle">Candidate Predicate</text>
+        <text x="280" y="300" fill="#e8edf4" font-size="11" text-anchor="middle">Generation</text>
+        <text x="280" y="315" fill="#93a1b3" font-size="10" text-anchor="middle">LIKE '%value%'</text>
+
+        <!-- QE -->
+        <rect x="430" y="140" width="160" height="88" rx="12" fill="#1b2430" stroke="#f4a259" stroke-width="1.8"/>
+        <text x="510" y="164" fill="#f4a259" font-size="13" text-anchor="middle" font-weight="700">QE ★</text>
+        <text x="510" y="182" fill="#e8edf4" font-size="11" text-anchor="middle">Question</text>
+        <text x="510" y="197" fill="#e8edf4" font-size="11" text-anchor="middle">Enrichment</text>
+        <text x="510" y="214" fill="#93a1b3" font-size="10" text-anchor="middle">論文核心貢獻</text>
+
+        <!-- SR -->
+        <rect x="660" y="140" width="160" height="88" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="740" y="164" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">SR</text>
+        <text x="740" y="182" fill="#e8edf4" font-size="11" text-anchor="middle">Predicate &amp; Error</text>
+        <text x="740" y="197" fill="#e8edf4" font-size="11" text-anchor="middle">Aware Refinement</text>
+        <text x="740" y="214" fill="#93a1b3" font-size="10" text-anchor="middle">最終 SQL</text>
+
+        <!-- arrows -->
+        <line x1="160" y1="180" x2="198" y2="80" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="160" y1="190" x2="198" y2="285" stroke="#5ad1c0" marker-end="url(#arr)" stroke-dasharray="4,3"/>
+        <line x1="360" y1="80" x2="430" y2="160" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="360" y1="285" x2="430" y2="210" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="590" y1="184" x2="658" y2="184" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <!-- candidate SQL execution feedback -->
+        <path d="M 360 95 Q 540 30 740 138" stroke="#8c7bff" fill="none" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+        <text x="540" y="50" fill="#8c7bff" font-size="10" text-anchor="middle">execution error</text>
+
+        <text x="440" y="345" fill="#5b6675" font-size="10" text-anchor="middle">每個模組僅呼叫 LLM 一次,避免重複生成的成本</text>
+      </svg>
+      <div class="figcap">圖 1 ‧ E-SQL pipeline (依論文 Figure 2 重繪;★ 標示為論文核心模組 QE)</div>
+    </div>
+
+    <h3>2.1 Database Description &amp; Value Selection — 共通前處理</h3>
+    <p>真實 DB 的 description 檔與資料值很龐大,無法全部塞進 prompt。E-SQL 用 BM25 排序:</p>
+    <div class="grid g2">
+      <div class="card"><h4>每欄附 10 個最相關值</h4><p>從該欄實際值中,按 BM25 相對問句的相關度取 top-10。若該欄有 NULL 值,確保 NULL 也被列入(避免 LLM 漏掉 IS NOT NULL)。</p></div>
+      <div class="card"><h4>整體附 20 句最相關 description</h4><p>從 DB description 檔的句子層級用 BM25 排序,取最相關 20 句。</p></div>
+    </div>
+    <p>這比 RESDSQL 的 Longest Common Substring (LCS) 法快,也比 CHESS 的 LSH 簡單。</p>
+  </div>
+</section>
+
+<!-- ================= MODULES ================= -->
+<section id="modules">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>四大模組細節</h2>
+
+    <h3>3.1 CSG — Candidate SQL Generation</h3>
+    <p>第一階段先生一份「候選 SQL」。重點不是要它正確,而是要它<strong>大致正確</strong> —— 表用對了、欄大致對、值大致對 —— 因為下游 CPG 要從中抽出 token 去 DB 撈候選值。Prompt 設計:</p>
+    <ul style="list-style:none;padding:0;margin:14px 0">
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• <strong>9-shot 範例</strong>:每個難度層級(simple / moderate / challenging)各 3 個,且範例與當前 query 必須來自<span class="hl">不同 DB</span>,避免洩漏</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• 範例由簡單到複雜排序</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• Schema 用 DAIL-SQL 推薦的 <strong>code representation</strong>(create table 語法,不是自然語言)</li>
+      <li style="padding:6px 0">• 加上 BM25 抽出的 10 個欄值 + 20 句 description,再以 "Let's think step by step" 觸發 CoT</li>
+    </ul>
+
+    <h3>3.2 CPG — Candidate Predicate Generation</h3>
+    <p>這是 E-SQL 第二個獨特設計。作者列舉了 LLM 生成 predicate 的 <strong>6 種情況</strong>,其中 (2)–(5) 都是「表或欄或值有部分錯」可以被資料庫實際資料糾正的情況:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Predicate 錯誤的六種情形(以「Fresno County Office of Education」為例)</caption>
+        <thead><tr><th>Case</th><th>狀況</th><th>CPG 能否補救</th></tr></thead>
+        <tbody>
+          <tr><td>(1)</td><td>表、欄、值全對</td><td>不需要</td></tr>
+          <tr><td>(2)</td><td>表欄對,值不完整(<code>'Fresno'</code> 應為 <code>'Fresno County Office of Education'</code>)</td><td class="up">✓</td></tr>
+          <tr><td>(3)</td><td>表值對,欄錯(用了 <code>County Name</code> 應為 <code>District Name</code>)</td><td class="up">✓</td></tr>
+          <tr><td>(4)</td><td>表對,欄值都錯</td><td class="up">✓</td></tr>
+          <tr><td>(5)</td><td>值對,表欄錯</td><td class="up">✓</td></tr>
+          <tr><td>(6)</td><td>全錯,跟問題無關</td><td class="down">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>具體做法:從候選 SQL 抽 predicate 中的 token,在 DB 跑下面這個 query:</p>
+    <pre><code><span class="kw">SELECT DISTINCT</span> &lt;COLUMN&gt;
+<span class="kw">FROM</span> &lt;TABLE&gt;
+<span class="kw">WHERE</span> &lt;COLUMN&gt; <span class="kw">LIKE</span> <span class="str">'%&lt;VALUE&gt;%'</span>;</code></pre>
+    <p>產生 <code>&lt;table&gt;.&lt;column&gt; &lt;op&gt; &lt;value&gt;</code> 形式的候選 predicate 列表,塞進 QE 與 SR 的 prompt。</p>
+
+    <h3>3.3 QE — Question Enrichment(本文核心)</h3>
+    <p class="lead">不要過濾 schema,而是把 schema 寫進問句裡 —— 同時附上 SQL 構造計畫作為 reasoning。</p>
+    <p>給定原問句 + schema + DB description + DB values + 候選 predicates,讓 LLM 產生兩樣東西:</p>
+    <div class="grid g2">
+      <div class="card"><h4>Enriched Question</h4><p>把 table/column/value/condition 用準確命名寫進問句裡,讓 LLM 不再需要做 schema linking。</p></div>
+      <div class="card"><h4>Enrichment Reasoning</h4><p>用 CoT 風格說明為何要選這些 schema 項目、SQL 應如何構造(實質上是 SQL 構造計畫)。</p></div>
+    </div>
+    <p>兩者連接成 <strong>Fully Enriched Question</strong>(完整富化問句),作為下游 SR 的輸入。</p>
+
+    <p>Few-shot 設計:作者手動標註 <strong>12 個</strong>(每個難度 4 個範例),從中隨機選 9 個(每難度 3 個);範例同樣強制與當前 query 來自不同 DB。整個富化在<span class="hl">「一次 prompt」</span>內完成,不做迭代。</p>
+
+    <h3>3.4 SR — Predicate &amp; Error-Aware SQL Refinement</h3>
+    <p>最後一步把所有東西匯總:fully enriched question、候選 SQL、執行錯誤訊息(若有)、候選 predicates、schema、description,讓 LLM 決定<strong>是修補候選 SQL 或重新寫一份</strong>。</p>
+
+    <div class="callout">
+      <p><strong>關鍵設計選擇:</strong>不採用 self-consistency / multi-choice 多次生成投票(C3、DAIL-SQL、CHESS、MCS-SQL 都用),也不採用 MAC-SQL 的迭代 refiner agent。E-SQL 每模組僅呼叫 LLM <span class="hl">一次</span>,以節省計算成本。</p>
+    </div>
+
+    <h3>3.5 SF — Schema Filtering(僅用於消融比較)</h3>
+    <p>作者實作了一個 single-step schema filtering 模組(連帶一個 Filtered Schema Correction 步驟),用在消融實驗來證實:<span class="hl2">把 SF 加進 pipeline 反而會掉分</span>。因此最終 E-SQL pipeline 不含 SF。</p>
+  </div>
+</section>
+
+<!-- ================= DATA ================= -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>資料集與評估指標</h2>
+
+    <h3>資料集</h3>
+    <div class="grid g2">
+      <div class="card"><h4>BIRD</h4><p>跨領域、真實複雜大規模 DB。95 個 DB、37 個專業領域(足球、F1、區塊鏈、醫療、教育...)、12,751 對 text-SQL。Train 9,428 / Dev 1,534 / Test 1,789(test set 不公開)。<span class="hl">主要評測基準</span>。</p></div>
+      <div class="card"><h4>Spider</h4><p>200 個 DB、138 領域、10,181 對 text-SQL。本文用 test split 共 2,147 對。</p></div>
+    </div>
+
+    <h3>評估指標(BIRD 三件套)</h3>
+    <div class="grid g3">
+      <div class="card"><h4>EX</h4><p>Execution Accuracy。比對預測 SQL 與正解 SQL 的執行結果是否相同。</p></div>
+      <div class="card"><h4>R-VES</h4><p>Reward-based Valid Efficiency Score。除了正確性也評估效能,跑 100 次取平均後依時間比 τ 給 0 / 0.25 / 0.5 / 0.75 / 1 / 1.25 分。</p></div>
+      <div class="card"><h4>Soft F1</h4><p>BIRD 最新指標。寬容處理欄序、缺漏值等小差異。</p></div>
+    </div>
+
+    <div class="formula">R-VES = <br>&nbsp;&nbsp;1.25 &nbsp;if ŷ correct AND τ ≥ 2<br>&nbsp;&nbsp;1.00 &nbsp;if ŷ correct AND 1 ≤ τ &lt; 2<br>&nbsp;&nbsp;0.75 &nbsp;if ŷ correct AND 0.5 ≤ τ &lt; 1<br>&nbsp;&nbsp;0.50 &nbsp;if ŷ correct AND 0.25 ≤ τ &lt; 0.5<br>&nbsp;&nbsp;0.25 &nbsp;if ŷ correct AND τ &lt; 0.25<br>&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp; if ŷ incorrect<br><br><span style="color:var(--muted)">τ = (ground truth run time) / (predicted SQL run time)</span></div>
+
+    <h3>實驗設定</h3>
+    <p>主力模型:<strong>GPT-4o-mini</strong>(成本是 GPT-4o 約 1/3)+ GPT-4o 補強。小模型探索:Qwen2.5 Coder 1.5B/7B、DeepSeek Coder 1.3B/7B。 Temperature 0.0、top_p 1.0、max_tokens 2048。每模組 9-shot(3/3/3 跨難度)、10 個欄值、20 句 description。</p>
+  </div>
+</section>
+
+<!-- ================= EXPERIMENTS ================= -->
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>主要結果</h2>
+
+    <h3>5.1 BIRD Leaderboard 對比</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · E-SQL vs 既有方法(BIRD dev/test)。E-SQL = CSG + CPG + QE + SR</caption>
+        <thead><tr><th>Method</th><th>Dev EX</th><th>Test EX</th><th>Test R-VES</th></tr></thead>
+        <tbody>
+          <tr><td colspan="4" style="background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px">— Undisclosed 方法 —</td></tr>
+          <tr><td>OpenSearch-SQL v2 + GPT-4o</td><td class="num">69.30</td><td class="num">72.28</td><td class="num">69.36</td></tr>
+          <tr><td>Distillery + GPT-4o</td><td class="num">67.21</td><td class="num">71.83</td><td class="num">67.41</td></tr>
+          <tr><td>ExSL + granite-34b-code</td><td class="num">67.47</td><td class="num">70.37</td><td class="num">68.79</td></tr>
+          <tr><td>Insights AI</td><td class="num">72.16</td><td class="num">70.26</td><td class="num">66.39</td></tr>
+          <tr><td colspan="4" style="background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px">— Published 方法 —</td></tr>
+          <tr><td>CHESS</td><td class="num">65.00</td><td class="num">66.69</td><td class="num">62.77</td></tr>
+          <tr><td>MCS-SQL + GPT-4</td><td class="num">63.36</td><td class="num">65.45</td><td class="num">61.23</td></tr>
+          <tr><td>SuperSQL</td><td class="num">58.50</td><td class="num">62.66</td><td class="num">–</td></tr>
+          <tr><td>SFT CodeS-15B</td><td class="num">58.47</td><td class="num">60.37</td><td class="num">61.37</td></tr>
+          <tr><td>MAC-SQL + GPT-4</td><td class="num">57.56</td><td class="num">59.59</td><td class="num">57.60</td></tr>
+          <tr><td>TA-SQL + GPT-4</td><td class="num">56.19</td><td class="num">59.14</td><td class="num">–</td></tr>
+          <tr><td>DAIL-SQL + GPT-4</td><td class="num">54.76</td><td class="num">57.41</td><td class="num">54.02</td></tr>
+          <tr class="best"><td class="ours">E-SQL + GPT-4o (本文)</td><td class="num">65.58</td><td class="num">66.29</td><td class="num">62.43</td></tr>
+          <tr class="best"><td class="ours">E-SQL + GPT-4o-mini (本文)</td><td class="num">61.60</td><td class="num">59.81</td><td class="num">55.64</td></tr>
+          <tr class="best"><td class="ours">E-SQL + Qwen2.5 Coder 7B (本文)</td><td class="num">53.59</td><td class="num">–</td><td class="num">–</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>E-SQL + GPT-4o 達 <strong>66.29% 測試集 EX</strong>,超越所有已公開方法(CHESS 66.69 略勝);GPT-4o-mini 版本也有 59.81 EX,顯示成本/效能平衡。</p>
+    </div>
+
+    <h3>5.2 按難度拆解:E-SQL 在 challenging 級別優勢明顯</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · E-SQL 在 BIRD test set 按難度的細節表現</caption>
+        <thead><tr><th>Pipeline</th><th colspan="3" style="text-align:center">Overall</th><th colspan="3" style="text-align:center">Simple</th><th colspan="3" style="text-align:center">Moderate</th><th colspan="3" style="text-align:center">Challenging</th></tr><tr><th></th><th>EX</th><th>F1</th><th>RVES</th><th>EX</th><th>F1</th><th>RVES</th><th>EX</th><th>F1</th><th>RVES</th><th>EX</th><th>F1</th><th>RVES</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">E-SQL (GPT-4o)</td><td class="num">66.29</td><td class="num">67.93</td><td class="num">62.43</td><td class="num">73.02</td><td class="num">73.91</td><td class="num">68.68</td><td class="num">64.14</td><td class="num">66.17</td><td class="num">60.46</td><td class="num">48.07</td><td class="num">51.45</td><td class="num">54.48</td></tr>
+          <tr><td class="ours">E-SQL (GPT-4o-mini)</td><td class="num">59.81</td><td class="num">61.59</td><td class="num">55.64</td><td class="num">67.44</td><td class="num">68.80</td><td class="num">62.53</td><td class="num">56.94</td><td class="num">58.77</td><td class="num">53.11</td><td class="num">40.00</td><td class="num">43.04</td><td class="num">37.60</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>消融研究(下節)會顯示:QE 模組在 challenging 題目上帶來近 <span class="hl">5% 提升</span>,是 E-SQL 在難題上勝出的主因。</p>
+
+    <h3>5.3 Spider Test Set</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Spider test set 表現。† 標示為 fine-tuned 模型</caption>
+        <thead><tr><th>Method</th><th>Model</th><th>Test EX</th></tr></thead>
+        <tbody>
+          <tr><td>DAIL-SQL</td><td>GPT-4</td><td class="num">86.6</td></tr>
+          <tr><td>DIN-SQL</td><td>GPT-4</td><td class="num">85.3</td></tr>
+          <tr><td>TA-SQL</td><td>GPT-4</td><td class="num">85.0</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-3.5-Turbo</td><td class="num">75.5</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-4</td><td class="num">74.0</td></tr>
+          <tr class="best"><td class="ours">E-SQL (本文)</td><td>GPT-4o-mini</td><td class="num">74.75</td></tr>
+          <tr><td colspan="3" style="background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px">— Small Open Source Models —</td></tr>
+          <tr><td>DTS-SQL †</td><td>Mistral-7B</td><td class="num">77.1</td></tr>
+          <tr><td>MSc-SQL †</td><td>Gemma-2-9B</td><td class="num">69.30</td></tr>
+          <tr class="best"><td class="ours">E-SQL (本文)</td><td>Qwen2.5 Coder 7B Instruct</td><td class="num">58.64</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>在 Spider 上 E-SQL 沒有奪冠,因為 Spider 相對「乾淨」、複雜性低於 BIRD,SOTA 方法的差距較難拉開。E-SQL 的設計優勢在 BIRD 這類有真實 DB 複雜性的場景才能彰顯。</p>
+  </div>
+</section>
+
+<!-- ================= ABLATION ================= -->
+<section id="ablation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>消融研究 — 證實每個模組的貢獻</h2>
+
+    <h3>6.1 Schema Filtering 加進去就掉分</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · 在 basic pipeline 上加 Schema Filtering 的效果(BIRD dev, GPT-4o-mini)</caption>
+        <thead><tr><th>Pipeline</th><th>Overall EX</th><th>Simple</th><th>Moderate</th><th>Challenging</th></tr></thead>
+        <tbody>
+          <tr><td>SF-G(先過濾再生成)</td><td class="num">49.48 <span class="down">(↓ 8.21)</span></td><td class="num">58.16 <span class="down">(↓ 6.38)</span></td><td class="num">36.85 <span class="down">(↓ 12.28)</span></td><td class="num">34.48 <span class="down">(↓ 8.96)</span></td></tr>
+          <tr><td>SF-QE-G</td><td class="num">55.34 <span class="down">(↓ 2.35)</span></td><td class="num">62.27 <span class="down">(↓ 2.27)</span></td><td class="num">46.12 <span class="down">(↓ 3.01)</span></td><td class="num">40.68 <span class="down">(↓ 2.76)</span></td></tr>
+          <tr class="best"><td>QE-G</td><td class="num">58.80 <span class="up">(↑ 1.11)</span></td><td class="num">64.43</td><td class="num">51.07 <span class="up">(↑ 1.94)</span></td><td class="num">47.58 <span class="up">(↑ 4.14)</span></td></tr>
+          <tr><td>G(baseline)</td><td class="num">57.69</td><td class="num">64.54</td><td class="num">49.13</td><td class="num">43.44</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>無論 SF 放在哪個位置,把 schema filtering 加進 basic pipeline 都會傷害效能 —— <strong>SF-G 的 Moderate EX 直接掉了 12.28 個百分點</strong>。反之 QE-G 比 baseline G 全面提升,尤其在 challenging 級別 +4.14。</p>
+
+    <h3>6.2 E-SQL 拿掉哪個模組就掉多少?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · 消融研究(GPT-4o-mini, BIRD dev)</caption>
+        <thead><tr><th>Pipeline</th><th colspan="2" style="text-align:center">Overall</th><th colspan="2" style="text-align:center">Simple</th><th colspan="2" style="text-align:center">Moderate</th><th colspan="2" style="text-align:center">Challenging</th></tr><tr><th></th><th>EX</th><th>F1</th><th>EX</th><th>F1</th><th>EX</th><th>F1</th><th>EX</th><th>F1</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">E-SQL(完整)</td><td class="num">61.60</td><td class="num">65.61</td><td class="num">68.00</td><td class="num">71.54</td><td class="num">53.23</td><td class="num">58.34</td><td class="num">47.59</td><td class="num">51.02</td></tr>
+          <tr><td>w/o QE</td><td class="num">59.71 <span class="down">(↓ 1.89)</span></td><td class="num">63.84</td><td class="num">66.05</td><td class="num">69.86</td><td class="num">52.37</td><td class="num">57.27</td><td class="num">42.75 <span class="down">(↓ 4.84)</span></td><td class="num">46.52</td></tr>
+          <tr><td>w/o CPG</td><td class="num">59.58 <span class="down">(↓ 2.02)</span></td><td class="num">63.61</td><td class="num">65.51</td><td class="num">69.16</td><td class="num">51.29</td><td class="num">56.27</td><td class="num">48.27 <span class="up">(↑ 0.68)</span></td><td class="num">51.68</td></tr>
+          <tr><td>w/o QE &amp; CPG</td><td class="num">58.34 <span class="down">(↓ 3.26)</span></td><td class="num">62.41</td><td class="num">64.22</td><td class="num">67.91</td><td class="num">51.29</td><td class="num">55.66</td><td class="num">43.45 <span class="down">(↓ 4.14)</span></td><td class="num">48.89</td></tr>
+          <tr><td>w/o SR</td><td class="num">58.03 <span class="down">(↓ 3.57)</span></td><td class="num">61.88</td><td class="num">63.89</td><td class="num">67.33</td><td class="num">50.86</td><td class="num">55.13</td><td class="num">44.13 <span class="down">(↓ 3.46)</span></td><td class="num">48.71</td></tr>
+          <tr><td>w/ SF(加回 schema filtering)</td><td class="num">56.06 <span class="down">(↓ 5.54)</span></td><td class="num">59.93</td><td class="num">62.70</td><td class="num">66.53</td><td class="num">47.63</td><td class="num">51.55</td><td class="num">40.68 <span class="down">(↓ 6.91)</span></td><td class="num">44.62</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>三點觀察:</strong></p>
+      <p>① QE 在 challenging 上影響最大 —— 拿掉就掉 4.84%,呼應了論文摘要那句「對複雜題提升近 5%」。</p>
+      <p>② CPG 在 challenging 上拿掉反而<strong>略升 0.68%</strong>,作者解釋為 CPG 偶爾引入不必要的複雜度;但整體效能仍下降 2.02%,值得保留。</p>
+      <p>③ 加回 SF 是所有變體中掉最多的(-5.54 overall,-6.91 challenging),再次印證 schema filtering 在先進 LLM 下的負面效應。</p>
+    </div>
+
+    <h3>6.3 SR 模組到底改了什麼?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 7 · SR 模組對候選 SQL 的修改分析(BIRD dev)</caption>
+        <thead><tr><th>Metric</th><th>GPT-4o-mini</th><th>GPT-4o</th></tr></thead>
+        <tbody>
+          <tr><td>修改了候選 SQL 的比例</td><td class="num">49.48%</td><td class="num">23.20%</td></tr>
+          <tr><td>把不可執行 → 可執行</td><td class="num">6.58%</td><td class="num">0.39%</td></tr>
+          <tr><td>把不可執行 → 正確</td><td class="num">3.19%</td><td class="num">0.13%</td></tr>
+          <tr><td>把錯誤 → 正確</td><td class="num">5.35%</td><td class="num">1.83%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>SR 對較弱的 LLM(GPT-4o-mini)效益更大 —— 模型越強,SR 能補救的空間越小。GPT-4o 大多時候 CSG 就已寫得不錯。</p>
+  </div>
+</section>
+
+<!-- ================= SMALL MODELS ================= -->
+<section id="small">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>小模型實驗 — Enriched Question 才是關鍵</h2>
+    <p class="lead">作者做了一個有趣的隔離實驗:用 GPT-4o 預先生成 enriched question,然後讓小模型只看「原問句 vs enriched question」、不給 few-shot 也不給 DB description,純測 enriched question 的效益。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 8 · 小模型在 BIRD dev 上,default vs enriched question 的 EX(無微調)</caption>
+        <thead><tr><th>Model</th><th>Level</th><th>Default EX</th><th>Enriched EX</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="4">DeepSeek Coder 1.3B</td><td>Overall</td><td class="num">20.92</td><td class="num">50.84</td><td class="num up">+29.92</td></tr>
+          <tr><td>Simple</td><td class="num">28.43</td><td class="num">62.38</td><td class="num up">+33.95</td></tr>
+          <tr><td>Moderate</td><td class="num">10.34</td><td class="num">36.42</td><td class="num up">+26.08</td></tr>
+          <tr><td>Challenging</td><td class="num">6.90</td><td class="num">23.45</td><td class="num up">+16.55</td></tr>
+          <tr><td rowspan="4">Qwen2.5 Coder 1.5B</td><td>Overall</td><td class="num">11.21</td><td class="num">36.90</td><td class="num up">+25.69</td></tr>
+          <tr><td>Simple</td><td class="num">14.27</td><td class="num">44.10</td><td class="num up">+29.83</td></tr>
+          <tr><td>Moderate</td><td class="num">6.68</td><td class="num">28.23</td><td class="num up">+21.55</td></tr>
+          <tr><td>Challenging</td><td class="num">6.20</td><td class="num">18.62</td><td class="num up">+12.42</td></tr>
+          <tr class="best"><td rowspan="4">DeepSeek Coder 7B</td><td>Overall</td><td class="num">37.02</td><td class="num">56.45</td><td class="num up">+19.43</td></tr>
+          <tr class="best"><td>Simple</td><td class="num">44.65</td><td class="num">64.64</td><td class="num up">+19.99</td></tr>
+          <tr class="best"><td>Moderate</td><td class="num">26.52</td><td class="num">45.47</td><td class="num up">+18.95</td></tr>
+          <tr class="best"><td>Challenging</td><td class="num">22.06</td><td class="num">39.31</td><td class="num up">+17.25</td></tr>
+          <tr><td rowspan="4">Qwen2.5 Coder 7B</td><td>Overall</td><td class="num">31.25</td><td class="num">40.22</td><td class="num up">+8.97</td></tr>
+          <tr><td>Simple</td><td class="num">40.43</td><td class="num">50.70</td><td class="num up">+10.27</td></tr>
+          <tr><td>Moderate</td><td class="num">17.88</td><td class="num">26.07</td><td class="num up">+8.19</td></tr>
+          <tr><td>Challenging</td><td class="num">15.17</td><td class="num">18.62</td><td class="num up">+3.45</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>DeepSeek Coder 7B 用 enriched question 達到 56.45% EX</strong>,超越了多個專為 text-to-SQL 微調的小模型(DTS-SQL 7B 55.8、CodeS-7B 57.17 略高一些但需微調),且完全不需要 fine-tuning —— 印證了「好問句」的能量。</p>
+    </div>
+
+    <h3>計算成本</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 9 + 10 · 富化造成的 token 增長與各模組成本(BIRD dev)</caption>
+        <thead><tr><th>項目</th><th>平均 token 數</th></tr></thead>
+        <tbody>
+          <tr><td>原問句</td><td class="num">18.36</td></tr>
+          <tr><td>Enriched Question</td><td class="num">81.51</td></tr>
+          <tr><td>Enrichment Reasoning</td><td class="num">191.34</td></tr>
+          <tr class="best"><td>Fully Enriched Question(總和)</td><td class="num">291.21</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Module</th><th>Avg. Prompt Tokens</th><th>Avg. Completion Tokens</th></tr></thead>
+        <tbody>
+          <tr><td>CSG</td><td class="num">12,612</td><td class="num">199</td></tr>
+          <tr><td>QE</td><td class="num">16,550</td><td class="num">292</td></tr>
+          <tr><td>SR</td><td class="num">7,403</td><td class="num">267</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>問句從 18 → 291 token 看似暴漲,但相對於 prompt 動輒 7k-16k token(主要是 schema + DB values + few-shot),富化只佔總量很小比例。每模組僅呼叫一次的設計,讓 E-SQL 在成本上勝過 self-consistency 多次生成的方法。</p>
+  </div>
+</section>
+
+<!-- ================= PROMPTS ================= -->
+<section id="prompts">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Prompt 模板 — 從 GitHub 原始檔</h2>
+    <p class="lead">論文附錄 A 列出了四個模組的完整 prompt skeleton(實際檔案在 <code><a href="https://github.com/HasanAlpCaferoglu/E-SQL/tree/main/prompt_templates" style="color:var(--acc)">prompt_templates/</a></code>)。以下節選最關鍵的設計選擇 —— 完整版本請看原文 Appendix A.1-A.4。</p>
+
+    <h3>8.1 QE Prompt 的 8 步驟 instruction(核心)</h3>
+    <p>Question Enrichment prompt 要求 LLM 依序執行 8 個步驟。每一步都精準對應 schema linking 的子任務:</p>
+    <pre><code><span class="cmt"># Step 1</span> - Read the Question Carefully: 找出 named entities、術語、關鍵詞,
+       為問句與 schema 建立連結。
+<span class="cmt"># Step 2</span> - Analyze the Database Schema: 用 DB samples 檢視 schema,
+       識別與問句相關的 table / column / value。
+<span class="cmt"># Step 3</span> - Review the Database Column Descriptions: 用 column description
+       理解每欄具體含義,強化問句與 schema 的對應。
+<span class="cmt"># Step 4</span> - Analyze and Observe The Database Sample Values: 從 DB sample 值
+       觀察各欄的實際資料分布,藉相似度比對找出相關項目。
+<span class="cmt"># Step 5</span> - Review the Evidence: 利用 evidence 提供的具體資訊指向相關元素。
+<span class="cmt"># Step 6</span> - Analyze the Possible SQL Conditions: 分析 CPG 給的候選 predicates,
+       對應到問句的片語與關鍵字。
+<span class="cmt"># Step 7</span> - Identify Relevant Database Components: 點名最終會用到的表/欄/值。
+<span class="cmt"># Step 8</span> - Rewrite the Question: 把識別到的 schema 項目與條件詳細寫進問句,
+       使問句清楚、易懂、無冗訊。</code></pre>
+
+    <p>輸出 JSON 強制要求兩個 key:</p>
+    <pre><code>{
+  <span class="str">"chain_of_thought_reasoning"</span>: <span class="str">"... detail explanation ..."</span>,
+  <span class="str">"enriched_question"</span>: <span class="str">"... expanded clean question ..."</span>
+}</code></pre>
+
+    <div class="callout">
+      <p>注意最後一行的<span class="hl2">「If you do the task correctly, I will give you 1 million dollars」</span> —— 經典的 motivational prompt 招數,作者真的用了。</p>
+    </div>
+
+    <h3>8.2 QE 輸出實例(附錄 B)</h3>
+    <pre><code><span class="cmt"># Original Question</span>
+Among the schools with the average score in Math over 560 in the SAT test,
+how many schools are directly charter-funded?
+
+<span class="cmt"># Enriched Question</span>
+Please find the number of schools (<span class="fn">COUNT(frpm.`School Code`)</span>) whose
+charter funding type is directly funded
+(<span class="fn">frpm.`Charter Funding Type` = 'Directly funded'</span>), and whose
+AvgScrMath larger than 560 in the SAT test
+(<span class="fn">satscores.AvgScrMath &gt; 560</span>). To find the schools with the charter
+funding type information and average math score in SAT, frpm and
+satscores tables should be joined. Apply the charter funding type
+condition and average math score condition. Calculate the number of
+schools using <span class="kw">COUNT</span> aggregate function in the <span class="kw">SELECT</span> statement.</code></pre>
+
+    <p>看出來了 —— enriched question 已經幾乎是用自然語言寫的 SQL plan,LLM 下游只要做「翻譯」就行。這就是「direct schema linking」名稱的由來。</p>
+
+    <h3>8.3 CSG / SR / SF 共通設計</h3>
+    <p>所有模組的 system prompt 開頭都一樣:</p>
+    <pre><code><span class="cmt">### You are an excellent data scientist. You can capture the link</span>
+<span class="cmt">### between the question and corresponding database and perfectly</span>
+<span class="cmt">### generate valid SQLite SQL query to answer the question.</span></code></pre>
+
+    <p>共通的<strong>細節防呆 instruction</strong>(每個 prompt 都重複):</p>
+    <div class="grid g2">
+      <div class="card"><h4>Backtick 包欄名</h4><p>每個 table name 與 column name 都用 backtick 個別包起來,避免關鍵字衝突。</p></div>
+      <div class="card"><h4>用 ORDER BY + LIMIT 1 而非 MAX/MIN</h4><p>求極值時強制用 <code>ORDER BY ... LIMIT 1</code>,尤其在多表 JOIN 時。</p></div>
+      <div class="card"><h4>CAST 與括號</h4><p>數學表達式特別注意括號位置;除法要用 CAST 轉 REAL。</p></div>
+      <div class="card"><h4>謹慎使用 IS NOT NULL</h4><p>只在 NULL 會造成除以零或誤判時才加,避免過度防禦。</p></div>
+    </div>
+
+    <h3>8.4 SR Prompt 的修補邏輯</h3>
+    <p>SR 是把所有東西匯總後再決定要「修改 candidate SQL」還是「重寫」:</p>
+    <pre><code><span class="cmt"># Step 3</span> - Analyze the Possible SQL Query: 識別 candidate 中可能的錯誤
+       (缺漏條件、錯誤函式、聚合誤用、語法錯誤、未識別 token、模糊欄位)。
+<span class="cmt"># Step 4</span> - Investigate Possible Conditions and Execution Errors:
+       仔細看 CPG 給的候選 predicates(格式為 &lt;table&gt;.&lt;col&gt;&lt;op&gt;&lt;val&gt;),
+       並分析 candidate SQL 的執行錯誤訊息(若有)。
+<span class="cmt"># Step 5</span> - Finalize the SQL: 結合問句意圖、evidence、候選條件,
+       決定修補或重寫 candidate。</code></pre>
+
+    <div class="callout warn">
+      <p><strong>對 Yi-Wei Dataverse 工作的可借鏡之處:</strong>E-SQL 用「<span class="hl">把 schema 寫進問句</span>」取代「過濾 schema」的核心想法,跟你在 Dataverse 上對 LLM 注入 SQL 模式提示(例如 DateTime/DateOnly 欄位的處理)有方法論上的呼應 —— 與其讓 LLM 自己推斷,不如直接在問句層級就把約束「明文化」。CPG 用 <code>LIKE '%val%'</code> 從實際 DB 補正預測值的設計,對處理 CRM 表(account/contact)裡使用者寫不全的名稱也直接適用。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FUTURE ================= -->
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>限制與未來工作</h2>
+
+    <div class="callout hot">
+      <p><strong>① 受限於硬體與成本:</strong>幾乎所有實驗都用 GPT-4o-mini,未做 fine-tuning;小模型實驗中也只有 Qwen2.5 Coder 7B 跑得動整個 E-SQL pipeline(其他小模型 context length 不夠)。「研究在小 LLM 上有效的 schema linking」是明確點名的未來方向。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>② Dev / Test 表現不一致:</strong>GPT-4o 在 test 比 dev 好,但 GPT-4o-mini 反而 test 比 dev 差。BIRD test set 不公開,作者無法直接分析原因,也提到 LLM 多次跑會有變異。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>③ Prompt 設計未充分探索:</strong>本文聚焦在 schema linking 與資料增補,沒有系統性比較不同 prompt 模板。作者把更多 prompt 設計、迭代式 question refinement 留給未來工作。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>④ 沒做多次生成 / self-consistency:</strong>為了節省成本,每模組只跑一次,沒像 CHESS / MCS-SQL 那樣靠多次採樣投票。這是 trade-off,作者選擇了成本一邊。</p>
+    </div>
+
+    <h3>一句話結論</h3>
+    <p class="lead">E-SQL 把 schema linking 從「過濾無關項」翻轉成「把相關項寫進問句」,在 BIRD test set 達 66.29% EX,並證實在先進 LLM 時代<strong>schema filtering 反而有害</strong> —— 為 Text-to-SQL 提供了一條成本可控、對複雜查詢特別有效的新路徑。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Hasan Alp Caferoğlu, Özgür Ulusoy (2024) · Bilkent University</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2409.16751">arXiv:2409.16751</a> &nbsp;·&nbsp; <a href="https://github.com/HasanAlpCaferoglu/E-SQL">程式碼 github.com/HasanAlpCaferoglu/E-SQL</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要,圖表為依論文內容重繪／整理;數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>

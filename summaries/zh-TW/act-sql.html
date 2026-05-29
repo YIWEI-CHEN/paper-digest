@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-SQL 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  /* HERO */
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  /* NAV */
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+
+  /* CARDS */
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+  /* CALLOUT */
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  /* FORMULA */
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+  /* CODE */
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  /* TABLE */
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  /* DIAGRAM */
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  /* PIPELINE STEPS */
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">EMNLP 2023 Findings · 論文導讀</div>
+    <h1 class="title">ACT-<span class="sql">SQL</span></h1>
+    <p class="subtitle">用「自動產生的思維鏈」做 Text-to-SQL 的脈絡學習 —— 不需人工標註、一次 API 呼叫即可生成 SQL，在 Spider dev set 上取得脈絡學習方法的 SOTA。</p>
+    <div class="meta-row">
+      <span class="tag lit">In-Context Learning</span>
+      <span class="tag lit">Chain-of-Thought</span>
+      <span class="tag lit">Schema Linking</span>
+      <span class="tag">Text-to-SQL</span>
+      <span class="tag">GPT-3.5-turbo / GPT-4</span>
+      <span class="tag">Spider · SParC · CoSQL</span>
+    </div>
+    <p class="authors">Hanchong Zhang, Ruisheng Cao, Lu Chen*, Hongshen Xu, Kai Yu · 上海交通大學 X-LANCE Lab · <a href="https://arxiv.org/abs/2310.17342">arXiv:2310.17342</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#method">02 方法論</a>
+    <a href="#actcot">03 ACT-SQL 自動 CoT</a>
+    <a href="#multiturn">04 多輪延伸</a>
+    <a href="#data">05 資料集</a>
+    <a href="#exp">06 實驗結果</a>
+    <a href="#prompts">07 Prompt 原始碼</a>
+    <a href="#future">08 限制與未來</a>
+  </div>
+</nav>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — Problem Statement</h2>
+    <p class="lead">Text-to-SQL 的目標是：在給定資料庫 schema 的前提下，把自然語言問句翻譯成對應的 SQL 查詢，讓一般使用者能以更直覺的方式存取關聯式資料庫。</p>
+
+    <p>過去研究主軸放在<strong>跨領域（cross-domain）</strong>的語意剖析器：在 Spider、SParC、CoSQL 這類資料集中，train / dev / test 所使用的資料庫互不重疊。傳統做法是訓練專用的 text-to-SQL 模型（如 RAT-SQL、LGESQL、PICARD），雖然成績亮眼，但有三個結構性痛點：</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>資料昂貴</h4><p>需要大量高品質的人工標註訓練樣本，建置成本高。</p></div>
+      <div class="card"><h4>訓練耗時</h4><p>微調（finetuning）消耗大量運算資源與時間。</p></div>
+      <div class="card"><h4>難以部署</h4><p>模型結構複雜（如 AST-based），上線維運不易。</p></div>
+    </div>
+
+    <p>LLM 的出現帶來脈絡學習（in-context learning）這條新路：免微調、靠 zero-shot / few-shot prompt 即可運作。但作者指出當時的 LLM 方法仍有明顯缺口：</p>
+
+    <div class="callout">
+      <p>① <span class="hl2">簡單 prompt 成績差</span>：如 Rajkumar et al. (2022) 的 prompt 設計過於樸素，落後微調模型。</p>
+      <p>② <span class="hl2">複雜流程又慢又貴</span>：如 DIN-SQL 用多步驟工作流，生成一條 SQL 需呼叫 LLM API <strong>多次（約 4 次）</strong>。</p>
+      <p>③ <span class="hl2">缺乏自動 CoT</span>：CoT 雖能提升推理，但須人工挑選範例與標註，text-to-SQL 領域沒有自動產生 CoT 的方法。</p>
+      <p>④ <span class="hl2">未延伸到多輪</span>：脈絡學習方法尚未擴展到 SParC、CoSQL 等多輪對話資料集。</p>
+    </div>
+
+    <h3>本文三大貢獻</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>探索 prompt 設計空間</h4><p>系統性研究 DB schema 呈現格式、few-shot 範例選擇策略對 LLM 表現的影響。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>提出 ACT-SQL 自動 CoT</h4><p>自動生成思維鏈，<span class="hl">每條 SQL 只需一次 API 呼叫</span>，省時省錢，並在 Spider dev set 取得脈絡學習 SOTA。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>延伸到多輪 Text-to-SQL</h4><p>在 SParC、CoSQL 上達到與微調模型相當的成績。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>方法論 — Methodology</h2>
+    <p class="lead">作者把 SQL 生成過程形式化為一次 LLM 呼叫，表現好壞取決於三個變數：資料庫呈現格式、範例選擇策略，以及範例 prompt 的設計。</p>
+
+    <div class="formula">S = LLM( I , D , Q , E )<br><span style="color:var(--muted)">I = 指令 &nbsp;·&nbsp; D = 資料庫 schema &nbsp;·&nbsp; Q = 問句 &nbsp;·&nbsp; E = [(D₁,Q₁,P₁), …, (Dₙ,Qₙ,Pₙ)] 範例清單，Pᵢ 為含正解 SQL 的答案 prompt</span></div>
+
+    <h3>2.1 資料庫呈現格式（DB Prompt Style）</h3>
+    <p>在 zero-shot 下，schema 的呈現格式幾乎主宰 LLM 表現。作者比較五種格式：</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>五種 DB schema 呈現格式</caption>
+        <thead><tr><th>格式</th><th>說明</th></tr></thead>
+        <tbody>
+          <tr><td><code>Table(Column)</code></td><td>每行列出一個 table 及其欄位，遵循 OpenAI 官方文件範例。</td></tr>
+          <tr><td><code>Table(Column)(PF)</code></td><td>在上者末端加上主鍵（PK）與外鍵（FK）資訊。</td></tr>
+          <tr><td><code>Create(NoPF)</code></td><td>用 SQL 的 <code>create table</code> 語法描述，含欄位型別，但無 PK/FK。</td></tr>
+          <tr><td><code>Create(EoC)</code></td><td>在 Create 基礎上，把 PK/FK 加在「對應欄位」末端（End of Column）。</td></tr>
+          <tr><td><code>Create(EoT)</code></td><td>在 Create 基礎上，把 PK/FK 加在「整張表」末端（End of Table）。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>此外還會在每張表後附上 <span class="hl">c 筆範例資料列（DB contents）</span>，幫助模型判斷實際儲存值（例如分辨 "France" vs "French"）。</p>
+
+    <pre><code><span class="kw">create table</span> singer (
+  Singer_ID number,
+  Name text,
+  Country text,
+  ...
+  <span class="kw">primary key</span> (Singer_ID)
+)
+<span class="cmt">/* 3 example rows from table singer:
+   Singer_ID  Name        Country      ...
+   1          Joe Sharp   Netherlands  ...
+   2          Timbaland   United States ...
+   3          Justin Brown France       ... */</span></code></pre>
+
+    <h3>2.2 範例選擇（Exemplar Selection）— 混合策略</h3>
+    <p>作者採用<strong>靜態 + 動態</strong>的混合策略，每個測試案例共有 <code>ns + nd</code> 個範例：</p>
+    <div class="grid g2">
+      <div class="card"><h4>靜態範例 ns</h4><p>從訓練集隨機抽 <code>ns</code> 個，固定用於<strong>每一個</strong>測試案例的脈絡中。</p></div>
+      <div class="card"><h4>動態範例 nd</h4><p>針對當前測試問句，用預訓練模型計算<strong>問句相似度</strong>，挑出 train set 中最相關的 top-<code>nd</code> 個。</p></div>
+    </div>
+    <p>核心直覺：問句越相近的動態範例，越能提供有效資訊給 LLM。</p>
+  </div>
+</section>
+
+<!-- ================= ACT-CoT ================= -->
+<section id="actcot">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>核心：ACT-SQL 自動 CoT</h2>
+    <p class="lead">作者把 CoT prompt 設計成「類似 schema linking」的形式 —— 但關鍵在於它能<strong>自動生成</strong>，完全不需人工標註。</p>
+
+    <p>傳統 schema linking 會把問句 token 與 schema 項目（table / column）做字串對應並連結。ACT-SQL 沿用此精神：對訓練樣本（schema + 問句 + 正解 SQL），自動推導出「哪段問句切片對應到哪個欄位/表」的推理鏈。</p>
+
+    <h3>自動生成演算法</h3>
+    <p>給定問句 <code>q = (q₁,…,q|q|)</code> 與 SQL <code>s</code>，定義切片 <code>qᵢ,ⱼ = (qᵢ,…,qⱼ)</code>。流程分三步：</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>列舉 SQL 中的欄位</h4><p>對每個 <code>[tab].[col]</code>，用預訓練模型計算它與所有問句切片的相似度，取最相關切片連結。<span class="hl2">忽略 GROUP BY 子句中的欄位</span>（通常不會在問句中直接提到）。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>列舉 SQL 中的表</h4><p>排除已在步驟①出現過的表，剩下只出現在 FROM 的表，同樣找最相關問句切片連結。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>列舉數值</h4><p>把 SQL 中出現的數值（values）加入 CoT，最後把完整 SQL 接在 CoT 末端。</p></div></div>
+    </div>
+
+    <div class="formula">最相關切片 &nbsp;=&nbsp; argmax<sub>qᵢ,ⱼ</sub>  Sim( [tab].[col] , qᵢ,ⱼ )</div>
+
+    <!-- DIAGRAM: pipeline -->
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <!-- inputs -->
+        <rect x="20" y="30" width="180" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="110" y="55" fill="#93a1b3" font-size="13" text-anchor="middle">問句 Question q</text>
+        <rect x="20" y="90" width="180" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="110" y="115" fill="#93a1b3" font-size="13" text-anchor="middle">正解 SQL s</text>
+        <rect x="20" y="150" width="180" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="110" y="175" fill="#93a1b3" font-size="13" text-anchor="middle">Schema D</text>
+
+        <!-- engine -->
+        <rect x="280" y="70" width="200" height="110" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="380" y="105" fill="#5ad1c0" font-size="14" text-anchor="middle" font-weight="700">相似度比對</text>
+        <text x="380" y="128" fill="#e8edf4" font-size="11" text-anchor="middle">Sim(schema item,</text>
+        <text x="380" y="144" fill="#e8edf4" font-size="11" text-anchor="middle">question slice)</text>
+        <text x="380" y="166" fill="#93a1b3" font-size="10" text-anchor="middle">text2vec 預訓練模型</text>
+
+        <line x1="200" y1="50"  x2="278" y2="100" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="200" y1="110" x2="278" y2="120" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="200" y1="170" x2="278" y2="145" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <!-- output -->
+        <rect x="555" y="55" width="185" height="140" rx="12" fill="#1b2430" stroke="#f4a259" stroke-width="1.5"/>
+        <text x="647" y="82" fill="#f4a259" font-size="13" text-anchor="middle" font-weight="700">Auto-CoT</text>
+        <text x="570" y="105" fill="#c8d3e0" font-size="9.5">Let's think step</text>
+        <text x="570" y="120" fill="#c8d3e0" font-size="9.5">by step.</text>
+        <text x="570" y="138" fill="#c8d3e0" font-size="9.5">According to "...",</text>
+        <text x="570" y="152" fill="#c8d3e0" font-size="9.5">columns [...] may</text>
+        <text x="570" y="166" fill="#c8d3e0" font-size="9.5">be used.</text>
+        <text x="570" y="184" fill="#5ad1c0" font-size="9.5">SELECT ... (final)</text>
+        <line x1="480" y1="125" x2="553" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <text x="380" y="225" fill="#93a1b3" font-size="11" text-anchor="middle">① 欄位 → ② 表 → ③ 數值，依序連結到最相關問句切片並寫入 CoT</text>
+      </svg>
+      <div class="figcap">圖 1 ‧ ACT-SQL 自動 CoT 生成流程（依論文 Figure 1–2 重繪）</div>
+    </div>
+
+    <h3>自動生成的 CoT 範例（論文 Table 13）</h3>
+    <p>問句：「找出有高畫質電視的 TV channel 的方案選擇與系列名稱」。Few-shot 版本誤把 <code>Hight_definition_TV</code> 多放進 SELECT；套用 ACT-SQL 後，模型先完整做 schema linking，最終寫出無冗餘欄位的正確 SQL：</p>
+    <pre><code><span class="fn">Let's think step by step.</span>
+According to <span class="str">"TV channel that has high definition TV"</span>,
+  columns [TV_Channel.Hight_definition_TV] may be used.
+According to <span class="str">"package choice and series name"</span>,
+  columns [TV_Channel.Package_Option] and
+  [TV_Channel.series_name] may be used.
+So the final answer is:
+<span class="kw">SELECT</span> package_option , series_name
+<span class="kw">FROM</span> TV_Channel <span class="kw">WHERE</span> Hight_definition_TV = <span class="str">'yes'</span></code></pre>
+
+    <div class="callout">
+      <p><strong>關鍵優勢：</strong>整段思維鏈是 LLM 在<span class="hl">「同一次」</span>輸出裡自己生成的 —— ACT-SQL 不需要額外的 LLM API 呼叫去產生 CoT，因此比 DIN-SQL 等多步驟方法<strong>更快、更便宜</strong>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MULTI-TURN ================= -->
+<section id="multiturn">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>延伸至多輪 Text-to-SQL</h2>
+    <p class="lead">多輪問句彼此有上下文依賴，單輪 prompt 與 auto-CoT 無法直接套用（schema linking 資訊可能散落在多個句子中）。</p>
+
+    <p>作者採<strong>兩階段法</strong>：先用 LLM 把多輪問句<span class="hl2">改寫（rewrite）</span>成去除上下文依賴的獨立問句，將多輪資料集轉成單輪資料集，再套用前述脈絡學習方法。每個多輪資料集會<strong>人工標註 10 個改寫範例</strong>以固定格式、提升品質。</p>
+
+    <div class="callout warn">
+      <p><strong>已知弱點：</strong>改寫品質直接影響成績。若改寫遺漏關鍵資訊（如第一句的 "airline" 在後續句子消失），錯誤會沿著 schema linking 傳播 —— 這也是 ACT-SQL 在多輪資料集表現不如單輪的主因。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DATASETS ================= -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>資料集 — Datasets</h2>
+
+    <h3>單輪 + 穩健性變體</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>單輪 text-to-SQL 資料集</caption>
+        <thead><tr><th>資料集</th><th>規模 / 特性</th><th>用途</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Spider</strong></td><td>200 個資料庫、138 領域；train 8,659 筆、dev 1,034 筆（test 未公開）。附評測腳本，把 SQL 分為 easy / medium / hard / extra 四級難度。</td><td>主要評測基準</td></tr>
+          <tr><td><strong>Spider-Syn</strong></td><td>把問句中 schema 相關詞換成同義詞，破壞單純字串比對。</td><td>同義詞穩健性</td></tr>
+          <tr><td><strong>Spider-DK</strong></td><td>定義五類領域知識，加入反映真實改寫的範例。</td><td>領域知識泛化</td></tr>
+          <tr><td><strong>Spider-Realistic</strong></td><td>移除問句中對欄位名的明確提及，測 text-table 對齊能力。</td><td>文字-表格對齊</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>多輪對話</h3>
+    <div class="grid g2">
+      <div class="card"><h4>SParC</h4><p>4,298 條連貫問句序列，含 12k+ 個別問句與對應 SQL。</p></div>
+      <div class="card"><h4>CoSQL</h4><p>10k+ 標註 SQL；每段對話模擬「使用者探索資料庫、專家以 SQL 取數」的真實情境。</p></div>
+    </div>
+
+    <h3>評測指標</h3>
+    <div class="grid g3">
+      <div class="card"><h4>EM</h4><p>Exact Match：預測 SQL 每個元件須與正解等價（不比對數值）。</p></div>
+      <div class="card"><h4>EX</h4><p>Execution Accuracy：執行結果須正確，通常比 EM 更精準。</p></div>
+      <div class="card"><h4>TS</h4><p>Test-Suite：在同 schema 的多個資料庫實例下執行結果都須正確。</p></div>
+    </div>
+    <p>多輪另用 <span class="hl">QM（問句層級）</span>與 <span class="hl">IM（整段互動全對才得分）</span>。</p>
+  </div>
+</section>
+
+<!-- ================= EXPERIMENTS ================= -->
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>實驗結果 — Experiments</h2>
+    <p class="lead">主力模型為低成本的 GPT-3.5-turbo，並用 GPT-4 在 Spider 上驗證 auto-CoT；相似度模型用 text2vec-base-chinese；temperature = 0（greedy）。</p>
+
+    <h3>6.1 Zero-shot：DB 內容列數的影響</h3>
+    <p>固定 <code>Table(Column)</code> 格式、只調整附帶的範例資料列數。不附內容時最差；<span class="hl">設為 3 列時最佳</span>；再多也不會更好。後續實驗一律用 3 列。</p>
+
+    <!-- BAR CHART: rows of DB content -->
+    <div class="figbox">
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- axes -->
+        <line x1="60" y1="20" x2="60" y2="220" stroke="#26313f"/>
+        <line x1="60" y1="220" x2="660" y2="220" stroke="#26313f"/>
+        <!-- y labels (TS approx scale 60-72) -->
+        <text x="50" y="225" fill="#5b6675" font-size="10" text-anchor="end">60</text>
+        <text x="50" y="120" fill="#5b6675" font-size="10" text-anchor="end">66</text>
+        <text x="50" y="25" fill="#5b6675" font-size="10" text-anchor="end">72</text>
+        <text x="20" y="125" fill="#93a1b3" font-size="11" transform="rotate(-90 20 125)" text-anchor="middle">TS (%)</text>
+
+        <!-- bars: illustrative trend, peak at 3 rows -->
+        <!-- 0 rows -->
+        <rect x="110" y="150" width="80" height="70" rx="4" fill="#3a4658"/>
+        <text x="150" y="240" fill="#93a1b3" font-size="11" text-anchor="middle">0 列</text>
+        <text x="150" y="143" fill="#93a1b3" font-size="10" text-anchor="middle">≈64</text>
+        <!-- 1 row -->
+        <rect x="230" y="95" width="80" height="125" rx="4" fill="#4a7d8c"/>
+        <text x="270" y="240" fill="#93a1b3" font-size="11" text-anchor="middle">1 列</text>
+        <text x="270" y="88" fill="#93a1b3" font-size="10" text-anchor="middle">≈67</text>
+        <!-- 3 rows (best) -->
+        <rect x="350" y="55" width="80" height="165" rx="4" fill="#5ad1c0"/>
+        <text x="390" y="240" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">3 列 ★</text>
+        <text x="390" y="48" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">≈69.4</text>
+        <!-- 5 rows -->
+        <rect x="470" y="68" width="80" height="152" rx="4" fill="#4a7d8c"/>
+        <text x="510" y="240" fill="#93a1b3" font-size="11" text-anchor="middle">5 列</text>
+        <text x="510" y="61" fill="#93a1b3" font-size="10" text-anchor="middle">≈68.8</text>
+
+        <text x="360" y="265" fill="#5b6675" font-size="10" text-anchor="middle">附帶資料列數（趨勢示意：峰值在 3 列）</text>
+      </svg>
+      <div class="figcap">圖 2 ‧ GPT-3.5-turbo 在不同 DB 內容列數下的 zero-shot 表現趨勢（依論文 Figure 3 重繪，數值為示意）</div>
+    </div>
+
+    <h3>6.2 Zero-shot：DB 格式比較</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · GPT-3.5-turbo zero-shot 各 DB 格式（Spider dev）</caption>
+        <thead><tr><th>DB Style</th><th>EM</th><th>EX</th><th>TS</th></tr></thead>
+        <tbody>
+          <tr><td>Table(Column)</td><td class="num">45.3</td><td class="num">78.3</td><td class="num">69.4</td></tr>
+          <tr class="best"><td>Table(Column)(PF)</td><td class="num">45.4</td><td class="num">79.0</td><td class="num">69.1</td></tr>
+          <tr><td>Create(NoPF)</td><td class="num">45.3</td><td class="num">77.0</td><td class="num">66.1</td></tr>
+          <tr><td>Create(EoC)</td><td class="num">44.8</td><td class="num">79.2</td><td class="num">67.7</td></tr>
+          <tr><td>Create(EoT)</td><td class="num">44.8</td><td class="num">78.3</td><td class="num">67.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>zero-shot 下 <code>Table(Column)</code> 系列較佳（貼近 OpenAI 官方文件、近似預訓練資料）；含 PK/FK 的格式在 EX/TS 上有幫助，顯示鍵資訊對模型有效。</p>
+
+    <h3>6.3 主結果：對比既有方法（Spider dev）</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · ACT-SQL vs 既有脈絡學習方法（API per SQL 越少越好）</caption>
+        <thead><tr><th>LLM</th><th>方法</th><th>API/SQL</th><th>EM</th><th>EX</th><th>TS</th></tr></thead>
+        <tbody>
+          <tr><td>Codex</td><td>Rajkumar (2022)</td><td class="num">1</td><td class="num">–</td><td class="num">67.0</td><td class="num">55.1</td></tr>
+          <tr><td>Codex</td><td>Chang & Fosler (2023)</td><td class="num">1</td><td class="num">–</td><td class="num">76.8</td><td class="num">–</td></tr>
+          <tr><td>Codex</td><td>DIN-SQL</td><td class="num">4</td><td class="num">57.2</td><td class="num">–</td><td class="num">69.9</td></tr>
+          <tr><td>GPT-4</td><td>DIN-SQL</td><td class="num">4</td><td class="num">60.1</td><td class="num">82.8</td><td class="num">74.2</td></tr>
+          <tr class="best"><td>GPT-3.5-turbo</td><td class="ours">ACT-SQL (本文)</td><td class="num">1</td><td class="num">62.7</td><td class="num">80.4</td><td class="num">71.4</td></tr>
+          <tr class="best"><td>GPT-4</td><td class="ours">ACT-SQL (本文)</td><td class="num">1</td><td class="num">61.7</td><td class="num">82.9</td><td class="num">74.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p>ACT-SQL <strong>只用 1 次</strong> API 呼叫，就在 EM / EX / TS 上取得既有脈絡學習方法中的最佳成績 —— GPT-4 版本 EX 82.9、TS 74.5 均超越需 4 次呼叫的 DIN-SQL；GPT-3.5 版本 EM 更達 62.7。</p>
+    </div>
+
+    <h3>6.4 Dev vs Test：脈絡學習的隱藏優勢</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · 不同方法 dev → test 成績變化</caption>
+        <thead><tr><th>類型</th><th>方法</th><th>Dev</th><th>Test</th><th>趨勢</th></tr></thead>
+        <tbody>
+          <tr><td>微調</td><td>Graphix-3B+PICARD</td><td class="num">81.0</td><td class="num">77.6</td><td style="color:var(--hot)">↓</td></tr>
+          <tr><td>微調</td><td>RESDSQL-3B+NatSQL</td><td class="num">84.1</td><td class="num">79.9</td><td style="color:var(--hot)">↓</td></tr>
+          <tr><td>脈絡學習</td><td>C3</td><td class="num">81.8</td><td class="num">82.3</td><td style="color:var(--acc)">↑</td></tr>
+          <tr><td>脈絡學習</td><td>DIN-SQL</td><td class="num">82.8</td><td class="num">85.3</td><td style="color:var(--acc)">↑</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>微調模型因依 dev 表現挑選，易過擬合，test 反而下滑；脈絡學習方法 dev/test 對模型而言「等價」，故無此落差 —— 意味 ACT-SQL 的 dev 成績更具代表性。</p>
+
+    <h3>6.5 穩健性變體成績</h3>
+    <div class="grid g3">
+      <div class="card"><h4>Spider-Syn</h4><p class="big">59.3</p><p>ACT-SQL TS；few-shot 為 54.5。CoT 帶來明顯提升。</p></div>
+      <div class="card"><h4>Spider-DK</h4><p class="big">62.4</p><p>ACT-SQL TS；EX 達 68.2，<span class="hl">超越微調模型</span>（得益於 LLM 內含廣域領域知識）。</p></div>
+      <div class="card"><h4>Spider-Realistic</h4><p class="big">61.2</p><p>ACT-SQL TS，與微調模型相當。</p></div>
+    </div>
+
+    <h3>6.6 多輪資料集（QM / IM, TS）</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 8–9 · SParC 與 CoSQL dev（節錄 TS）</caption>
+        <thead><tr><th>資料集</th><th>方法</th><th>QM (TS)</th><th>IM (TS)</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="3">SParC</td><td>GAZP+BERT (微調)</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><td>Few-shot (本文)</td><td class="num">55.8</td><td class="num">31.5</td></tr>
+          <tr><td class="ours">ACT-SQL (本文)</td><td class="num">56.9</td><td class="num">29.6</td></tr>
+          <tr><td rowspan="2">CoSQL</td><td>Few-shot (本文)</td><td class="num">55.5</td><td class="num">22.9</td></tr>
+          <tr><td class="ours">ACT-SQL (本文)</td><td class="num">55.2</td><td class="num">21.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>多輪情境下 ACT-SQL 相對 few-shot <strong>沒有明顯優勢</strong>（IM 甚至略降），整體與微調的 GAZP+BERT 相當但仍有改進空間 —— 作者歸因於兩階段法中的「問句改寫」品質不穩。</p>
+  </div>
+</section>
+
+<!-- ================= PROMPTS ================= -->
+<section id="prompts">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Prompt 原始碼 — 來自 GitHub Repo</h2>
+    <p class="lead">下面是從 <code><a href="https://github.com/X-LANCE/text2sql-GPT" style="color:var(--acc)">X-LANCE/text2sql-GPT</a></code> 直接擷取的關鍵程式碼，呈現 ACT-SQL 實際上是怎麼組裝 prompt 的。論文附錄 C 的範例都源自這些函式。</p>
+
+    <h3>7.1 System message — 一句話而已</h3>
+    <p>不論 zero-shot 或 few-shot，給 Chat 模型的 system message 永遠是這一行（取自 <code>util/prompt.py</code> <code>get_prompt()</code>）：</p>
+    <pre><code><span class="cmt"># util/prompt.py · line 66</span>
+prompt = [{<span class="str">'role'</span>: <span class="str">'system'</span>,
+           <span class="str">'content'</span>: <span class="str">'Given the database schema, you need to '</span>
+                      <span class="str">'translate the question into the SQL query.'</span>}]</code></pre>
+    <div class="callout">
+      <p>注意 <strong>沒有複雜的角色扮演、沒有規則列表、沒有 few-shot 引導語</strong>。整個系統提示只有 14 個字，所有「教學」都靠後續的 user/assistant 範例對話來傳遞。</p>
+    </div>
+
+    <h3>7.2 主要 prompt 組裝函式 <code>get_prompt()</code></h3>
+    <p>這是論文方法的核心入口：把 system message、若干 (user 問句 + assistant SQL 或 CoT) 範例、最後再加上實際測試案例的 user 問句，串成一個多輪對話。</p>
+    <pre><code><span class="cmt"># util/prompt.py · get_prompt() · 精簡版</span>
+<span class="kw">def</span> <span class="fn">get_prompt</span>(self, args, db_id=<span class="kw">None</span>, question=<span class="kw">None</span>, shots=[], c_num=-1):
+    <span class="kw">if</span> c_num &lt; 0:
+        c_num = args.content  <span class="cmt"># DB 範例資料列數（論文設 3）</span>
+
+    <span class="kw">if</span> args.gpt <span class="kw">in</span> GPT_CHAT_MODELS:  <span class="cmt"># gpt-3.5-turbo / gpt-4</span>
+        prompt = [{<span class="str">'role'</span>: <span class="str">'system'</span>,
+                   <span class="str">'content'</span>: <span class="str">'Given the database schema, you need to '</span>
+                              <span class="str">'translate the question into the SQL query.'</span>}]
+
+        <span class="cmt"># ===== 逐個塞入 ns + nd 個範例（靜態 + 動態） =====</span>
+        <span class="kw">for</span> shot <span class="kw">in</span> shots:
+            prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>,
+                <span class="str">'content'</span>: <span class="fn">f</span><span class="str">"Database schema:\n{self.db_prompts[shot['db_id']][c_num]}\n"</span>
+                           <span class="fn">f</span><span class="str">"Question: {shot['question']}"</span>})
+            <span class="kw">if</span> args.cot:
+                prompt.append({<span class="str">'role'</span>: <span class="str">'assistant'</span>, <span class="str">'content'</span>: shot[<span class="str">'cot'</span>]})
+            <span class="kw">else</span>:
+                prompt.append({<span class="str">'role'</span>: <span class="str">'assistant'</span>, <span class="str">'content'</span>: shot[<span class="str">'query'</span>]})
+
+        <span class="cmt"># ===== 最後附上實際要回答的測試案例 =====</span>
+        <span class="kw">if</span> db_id <span class="kw">and</span> question:
+            prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>,
+                <span class="str">'content'</span>: <span class="fn">f</span><span class="str">'Database schema:\n{self.db_prompts[db_id][c_num]}\n'</span>
+                           <span class="fn">f</span><span class="str">'Question: {question}'</span>})
+
+    <span class="kw">elif</span> args.gpt <span class="kw">in</span> GPT_COMPLETION_MODELS:  <span class="cmt"># code-davinci-002, text-davinci-003</span>
+        prompt = <span class="str">''</span>
+        <span class="kw">for</span> shot <span class="kw">in</span> shots:
+            prompt += <span class="str">'Given the database schema:\n'</span>
+            prompt += self.db_prompts[shot[<span class="str">'db_id'</span>]][c_num] + <span class="str">'\n'</span>
+            prompt += <span class="str">'Translate the natural utterance into the SQL query: '</span> \
+                      + shot[<span class="str">'question'</span>] + <span class="str">'\n'</span>
+            prompt += (shot[<span class="str">'cot'</span>] <span class="kw">if</span> args.cot <span class="kw">else</span> shot[<span class="str">'query'</span>]) + <span class="str">'\n'</span>
+        <span class="kw">if</span> db_id <span class="kw">and</span> question:
+            prompt += <span class="str">'Given the database schema:\n'</span>
+            prompt += self.db_prompts[db_id][c_num] + <span class="str">'\n'</span>
+            prompt += <span class="str">'Translate the natural utterance into the SQL query: '</span> + question + <span class="str">'\n'</span>
+            <span class="cmt"># 觸發 CoT 推理</span>
+            prompt += <span class="str">"Let's think step by step."</span> <span class="kw">if</span> args.cot <span class="kw">else</span> <span class="str">'SELECT'</span>
+
+    <span class="kw">return</span> prompt</code></pre>
+
+    <div class="callout warn">
+      <p><strong>實作層級可觀察的細節：</strong></p>
+      <p>① Chat 模型用<span class="hl">多輪 user/assistant 訊息</span>傳遞 few-shot；Completion 模型則接成單一字串。</p>
+      <p>② CoT 模式下，把 <code>shot['cot']</code>（在 <code>cot.py</code> 預先生成的整段思維鏈）直接當作 assistant 回應。</p>
+      <p>③ Completion 模型在末端會強制塞入 <code>"Let's think step by step."</code>（CoT）或 <code>"SELECT"</code>（觸發 SQL 直接續寫）；Chat 模型不需這招因為直接靠 role=assistant 接續。</p>
+    </div>
+
+    <h3>7.3 Database schema 字串模板 — 五種格式怎麼生成</h3>
+    <p>所有格式都由 <code>PromptMaker.__init__</code> 在啟動時預先 build 好快取在 <code>self.db_prompts[db_id][c_num]</code>。關鍵分支：</p>
+    <pre><code><span class="cmt"># util/prompt.py · __init__ 精簡版</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(tabs)):
+    <span class="kw">if</span> args.api_doc:
+        <span class="cmt"># ===== Table(Column) 格式：OpenAI 官方文件風 =====</span>
+        self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"# {tabs[i]}({', '.join([col[1] for col in cols if col[0] == i])})\n"</span>
+    <span class="kw">else</span>:
+        <span class="cmt"># ===== Create(...) 系列：SQL DDL 風 =====</span>
+        self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">'create table {tabs[i]} (\n'</span>
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(cols)):
+            <span class="kw">if</span> cols[j][0] == i:
+                self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"    {cols[j][1]} {db['column_types'][j]}"</span>
+                <span class="kw">if</span> args.pf == <span class="str">'eoc'</span>:  <span class="cmt"># End of Column：PK/FK 放欄位末</span>
+                    <span class="kw">if</span> j <span class="kw">in</span> db[<span class="str">'primary_keys'</span>]:
+                        self.db_prompts[db_id][c_num] += <span class="str">' primary key'</span>
+                    <span class="kw">for</span> fk <span class="kw">in</span> db[<span class="str">'foreign_keys'</span>]:
+                        <span class="kw">if</span> fk[0] == j:
+                            self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">' references {tabs[cols[fk[1]][0]]}({cols[fk[1]][1]})'</span>
+                self.db_prompts[db_id][c_num] += <span class="str">',\n'</span>
+        <span class="kw">if</span> args.pf == <span class="str">'eot'</span>:  <span class="cmt"># End of Table：PK/FK 放整張表末</span>
+            pks = [cols[pk][1] <span class="kw">for</span> pk <span class="kw">in</span> db[<span class="str">'primary_keys'</span>] <span class="kw">if</span> cols[pk][0] == i]
+            <span class="kw">if</span> <span class="fn">len</span>(pks) &gt; 0:
+                self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"    primary key ({', '.join(pks)}),\n"</span>
+            <span class="kw">for</span> fk <span class="kw">in</span> db[<span class="str">'foreign_keys'</span>]:
+                <span class="kw">if</span> cols[fk[0]][0] == i:
+                    self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">'    foreign key ({cols[fk[0]][1]}) references ...,\n'</span>
+        self.db_prompts[db_id][c_num] = self.db_prompts[db_id][c_num][:-2] + <span class="str">'\n)\n'</span>
+
+    <span class="cmt"># ===== 附加 DB 範例資料列（c_num 列，論文設 3） =====</span>
+    <span class="kw">if</span> c_num &gt; 0 <span class="kw">and</span> os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        db_contents = cursor.execute(<span class="fn">f</span><span class="str">'SELECT * FROM {tabs[i]} LIMIT {c_num}'</span>).fetchall()
+        self.db_prompts[db_id][c_num] += <span class="str">'/*\n'</span>
+        self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"{len(db_contents)} example rows from table {tabs[i]}:\n"</span>
+        self.db_prompts[db_id][c_num] += <span class="str">'\t'</span>.join([col[1] <span class="kw">for</span> col <span class="kw">in</span> cols <span class="kw">if</span> col[0] == i]) + <span class="str">'\n'</span>
+        <span class="kw">for</span> record <span class="kw">in</span> db_contents:
+            self.db_prompts[db_id][c_num] += <span class="str">'\t'</span>.join([<span class="fn">str</span>(record[col[1]]) <span class="kw">for</span> col <span class="kw">in</span> cols <span class="kw">if</span> col[0] == i]) + <span class="str">'\n'</span>
+        self.db_prompts[db_id][c_num] += <span class="str">'*/\n'</span></code></pre>
+
+    <p>對應的 CLI flag：</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>arg 旗標對 ↔ 論文中的 DB 格式</caption>
+        <thead><tr><th>論文格式</th><th><code>--api_doc</code></th><th><code>--pf</code></th></tr></thead>
+        <tbody>
+          <tr><td>Table(Column)</td><td>True</td><td>no</td></tr>
+          <tr><td>Table(Column)(PF)</td><td>True</td><td>eoc / eot</td></tr>
+          <tr><td>Create(NoPF)</td><td>False</td><td>no</td></tr>
+          <tr><td>Create(EoC)</td><td>False</td><td>eoc</td></tr>
+          <tr class="best"><td>Create(EoT) ★ 最佳</td><td>False</td><td>eot</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.4 ACT-SQL Auto-CoT 生成 — <code>cot.py</code> 最核心邏輯</h3>
+    <p>這段把論文「自動生成思維鏈」的演算法落地：拿訓練樣本（schema + 問句 + 正解 SQL），對 SQL 中每個表/欄/值找出最相關的問句切片並拼接成 CoT。</p>
+    <pre><code><span class="cmt"># cot.py · 核心迴圈（已精簡註解）</span>
+<span class="kw">for</span> i, example <span class="kw">in</span> <span class="fn">enumerate</span>(dataset):
+    <span class="kw">if</span> <span class="str">'cot'</span> <span class="kw">in</span> example: <span class="kw">continue</span>
+
+    <span class="cmt"># ① 切出問句所有 (i,j) 連續切片並編碼</span>
+    words = word_tokenize(example[<span class="str">'question'</span>])
+    phrases = [<span class="str">' '</span>.join(words[a:b]) <span class="kw">for</span> a,b <span class="kw">in</span> combinations(<span class="fn">range</span>(<span class="fn">len</span>(words)+1), 2)]
+    phrase_encodings = sentence_encoder.encode(phrases, normalize_embeddings=<span class="kw">True</span>, ...)
+
+    <span class="cmt"># ② 從正解 SQL 抓出涉及的表、欄、值</span>
+    tables  = get_tables_in_sql (example[<span class="str">'sql'</span>], dbs[example[<span class="str">'db_id'</span>]])
+    columns = get_columns_in_sql(example[<span class="str">'sql'</span>], dbs[example[<span class="str">'db_id'</span>]])
+    values  = get_values_in_sql (example[<span class="str">'sql'</span>])
+
+    <span class="cmt"># ③ 已被欄位涵蓋的表不重複列出（論文有提到）</span>
+    schema_items = []
+    <span class="kw">for</span> table <span class="kw">in</span> tables:
+        <span class="kw">for</span> column <span class="kw">in</span> columns:
+            <span class="kw">if</span> table <span class="kw">in</span> column: <span class="kw">break</span>
+        <span class="kw">else</span>:
+            schema_items.append((table, <span class="str">'table'</span>))
+    <span class="kw">for</span> column <span class="kw">in</span> columns:
+        schema_items.append((column, <span class="str">'column'</span>))
+
+    <span class="cmt"># ④ 對每個 schema 項目，找相似度最高的問句切片</span>
+    schema_linkings = {}
+    <span class="kw">for</span> schema_item <span class="kw">in</span> schema_items:
+        encoding = sentence_encoder.encode(schema_item[0], ...)
+        scores = util.cos_sim(encoding, phrase_encodings).squeeze(0).tolist()
+        phrase = phrases[<span class="fn">max</span>(<span class="fn">enumerate</span>(scores), key=<span class="kw">lambda</span> x: x[1])[0]]
+        <span class="kw">if</span> phrase <span class="kw">not in</span> schema_linkings:
+            schema_linkings[phrase] = {<span class="str">'table'</span>: [], <span class="str">'column'</span>: []}
+        schema_linkings[phrase][schema_item[1]].append(schema_item[0])
+
+    <span class="cmt"># ⑤ 拼接 CoT 字串（這就是 prompt 裡 assistant 回應的格式！）</span>
+    example[<span class="str">'cot'</span>] = <span class="str">"Let's think step by step.\n"</span>
+    <span class="kw">for</span> phrase <span class="kw">in</span> schema_linkings:
+        example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">'According to "{phrase}",'</span>
+        <span class="kw">if</span> schema_linkings[phrase][<span class="str">'table'</span>]:
+            example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">' tables [{", ".join(schema_linkings[phrase]["table"])}]'</span>
+        <span class="kw">if</span> schema_linkings[phrase][<span class="str">'column'</span>]:
+            <span class="kw">if</span> example[<span class="str">'cot'</span>].endswith(<span class="str">']'</span>):
+                example[<span class="str">'cot'</span>] += <span class="str">' and'</span>
+            example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">' columns [{", ".join(schema_linkings[phrase]["column"])}]'</span>
+        example[<span class="str">'cot'</span>] += <span class="str">' may be used.\n'</span>
+    <span class="kw">if</span> values:
+        example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">'Values [{", ".join(values)}] may be used.\n'</span>
+    example[<span class="str">'cot'</span>] += <span class="str">'So the final answer is:\n'</span>
+    example[<span class="str">'cot'</span>] += <span class="str">' '</span>.join(example[<span class="str">'query'</span>].strip(<span class="str">'\t ;'</span>).split())</code></pre>
+
+    <div class="callout">
+      <p><strong>CoT 模板就這四種句型：</strong></p>
+      <p>• <code>Let's think step by step.</code></p>
+      <p>• <code>According to "<em>{phrase}</em>", tables [<em>...</em>] and columns [<em>...</em>] may be used.</code></p>
+      <p>• <code>Values [<em>...</em>] may be used.</code>（若 SQL 含值）</p>
+      <p>• <code>So the final answer is: <em>{完整 SQL}</em></code></p>
+      <p>沒有 LLM 介入生成 CoT —— 整段是純規則 + sentence embedding 拼出來的字串，這是「<span class="hl">1 次 API 呼叫</span>」省錢的關鍵：CoT 在訓練前就離線預先生成好，存在 <code>train.json</code> 的 <code>cot</code> 欄位裡，推論時直接當 assistant 範例貼上去。</p>
+    </div>
+
+    <h3>7.5 多輪問句改寫 — <code>get_prompt_remove_dependency()</code></h3>
+    <p>SParC / CoSQL 上把多輪對話「壓平」成單輪問句的兩階段法，第一階段用這個 prompt：</p>
+    <pre><code><span class="cmt"># util/prompt.py · get_prompt_remove_dependency()</span>
+<span class="kw">@staticmethod</span>
+<span class="kw">def</span> <span class="fn">get_prompt_remove_dependency</span>(gpt, questions, shots):
+    <span class="kw">def</span> <span class="fn">preprocess</span>(q_list):
+        result = <span class="str">''</span>
+        <span class="kw">for</span> i, q <span class="kw">in</span> <span class="fn">enumerate</span>(q_list):
+            result += <span class="fn">str</span>(i + 1) + <span class="str">'. '</span> + q + <span class="str">'\n'</span>
+        <span class="kw">return</span> result.strip()
+
+    <span class="kw">if</span> gpt <span class="kw">in</span> GPT_CHAT_MODELS:
+        prompt = [{<span class="str">'role'</span>: <span class="str">'system'</span>,
+                   <span class="str">'content'</span>: <span class="str">'Given the list of questions, you need to '</span>
+                              <span class="str">'rewrite them to remove the context dependency.'</span>}]
+        <span class="kw">for</span> shot <span class="kw">in</span> shots:  <span class="cmt"># 論文：每個資料集人工標 10 個改寫範例</span>
+            prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>,      <span class="str">'content'</span>: preprocess(shot[<span class="str">'q_multiturn'</span>])})
+            prompt.append({<span class="str">'role'</span>: <span class="str">'assistant'</span>, <span class="str">'content'</span>: preprocess(shot[<span class="str">'q'</span>])})
+        prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>, <span class="str">'content'</span>: preprocess(questions)})
+    <span class="kw">return</span> prompt</code></pre>
+
+    <p>原始多輪問句以 <code>"1. ... \n2. ... \n3. ..."</code> 編號丟給 LLM，期望它輸出同樣編號但去掉上下文依賴的獨立問句版本。<span class="hl2">出錯就是這裡出錯</span>（論文 Table 10 案例）—— LLM 偶爾沒消除依賴或漏資訊。</p>
+
+    <h3>7.6 完整 zero-shot prompt（實際送進 API 的樣子）</h3>
+    <p>把上面所有片段組合，下面是 GPT-3.5-turbo 在 zero-shot + Create(EoT) + 3 列範例下會看到的訊息陣列：</p>
+    <pre><code>[
+  {
+    <span class="str">"role"</span>: <span class="str">"system"</span>,
+    <span class="str">"content"</span>: <span class="str">"Given the database schema, you need to translate the question into the SQL query."</span>
+  },
+  {
+    <span class="str">"role"</span>: <span class="str">"user"</span>,
+    <span class="str">"content"</span>: <span class="str">"Database schema:\ncreate table stadium (\n    Stadium_ID number,\n    Location text,\n    Name text,\n    ...\n    primary key (Stadium_ID)\n)\n/*\n3 example rows from table stadium:\nStadium_ID  Location      Name           ...\n1           Raith Rovers  Stark's Park   ...\n2           Ayr United    Somerset Park  ...\n3           East Fife     Bayview Stadium...\n*/\ncreate table singer (\n    ...\n)\n...\nQuestion: How many singers do we have?"</span>
+  }
+]</code></pre>
+
+    <p>Few-shot CoT 模式下，<code>system</code> 後會多出 <span class="hl">2(static) + 2(dynamic) = 4 組 (user / assistant)</span> 對話；每組 assistant 內容就是 <code>cot.py</code> 預先生成的那段「Let's think step by step. ...」字串。</p>
+
+    <div class="callout hot">
+      <p><strong>總結 ACT-SQL 的 prompt 哲學：</strong> 不靠精雕細琢的指令、不靠多次 API call，而是把工夫花在<span class="hl">「把好的範例放對位置」</span> —— 靜態+動態混合範例提供格式參照，自動生成的 CoT 提供「schema linking → 寫 SQL」的思考軌跡。整個 prompt 簡單到可以用一頁程式碼產生完。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FUTURE ================= -->
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>限制與未來工作 — Limitations &amp; Future Work</h2>
+
+    <div class="callout hot">
+      <p><strong>① 範例選擇策略偏簡單：</strong>靜態/動態範例數 <code>ns</code>、<code>nd</code> 是超參數，仍需人工決定；混合策略本身相對樸素，有改進空間。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>② 穩健性變體成績仍偏弱：</strong>在部分 Spider 穩健性變體上分數相對不佳，值得後續針對性探索。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>③ 多輪表現是主要待解題：</strong>兩階段「改寫 → 單輪」會因改寫品質不佳造成 schema linking 連鎖錯誤。改善 LLM 在多輪 text-to-SQL 的表現，是作者明確點名的<span class="hl2">挑戰性未來工作</span> —— 本文僅完成初步探索。</p>
+    </div>
+
+    <h3>結論一句話</h3>
+    <p class="lead">ACT-SQL 用「自動產生、形似 schema linking 的思維鏈」，在<strong>單次 API 呼叫、零人工標註</strong>的前提下，於 Spider dev set 取得脈絡學習方法的 SOTA，並把方法初步延伸到多輪場景 —— 兼顧效能、速度與成本。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Zhang, Cao, Chen, Xu &amp; Yu (2023) · Findings of EMNLP 2023, pp. 3501–3532</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2310.17342">arXiv:2310.17342</a> &nbsp;·&nbsp; <a href="https://github.com/X-LANCE/text2sql-GPT">程式碼 github.com/X-LANCE/text2sql-GPT</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>
