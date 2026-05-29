@@ -94,6 +94,8 @@
     font-family: Georgia, serif;
     font-style: italic;
   }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { color: var(--accent-hover); text-decoration: underline; }
   code {
     background: #eaeef2;
     padding: 1px 5px;
@@ -107,7 +109,7 @@
 <div class="container">
   <header>
     <h1>📚 paper-digest</h1>
-    <p class="subtitle">Bilingual (繁體中文 / English) HTML summaries of papers I'm reading.</p>
+    <p class="subtitle">繁體中文 / English paper summaries</p>
     <p class="meta">
       Maintained by <a href="https://github.com/YIWEI-CHEN">@YIWEI-CHEN</a> ·
       <a href="https://github.com/YIWEI-CHEN/paper-digest">source on GitHub</a>
@@ -142,7 +144,7 @@
   </table>
 
   <footer>
-    Generated with the <code>arxiv-html-summary</code> skill in GitHub Copilot CLI.
+    Generated with the <a href="skills/arxiv-html-summary/SKILL.md"><code>arxiv-html-summary</code></a> skill.
   </footer>
 </div>
 </body>
