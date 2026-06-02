@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>大表情境下的 Text-to-SQL Execution Accuracy 評測</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#141b25;--panel2:#1b2430;--ink:#e8edf4;--muted:#93a1b3;
+  --line:#26313f;--acc:#5ad1c0;--acc2:#f4a259;--acc3:#8c7bff;--hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;--disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5.4vw,64px);line-height:1.04;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:720px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:14px 0 14px 22px;color:var(--ink)}li{margin:8px 0}
+a.ext{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}.callout.hot{border-color:var(--hot)}.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:14.5px;overflow-x:auto;line-height:1.7}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)}.str{color:var(--acc2)}.cmt{color:#5b6675}.fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">技術整理 · 業界 + 學界</div>
+    <h1 class="title">大表也跑不動時，<br>怎麼評 Text-to-SQL 的 <span class="sql">Execution Accuracy</span>？</h1>
+    <p class="subtitle">當資料表大到無法每次都對完整 production 資料庫執行——成本、延遲、權限、安全都卡——傳統 EX 失靈。本文整理學界、開源專案與大科技公司在這種情境下的實務作法。</p>
+    <div class="meta-row">
+      <span class="tag lit">Execution Accuracy</span>
+      <span class="tag lit">Test-Suite Accuracy</span>
+      <span class="tag lit">Spider 2.0</span>
+      <span class="tag">LLM-as-Judge</span>
+      <span class="tag">Soft-F1 / VES</span>
+      <span class="tag">Enterprise</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題本質</a>
+    <a href="#academia">02 學界作法</a>
+    <a href="#oss">03 開源專案</a>
+    <a href="#bigtech">04 大科技公司</a>
+    <a href="#tree">05 決策樹</a>
+    <a href="#refs">06 參考資料</a>
+  </div>
+</nav>
+
+<!-- 01 -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題本質 — 為什麼大表讓 EX 失靈</h2>
+    <p class="lead">Execution Accuracy 的標準做法：把 predicted SQL 與 gold SQL 都對同一個資料庫執行，比對結果集是否一致。在 Spider 1.0 這種小型乾淨 SQLite（平均不到 10 張表）沒問題，但在企業情境會撞牆。</p>
+
+    <div class="grid g2">
+      <div class="card"><h4>成本與延遲</h4><p>對 TB 級的 BigQuery / Snowflake 倉儲反覆跑 query，又慢又貴。Spider 2.0 的 gold query 常超過 100 行。</p></div>
+      <div class="card"><h4>權限與安全</h4><p>Production 含 PII / 機敏資料，eval pipeline 不一定能直接連線執行。</p></div>
+      <div class="card"><h4>環境不可得</h4><p>私有資料、跨系統 workflow，在 eval 時根本無法重建。</p></div>
+      <div class="card"><h4>單庫偽陽 / 偽陰</h4><p>在固定資料內容上比結果，語意不同的 query 可能巧合回傳相同結果（false pass），或語意相同卻因資料差異 false fail。</p></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>具體數字：</strong>原始 Spider metric 在固定資料庫上比對，平均有約 <span class="hl2">2.5%</span> 的 false negative rate，最差情況達 <span class="hl2">8.1%</span>。這正是「單一資料庫執行比對」不可靠的證據。</p>
+    </div>
+
+    <p>因此業界與學界發展出四條主線，核心精神都是<strong>「不要放棄執行，而是把執行縮小」</strong>：</p>
+    <div class="figbox">
+      <svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <rect x="300" y="20" width="220" height="46" rx="10" fill="#1b2430" stroke="#f4a259"/>
+        <text x="410" y="48" fill="#f4a259" font-size="14" text-anchor="middle">大表無法隨意執行</text>
+        <!-- four branches -->
+        <line x1="410" y1="66" x2="110" y2="120" stroke="#5ad1c0" stroke-width="1.5"/>
+        <line x1="410" y1="66" x2="310" y2="120" stroke="#5ad1c0" stroke-width="1.5"/>
+        <line x1="410" y1="66" x2="510" y2="120" stroke="#5ad1c0" stroke-width="1.5"/>
+        <line x1="410" y1="66" x2="710" y2="120" stroke="#5ad1c0" stroke-width="1.5"/>
+        <rect x="20" y="120" width="180" height="64" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="110" y="146" fill="#e8edf4" font-size="12.5" text-anchor="middle">A · 縮小資料</text>
+        <text x="110" y="166" fill="#93a1b3" font-size="11" text-anchor="middle">distilled test suite</text>
+        <rect x="220" y="120" width="180" height="64" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="310" y="146" fill="#e8edf4" font-size="12.5" text-anchor="middle">B · 縮小 schema</text>
+        <text x="310" y="166" fill="#93a1b3" font-size="11" text-anchor="middle">oracle / 相關表</text>
+        <rect x="420" y="120" width="180" height="64" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="510" y="146" fill="#e8edf4" font-size="12.5" text-anchor="middle">C · 縮到語意層</text>
+        <text x="510" y="166" fill="#93a1b3" font-size="11" text-anchor="middle">LLM-judge / Soft-F1</text>
+        <rect x="620" y="120" width="180" height="64" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="710" y="146" fill="#e8edf4" font-size="12.5" text-anchor="middle">D · production proxy</text>
+        <text x="710" y="166" fill="#93a1b3" font-size="11" text-anchor="middle">人＋LLM 評審</text>
+      </svg>
+      <div class="figcap">四條主線：把「執行」從完整大表縮小到可負擔的範圍</div>
+    </div>
+  </div>
+</section>
+
+<!-- 02 -->
+<section id="academia">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>學界作法 — Top Conference Papers</h2>
+
+    <h3>2.1 Test-Suite Accuracy / Distilled Test Suites（EMNLP 2020）</h3>
+    <p class="lead">不要在一個大資料庫上比結果，而是蒸餾出一小組「小而高 code coverage」的資料庫。</p>
+    <p>方法核心：<span class="hl">從大量隨機產生的資料庫中，挑出能讓 gold query 達到高 code coverage 的最小子集</span>，evaluation 時只在這個 distilled test suite 上比對 denotation（結果），即可算出語意正確率的一個緊上界（tight upper-bound），而且效率極高。作者用此法評測 Spider leaderboard 上 21 個模型，並人工驗證 100 個案例皆正確。</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>Fuzzing 產生 neighbor queries</h4><p>對 gold query 做微擾——例如 <code>&gt; 34</code> vs <code>&gt;= 34</code> vs <code>&gt; 35</code>——產生語意相近但不同的 query。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>隨機產生大量小資料庫</h4><p>產生許多 random databases，目標是找出能「區分 gold 與這些 neighbor」的資料內容。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>蒸餾出最小高覆蓋子集</h4><p>挑出讓 gold query 達高 code coverage 的最小資料庫組，即 distilled test suite。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>在小 suite 上比 denotation</h4><p>predicted query 只在這個小 suite 上跑並比對結果——執行成本被壓到極低，同時大幅降低 false pass / false fail。</p></div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>為什麼解決「大表」：</strong>你不需要在原始大資料庫上跑，而是在「特製的小資料庫」上跑。已成為 <span class="hl">Spider、SParC、CoSQL 的官方 metric</span>，並涵蓋 Academic、ATIS、Advising、Geography、IMDB、Restaurants、Scholar、Yelp 共 11 個資料集。</p>
+      <p style="margin-top:8px;font-family:var(--mono);font-size:12.5px;color:var(--muted)">Zhong, Yu, Klein · Semantic Evaluation for Text-to-SQL with Distilled Test Suites · EMNLP 2020 · <a class="ext" href="https://arxiv.org/abs/2010.02840">arXiv:2010.02840</a></p>
+    </div>
+
+    <h3>2.2 Spider 2.0（ICLR 2025 Oral）— 企業級評測框架</h3>
+    <p>直接面對「真實企業大資料庫」：632 個來自真實資料應用的 workflow 問題，資料庫常超過 <span class="hl">1,000 欄</span>（極端可達 3,000+ 欄），跑在 BigQuery、Snowflake 等雲端系統上。它在「大到無法隨便跑」這件事上提供了關鍵工程設計：</p>
+    <ul>
+      <li><strong>按執行成本切分的 task setting：</strong>官方推薦用 <code>spider2-lite</code> / <code>spider2-snow</code> 做 benchmarking；另有 <code>spider2-dbt</code>（68 tasks）做 repository-level 的快速 benchmark。</li>
+      <li><strong>Oracle tables 模式：</strong>官方釋出 ground-truth tables，讓你<span class="hl2">只在「正確答案會用到的表」上做執行與分析</span>（使用時須標明用了 oracle tables）。這就是「縮小 schema」的具體實作。</li>
+      <li><strong>EX 仍是主 metric</strong>，但因上千欄 schema 的 schema-linking 極難，最佳模型（如 o1-preview）EX 一度只有約 <span class="hl2">17%</span>，對照 Spider 1.0 的 91.2%。</li>
+      <li><strong>只釋出部分 gold answer</strong>，其餘透過 leaderboard 提交評分，避免測試集洩漏。</li>
+    </ul>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)">Lei et al. · Spider 2.0 · ICLR 2025 Oral · <a class="ext" href="https://arxiv.org/abs/2411.07763">arXiv:2411.07763</a></p>
+
+    <h3>2.3 Execution-Guided Self-Consistency（Snowflake AI Research, 2025）</h3>
+    <p>主要是生成方法，但其評測觀念對「大表」很有用：用<span class="hl">執行層級的等價（execution-level equivalence）</span>而非結構比對判斷兩 query 是否相同，並引入 exact 與 <strong>approximate execution-based similarity</strong>，以 Minimum Bayes Risk（MBR）decoding 框架做理論支撐。</p>
+    <div class="formula">semantic-equiv(q<sub>1</sub>, q<sub>2</sub>) ≈ sim( exec(q<sub>1</sub>) , exec(q<sub>2</sub>) )<br><span style="color:var(--muted)">關鍵：approximate similarity 可在資料子集 / sample 上做近似比對，不必在完整大表上算精確結果</span></div>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)">Borchmann &amp; Wydmuch · Query and Conquer · Snowflake AI Research 2025 · <a class="ext" href="https://arxiv.org/abs/2503.24364">arXiv:2503.24364</a></p>
+
+    <h3>2.4 不執行的近似 metric：Soft-F1 與 LLM-as-Judge</h3>
+    <div class="grid g2">
+      <div class="card"><h4>Soft-F1</h4><p>對結果集做部分配分——計算 predicted 與 gold 結果的重疊。100 列中對 99 列，Soft-F1 給高分而 EX 直接給 0。適合「能跑但結果未必完全相同」時提供細緻訊號與除錯依據。</p></div>
+      <div class="card"><h4>LLM-as-Judge</h4><p>當執行根本不可能（私有資料缺失、環境錯誤），用強力 LLM 比較 predicted 與 gold SQL 的語意邏輯。客觀性低於執行，但與人類判斷相關性高。</p></div>
+    </div>
+
+    <h3>2.5 Enterprise 綜述：實驗室數字搬不到企業</h3>
+    <div class="callout hot">
+      <p><strong>現實落差：</strong>Spider leaderboard EX 從 2023/03 的 ~40% 升到 2025/04 的 ~76%；但在 Spider 2.0 上，2025/04 最佳模型 EX 僅約 <span class="hl2">31%</span>；Uber 自家 eval set 上與 ground-truth 表的重疊也僅約 <span class="hl2">50%</span>。大型 schema 與語意歧義是核心挑戰。</p>
+      <p style="margin-top:8px;font-family:var(--mono);font-size:12.5px;color:var(--muted)">Text-to-SQL for Enterprise Data Analytics · 2025 · <a class="ext" href="https://arxiv.org/abs/2507.14372">arXiv:2507.14372</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- 03 -->
+<section id="oss">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>開源專案 — 可直接拿來用</h2>
+    <div class="tbl-wrap">
+      <table>
+        <caption>主要開源評測工具</caption>
+        <thead><tr><th>專案</th><th>用途</th><th>連結</th></tr></thead>
+        <tbody>
+          <tr><td><strong>taoyds/test-suite-sql-eval</strong></td><td>Test-Suite Accuracy 官方評測程式，涵蓋 11 個任務；Spider / SParC / CoSQL 官方 metric。</td><td><a class="ext" href="https://github.com/taoyds/test-suite-sql-eval">github</a></td></tr>
+          <tr><td><strong>ruiqi-zhong/TestSuiteEval</strong></td><td>產生 neighbor queries 與 random databases（fuzzing + distillation）的程式，搭配上者使用。</td><td><a class="ext" href="https://github.com/ruiqi-zhong/TestSuiteEval">github</a></td></tr>
+          <tr><td><strong>xlang-ai/Spider2</strong></td><td>Spider 2.0 官方 repo：Spider-Agent 框架、lite/snow/dbt 設定、oracle ground-truth tables、免 Docker 快速 benchmark。</td><td><a class="ext" href="https://github.com/xlang-ai/Spider2">github</a></td></tr>
+          <tr><td><strong>RelationalAI/xlang-spider2</strong></td><td>Spider 2.0 fork，含 BigQuery / Snowflake 存取設定指南。</td><td><a class="ext" href="https://github.com/RelationalAI/xlang-spider2">github</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>實務組合建議</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>中小型可重建資料庫</h4><p>直接用 <code>test-suite-sql-eval</code> 蒸餾出小 test suite，把執行成本壓到最低。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>企業大倉儲（BigQuery / Snowflake）</h4><p>參考 Spider 2.0 的 oracle tables 模式，只在 gold query 用到的表上執行；agent 設定可參考 spider-agent-lite / snow。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>完全不能執行的私有資料</h4><p>退回 Soft-F1（若能取得結果集樣本）或 LLM-as-Judge（純比語意）。</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 04 -->
+<section id="bigtech">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>大科技公司的技術文章</h2>
+
+    <h3>Uber — QueryGPT</h3>
+    <p>Uber 的 SQL 每天要在 TB 級資料上跑，因此 eval <strong>不依賴對完整資料庫逐列比對結果集</strong>，而是建一套標準化評測程序：</p>
+    <ul>
+      <li><strong>人工策展 golden 對照集：</strong>從 production log 挑真實問題，人工驗證正確 intent、需要的 schema 與 golden SQL，橫跨多個資料集與業務領域。</li>
+      <li><strong>沿生成流程擷取多個訊號</strong>（production / staging 不同 flow），而非只看最終結果集是否相同，藉此區分重複性 vs 偶發性的缺陷。</li>
+      <li><strong>Schema-level proxy：</strong>用「generated query 用到的表 vs ground-truth 表的重疊率」（報告約 50% overlap）取代 result-level 比對——這是「不便執行整個 query」時的典型替代。</li>
+    </ul>
+    <p>另見 Uber 的 <em>Prompt Engineering Toolkit</em>：內建 <span class="hl">LLM-as-Judge</span> 與 code-based evaluator，並設「通過 eval threshold 才能上 production」的 gatekeeping。</p>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)"><a class="ext" href="https://www.uber.com/en-ES/blog/query-gpt/">QueryGPT (2024)</a> · <a class="ext" href="https://www.uber.com/en-IN/blog/introducing-the-prompt-engineering-toolkit/">Prompt Engineering Toolkit (2024)</a></p>
+
+    <h3>LinkedIn — SQL Bot</h3>
+    <p>LinkedIn 建了客製化 benchmark 框架：用量身打造的 eval set、明確 metric、與<span class="hl">人類＋LLM 共同評審（human-plus-LLM judging）</span>來維持準確率、降低幻覺，並把 benchmarking 當成整合進產品開發的<strong>持續流程</strong>而非一次性任務。本質上避開「對 production 大表逐列比對」的成本——用人＋LLM 對語意與相關性評分。</p>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)">LinkedIn Engineering · SQL Bot（轉述見 <a class="ext" href="https://erincon01.medium.com/building-modern-text-to-sql-systems-with-genai-lessons-from-linkedin-uber-and-open-source-69c829fa16cf">Rincón Herrera, 2025</a>）</p>
+
+    <h3>Pinterest — Text-to-SQL</h3>
+    <p>Pinterest 的關鍵啟發：<span class="hl2">把 table retrieval（找對表）這個元件單獨評測</span>，用過往 table search 的 offline 資料，先確保 embedding-based table search 不比舊的 text-based search 差——也就是把「找對 schema 子集」當成可獨立評測的子問題。整體 Text-to-SQL 的初期評測主要拿來對齊文獻數字（在 Spider 上驗證實作），而非在自家大資料上做 result-level EX。</p>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)"><a class="ext" href="https://medium.com/pinterest-engineering/how-we-built-text-to-sql-at-pinterest-30bad30dabff">How we built Text-to-SQL at Pinterest (2024)</a></p>
+
+    <h3>Snowflake / Cortex Analyst 的觀察</h3>
+    <p>第三方評測指出：除了 EX，還可加上 <strong>Efficiency</strong>——query 是否對倉儲架構最佳化（join order、是否用到 Snowflake 特定優化）。對大倉儲而言，<span class="hl">效率本身就是一個要評的維度</span>，因功能正確但低效的 query 會吃光資源。對應到學界的 <strong>Valid Efficiency Score（VES）</strong>：評正確性的同時衡量執行效率。</p>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)"><a class="ext" href="https://trust3.ai/blog/bridging-the-language-gap-evaluating-text-to-sql-performance/">Trust3 AI · Bridging the Language Gap (2025)</a></p>
+  </div>
+</section>
+
+<!-- 05 -->
+<section id="tree">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>決策樹 — 你該用哪種作法？</h2>
+    <pre><code><span class="kw">資料庫能在 eval 時重建嗎？</span>
+├─ 能，且不大              <span class="cmt">→ 標準 EX + Test-Suite Accuracy（蒸餾小 test suite）</span>
+├─ 能，但很大（TB 級雲倉）  <span class="cmt">→ Oracle / ground-truth tables 子集執行（Spider 2.0 模式）</span>
+│                            <span class="cmt">  + Efficiency / VES 一併評</span>
+└─ 不能（私有 / 無環境）
+     ├─ 拿得到結果集樣本     <span class="cmt">→ Soft-F1（部分配分）</span>
+     ├─ 只能比 query 本身     <span class="cmt">→ LLM-as-Judge（語意比對）+ schema overlap proxy</span>
+     └─ production 線上監控   <span class="cmt">→ 人＋LLM 評審 + golden set + 多訊號 proxy（Uber / LinkedIn 模式）</span></code></pre>
+    <div class="callout">
+      <p><strong>一句話總結：</strong>「大表無法隨意執行」時，共識不是「放棄執行」，而是<span class="hl">把執行縮小</span>——縮小資料（distilled test suite）、縮小 schema（oracle / relevant tables）、或縮小到語意層（LLM-judge / schema-overlap proxy），再搭配人＋LLM 評審與 golden set 在 production 持續監控。</p>
+    </div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section id="refs">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>參考資料</h2>
+    <ul>
+      <li>Zhong, Yu, Klein. <em>Semantic Evaluation for Text-to-SQL with Distilled Test Suites.</em> EMNLP 2020. <a class="ext" href="https://arxiv.org/abs/2010.02840">arXiv:2010.02840</a></li>
+      <li>Lei et al. <em>Spider 2.0: Evaluating Language Models on Real-World Enterprise Text-to-SQL Workflows.</em> ICLR 2025 Oral. <a class="ext" href="https://arxiv.org/abs/2411.07763">arXiv:2411.07763</a></li>
+      <li>Borchmann &amp; Wydmuch. <em>Query and Conquer: Execution-Guided SQL Generation.</em> Snowflake AI Research, 2025. <a class="ext" href="https://arxiv.org/abs/2503.24364">arXiv:2503.24364</a></li>
+      <li><em>Text-to-SQL for Enterprise Data Analytics.</em> 2025. <a class="ext" href="https://arxiv.org/abs/2507.14372">arXiv:2507.14372</a></li>
+      <li>開源：<a class="ext" href="https://github.com/taoyds/test-suite-sql-eval">test-suite-sql-eval</a> · <a class="ext" href="https://github.com/ruiqi-zhong/TestSuiteEval">TestSuiteEval</a> · <a class="ext" href="https://github.com/xlang-ai/Spider2">Spider2</a></li>
+      <li>Uber Blog: <a class="ext" href="https://www.uber.com/en-ES/blog/query-gpt/">QueryGPT</a> · <a class="ext" href="https://www.uber.com/en-IN/blog/introducing-the-prompt-engineering-toolkit/">Prompt Engineering Toolkit</a></li>
+      <li>Pinterest Engineering: <a class="ext" href="https://medium.com/pinterest-engineering/how-we-built-text-to-sql-at-pinterest-30bad30dabff">How we built Text-to-SQL at Pinterest</a></li>
+      <li>LinkedIn Engineering: SQL Bot（轉述見 <a class="ext" href="https://erincon01.medium.com/building-modern-text-to-sql-systems-with-genai-lessons-from-linkedin-uber-and-open-source-69c829fa16cf">Rincón Herrera, 2025</a>）</li>
+      <li>Trust3 AI: <a class="ext" href="https://trust3.ai/blog/bridging-the-language-gap-evaluating-text-to-sql-performance/">Bridging the Language Gap</a>（Cortex Analyst Efficiency 觀察）</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">技術整理 · Text-to-SQL Execution Accuracy under Large-Table Constraints · 2026</div>
+</footer>
+
+</body>
+</html>
