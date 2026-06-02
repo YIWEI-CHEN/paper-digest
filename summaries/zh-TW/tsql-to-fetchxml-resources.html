@@ -33,23 +33,21 @@
     line-height:1.75;
     -webkit-font-smoothing:antialiased;
   }
-  .wrap{max-width:880px;margin:0 auto;padding:72px 28px 120px;}
+  .wrap{max-width:880px;margin:0 auto;padding:0 28px;}
 
-  header.masthead{border-bottom:1px solid var(--line);padding-bottom:34px;margin-bottom:48px;}
+  header.masthead{border-bottom:1px solid var(--line);padding:72px 0 34px;}
   .kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);}
   h1{font-family:"Newsreader",serif;font-weight:600;font-size:clamp(34px,6vw,56px);line-height:1.08;margin:14px 0 18px;letter-spacing:-.01em;}
   h1 .arrow{color:var(--accent2);font-style:italic;}
   .lede{color:var(--ink-dim);font-size:17px;max-width:62ch;margin:0;}
   .meta{margin-top:22px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint);}
 
-  nav.toc{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:0 0 56px;}
-  nav.toc .t{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:12px;}
-  nav.toc ol{margin:0;padding-left:20px;columns:2;column-gap:36px;}
-  nav.toc li{margin:5px 0;}
-  nav.toc a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid transparent;transition:.2s;}
-  nav.toc a:hover{color:var(--accent);border-color:var(--accent);}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,15,20,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0;}
+  nav.toc .wrap{display:flex;flex-wrap:wrap;gap:6px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;}
+  nav.toc a{color:var(--ink-dim);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s;border-bottom:none;}
+  nav.toc a:hover{color:var(--accent);background:var(--bg-soft);}
 
-  section{margin-bottom:60px;scroll-margin-top:24px;}
+  section{padding:60px 0;scroll-margin-top:72px;}
   h2{font-family:"Newsreader",serif;font-weight:600;font-size:30px;margin:0 0 4px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:14px;}
   h2 .num{font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--accent);font-weight:500;}
   h3{font-family:"Noto Sans TC";font-weight:700;font-size:17px;margin:28px 0 8px;color:var(--ink);}
@@ -92,42 +90,44 @@
   .rec ol li{margin:12px 0;}
   .rec b{color:var(--accent);}
 
-  footer{border-top:1px solid var(--line);margin-top:70px;padding-top:26px;font-size:12.5px;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;}
-  footer ul{columns:2;column-gap:30px;padding-left:18px;}
-  footer li{color:var(--ink-faint);margin:4px 0;}
+  footer{border-top:1px solid var(--line);padding:30px 0 80px;font-size:12.5px;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;}
+  footer .wrap{text-align:center;letter-spacing:.06em;}
 
   @media(max-width:640px){
-    nav.toc ol,footer ul{columns:1;}
-    .wrap{padding:48px 18px 80px;}
+    .wrap{padding:0 18px;}
+    header.masthead{padding:48px 0 30px;}
+    section{padding:46px 0;}
   }
 </style>
 </head>
 <body>
-<div class="wrap">
 
-  <header class="masthead">
+<header class="masthead">
+  <div class="wrap">
     <div class="kicker">Dataverse · Dynamics 365 · TDS</div>
     <h1>T-SQL <span class="arrow">→</span> FetchXML<br>轉換資源整理</h1>
     <p class="lede">將 Microsoft Dataverse 用的 T-SQL（含 TDS endpoint 語法）轉成 FetchXML 的工具、開源專案與技術文章彙整 —— 聚焦於可程式化嵌入 NL2SQL / eval pipeline 的方案。</p>
     <div class="meta">整理日期 2026-06-02 · 6 項資源 · 4 個開源 · 3 篇延伸閱讀</div>
-  </header>
+  </div>
+</header>
 
-  <nav class="toc">
-    <div class="t">目錄</div>
-    <ol>
-      <li><a href="#tldr">總覽對照</a></li>
-      <li><a href="#sql4cds">SQL 4 CDS（首選）</a></li>
-      <li><a href="#sql2fetchxml">SQL2FetchXML</a></li>
-      <li><a href="#customapi">FetchXmlToSql Custom API</a></li>
-      <li><a href="#builder">FetchXML Builder</a></li>
-      <li><a href="#fetchxml-studio">FetchXML Studio</a></li>
-      <li><a href="#sdk">官方 SDK 範例</a></li>
-      <li><a href="#blogs">延伸閱讀：技術部落格</a></li>
-      <li><a href="#rec">給 NL2SQL/TDS 的建議</a></li>
-    </ol>
-  </nav>
+<nav class="toc">
+  <div class="wrap">
+    <a href="#tldr">00 總覽</a>
+    <a href="#sql4cds">01 SQL 4 CDS</a>
+    <a href="#sql2fetchxml">02 SQL2FetchXML</a>
+    <a href="#customapi">03 FetchXmlToSql API</a>
+    <a href="#builder">04 FetchXML Builder</a>
+    <a href="#fetchxml-studio">05 FetchXML Studio</a>
+    <a href="#sdk">06 SDK 範例</a>
+    <a href="#blogs">07 部落格</a>
+    <a href="#rec">→ 建議</a>
+    <a href="#refs">08 參考資料</a>
+  </div>
+</nav>
 
   <section id="tldr">
+    <div class="wrap">
     <h2><span class="num">00</span>總覽對照</h2>
     <div class="tablewrap">
       <table>
@@ -142,9 +142,11 @@
         </tbody>
       </table>
     </div>
+  </div>
   </section>
 
   <section id="sql4cds">
+    <div class="wrap">
     <h2><span class="num">01</span>SQL 4 CDS</h2>
     <span class="tag pick">首選</span><span class="tag oss">開源</span><span class="tag">NuGet 可嵌入</span><span class="tag">TDS endpoint</span>
 
@@ -195,9 +197,11 @@
     </ul>
 
     <blockquote>部分查詢無法純靠 FetchXML 執行，這類會出現警告，表示需要 SQL 4 CDS 額外的記憶體內處理。這個「可否完全下推」的訊號，剛好可拿來當 eval 指標。</blockquote>
+  </div>
   </section>
 
   <section id="sql2fetchxml">
+    <div class="wrap">
     <h2><span class="num">02</span>SQL2FetchXML</h2>
     <span class="tag closed">線上服務</span><span class="tag">KingswaySoft</span><span class="tag">免安裝</span>
 
@@ -214,9 +218,11 @@
 WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
 
     <blockquote class="warn">已知限制：對括號、巢狀 select 處理不佳；大小寫偶有出錯；無法處理 <code>NOT IN</code> / <code>NOT EXISTS</code> / <code>EXCEPT</code>（多半其實是 FetchXML 本身限制）。嚴謹評估建議以 SQL 4 CDS 為主，本工具僅作快速參照、勿當 ground truth。</blockquote>
+  </div>
   </section>
 
   <section id="customapi">
+    <div class="wrap">
     <h2><span class="num">03</span>FetchXmlToSql Custom API</h2>
     <span class="tag closed">官方內建</span><span class="tag">未文件化</span><span class="tag">反向</span>
 
@@ -226,9 +232,11 @@ WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
     ?@p1='{Your_FetchXML}'</code></pre>
     <p>也可在 XrmToolBox 用 <b>Custom API Tester</b> 呼叫。常見用途是 virtual table 指向 SQL Server 時把 FetchXML 轉回 SQL。</p>
     <blockquote class="warn">⚠️ 因屬未文件化功能，無保證持續可用，正式產品不建議依賴。</blockquote>
+  </div>
   </section>
 
   <section id="builder">
+    <div class="wrap">
     <h2><span class="num">04</span>FetchXML Builder</h2>
     <span class="tag oss">開源</span><span class="tag">XrmToolBox</span><span class="tag">多語法輸出</span>
 
@@ -237,9 +245,11 @@ WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
       <div class="factline"><b>官網</b> <a class="link" href="https://fetchxmlbuilder.com/">fetchxmlbuilder.com</a></div>
     </div>
     <p>對 Dataverse / Power Apps / D365 建立與執行 FetchXML。對本主題的價值在於能在多種語法間互轉：產生 <b>C# QueryExpression、WebAPI / OData query string、Power Automate List Records、SQL / JavaScript / C# stub</b>。可與 SQL 4 CDS 互通 —— 在 SQL 4 CDS 寫 SQL → 丟到 Builder 編輯，反之亦可。</p>
+  </div>
   </section>
 
   <section id="fetchxml-studio">
+    <div class="wrap">
     <h2><span class="num">05</span>FetchXML Studio</h2>
     <span class="tag oss">開源</span><span class="tag">Power Platform ToolBox</span><span class="tag">視覺化</span>
 
@@ -248,17 +258,21 @@ WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
     </div>
 
     <p>Power Platform ToolBox 生態系的開源視覺化 FetchXML 建構器。主要用途是編寫 FetchXML，但整合了 §03 提到的未文件化 <code>FetchXMLToSQL</code> API，提供 SQL ↔ FetchXML 雙向預覽，可當作語法對照時的另一個快速工具。</p>
+  </div>
   </section>
 
   <section id="sdk">
+    <div class="wrap">
     <h2><span class="num">06</span>官方 SDK 範例：FetchXML ↔ QueryExpression</h2>
     <span class="tag oss">開源範例</span><span class="tag">PowerApps-Samples</span>
 
     <p>文件：<a class="link" href="https://learn.microsoft.com/en-us/power-apps/developer/data-platform/org-service/samples/convert-queries-fetch-queryexpression">learn.microsoft.com — Convert queries sample</a></p>
     <p>示範用 <code>QueryExpressionToFetchXmlRequest</code> 與 <code>FetchXmlToQueryExpressionRequest</code> 雙向轉換。雖非 T-SQL→FetchXML，但若 pipeline 已用 QueryExpression 作中介層，這是官方支援的轉換路徑。</p>
+  </div>
   </section>
 
   <section id="blogs">
+    <div class="wrap">
     <h2><span class="num">07</span>延伸閱讀：技術部落格</h2>
     <span class="tag">部落格</span><span class="tag">MVP</span><span class="tag">社群</span>
 
@@ -279,9 +293,11 @@ WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
       <div class="factline"><b>文章</b> <a class="link" href="https://dynamicsofdynamicscrm.com/2015/06/05/quick-tip-how-to-convert-your-sql-expertise-to-fetch-xml-expertise/">Quick Tip: How to convert your SQL expertise to Fetch XML expertise</a></div>
     </div>
     <p>社群經典的「思維轉換」教學。示範用早期 KingswaySoft 的 <code>sql2fetchxml.com</code> 線上服務，把常見 Inner / Left Join 與篩選條件對應到 FetchXML 的 <code>&lt;link-entity&gt;</code> 與 <code>&lt;filter&gt;</code> 節點 —— 文章雖舊，對建立心智模型仍很有用。</p>
+  </div>
   </section>
 
   <section id="rec">
+    <div class="wrap">
     <h2><span class="num">→</span>給 Dataverse NL2SQL / TDS 的建議</h2>
     <div class="rec">
       <ol>
@@ -291,24 +307,29 @@ WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
         <li><b>線上快查</b>：臨時想看某段 SQL 的 FetchXML 長相時用 SQL2FetchXML，但別當成 ground truth。</li>
       </ol>
     </div>
+    </div>
   </section>
 
-  <footer>
-    <div style="margin-bottom:12px;letter-spacing:.2em;">來源</div>
+  <section id="refs">
+    <div class="wrap">
+    <h2><span class="num">08</span>參考資料</h2>
     <ul>
-      <li>github.com/MarkMpn/Sql4Cds（README / Changelog）</li>
-      <li>NuGet · MarkMpn.SQL4CDS</li>
-      <li>markcarrington.dev/sql-4-cds + /blog</li>
-      <li>xrmtoolbox.com 外掛頁</li>
-      <li>sql2fetchxml.com + Help（KingswaySoft）</li>
-      <li>learn.microsoft.com — FetchXML / Convert queries</li>
-      <li>LinkedIn (Lucio Kubo) — FetchXMLToSql API</li>
-      <li>github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio</li>
-      <li>community.dynamics.com — Hosk's blog</li>
-      <li>dynamicsofdynamicscrm.com — Deepesh Somani / Arun Potti</li>
+      <li>Mark Carrington. <em>SQL 4 CDS</em> — engine, XrmToolBox / SSMS / ADS 外掛. <a class="link" href="https://github.com/MarkMpn/Sql4Cds">github.com/MarkMpn/Sql4Cds</a> · <a class="link" href="https://www.nuget.org/packages/MarkMpn.Sql4Cds.Engine">NuGet</a> · <a class="link" href="https://markcarrington.dev/sql-4-cds/">markcarrington.dev/sql-4-cds</a></li>
+      <li>Mark Carrington. <em>個人技術部落格.</em> <a class="link" href="https://markcarrington.dev/blog/">markcarrington.dev/blog</a>（TDS Endpoint 底層 / 語法轉換內部實作）</li>
+      <li>KingswaySoft. <em>SQL2FetchXML 線上轉換器.</em> <a class="link" href="http://sql2fetchxml.com/">sql2fetchxml.com</a> · <a class="link" href="http://sql2fetchxml.com/Help.aspx">Help</a></li>
+      <li>Microsoft Learn. <em>Convert queries between FetchXML and QueryExpression.</em> <a class="link" href="https://learn.microsoft.com/en-us/power-apps/developer/data-platform/org-service/samples/convert-queries-fetch-queryexpression">learn.microsoft.com</a></li>
+      <li>Cinteros / Jonas Rapp. <em>FetchXML Builder.</em> <a class="link" href="https://fetchxmlbuilder.com/">fetchxmlbuilder.com</a> · <a class="link" href="https://www.xrmtoolbox.com/plugins/Cinteros.Xrm.FetchXmlBuilder/">XrmToolBox plugin</a></li>
+      <li>Mohsin. <em>FetchXML Studio.</em> <a class="link" href="https://github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio">github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio</a></li>
+      <li>Hosk. <em>Dynamics 365 tool you should use — SQL 4 CDS.</em> <a class="link" href="https://community.dynamics.com/blogs/post/?postid=e1a87c8e-acda-4c74-8f17-0b8a5ac58457">community.dynamics.com</a></li>
+      <li>Deepesh Somani &amp; Arun Potti. <em>Quick Tip: How to convert your SQL expertise to Fetch XML expertise.</em> <a class="link" href="https://dynamicsofdynamicscrm.com/2015/06/05/quick-tip-how-to-convert-your-sql-expertise-to-fetch-xml-expertise/">dynamicsofdynamicscrm.com</a></li>
+      <li>Lucio Kubo (LinkedIn) — 未文件化 <code>FetchXMLToSql</code> Custom API 觸發方式說明.</li>
     </ul>
-  </footer>
+    </div>
+  </section>
 
-</div>
+<footer>
+  <div class="wrap">技術整理 · T-SQL → FetchXML Resources · 2026-06-02</div>
+</footer>
+
 </body>
 </html>
