@@ -1,6 +1,6 @@
 # paper-digest
 
-Bilingual (Traditional Chinese / English) HTML summaries of papers I'm reading.
+Bilingual (Traditional Chinese / English) HTML digests of papers, blogs, and repos I'm reading.
 
 🌐 **Live site:** https://yiwei-chen.github.io/paper-digest/
 
