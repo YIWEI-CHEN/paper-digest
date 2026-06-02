@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-SQL → FetchXML: Resource Roundup</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#0d0f14;
+    --bg-soft:#14171f;
+    --panel:#181c26;
+    --line:#262c3a;
+    --ink:#e7e9ef;
+    --ink-dim:#9aa1b2;
+    --ink-faint:#6c7283;
+    --accent:#6fe3c0;
+    --accent2:#ffb454;
+    --accent3:#7aa2ff;
+    --danger:#ff7a85;
+    --code-bg:#0a0c11;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(122,162,255,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(111,227,192,.08), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans TC","Newsreader",serif;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:0 28px;}
+
+  header.masthead{border-bottom:1px solid var(--line);padding:72px 0 34px;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);}
+  h1{font-family:"Newsreader",serif;font-weight:600;font-size:clamp(34px,6vw,56px);line-height:1.08;margin:14px 0 18px;letter-spacing:-.01em;}
+  h1 .arrow{color:var(--accent2);font-style:italic;}
+  .lede{color:var(--ink-dim);font-size:17px;max-width:62ch;margin:0;}
+  .meta{margin-top:22px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint);}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,15,20,.82);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0;}
+  nav.toc .wrap{display:flex;flex-wrap:wrap;gap:6px;font-family:"IBM Plex Mono",monospace;font-size:12.5px;}
+  nav.toc a{color:var(--ink-dim);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s;border-bottom:none;}
+  nav.toc a:hover{color:var(--accent);background:var(--bg-soft);}
+
+  section{padding:60px 0;scroll-margin-top:72px;}
+  h2{font-family:"Newsreader",serif;font-weight:600;font-size:30px;margin:0 0 4px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:14px;}
+  h2 .num{font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--accent);font-weight:500;}
+  h3{font-family:"Noto Sans TC";font-weight:700;font-size:17px;margin:28px 0 8px;color:var(--ink);}
+  p{margin:12px 0;}
+  a.link{color:var(--accent3);text-decoration:none;border-bottom:1px solid rgba(122,162,255,.35);}
+  a.link:hover{border-color:var(--accent3);}
+
+  .tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--ink-dim);margin:0 6px 6px 0;}
+  .tag.oss{color:var(--accent);border-color:rgba(111,227,192,.4);}
+  .tag.closed{color:var(--accent2);border-color:rgba(255,180,84,.4);}
+  .tag.pick{color:#0d0f14;background:var(--accent);border-color:var(--accent);font-weight:600;}
+
+  ul{margin:12px 0;padding-left:22px;}
+  li{margin:7px 0;color:var(--ink);}
+  li::marker{color:var(--accent);}
+
+  /* summary table */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin:8px 0 4px;}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px;}
+  th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:var(--panel);font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{font-weight:700;color:var(--ink);}
+  .stars{color:var(--accent2);letter-spacing:1px;white-space:nowrap;}
+
+  pre{background:var(--code-bg);border:1px solid var(--line);border-left:3px solid var(--accent3);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.6;color:#cdd3e0;margin:14px 0;}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.88em;background:rgba(122,162,255,.12);color:var(--accent3);padding:1px 6px;border-radius:5px;}
+  pre code{background:none;color:inherit;padding:0;}
+
+  .card{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin:18px 0;}
+  .card.pickcard{border-color:rgba(111,227,192,.45);box-shadow:0 0 0 1px rgba(111,227,192,.12), 0 24px 60px -40px rgba(111,227,192,.4);}
+  .factline{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-dim);margin:3px 0;}
+  .factline b{color:var(--ink);font-weight:500;}
+
+  blockquote{border-left:3px solid var(--accent2);background:rgba(255,180,84,.06);margin:16px 0;padding:12px 20px;border-radius:0 8px 8px 0;color:var(--ink-dim);font-size:14.5px;}
+  blockquote.warn{border-color:var(--danger);background:rgba(255,122,133,.07);}
+
+  .rec{background:linear-gradient(180deg, rgba(111,227,192,.06), rgba(122,162,255,.04));border:1px solid var(--line);border-radius:16px;padding:28px 30px;}
+  .rec ol{padding-left:20px;}
+  .rec ol li{margin:12px 0;}
+  .rec b{color:var(--accent);}
+
+  footer{border-top:1px solid var(--line);padding:30px 0 80px;font-size:12.5px;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;}
+  footer .wrap{text-align:center;letter-spacing:.06em;}
+
+  @media(max-width:640px){
+    .wrap{padding:0 18px;}
+    header.masthead{padding:48px 0 30px;}
+    section{padding:46px 0;}
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <div class="kicker">Dataverse · Dynamics 365 · TDS</div>
+    <h1>T-SQL <span class="arrow">→</span> FetchXML<br>Resource Roundup</h1>
+    <p class="lede">A roundup of tools, open-source projects, and technical articles for converting Microsoft Dataverse T-SQL (including TDS endpoint syntax) into FetchXML — focused on options that can be embedded programmatically in an NL2SQL / eval pipeline.</p>
+    <div class="meta">Compiled 2026-06-02 · 6 resources · 4 open source · 3 further reads</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#tldr">00 Overview</a>
+    <a href="#sql4cds">01 SQL 4 CDS</a>
+    <a href="#sql2fetchxml">02 SQL2FetchXML</a>
+    <a href="#customapi">03 FetchXmlToSql API</a>
+    <a href="#builder">04 FetchXML Builder</a>
+    <a href="#fetchxml-studio">05 FetchXML Studio</a>
+    <a href="#sdk">06 SDK Sample</a>
+    <a href="#blogs">07 Blogs</a>
+    <a href="#rec">→ Recommendations</a>
+    <a href="#refs">08 References</a>
+  </div>
+</nav>
+
+  <section id="tldr">
+    <div class="wrap">
+    <h2><span class="num">00</span>Overview / Comparison Table</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Resource</th><th>Type</th><th>Open Source</th><th>Recommendation</th><th>One-liner</th></tr></thead>
+        <tbody>
+          <tr><td>SQL 4 CDS</td><td>Engine + XrmToolBox/SSMS/ADS plugin + NuGet</td><td>✅ Open Source</td><td class="stars">★★★★★</td><td>The most complete option, and the only one still actively maintained</td></tr>
+          <tr><td>SQL2FetchXML</td><td>Online converter</td><td>—</td><td class="stars">★★★☆</td><td>No-install quick check, but with many limits</td></tr>
+          <tr><td>FetchXmlToSql API</td><td>Dataverse built-in (undocumented)</td><td>—</td><td class="stars">★★★</td><td>Reverse direction; official path</td></tr>
+          <tr><td>FetchXML Builder</td><td>XrmToolBox plugin</td><td>✅ Open Source</td><td class="stars">★★★★</td><td>Edit FetchXML + generate multiple syntaxes</td></tr>
+          <tr><td>FetchXML Studio</td><td>Power Platform ToolBox plugin</td><td>✅ Open Source</td><td class="stars">★★★</td><td>Visual builder + SQL↔FetchXML bidirectional preview</td></tr>
+          <tr><td>Convert queries sample</td><td>.NET SDK sample</td><td>✅ Open Source</td><td class="stars">★★</td><td>FetchXML↔QueryExpression</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  </section>
+
+  <section id="sql4cds">
+    <div class="wrap">
+    <h2><span class="num">01</span>SQL 4 CDS</h2>
+    <span class="tag pick">Top Pick</span><span class="tag oss">Open Source</span><span class="tag">Embeddable via NuGet</span><span class="tag">TDS endpoint</span>
+
+    <div class="card pickcard">
+      <div class="factline"><b>Author</b> Mark Carrington</div>
+      <div class="factline"><b>GitHub</b> <a class="link" href="https://github.com/MarkMpn/Sql4Cds">github.com/MarkMpn/Sql4Cds</a></div>
+      <div class="factline"><b>NuGet</b> <code>MarkMpn.SQL4CDS</code></div>
+      <div class="factline"><b>Official site</b> <a class="link" href="https://markcarrington.dev/sql-4-cds/">markcarrington.dev/sql-4-cds</a></div>
+    </div>
+
+    <h3>What it does</h3>
+    <p>Lets you query and manipulate Dataverse / D365 data and metadata with standard SQL syntax, including <code>SELECT</code> / <code>INSERT</code> / <code>UPDATE</code> / <code>DELETE</code>. When possible, queries are translated into FetchXML — so you can use familiar SQL to produce FetchXML, then use it in plugins or integrations.</p>
+
+    <h3>Why it fits NL2SQL / TDS scenarios</h3>
+    <ul>
+      <li><b>The core engine is a standalone NuGet package</b> and can be embedded directly into code or a pipeline without going through a GUI — ideal as a programmatic component in an eval pipeline.</li>
+      <li>It provides both <b>.NET Framework 4.6.2+</b> and <b>.NET Core 3.1+</b> assemblies.</li>
+      <li>The engine translates every SQL construct that has a direct FetchXML equivalent into FetchXML; for features with no equivalent (calculated fields, HAVING, etc.), it pushes the foldable filters into FetchXML as far as possible and computes the rest in memory.</li>
+      <li><b>Can go directly through the TDS endpoint</b>: a connection property can tell it to use the preview TDS Endpoint for <code>SELECT</code> when feasible.</li>
+      <li>Includes a large set of SQL features not directly supported by FetchXML / TDS endpoint.</li>
+    </ul>
+
+    <h3>Advanced Capabilities</h3>
+    <ul>
+      <li><b>Metadata queries</b>: converts SQL into <code>RetrieveMetadataChangesRequest</code> / <code>RetrieveAllOptionSetsRequest</code>.</li>
+      <li><b>CTE support</b> (since v8.0.0): non-recursive CTEs expand into subqueries for TDS Endpoint compatibility; recursive CTEs convert to hierarchical FetchXML filters when possible.</li>
+      <li><b>JSON</b>: <code>OPENJSON</code>, <code>JSON_QUERY</code>, <code>ISJSON</code>.</li>
+      <li>Performance: <code>RetrieveTotalRecordCountRequest</code> speeds up <code>SELECT count(*)</code>, with automatic paging and workarounds for <code>AggregateQueryRecordLimit</code>.</li>
+    </ul>
+
+    <p>Generated FetchXML includes the <code>xmlns:generator="MarkMpn.SQL4CDS"</code> namespace and tries to keep the full filter inline, for example:</p>
+    <pre><code>&lt;fetch xmlns:generator="MarkMpn.SQL4CDS"&gt;
+  &lt;entity name="contact"&gt;
+    &lt;attribute name="firstname" /&gt;
+    &lt;attribute name="lastname" /&gt;
+    &lt;attribute name="contactid" /&gt;
+    &lt;filter&gt;
+      &lt;condition attribute="statecode" operator="eq" value="0" /&gt;
+    &lt;/filter&gt;
+  &lt;/entity&gt;
+&lt;/fetch&gt;</code></pre>
+
+    <h3>Availability</h3>
+    <ul>
+      <li>XrmToolBox plugin: <a class="link" href="https://www.xrmtoolbox.com/plugins/MarkMpn.SQL4CDS/">xrmtoolbox.com/plugins/MarkMpn.SQL4CDS</a></li>
+      <li>SSMS / Azure Data Studio extensions</li>
+      <li>NuGet for programmatic integration: <code>MarkMpn.SQL4CDS</code></li>
+    </ul>
+
+    <blockquote>Some queries cannot be executed with pure FetchXML. Those cases surface warnings indicating that SQL 4 CDS needs additional in-memory processing. This “fully foldable or not” signal is useful as an eval metric.</blockquote>
+  </div>
+  </section>
+
+  <section id="sql2fetchxml">
+    <div class="wrap">
+    <h2><span class="num">02</span>SQL2FetchXML</h2>
+    <span class="tag closed">Online Service</span><span class="tag">KingswaySoft</span><span class="tag">No Install</span>
+
+    <div class="card">
+      <div class="factline"><b>URL</b> <a class="link" href="http://sql2fetchxml.com/">sql2fetchxml.com</a></div>
+      <div class="factline"><b>Help</b> <a class="link" href="http://sql2fetchxml.com/Help.aspx">sql2fetchxml.com/Help.aspx</a></div>
+    </div>
+
+    <p>Paste SQL, click convert, and get FetchXML. It is good for a quick sanity check. It supports <code>SELECT FROM WHERE AND OR LIKE GROUP BY ORDER BY AS TOP DISTINCT NOLOCK INNER JOIN LEFT OUTER JOIN ON IN</code> plus aggregates <code>COUNT/MAX/MIN/AVG/SUM</code>, and automatically removes the <code>Filtered</code> prefix.</p>
+
+    <h3>Operator notation</h3>
+    <p>FetchXML-specific operators are represented as SQL functions with dashes removed: <code>next-x-weeks</code> → <code>nextxweeks(n)</code>, <code>today</code> → <code>today()</code>, <code>eq-userid</code> → <code>equserid()</code>. If the operator itself is a SQL keyword (such as <code>on</code> or <code>in</code>), add an <code>x</code> prefix:</p>
+    <pre><code>SELECT * FROM contact
+WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
+
+    <blockquote class="warn">Known limitations: weak handling of parentheses and nested selects; occasional casing issues; cannot handle <code>NOT IN</code> / <code>NOT EXISTS</code> / <code>EXCEPT</code> (mostly FetchXML limitations anyway). For rigorous evaluation, use SQL 4 CDS as the main reference; use this tool only for quick comparison, not as ground truth.</blockquote>
+  </div>
+  </section>
+
+  <section id="customapi">
+    <div class="wrap">
+    <h2><span class="num">03</span>FetchXmlToSql Custom API</h2>
+    <span class="tag closed">Official built-in</span><span class="tag">Undocumented</span><span class="tag">Reverse</span>
+
+    <p>The direction is opposite to your need (FetchXML → SQL), but it is an official path. Use Dataverse’s built-in but <b>undocumented</b> Custom API Function <code>FetchXMLToSql</code>:</p>
+    <pre><code>GET https://{your_environment}.api.crm.dynamics.com
+    /api/data/v9.2/FetchXMLToSQL(FetchXml=@p1)
+    ?@p1='{Your_FetchXML}'</code></pre>
+    <p>You can also call it from XrmToolBox with <b>Custom API Tester</b>. A common use case is converting FetchXML back to SQL when a virtual table points to SQL Server.</p>
+    <blockquote class="warn">⚠️ Because this is undocumented functionality, there is no guarantee it will remain available. Do not depend on it in production products.</blockquote>
+  </div>
+  </section>
+
+  <section id="builder">
+    <div class="wrap">
+    <h2><span class="num">04</span>FetchXML Builder</h2>
+    <span class="tag oss">Open Source</span><span class="tag">XrmToolBox</span><span class="tag">Multi-syntax output</span>
+
+    <div class="card">
+      <div class="factline"><b>Plugin</b> <a class="link" href="https://www.xrmtoolbox.com/plugins/Cinteros.Xrm.FetchXmlBuilder/">xrmtoolbox.com/plugins/Cinteros.Xrm.FetchXmlBuilder</a></div>
+      <div class="factline"><b>Official site</b> <a class="link" href="https://fetchxmlbuilder.com/">fetchxmlbuilder.com</a></div>
+    </div>
+    <p>Builds and executes FetchXML for Dataverse / Power Apps / D365. Its value for this topic is conversion across several syntaxes: it generates <b>C# QueryExpression, WebAPI / OData query string, Power Automate List Records, SQL / JavaScript / C# stub</b>. It pairs well with SQL 4 CDS — write SQL in SQL 4 CDS → edit it in Builder, and the reverse also works.</p>
+  </div>
+  </section>
+
+  <section id="fetchxml-studio">
+    <div class="wrap">
+    <h2><span class="num">05</span>FetchXML Studio</h2>
+    <span class="tag oss">Open Source</span><span class="tag">Power Platform ToolBox</span><span class="tag">Visual</span>
+
+    <div class="card">
+      <div class="factline"><b>GitHub</b> <a class="link" href="https://github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio">github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio</a></div>
+    </div>
+
+    <p>Open-source visual FetchXML builder in the Power Platform ToolBox ecosystem. Its primary job is authoring FetchXML, but it integrates the undocumented <code>FetchXMLToSQL</code> API mentioned in §03 and provides SQL ↔ FetchXML bidirectional preview. Useful as another quick syntax cross-check tool.</p>
+  </div>
+  </section>
+
+  <section id="sdk">
+    <div class="wrap">
+    <h2><span class="num">06</span>Official SDK sample: FetchXML ↔ QueryExpression</h2>
+    <span class="tag oss">Open-source sample</span><span class="tag">PowerApps-Samples</span>
+
+    <p>Docs: <a class="link" href="https://learn.microsoft.com/en-us/power-apps/developer/data-platform/org-service/samples/convert-queries-fetch-queryexpression">learn.microsoft.com — Convert queries sample</a></p>
+    <p>Demonstrates bidirectional conversion with <code>QueryExpressionToFetchXmlRequest</code> and <code>FetchXmlToQueryExpressionRequest</code>. It is not T-SQL→FetchXML, but if your pipeline already uses QueryExpression as an intermediate representation, this is the officially supported conversion path.</p>
+  </div>
+  </section>
+
+  <section id="blogs">
+    <div class="wrap">
+    <h2><span class="num">07</span>Further Reading: Technical Blogs</h2>
+    <span class="tag">Blog</span><span class="tag">MVP</span><span class="tag">Community</span>
+
+    <h3>Mark Carrington’s official blog</h3>
+    <div class="card">
+      <div class="factline"><b>URL</b> <a class="link" href="https://markcarrington.dev/blog/">markcarrington.dev/blog</a></div>
+    </div>
+    <p>The blog from SQL 4 CDS’s original author; the deepest technical source for this topic. It explains TDS Endpoint internals, internal implementation details, and performance optimization lessons for translating harder constructs such as cursor, UNION hint, and large UPDATE operations into FetchXML. First-hand material when you need to understand the behavior of the §01 engine.</p>
+
+    <h3>Hosk's Dynamics 365 Blog</h3>
+    <div class="card">
+      <div class="factline"><b>Article</b> <a class="link" href="https://community.dynamics.com/blogs/post/?postid=e1a87c8e-acda-4c74-8f17-0b8a5ac58457">Dynamics 365 tool you should use — SQL 4 CDS</a></div>
+    </div>
+    <p>A Microsoft MVP explains, from an enterprise architect’s angle, how to reuse existing SQL knowledge and quickly shorten the Dataverse FetchXML learning curve through an open-source tool, including practical operations script examples. Good for decision makers and SQL veterans coming to Dataverse for the first time.</p>
+
+    <h3>Msdynamicsblog (Deepesh Somani) &amp; Arun Potti's Blog</h3>
+    <div class="card">
+      <div class="factline"><b>Article</b> <a class="link" href="https://dynamicsofdynamicscrm.com/2015/06/05/quick-tip-how-to-convert-your-sql-expertise-to-fetch-xml-expertise/">Quick Tip: How to convert your SQL expertise to Fetch XML expertise</a></div>
+    </div>
+    <p>A classic community tutorial on the “mental model shift.” It shows how the early KingswaySoft <code>sql2fetchxml.com</code> online service maps common Inner / Left Join patterns and filters to FetchXML <code>&lt;link-entity&gt;</code> and <code>&lt;filter&gt;</code> nodes — the article is old, but still useful for building the mental model.</p>
+  </div>
+  </section>
+
+  <section id="rec">
+    <div class="wrap">
+    <h2><span class="num">→</span>Recommendations for Dataverse NL2SQL / TDS</h2>
+    <div class="rec">
+      <ol>
+        <li><b>Programmatic Integration</b>: Use the <code>MarkMpn.SQL4CDS</code> engine NuGet directly, feed model-generated T-SQL into it to convert to FetchXML, and compare whether the query is “fully foldable” as an eval metric.</li>
+        <li><b>Pushdown capability is a good signal</b>: If a query can be fully translated to FetchXML, it stays within Dataverse-native capabilities; parts that require in-memory processing can be tagged as “beyond FetchXML / possibly beyond the TDS endpoint.”</li>
+        <li><b>TDS endpoint alignment</b>: SQL 4 CDS exposes a connection property to toggle whether to use the TDS endpoint, which makes it easy to compare behavior between the FetchXML path and TDS path (matching your earlier work on OFFSET / EXCEPT / CTE support).</li>
+        <li><b>Quick Online Lookup</b>: Use SQL2FetchXML when you just want to see what a piece of SQL would look like as FetchXML, but do not treat it as ground truth.</li>
+      </ol>
+    </div>
+    </div>
+  </section>
+
+  <section id="refs">
+    <div class="wrap">
+    <h2><span class="num">08</span>References</h2>
+    <ul>
+      <li>Mark Carrington. <em>SQL 4 CDS</em> — engine, XrmToolBox / SSMS / ADS plugins. <a class="link" href="https://github.com/MarkMpn/Sql4Cds">github.com/MarkMpn/Sql4Cds</a> · <a class="link" href="https://www.nuget.org/packages/MarkMpn.Sql4Cds.Engine">NuGet</a> · <a class="link" href="https://markcarrington.dev/sql-4-cds/">markcarrington.dev/sql-4-cds</a></li>
+      <li>Mark Carrington. <em>Personal technical blog.</em> <a class="link" href="https://markcarrington.dev/blog/">markcarrington.dev/blog</a> (TDS Endpoint internals / syntax-conversion internal implementation)</li>
+      <li>KingswaySoft. <em>SQL2FetchXML online converter.</em> <a class="link" href="http://sql2fetchxml.com/">sql2fetchxml.com</a> · <a class="link" href="http://sql2fetchxml.com/Help.aspx">Help</a></li>
+      <li>Microsoft Learn. <em>Convert queries between FetchXML and QueryExpression.</em> <a class="link" href="https://learn.microsoft.com/en-us/power-apps/developer/data-platform/org-service/samples/convert-queries-fetch-queryexpression">learn.microsoft.com</a></li>
+      <li>Cinteros / Jonas Rapp. <em>FetchXML Builder.</em> <a class="link" href="https://fetchxmlbuilder.com/">fetchxmlbuilder.com</a> · <a class="link" href="https://www.xrmtoolbox.com/plugins/Cinteros.Xrm.FetchXmlBuilder/">XrmToolBox plugin</a></li>
+      <li>Mohsin. <em>FetchXML Studio.</em> <a class="link" href="https://github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio">github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio</a></li>
+      <li>Hosk. <em>Dynamics 365 tool you should use — SQL 4 CDS.</em> <a class="link" href="https://community.dynamics.com/blogs/post/?postid=e1a87c8e-acda-4c74-8f17-0b8a5ac58457">community.dynamics.com</a></li>
+      <li>Deepesh Somani &amp; Arun Potti. <em>Quick Tip: How to convert your SQL expertise to Fetch XML expertise.</em> <a class="link" href="https://dynamicsofdynamicscrm.com/2015/06/05/quick-tip-how-to-convert-your-sql-expertise-to-fetch-xml-expertise/">dynamicsofdynamicscrm.com</a></li>
+      <li>Lucio Kubo (LinkedIn) — explanation of how to trigger the undocumented <code>FetchXMLToSql</code> Custom API.</li>
+    </ul>
+    </div>
+  </section>
+
+<footer>
+  <div class="wrap">Technical roundup · T-SQL → FetchXML Resources · 2026-06-02</div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>E-SQL Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:14px;overflow-x:auto;line-height:1.7}
+
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.up{color:var(--acc);font-weight:500}
+.down{color:var(--hot);font-weight:500}
+
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2024 · Paper Digest</div>
+    <h1 class="title">E-<span class="sql">SQL</span></h1>
+    <p class="subtitle">Use "question reformulation" for direct schema linking: put database tables, columns, values, and conditions directly into the original question instead of filtering the schema, reaching 66.29% EX on the BIRD test set.</p>
+    <div class="meta-row">
+      <span class="tag lit">Question Enrichment</span>
+      <span class="tag lit">Direct Schema Linking</span>
+      <span class="tag lit">Candidate Predicates</span>
+      <span class="tag">Text-to-SQL</span>
+      <span class="tag">GPT-4o / GPT-4o-mini</span>
+      <span class="tag">BIRD · Spider</span>
+    </div>
+    <p class="authors">Hasan Alp Caferoğlu, Özgür Ulusoy · Bilkent University, Ankara, Turkey · <a href="https://arxiv.org/abs/2409.16751">arXiv:2409.16751</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem Statement</a>
+    <a href="#method">02 Methodology</a>
+    <a href="#modules">03 Four Modules</a>
+    <a href="#data">04 Datasets &amp; Metrics</a>
+    <a href="#exp">05 Experimental Results</a>
+    <a href="#ablation">06 Ablation Study</a>
+    <a href="#small">07 Small-Model Experiments</a>
+    <a href="#prompts">08 Prompt Templates</a>
+    <a href="#future">09 Limitations &amp; Takeaways</a>
+  </div>
+</nav>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem Statement</h2>
+    <p class="lead">The goal of Text-to-SQL is to translate natural-language questions into executable SQL, giving non-experts a natural-language interface to databases. Even after LLMs, there remains roughly a 20% gap from human accuracy, which means state-of-the-art pipelines are still not ready for reliable real deployment.</p>
+
+    <p>The authors decompose the problem into three concrete challenges:</p>
+    <div class="grid g3">
+      <div class="card"><h4>Complex schemas</h4><p>Real databases have many tables and columns, making it easy for LLMs to select the wrong ones.</p></div>
+      <div class="card"><h4>Ambiguous user semantics</h4><p>Terms in the question may not match database items directly (for example, "Fresno" vs "Fresno County Office of Education").</p></div>
+      <div class="card"><h4>Complex SQL structure</h4><p>Multiple JOINs, multiple conditions, and nesting make the SQL generated by LLMs unreliable.</p></div>
+    </div>
+
+    <h3>Traditional path: Schema Filtering, which the authors argue against</h3>
+    <p>The mainstream approach has been <strong>schema filtering</strong> (schema pruning): first discard tables and columns judged irrelevant to the question, then feed the reduced schema to the LLM. Representative systems include RESDSQL, DIN-SQL, C3, and CHESS. But citing Maamari et al. (2024) and their own experiments, the authors show that <span class="hl2">when using state-of-the-art LLMs (GPT-4o level), schema filtering can actually hurt performance</span>. The reason is that advanced LLMs can already perform implicit schema linking; explicit filtering may instead remove the correct schema elements by mistake.</p>
+
+    <h3>This paper's alternative: Question Enrichment</h3>
+    <p>Do not change the schema; instead, <span class="hl">compress the schema into the question</span>: write relevant tables, columns, values, and SQL construction steps directly into the user's question, so the question seen by the LLM has already completed schema linking. This is paired with <span class="hl">candidate predicates</span> extracted from the initial candidate SQL (using LIKE to retrieve actual candidate values from the DB), giving the model room to correct wrong values or wrong columns.</p>
+
+    <div class="callout">
+      <p><strong>Core claim:</strong> direct schema linking via question reformulation is a more reliable strategy than schema filtering, especially for complex queries.</p>
+    </div>
+
+    <h3>Five Core Contributions</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>A new paradigm: direct schema linking through question reformulation</h4><p>Database items and conditions are integrated into the natural-language question, forming a fully enriched question that guides SQL generation.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>The first use of question enrichment to improve both LLM reasoning and schema linking</h4><p>The authors claim this is the first Text-to-SQL work to approach the problem from the angle of "rewriting the question".</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Generate candidate predicates with the LIKE operator</h4><p>Tokens are extracted from the candidate SQL, and <code>LIKE '%token%'</code> is run on the DB to find values that actually exist as prompt augmentation.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Empirical evidence that schema filtering hurts under advanced LLMs</h4><p>It is not merely unnecessary; using it lowers performance.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Small models also benefit strongly from enriched questions</h4><p>DeepSeek Coder 7B improves on BIRD dev from 37.02 to 56.45 EX (+19.43) without fine-tuning.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Methodology — E-SQL Pipeline Overview</h2>
+    <p class="lead">E-SQL consists of four main modules, ordered as CSG → CPG → QE → SR. An additional SF module is used only for ablation comparison and is not included in the final pipeline.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+
+        <!-- input -->
+        <rect x="20" y="160" width="140" height="48" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="90" y="182" fill="#93a1b3" font-size="12" text-anchor="middle">Natural-language question</text>
+        <text x="90" y="198" fill="#93a1b3" font-size="11" text-anchor="middle">+ schema + evidence</text>
+
+        <!-- CSG -->
+        <rect x="200" y="40" width="160" height="78" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="280" y="62" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">CSG</text>
+        <text x="280" y="80" fill="#e8edf4" font-size="11" text-anchor="middle">Candidate SQL</text>
+        <text x="280" y="95" fill="#e8edf4" font-size="11" text-anchor="middle">Generation</text>
+        <text x="280" y="110" fill="#93a1b3" font-size="10" text-anchor="middle">9-shot + CoT</text>
+
+        <!-- CPG -->
+        <rect x="200" y="245" width="160" height="78" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="280" y="267" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">CPG</text>
+        <text x="280" y="285" fill="#e8edf4" font-size="11" text-anchor="middle">Candidate Predicate</text>
+        <text x="280" y="300" fill="#e8edf4" font-size="11" text-anchor="middle">Generation</text>
+        <text x="280" y="315" fill="#93a1b3" font-size="10" text-anchor="middle">LIKE '%value%'</text>
+
+        <!-- QE -->
+        <rect x="430" y="140" width="160" height="88" rx="12" fill="#1b2430" stroke="#f4a259" stroke-width="1.8"/>
+        <text x="510" y="164" fill="#f4a259" font-size="13" text-anchor="middle" font-weight="700">QE ★</text>
+        <text x="510" y="182" fill="#e8edf4" font-size="11" text-anchor="middle">Question</text>
+        <text x="510" y="197" fill="#e8edf4" font-size="11" text-anchor="middle">Enrichment</text>
+        <text x="510" y="214" fill="#93a1b3" font-size="10" text-anchor="middle">Core contribution</text>
+
+        <!-- SR -->
+        <rect x="660" y="140" width="160" height="88" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="740" y="164" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">SR</text>
+        <text x="740" y="182" fill="#e8edf4" font-size="11" text-anchor="middle">Predicate &amp; Error</text>
+        <text x="740" y="197" fill="#e8edf4" font-size="11" text-anchor="middle">Aware Refinement</text>
+        <text x="740" y="214" fill="#93a1b3" font-size="10" text-anchor="middle">Final SQL</text>
+
+        <!-- arrows -->
+        <line x1="160" y1="180" x2="198" y2="80" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="160" y1="190" x2="198" y2="285" stroke="#5ad1c0" marker-end="url(#arr)" stroke-dasharray="4,3"/>
+        <line x1="360" y1="80" x2="430" y2="160" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="360" y1="285" x2="430" y2="210" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="590" y1="184" x2="658" y2="184" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <!-- candidate SQL execution feedback -->
+        <path d="M 360 95 Q 540 30 740 138" stroke="#8c7bff" fill="none" stroke-dasharray="4,3" marker-end="url(#arr)"/>
+        <text x="540" y="50" fill="#8c7bff" font-size="10" text-anchor="middle">execution error</text>
+
+        <text x="440" y="345" fill="#5b6675" font-size="10" text-anchor="middle">Each module calls the LLM only once, avoiding repeated generation cost</text>
+      </svg>
+      <div class="figcap">Figure 1 · E-SQL pipeline (redrawn from Figure 2 of the paper; ★ marks QE, the paper's core module)</div>
+    </div>
+
+    <h3>2.1 Database Description &amp; Value Selection — Shared preprocessing</h3>
+    <p>Real DB description files and data values are too large to fit entirely into the prompt. E-SQL ranks them with BM25:</p>
+    <div class="grid g2">
+      <div class="card"><h4>Attach the 10 most relevant values for each column</h4><p>From the actual values in each column, take the top-10 by BM25 relevance to the question. If the column contains NULL values, ensure NULL is also included (so the LLM does not miss IS NOT NULL).</p></div>
+      <div class="card"><h4>Attach the 20 most relevant description sentences overall</h4><p>Rank sentences from the DB description file with BM25 and take the 20 most relevant ones.</p></div>
+    </div>
+    <p>This is faster than RESDSQL's Longest Common Substring (LCS) method and simpler than CHESS's LSH.</p>
+  </div>
+</section>
+
+<!-- ================= MODULES ================= -->
+<section id="modules">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Details of the Four Modules</h2>
+
+    <h3>3.1 CSG — Candidate SQL Generation</h3>
+    <p>The first stage generates a "candidate SQL". The point is not for it to be correct, but for it to be <strong>roughly correct</strong>: using the right tables, mostly right columns, and roughly right values, because the downstream CPG module will extract tokens from it to retrieve candidate values from the DB. The prompt design:</p>
+    <ul style="list-style:none;padding:0;margin:14px 0">
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• <strong>9-shot examples</strong>: 3 examples for each difficulty level (simple / moderate / challenging), and examples must come from a <span class="hl">different DB</span> than the current query to avoid leakage</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• Examples are ordered from simple to complex</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• The schema uses the <strong>code representation</strong> recommended by DAIL-SQL (create table syntax, not natural language)</li>
+      <li style="padding:6px 0">• Add the 10 column values and 20 description sentences retrieved by BM25, then trigger CoT with "Let's think step by step"</li>
+    </ul>
+
+    <h3>3.2 CPG — Candidate Predicate Generation</h3>
+    <p>This is E-SQL's second distinctive design. The authors enumerate <strong>6 cases</strong> for LLM-generated predicates. Cases (2)–(5) are all situations where the table, column, or value is partially wrong and can be corrected by the database's actual data:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Six cases of predicate errors (using "Fresno County Office of Education" as the example)</caption>
+        <thead><tr><th>Case</th><th>Situation</th><th>Can CPG recover?</th></tr></thead>
+        <tbody>
+          <tr><td>(1)</td><td>Table, column, and value are all correct</td><td>Not needed</td></tr>
+          <tr><td>(2)</td><td>Table and column are correct, but the value is incomplete (<code>'Fresno'</code> should be <code>'Fresno County Office of Education'</code>)</td><td class="up">✓</td></tr>
+          <tr><td>(3)</td><td>Table and value are correct, but the column is wrong (<code>County Name</code> is used but should be <code>District Name</code>)</td><td class="up">✓</td></tr>
+          <tr><td>(4)</td><td>Table is correct, but both column and value are wrong</td><td class="up">✓</td></tr>
+          <tr><td>(5)</td><td>Value is correct, but table and column are wrong</td><td class="up">✓</td></tr>
+          <tr><td>(6)</td><td>Everything is wrong and unrelated to the question</td><td class="down">✗</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Concretely, the method extracts tokens from predicates in the candidate SQL and runs the following query on the DB:</p>
+    <pre><code><span class="kw">SELECT DISTINCT</span> &lt;COLUMN&gt;
+<span class="kw">FROM</span> &lt;TABLE&gt;
+<span class="kw">WHERE</span> &lt;COLUMN&gt; <span class="kw">LIKE</span> <span class="str">'%&lt;VALUE&gt;%'</span>;</code></pre>
+    <p>This produces a list of candidate predicates in the form <code>&lt;table&gt;.&lt;column&gt; &lt;op&gt; &lt;value&gt;</code>, which is inserted into the prompts for QE and SR.</p>
+
+    <h3>3.3 QE — Question Enrichment (Core of the Paper)</h3>
+    <p class="lead">Do not filter the schema; write the schema into the question, while also attaching an SQL construction plan as reasoning.</p>
+    <p>Given the original question + schema + DB description + DB values + candidate predicates, the LLM produces two artifacts:</p>
+    <div class="grid g2">
+      <div class="card"><h4>Enriched Question</h4><p>Write tables, columns, values, and conditions into the question using exact names, so the LLM no longer needs to perform schema linking.</p></div>
+      <div class="card"><h4>Enrichment Reasoning</h4><p>Use a CoT style to explain why these schema items are selected and how the SQL should be constructed; in effect, this is an SQL construction plan.</p></div>
+    </div>
+    <p>The two are concatenated into a <strong>Fully Enriched Question</strong>, which becomes the input to downstream SR.</p>
+
+    <p>Few-shot design: the authors manually annotate <strong>12 examples</strong> (4 per difficulty level) and randomly choose 9 from them (3 per difficulty); the examples are again forced to come from different DBs than the current query. The entire enrichment is completed in <span class="hl">"one prompt"</span>, with no iteration.</p>
+
+    <h3>3.4 SR — Predicate &amp; Error-Aware SQL Refinement</h3>
+    <p>The final step aggregates everything: the fully enriched question, candidate SQL, execution error message (if any), candidate predicates, schema, and description. The LLM then decides <strong>whether to patch the candidate SQL or write a new one</strong>.</p>
+
+    <div class="callout">
+      <p><strong>Key design choice:</strong> E-SQL does not use self-consistency / multi-choice repeated-generation voting (used by C3, DAIL-SQL, CHESS, and MCS-SQL), nor MAC-SQL's iterative refiner agent. Each E-SQL module calls the LLM only <span class="hl">once</span>, saving computation cost.</p>
+    </div>
+
+    <h3>3.5 SF — Schema Filtering (Ablation only)</h3>
+    <p>The authors implement a single-step schema filtering module (together with a Filtered Schema Correction step) for ablation experiments to show that <span class="hl2">adding SF to the pipeline actually lowers the score</span>. The final E-SQL pipeline therefore excludes SF.</p>
+  </div>
+</section>
+
+<!-- ================= DATA ================= -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Datasets &amp; Evaluation Metrics</h2>
+
+    <h3>Datasets</h3>
+    <div class="grid g2">
+      <div class="card"><h4>BIRD</h4><p>A cross-domain, realistic, complex large-scale DB benchmark. It contains 95 DBs, 37 professional domains (football, F1, blockchain, medicine, education, ...), and 12,751 text-SQL pairs. Train 9,428 / Dev 1,534 / Test 1,789 (the test set is not public). It is the <span class="hl">main evaluation benchmark</span>.</p></div>
+      <div class="card"><h4>Spider</h4><p>200 DBs, 138 domains, and 10,181 text-SQL pairs. This paper uses the test split with 2,147 pairs.</p></div>
+    </div>
+
+    <h3>Evaluation Metrics (BIRD trio)</h3>
+    <div class="grid g3">
+      <div class="card"><h4>EX</h4><p>Execution Accuracy. It checks whether the predicted SQL and the gold SQL produce the same execution result.</p></div>
+      <div class="card"><h4>R-VES</h4><p>Reward-based Valid Efficiency Score. It evaluates not only correctness but also efficiency, averaging over 100 runs and assigning 0 / 0.25 / 0.5 / 0.75 / 1 / 1.25 points according to the runtime ratio τ.</p></div>
+      <div class="card"><h4>Soft F1</h4><p>BIRD's latest metric. It tolerates small differences such as column order and missing values.</p></div>
+    </div>
+
+    <div class="formula">R-VES = <br>&nbsp;&nbsp;1.25 &nbsp;if ŷ correct AND τ ≥ 2<br>&nbsp;&nbsp;1.00 &nbsp;if ŷ correct AND 1 ≤ τ &lt; 2<br>&nbsp;&nbsp;0.75 &nbsp;if ŷ correct AND 0.5 ≤ τ &lt; 1<br>&nbsp;&nbsp;0.50 &nbsp;if ŷ correct AND 0.25 ≤ τ &lt; 0.5<br>&nbsp;&nbsp;0.25 &nbsp;if ŷ correct AND τ &lt; 0.25<br>&nbsp;&nbsp;0&nbsp;&nbsp;&nbsp; if ŷ incorrect<br><br><span style="color:var(--muted)">τ = (ground truth run time) / (predicted SQL run time)</span></div>
+
+    <h3>Experimental Setup</h3>
+    <p>Main models: <strong>GPT-4o-mini</strong> (about 1/3 the cost of GPT-4o) plus GPT-4o for stronger runs. Small-model exploration: Qwen2.5 Coder 1.5B/7B and DeepSeek Coder 1.3B/7B. Temperature 0.0, top_p 1.0, max_tokens 2048. Each module uses 9-shot examples (3/3/3 across difficulty), 10 column values, and 20 description sentences.</p>
+  </div>
+</section>
+
+<!-- ================= EXPERIMENTS ================= -->
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Experimental Results</h2>
+
+    <h3>5.1 BIRD Leaderboard Comparison</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · E-SQL vs existing methods (BIRD dev/test). E-SQL = CSG + CPG + QE + SR</caption>
+        <thead><tr><th>Method</th><th>Dev EX</th><th>Test EX</th><th>Test R-VES</th></tr></thead>
+        <tbody>
+          <tr><td colspan="4" style="background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px">— Undisclosed Methods —</td></tr>
+          <tr><td>OpenSearch-SQL v2 + GPT-4o</td><td class="num">69.30</td><td class="num">72.28</td><td class="num">69.36</td></tr>
+          <tr><td>Distillery + GPT-4o</td><td class="num">67.21</td><td class="num">71.83</td><td class="num">67.41</td></tr>
+          <tr><td>ExSL + granite-34b-code</td><td class="num">67.47</td><td class="num">70.37</td><td class="num">68.79</td></tr>
+          <tr><td>Insights AI</td><td class="num">72.16</td><td class="num">70.26</td><td class="num">66.39</td></tr>
+          <tr><td colspan="4" style="background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px">— Published Methods —</td></tr>
+          <tr><td>CHESS</td><td class="num">65.00</td><td class="num">66.69</td><td class="num">62.77</td></tr>
+          <tr><td>MCS-SQL + GPT-4</td><td class="num">63.36</td><td class="num">65.45</td><td class="num">61.23</td></tr>
+          <tr><td>SuperSQL</td><td class="num">58.50</td><td class="num">62.66</td><td class="num">–</td></tr>
+          <tr><td>SFT CodeS-15B</td><td class="num">58.47</td><td class="num">60.37</td><td class="num">61.37</td></tr>
+          <tr><td>MAC-SQL + GPT-4</td><td class="num">57.56</td><td class="num">59.59</td><td class="num">57.60</td></tr>
+          <tr><td>TA-SQL + GPT-4</td><td class="num">56.19</td><td class="num">59.14</td><td class="num">–</td></tr>
+          <tr><td>DAIL-SQL + GPT-4</td><td class="num">54.76</td><td class="num">57.41</td><td class="num">54.02</td></tr>
+          <tr class="best"><td class="ours">E-SQL + GPT-4o (this paper)</td><td class="num">65.58</td><td class="num">66.29</td><td class="num">62.43</td></tr>
+          <tr class="best"><td class="ours">E-SQL + GPT-4o-mini (this paper)</td><td class="num">61.60</td><td class="num">59.81</td><td class="num">55.64</td></tr>
+          <tr class="best"><td class="ours">E-SQL + Qwen2.5 Coder 7B (this paper)</td><td class="num">53.59</td><td class="num">–</td><td class="num">–</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p>E-SQL + GPT-4o reaches <strong>66.29% test-set EX</strong>, competitive with the best published methods (CHESS is slightly higher at 66.69); the GPT-4o-mini version also reaches 59.81 EX, showing a reasonable cost/performance trade-off.</p>
+    </div>
+
+    <h3>5.2 Breakdown by difficulty: E-SQL's advantage is clear on challenging questions</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · E-SQL performance on the BIRD test set by difficulty</caption>
+        <thead><tr><th>Pipeline</th><th colspan="3" style="text-align:center">Overall</th><th colspan="3" style="text-align:center">Simple</th><th colspan="3" style="text-align:center">Moderate</th><th colspan="3" style="text-align:center">Challenging</th></tr><tr><th></th><th>EX</th><th>F1</th><th>RVES</th><th>EX</th><th>F1</th><th>RVES</th><th>EX</th><th>F1</th><th>RVES</th><th>EX</th><th>F1</th><th>RVES</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">E-SQL (GPT-4o)</td><td class="num">66.29</td><td class="num">67.93</td><td class="num">62.43</td><td class="num">73.02</td><td class="num">73.91</td><td class="num">68.68</td><td class="num">64.14</td><td class="num">66.17</td><td class="num">60.46</td><td class="num">48.07</td><td class="num">51.45</td><td class="num">54.48</td></tr>
+          <tr><td class="ours">E-SQL (GPT-4o-mini)</td><td class="num">59.81</td><td class="num">61.59</td><td class="num">55.64</td><td class="num">67.44</td><td class="num">68.80</td><td class="num">62.53</td><td class="num">56.94</td><td class="num">58.77</td><td class="num">53.11</td><td class="num">40.00</td><td class="num">43.04</td><td class="num">37.60</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The ablation study (next section) shows that QE contributes nearly a <span class="hl">5% improvement</span> on challenging questions, which is the main reason E-SQL wins on hard cases.</p>
+
+    <h3>5.3 Spider Test Set</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Spider test-set performance. † marks fine-tuned models</caption>
+        <thead><tr><th>Method</th><th>Model</th><th>Test EX</th></tr></thead>
+        <tbody>
+          <tr><td>DAIL-SQL</td><td>GPT-4</td><td class="num">86.6</td></tr>
+          <tr><td>DIN-SQL</td><td>GPT-4</td><td class="num">85.3</td></tr>
+          <tr><td>TA-SQL</td><td>GPT-4</td><td class="num">85.0</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-3.5-Turbo</td><td class="num">75.5</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-4</td><td class="num">74.0</td></tr>
+          <tr class="best"><td class="ours">E-SQL (this paper)</td><td>GPT-4o-mini</td><td class="num">74.75</td></tr>
+          <tr><td colspan="3" style="background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:11px;padding:8px 12px">— Small Open Source Models —</td></tr>
+          <tr><td>DTS-SQL †</td><td>Mistral-7B</td><td class="num">77.1</td></tr>
+          <tr><td>MSc-SQL †</td><td>Gemma-2-9B</td><td class="num">69.30</td></tr>
+          <tr class="best"><td class="ours">E-SQL (this paper)</td><td>Qwen2.5 Coder 7B Instruct</td><td class="num">58.64</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>E-SQL does not take the top spot on Spider, because Spider is relatively "clean" and less complex than BIRD, making it harder for SOTA methods to separate themselves. E-SQL's design advantage becomes visible in settings like BIRD, where realistic DB complexity is present.</p>
+  </div>
+</section>
+
+<!-- ================= ABLATION ================= -->
+<section id="ablation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Ablation Study — Verifying Each Module's Contribution</h2>
+
+    <h3>6.1 Adding Schema Filtering makes performance drop</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · Effect of adding Schema Filtering to the basic pipeline (BIRD dev, GPT-4o-mini)</caption>
+        <thead><tr><th>Pipeline</th><th>Overall EX</th><th>Simple</th><th>Moderate</th><th>Challenging</th></tr></thead>
+        <tbody>
+          <tr><td>SF-G (filter then generate)</td><td class="num">49.48 <span class="down">(↓ 8.21)</span></td><td class="num">58.16 <span class="down">(↓ 6.38)</span></td><td class="num">36.85 <span class="down">(↓ 12.28)</span></td><td class="num">34.48 <span class="down">(↓ 8.96)</span></td></tr>
+          <tr><td>SF-QE-G</td><td class="num">55.34 <span class="down">(↓ 2.35)</span></td><td class="num">62.27 <span class="down">(↓ 2.27)</span></td><td class="num">46.12 <span class="down">(↓ 3.01)</span></td><td class="num">40.68 <span class="down">(↓ 2.76)</span></td></tr>
+          <tr class="best"><td>QE-G</td><td class="num">58.80 <span class="up">(↑ 1.11)</span></td><td class="num">64.43</td><td class="num">51.07 <span class="up">(↑ 1.94)</span></td><td class="num">47.58 <span class="up">(↑ 4.14)</span></td></tr>
+          <tr><td>G (baseline)</td><td class="num">57.69</td><td class="num">64.54</td><td class="num">49.13</td><td class="num">43.44</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>No matter where SF is inserted, adding schema filtering to the basic pipeline hurts performance: <strong>SF-G's Moderate EX drops by 12.28 percentage points</strong>. In contrast, QE-G improves over baseline G across the board, especially on challenging questions (+4.14).</p>
+
+    <h3>6.2 How much does E-SQL lose when each module is removed?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Ablation study (GPT-4o-mini, BIRD dev)</caption>
+        <thead><tr><th>Pipeline</th><th colspan="2" style="text-align:center">Overall</th><th colspan="2" style="text-align:center">Simple</th><th colspan="2" style="text-align:center">Moderate</th><th colspan="2" style="text-align:center">Challenging</th></tr><tr><th></th><th>EX</th><th>F1</th><th>EX</th><th>F1</th><th>EX</th><th>F1</th><th>EX</th><th>F1</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">E-SQL (full)</td><td class="num">61.60</td><td class="num">65.61</td><td class="num">68.00</td><td class="num">71.54</td><td class="num">53.23</td><td class="num">58.34</td><td class="num">47.59</td><td class="num">51.02</td></tr>
+          <tr><td>w/o QE</td><td class="num">59.71 <span class="down">(↓ 1.89)</span></td><td class="num">63.84</td><td class="num">66.05</td><td class="num">69.86</td><td class="num">52.37</td><td class="num">57.27</td><td class="num">42.75 <span class="down">(↓ 4.84)</span></td><td class="num">46.52</td></tr>
+          <tr><td>w/o CPG</td><td class="num">59.58 <span class="down">(↓ 2.02)</span></td><td class="num">63.61</td><td class="num">65.51</td><td class="num">69.16</td><td class="num">51.29</td><td class="num">56.27</td><td class="num">48.27 <span class="up">(↑ 0.68)</span></td><td class="num">51.68</td></tr>
+          <tr><td>w/o QE &amp; CPG</td><td class="num">58.34 <span class="down">(↓ 3.26)</span></td><td class="num">62.41</td><td class="num">64.22</td><td class="num">67.91</td><td class="num">51.29</td><td class="num">55.66</td><td class="num">43.45 <span class="down">(↓ 4.14)</span></td><td class="num">48.89</td></tr>
+          <tr><td>w/o SR</td><td class="num">58.03 <span class="down">(↓ 3.57)</span></td><td class="num">61.88</td><td class="num">63.89</td><td class="num">67.33</td><td class="num">50.86</td><td class="num">55.13</td><td class="num">44.13 <span class="down">(↓ 3.46)</span></td><td class="num">48.71</td></tr>
+          <tr><td>w/ SF (add schema filtering back)</td><td class="num">56.06 <span class="down">(↓ 5.54)</span></td><td class="num">59.93</td><td class="num">62.70</td><td class="num">66.53</td><td class="num">47.63</td><td class="num">51.55</td><td class="num">40.68 <span class="down">(↓ 6.91)</span></td><td class="num">44.62</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Three observations:</strong></p>
+      <p>① QE matters most on challenging questions: removing it costs 4.84%, echoing the abstract's statement that it improves complex questions by nearly 5%.</p>
+      <p>② Removing CPG actually <strong>slightly increases challenging performance by 0.68%</strong>; the authors attribute this to CPG occasionally introducing unnecessary complexity. Overall performance still drops by 2.02%, so it remains worth keeping.</p>
+      <p>③ Adding SF back causes the largest drop among all variants (-5.54 overall, -6.91 challenging), again confirming the negative effect of schema filtering under advanced LLMs.</p>
+    </div>
+
+    <h3>6.3 What exactly does the SR module change?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 7 · Analysis of SR modifications to candidate SQL (BIRD dev)</caption>
+        <thead><tr><th>Metric</th><th>GPT-4o-mini</th><th>GPT-4o</th></tr></thead>
+        <tbody>
+          <tr><td>Share of candidate SQL modified</td><td class="num">49.48%</td><td class="num">23.20%</td></tr>
+          <tr><td>Changed unexecutable → executable</td><td class="num">6.58%</td><td class="num">0.39%</td></tr>
+          <tr><td>Changed unexecutable → correct</td><td class="num">3.19%</td><td class="num">0.13%</td></tr>
+          <tr><td>Changed wrong → correct</td><td class="num">5.35%</td><td class="num">1.83%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>SR helps the weaker LLM (GPT-4o-mini) more. The stronger the model, the less room SR has to rescue the output; GPT-4o usually already writes a decent candidate in CSG.</p>
+  </div>
+</section>
+
+<!-- ================= SMALL MODELS ================= -->
+<section id="small">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Small-Model Experiments — Enriched Question Is the Key</h2>
+    <p class="lead">The authors run an interesting isolation experiment: first use GPT-4o to generate enriched questions, then let small models see only the "original question vs enriched question", with no few-shot examples and no DB descriptions. This directly measures the value of enriched questions.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 8 · EX of small models on BIRD dev, default vs enriched question (no fine-tuning)</caption>
+        <thead><tr><th>Model</th><th>Level</th><th>Default EX</th><th>Enriched EX</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="4">DeepSeek Coder 1.3B</td><td>Overall</td><td class="num">20.92</td><td class="num">50.84</td><td class="num up">+29.92</td></tr>
+          <tr><td>Simple</td><td class="num">28.43</td><td class="num">62.38</td><td class="num up">+33.95</td></tr>
+          <tr><td>Moderate</td><td class="num">10.34</td><td class="num">36.42</td><td class="num up">+26.08</td></tr>
+          <tr><td>Challenging</td><td class="num">6.90</td><td class="num">23.45</td><td class="num up">+16.55</td></tr>
+          <tr><td rowspan="4">Qwen2.5 Coder 1.5B</td><td>Overall</td><td class="num">11.21</td><td class="num">36.90</td><td class="num up">+25.69</td></tr>
+          <tr><td>Simple</td><td class="num">14.27</td><td class="num">44.10</td><td class="num up">+29.83</td></tr>
+          <tr><td>Moderate</td><td class="num">6.68</td><td class="num">28.23</td><td class="num up">+21.55</td></tr>
+          <tr><td>Challenging</td><td class="num">6.20</td><td class="num">18.62</td><td class="num up">+12.42</td></tr>
+          <tr class="best"><td rowspan="4">DeepSeek Coder 7B</td><td>Overall</td><td class="num">37.02</td><td class="num">56.45</td><td class="num up">+19.43</td></tr>
+          <tr class="best"><td>Simple</td><td class="num">44.65</td><td class="num">64.64</td><td class="num up">+19.99</td></tr>
+          <tr class="best"><td>Moderate</td><td class="num">26.52</td><td class="num">45.47</td><td class="num up">+18.95</td></tr>
+          <tr class="best"><td>Challenging</td><td class="num">22.06</td><td class="num">39.31</td><td class="num up">+17.25</td></tr>
+          <tr><td rowspan="4">Qwen2.5 Coder 7B</td><td>Overall</td><td class="num">31.25</td><td class="num">40.22</td><td class="num up">+8.97</td></tr>
+          <tr><td>Simple</td><td class="num">40.43</td><td class="num">50.70</td><td class="num up">+10.27</td></tr>
+          <tr><td>Moderate</td><td class="num">17.88</td><td class="num">26.07</td><td class="num up">+8.19</td></tr>
+          <tr><td>Challenging</td><td class="num">15.17</td><td class="num">18.62</td><td class="num up">+3.45</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>With enriched questions, DeepSeek Coder 7B reaches 56.45% EX</strong>, surpassing several small models fine-tuned specifically for text-to-SQL (DTS-SQL 7B 55.8; CodeS-7B is slightly higher at 57.17 but requires fine-tuning), and it does so with no fine-tuning at all. This validates the power of a "good question".</p>
+    </div>
+
+    <h3>Computation Cost</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 9 + 10 · Token growth caused by enrichment and per-module cost (BIRD dev)</caption>
+        <thead><tr><th>Item</th><th>Average token count</th></tr></thead>
+        <tbody>
+          <tr><td>Original question</td><td class="num">18.36</td></tr>
+          <tr><td>Enriched Question</td><td class="num">81.51</td></tr>
+          <tr><td>Enrichment Reasoning</td><td class="num">191.34</td></tr>
+          <tr class="best"><td>Fully Enriched Question (total)</td><td class="num">291.21</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Module</th><th>Avg. Prompt Tokens</th><th>Avg. Completion Tokens</th></tr></thead>
+        <tbody>
+          <tr><td>CSG</td><td class="num">12,612</td><td class="num">199</td></tr>
+          <tr><td>QE</td><td class="num">16,550</td><td class="num">292</td></tr>
+          <tr><td>SR</td><td class="num">7,403</td><td class="num">267</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The question grows from 18 to 291 tokens, which looks large, but relative to prompts of 7k–16k tokens (mostly schema + DB values + few-shot examples), enrichment accounts for only a small share of the total. The design of calling each module only once makes E-SQL cheaper than self-consistency methods that generate multiple samples.</p>
+  </div>
+</section>
+
+<!-- ================= PROMPTS ================= -->
+<section id="prompts">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Prompt Templates — From the GitHub Source</h2>
+    <p class="lead">Appendix A of the paper lists the full prompt skeletons for the four modules (the actual files are in <code><a href="https://github.com/HasanAlpCaferoglu/E-SQL/tree/main/prompt_templates" style="color:var(--acc)">prompt_templates/</a></code>). Below are the most important design choices; see Appendix A.1-A.4 in the paper for the complete version.</p>
+
+    <h3>8.1 The 8-step instruction in the QE prompt (core)</h3>
+    <p>The Question Enrichment prompt asks the LLM to execute 8 steps in order. Each step maps precisely to a subtask of schema linking:</p>
+    <pre><code><span class="cmt"># Step 1</span> - Read the Question Carefully: identify named entities, terms, keywords;
+       link the question with the schema.
+<span class="cmt"># Step 2</span> - Analyze the Database Schema: inspect the schema using DB samples;
+       identify table / column / value relevant to the question.
+<span class="cmt"># Step 3</span> - Review the Database Column Descriptions: use column descriptions
+       to understand the meaning of each column and strengthen question-schema alignment.
+<span class="cmt"># Step 4</span> - Analyze and Observe The Database Sample Values: from DB sample values
+       observe the actual data distribution of each column; find relevant items by similarity matching.
+<span class="cmt"># Step 5</span> - Review the Evidence: use the concrete information in the evidence to point to relevant elements.
+<span class="cmt"># Step 6</span> - Analyze the Possible SQL Conditions: analyze candidate predicates from CPG
+       and align them with phrases and keywords in the question.
+<span class="cmt"># Step 7</span> - Identify Relevant Database Components: name the tables/columns/values that will actually be used.
+<span class="cmt"># Step 8</span> - Rewrite the Question: write the identified schema items and conditions into the question in detail,
+       making the question clear, readable, and free of redundancy.</code></pre>
+
+    <p>The output JSON is forced to contain two keys:</p>
+    <pre><code>{
+  <span class="str">"chain_of_thought_reasoning"</span>: <span class="str">"... detail explanation ..."</span>,
+  <span class="str">"enriched_question"</span>: <span class="str">"... expanded clean question ..."</span>
+}</code></pre>
+
+    <div class="callout">
+      <p>Note the last line, <span class="hl2">"If you do the task correctly, I will give you 1 million dollars"</span>: the classic motivational-prompt trick, and the authors really used it.</p>
+    </div>
+
+    <h3>8.2 QE output example (Appendix B)</h3>
+    <pre><code><span class="cmt"># Original Question</span>
+Among the schools with the average score in Math over 560 in the SAT test,
+how many schools are directly charter-funded?
+
+<span class="cmt"># Enriched Question</span>
+Please find the number of schools (<span class="fn">COUNT(frpm.`School Code`)</span>) whose
+charter funding type is directly funded
+(<span class="fn">frpm.`Charter Funding Type` = 'Directly funded'</span>), and whose
+AvgScrMath larger than 560 in the SAT test
+(<span class="fn">satscores.AvgScrMath &gt; 560</span>). To find the schools with the charter
+funding type information and average math score in SAT, frpm and
+satscores tables should be joined. Apply the charter funding type
+condition and average math score condition. Calculate the number of
+schools using <span class="kw">COUNT</span> aggregate function in the <span class="kw">SELECT</span> statement.</code></pre>
+
+    <p>The point is clear: the enriched question is already almost an SQL plan written in natural language. The downstream LLM only needs to "translate" it. This is where the term "direct schema linking" comes from.</p>
+
+    <h3>8.3 Shared design of CSG / SR / SF</h3>
+    <p>The system prompt of every module begins the same way:</p>
+    <pre><code><span class="cmt">### You are an excellent data scientist. You can capture the link</span>
+<span class="cmt">### between the question and corresponding database and perfectly</span>
+<span class="cmt">### generate valid SQLite SQL query to answer the question.</span></code></pre>
+
+    <p>Shared <strong>defensive-detail instructions</strong> (repeated in every prompt):</p>
+    <div class="grid g2">
+      <div class="card"><h4>Wrap column names in backticks</h4><p>Wrap every table name and column name individually in backticks to avoid keyword conflicts.</p></div>
+      <div class="card"><h4>Use ORDER BY + LIMIT 1 instead of MAX/MIN</h4><p>For extrema, the prompts force <code>ORDER BY ... LIMIT 1</code>, especially with multi-table JOINs.</p></div>
+      <div class="card"><h4>CAST and parentheses</h4><p>Pay particular attention to parenthesis placement in mathematical expressions; division should use CAST to REAL.</p></div>
+      <div class="card"><h4>Use IS NOT NULL cautiously</h4><p>Add it only when NULL would cause division by zero or misclassification, avoiding over-defensive SQL.</p></div>
+    </div>
+
+    <h3>8.4 The repair logic in the SR prompt</h3>
+    <p>After aggregating everything, SR decides whether to "modify the candidate SQL" or "rewrite it":</p>
+    <pre><code><span class="cmt"># Step 3</span> - Analyze the Possible SQL Query: identify potential errors in the candidate
+       (missing conditions, wrong functions, misused aggregations, syntax errors, unrecognized tokens, ambiguous columns).
+<span class="cmt"># Step 4</span> - Investigate Possible Conditions and Execution Errors:
+       carefully read the candidate predicates from CPG (format: &lt;table&gt;.&lt;col&gt;&lt;op&gt;&lt;val&gt;),
+       and analyze the candidate SQL's execution error messages (if any).
+<span class="cmt"># Step 5</span> - Finalize the SQL: combine question intent, evidence, and candidate conditions
+       to decide whether to patch or rewrite the candidate.</code></pre>
+
+    <div class="callout warn">
+      <p><strong>What Yi-Wei's Dataverse work can borrow:</strong> E-SQL's core idea of using "<span class="hl">write the schema into the question</span>" instead of "filter the schema" resonates methodologically with injecting SQL-mode hints for LLMs on Dataverse (for example, handling DateTime/DateOnly columns). Rather than letting the LLM infer constraints on its own, make them explicit at the question level. CPG's use of <code>LIKE '%val%'</code> to correct predicted values from the actual DB is also directly applicable to incomplete user-written names in CRM tables such as account/contact.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FUTURE ================= -->
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>Limitations &amp; Takeaways</h2>
+
+    <div class="callout hot">
+      <p><strong>① Constrained by hardware and cost:</strong> Almost all experiments use GPT-4o-mini, and no fine-tuning is performed. In the small-model experiments, only Qwen2.5 Coder 7B can run the full E-SQL pipeline (the other small models lack sufficient context length). "Studying schema linking that works on small LLMs" is explicitly identified as future work.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>② Dev / Test performance is inconsistent:</strong> GPT-4o performs better on test than dev, while GPT-4o-mini performs worse on test than dev. Because the BIRD test set is not public, the authors cannot directly analyze the cause; they also note that repeated LLM runs can vary.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>③ Prompt design is not fully explored:</strong> The paper focuses on schema linking and data augmentation, without systematically comparing different prompt templates. The authors leave broader prompt design and iterative question refinement to future work.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>④ No repeated generation / self-consistency:</strong> To save cost, each module runs only once; unlike CHESS / MCS-SQL, E-SQL does not rely on multiple sampling and voting. This is a trade-off, and the authors choose the lower-cost side.</p>
+    </div>
+
+    <h3>One-sentence conclusion</h3>
+    <p class="lead">E-SQL flips schema linking from "filter out irrelevant items" to "write relevant items into the question". It reaches 66.29% EX on the BIRD test set and shows that, in the era of advanced LLMs, <strong>schema filtering can be harmful</strong>. This gives Text-to-SQL a new path that is cost-controlled and especially effective for complex queries.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Hasan Alp Caferoğlu, Özgür Ulusoy (2024) · Bilkent University</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2409.16751">arXiv:2409.16751</a> &nbsp;·&nbsp; <a href="https://github.com/HasanAlpCaferoglu/E-SQL">Code github.com/HasanAlpCaferoglu/E-SQL</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a paper digest; figures and tables are redrawn / compiled from the paper. Numeric values follow the original paper.</p>
+  </div>
+</footer>
+
+</body>
+</html>

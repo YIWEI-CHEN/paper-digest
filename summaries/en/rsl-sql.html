@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSL-SQL: Robust Schema Linking in Text-to-SQL Generation</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2024 · Paper Digest</div>
+    <h1 class="title">RSL-<span class="sql">SQL</span></h1>
+    <p class="subtitle">Using “Bidirectional Schema Linking + dual-path hedging” to minimize schema-linking risk — 67.21% EX on BIRD dev, 94% strict recall, and an 83% reduction in columns.</p>
+    <div class="meta-row">
+      <span class="tag lit">Bidirectional Schema Linking</span>
+      <span class="tag lit">Binary Selection</span>
+      <span class="tag">Contextual Augmentation</span>
+      <span class="tag">Multi-Turn Self-Correction</span>
+      <span class="tag">Text-to-SQL</span>
+      <span class="tag">GPT-4o / DeepSeek</span>
+      <span class="tag">BIRD · Spider</span>
+    </div>
+    <p class="authors">Zhenbiao Cao, Yuanlei Zheng, Zhihao Fan, Xiaojin Zhang, Wei Chen, Xiang Bai · Huazhong University of Science and Technology + Alibaba · <a href="https://arxiv.org/abs/2411.00073">arXiv:2411.00073</a> · <a href="https://github.com/Laqcce-cao/RSL-SQL">github.com/Laqcce-cao/RSL-SQL</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem Statement</a>
+    <a href="#method">02 Methodology</a>
+    <a href="#bsl">03 Bidirectional Schema Linking</a>
+    <a href="#cia">04 Contextual Augmentation</a>
+    <a href="#bss">05 Binary Selection</a>
+    <a href="#mtsc">06 Multi-Turn Self-Correction</a>
+    <a href="#datasets">07 Datasets &amp; Metrics</a>
+    <a href="#results">08 Experimental Results</a>
+    <a href="#ablation">09 Ablation</a>
+    <a href="#case">10 Case Studies</a>
+    <a href="#limit">11 Limitations &amp; Takeaways</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem Statement — Schema Linking as a Double-Edged Sword</h2>
+    <p class="lead">Schema linking is a standard noise-reduction technique for LLM-based Text-to-SQL, but it introduces two risks at the same time: omitting required columns and damaging schema-structure completeness. RSL-SQL explicitly models that risk as a trade-off between “positive gain” and “negative impact,” then designs four steps to maximize the former while minimizing the latter.</p>
+
+    <h3>Why schema linking can make things worse while reducing context</h3>
+    <p>Putting the full database schema—table names, column names, foreign keys, comments, and sample values—into the prompt is information-complete, but it (1) pushes token usage toward the limit and (2) introduces a large amount of irrelevant noise that can steer the LLM in the wrong direction. Schema linking first selects a subset relevant to the question and only then passes it to the LLM.</p>
+    <p>The paper defines this trade-off through two risks:</p>
+
+    <div class="callout hot">
+      <p><strong>Risk 1 (missed recall):</strong> if schema linking fails to recall all required tables/columns, the generated SQL must be wrong (assuming the LLM does not hallucinate nonexistent columns).</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Risk 2 (structural damage):</strong> even if all required columns are recalled, schema linking can still ignore foreign-key relationships and join incorrectly, reduce columns until their semantics become more ambiguous, or amplify ambiguity—thereby turning an originally correct answer into an incorrect one.</p>
+    </div>
+
+    <p>The paper quantifies these two effects as two variables:</p>
+    <div class="formula">
+      net&nbsp;gain&nbsp;=&nbsp;<span style="color:var(--acc2)">y</span>&nbsp;−&nbsp;<span style="color:var(--hot)">x</span><br>
+      <span style="color:var(--muted)">y = number of questions wrong with the full schema → correct after simplification (positive gain)<br>x = number of questions correct with the full schema → wrong after simplification (negative impact)</span>
+    </div>
+    <p>Schema linking pays off only when <span class="hl2">y &gt; x</span>. RSL-SQL’s overall strategy is to <strong>amplify y and suppress x</strong>.</p>
+
+    <h3>The paper’s two headline contributions</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Method</h4>
+        <p>Proposes <span class="hl">RSL-SQL</span>, a four-step framework combining Bidirectional Schema Linking, Contextual Information Augmentation, Binary Selection Strategy, and Multi-Turn Self-Correction, achieving open-source SOTA with 67.21% EX on BIRD dev.</p>
+      </div>
+      <div class="card">
+        <h4>Cross-model transferability</h4>
+        <p>Even the cheaper DeepSeek backbone outperforms most GPT-4-based methods. GPT-4 costs 215× more per token than DeepSeek, yet the performance gap narrows substantially.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Methodology — Four-Step Overview</h2>
+    <p class="lead">RSL-SQL decomposes the pipeline into four LLM-call stages, with each step targeting one side of the “positive gain / negative impact” trade-off. The key design choice is to always keep a SQL₁ generated from the full schema as insurance, then let the LLM arbitrate between the “full” and “simplified” versions at the end.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 920 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <!-- Input box -->
+        <rect x="20" y="150" width="120" height="60" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="80" y="175" fill="#e8edf4" font-size="12" text-anchor="middle">User Question</text>
+        <text x="80" y="195" fill="#93a1b3" font-size="11" text-anchor="middle">+ Full Schema 𝒮</text>
+
+        <!-- Step 1 -->
+        <rect x="180" y="60" width="180" height="80" rx="10" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="270" y="82" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">STEP 1 · BSL</text>
+        <text x="270" y="103" fill="#e8edf4" font-size="12" text-anchor="middle">Bidirectional</text>
+        <text x="270" y="120" fill="#e8edf4" font-size="12" text-anchor="middle">Schema Linking</text>
+        <text x="270" y="135" fill="#93a1b3" font-size="10" text-anchor="middle">→ SQL₁  +  𝒮' (simplified)</text>
+
+        <!-- Step 2 -->
+        <rect x="400" y="60" width="180" height="80" rx="10" fill="#141b25" stroke="#f4a259" stroke-width="1.5"/>
+        <text x="490" y="82" fill="#f4a259" font-size="11" text-anchor="middle" font-weight="700">STEP 2 · CIA</text>
+        <text x="490" y="103" fill="#e8edf4" font-size="12" text-anchor="middle">Contextual Info</text>
+        <text x="490" y="120" fill="#e8edf4" font-size="12" text-anchor="middle">Augmentation</text>
+        <text x="490" y="135" fill="#93a1b3" font-size="10" text-anchor="middle">→ SQL₂ (on 𝒮')</text>
+
+        <!-- Step 3 -->
+        <rect x="620" y="60" width="180" height="80" rx="10" fill="#141b25" stroke="#8c7bff" stroke-width="1.5"/>
+        <text x="710" y="82" fill="#8c7bff" font-size="11" text-anchor="middle" font-weight="700">STEP 3 · BSS</text>
+        <text x="710" y="103" fill="#e8edf4" font-size="12" text-anchor="middle">Binary Selection</text>
+        <text x="710" y="120" fill="#e8edf4" font-size="12" text-anchor="middle">(SQL₁ vs SQL₂)</text>
+        <text x="710" y="135" fill="#93a1b3" font-size="10" text-anchor="middle">→ SQL₃</text>
+
+        <!-- Step 4 -->
+        <rect x="400" y="240" width="180" height="80" rx="10" fill="#141b25" stroke="#ff6b6b" stroke-width="1.5"/>
+        <text x="490" y="262" fill="#ff6b6b" font-size="11" text-anchor="middle" font-weight="700">STEP 4 · MTSC</text>
+        <text x="490" y="283" fill="#e8edf4" font-size="12" text-anchor="middle">Multi-Turn</text>
+        <text x="490" y="300" fill="#e8edf4" font-size="12" text-anchor="middle">Self-Correction</text>
+        <text x="490" y="315" fill="#93a1b3" font-size="10" text-anchor="middle">→ SQL₄ (final)</text>
+
+        <!-- Arrows -->
+        <line x1="140" y1="180" x2="178" y2="120" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="360" y1="100" x2="398" y2="100" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="580" y1="100" x2="618" y2="100" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="710" y1="140" x2="510" y2="240" stroke="#f4a259" stroke-dasharray="4,3" marker-end="url(#arr2)"/>
+
+        <!-- SQL1 bypass arrow -->
+        <path d="M 270,140 Q 270,200 620,180 L 660,150" fill="none" stroke="#5ad1c0" stroke-dasharray="3,3" marker-end="url(#arr)"/>
+        <text x="380" y="195" fill="#93a1b3" font-size="10" font-style="italic">SQL₁ insurance path</text>
+
+        <!-- legend -->
+        <text x="20" y="345" fill="#93a1b3" font-size="10">— Main pipeline</text>
+        <text x="130" y="345" fill="#93a1b3" font-size="10">- - Risk arbitration</text>
+      </svg>
+      <div class="figcap">Figure 1 · Four-step overview of the RSL-SQL framework (redrawn from Fig. 1 in the paper)</div>
+    </div>
+
+    <h3>Shared prompt elements</h3>
+    <p>All steps share the same set of prompt building blocks. The differences are whether they use the full schema 𝒮 or the simplified schema 𝒮′, and whether they include the additional contextual augmentation H<sub>Aug</sub>:</p>
+    <div class="grid g3">
+      <div class="card"><h4>𝒮 / 𝒮′</h4><p>Schema: table names, column names, and foreign keys. The full version 𝒮 is used as insurance; the simplified version 𝒮′ is used from Step 2 onward.</p></div>
+      <div class="card"><h4>𝒱 / 𝒱′</h4><p>Value samples: a few rows sampled from each table as value examples, truncated when too long.</p></div>
+      <div class="card"><h4>𝒟 / 𝒟′</h4><p>Schema descriptions: semantic descriptions generated by an LLM (following TA-SQL) for each table/column. <strong>Used only after simplification</strong>, because the original full version would be too long.</p></div>
+      <div class="card"><h4>ℰ</h4><p>Few-shot examples: top-k similar questions selected from the training set by Euclidean distance (following DAIL-SQL/PET-SQL).</p></div>
+      <div class="card"><h4>𝒬</h4><p>User question — the primary input.</p></div>
+      <div class="card"><h4>𝒞</h4><p>Additional context (optional): BIRD’s evidence / hint field belongs to this category.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="bsl">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>STEP 1 — Bidirectional Schema Linking</h2>
+    <p class="lead">The selling point of BSL is <strong>94% strict recall</strong> (SOTA on BIRD) while reducing the average number of input columns per question by about 83%. The key is to split schema linking into two complementary directions—forward and backward—and then take their union.</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Forward Schema Linking (FSL)</h4>
+        <p>Use 𝒮 + 𝒱 + 𝒬 + 𝒞 to ask the LLM directly: “Which tables/columns are relevant to this question?” The required output format is <code>table_name</code> and <code>table_name.column_name</code>. If 𝒞 mentions any column names, those are added as well. The result is denoted L<sub>fwd</sub>.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Preliminary SQL Generation</h4>
+        <p>Use the <strong>full</strong> 𝒮 + L<sub>fwd</sub> + the other elements to have the LLM generate an initial <span class="hl">SQL₁</span>. This step deliberately excludes 𝒟 (descriptions), because descriptions for every table/column would explode prompt length.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Backward Schema Linking (BSL')</h4>
+        <p>Reverse the direction: <strong>parse SQL₁</strong>, scan every <code>table_name.column_name</code> in the database, and add it to L<sub>bwd</sub> if <code>column_name</code> appears in SQL₁. The paper intentionally chooses “exact column-name match” rather than rigorous SQLGlot parsing. This recalls some redundant columns, but it is more robust when SQL₁ itself is wrong.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Schema Simplification</h4>
+        <p>Take <code>L<sub>fwd</sub> ∪ L<sub>bwd</sub></code> and slice 𝒮, 𝒱, and 𝒟 into the simplified 𝒮′, 𝒱′, and 𝒟′, which are passed to downstream steps.</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why bidirectional &gt; one-way?</strong>FSL has relatively low recall (semantic grounding is not always sufficient), but BSL' relies on the assumption that “if SQL₁ is correct, then the columns it uses are the ground truth.” That assumption pushes BSL' recall to ~90%. Taking the union fills FSL’s gaps while also correcting BSL' bias when SQL₁ is wrong.</p>
+    </div>
+
+    <h3>Exact column-name match vs SQLGlot: the authors’ trade-off</h3>
+    <pre><code><span class="cmt"># Two implementations of backward schema linking</span>
+
+<span class="cmt"># Option A: exact column-name match (used by the paper)</span>
+<span class="kw">for</span> table, col <span class="kw">in</span> all_db_columns:
+    <span class="kw">if</span> col <span class="kw">in</span> SQL_1:        <span class="cmt"># string match; will over-recall same-named columns</span>
+        L_bwd.add((table, col))
+
+<span class="cmt"># Option B: SQLGlot AST parse (more precise but more brittle)</span>
+<span class="kw">import</span> sqlglot
+<span class="kw">for</span> tbl_col <span class="kw">in</span> sqlglot.parse_one(SQL_1).find_all(sqlglot.exp.Column):
+    L_bwd.add(tbl_col)</code></pre>
+    <p class="lead" style="font-size:15px">The authors’ judgment: Option A is noisier, but it is more fault-tolerant when “SQL₁ is already wrong”—and the remaining noise can still be filtered later by binary selection.</p>
+  </div>
+</section>
+
+<section id="cia">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>STEP 2 — Contextual Information Augmentation</h2>
+    <p class="lead">Before generating SQL₂ over the simplified 𝒮′, the LLM first “decomposes” the SQL needed for the question: it predicts potentially useful elements, conditions, and keywords, then feeds them as additional context into SQL₂ generation. Empirically, this step contributes a 2–3% EX improvement.</p>
+
+    <h3>SQL Components Generation</h3>
+    <p>Feed 𝒬, 𝒮′, 𝒱′, 𝒟′, and 𝒞 to the LLM, asking it to output three components:</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>H<sub>E</sub> — Elements</h4>
+        <p>A list of tables / columns that may be needed, using exactly the same output format as FSL.</p>
+      </div>
+      <div class="card">
+        <h4>H<sub>C</sub> — Conditions</h4>
+        <p>After decomposing the question, list potential WHERE-clause conditions.</p>
+      </div>
+      <div class="card">
+        <h4>H<sub>K</sub> — Keywords</h4>
+        <p>Infer SQL keywords from indicator words in the question (e.g., <code>MIN</code>, <code>DISTINCT</code>, <code>GROUP BY</code>).</p>
+      </div>
+    </div>
+
+    <div class="formula">
+      H<sub>Aug</sub> = { 𝒟′ , H<sub>E</sub> , H<sub>C</sub> , H<sub>K</sub> }<br>
+      SQL₂ = f<sub>LLM</sub>( 𝒮′ , 𝒱′ , H<sub>Aug</sub> , ℰ , 𝒬 , 𝒞 )
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Why is augmentation more effective than directly generating SQL?</strong>Based on a qualitative analysis of 20 sampled questions, the paper’s explanation is that after schema simplification, LLMs often “lack sufficient focus.” Decomposing zero-shot components forces the LLM to perform a preliminary “self-plan,” surfacing the relevant keywords and conditions in the prompt before SQL generation, which reduces omissions.</p>
+    </div>
+
+    <h3>Example: how a keyword hint saves a question</h3>
+    <p><strong>Question:</strong> What is the preferred foot when attacking of the player with the lowest potential?</p>
+    <p><strong>H<sub>Aug</sub> (CIA output):</strong></p>
+    <pre><code><span class="cmt">Elements:</span>
+[player_attributes.potential]
+[player_attributes.preferred_foot]
+
+<span class="cmt">Keywords:</span> ['MIN', '=']
+
+<span class="cmt">Conditions:</span>
+['preferred foot when attacking']
+['player with the lowest potential']</code></pre>
+
+    <p><strong>SQL₁ (Step 1, incorrect):</strong></p>
+    <pre><code><span class="kw">SELECT</span> preferred_foot
+<span class="kw">FROM</span> Player_Attributes
+<span class="kw">ORDER BY</span> potential <span class="kw">ASC</span>
+<span class="kw">LIMIT</span> <span class="str">1</span>     <span class="cmt">-- misses the "ties for lowest" case</span></code></pre>
+
+    <p><strong>SQL₂ (Step 2, correct):</strong></p>
+    <pre><code><span class="kw">SELECT</span> preferred_foot
+<span class="kw">FROM</span> player_attributes
+<span class="kw">WHERE</span> potential = (
+    <span class="kw">SELECT MIN</span>(potential)
+    <span class="kw">FROM</span> player_attributes
+)</code></pre>
+    <p class="lead" style="font-size:15px">Once the keyword <code>MIN</code> is made explicit, the LLM recognizes that the lowest potential may not be unique and rewrites the query into a subquery form, avoiding the bias introduced by LIMIT 1.</p>
+  </div>
+</section>
+
+<section id="bss">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>STEP 3 — Binary Selection Strategy</h2>
+    <p class="lead">This step is the framework’s actual “risk hedge”: the LLM chooses between SQL₁ (full schema) and SQL₂ (simplified + augmented schema). It contributes about a 1.5% EX improvement and clearly reduces the negative impact introduced by Step 2.</p>
+
+    <div class="callout">
+      <p><strong>Core insight:</strong> the full schema and simplified schema have <em>different biases</em>. The former preserves structure but contains noise; the latter is cleaner but may omit information. This is cheaper than voting / self-consistency because it compares only two candidates.</p>
+    </div>
+
+    <h3>Decision signal: execution results, not syntax</h3>
+    <p>SQL₁ and SQL₂ are executed first, producing result sets ℛ₁ and ℛ₂. The prompt given to the LLM contains:</p>
+    <div class="formula">SQL₃ = f<sub>LLM</sub>( 𝒮′ , 𝒱′ , 𝒟′ , ℰ , 𝒬 , 𝒞 , SQL₁ , SQL₂ , ℛ₁ , ℛ₂ )</div>
+    <p>Showing the actual execution results to the LLM effectively merges “semantic checking” and “execution checking” into one call—the side with an empty result or wrong shape is easy to discard.</p>
+
+    <h3>Example: BSS rolls a wrong SQL₂ back to SQL₁</h3>
+    <p><strong>Question:</strong> Is molecule TR151 carcinogenic?</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4 style="color:var(--acc)">✓ SQL₁ (Step 1)</h4>
+        <pre style="margin:8px 0"><code><span class="kw">SELECT</span> label
+<span class="kw">FROM</span> molecule
+<span class="kw">WHERE</span> molecule_id = <span class="str">'TR151'</span></code></pre>
+        <p style="font-size:13px;color:var(--muted)">Execution result: [('-',)] — 1 row, answer “no”</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--hot)">✗ SQL₂ (Step 2)</h4>
+        <pre style="margin:8px 0"><code><span class="kw">SELECT</span> label
+<span class="kw">FROM</span> molecule
+<span class="kw">WHERE</span> molecule_id = <span class="str">'TR151'</span>
+  <span class="kw">AND</span> label = <span class="str">'+'</span></code></pre>
+        <p style="font-size:13px;color:var(--muted)">Execution result: empty — Step 2 added an unnecessary filter</p>
+      </div>
+    </div>
+    <p>After comparing the two, the LLM <strong>selects SQL₁ back as SQL₃</strong>. BSS can correct the error because the empty set ℛ₂ is a very salient fact, far more reliable than asking the LLM to compare semantics alone.</p>
+  </div>
+</section>
+
+<section id="mtsc">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>STEP 4 — Multi-Turn Self-Correction</h2>
+    <p class="lead">The final safety net: perform multi-turn conversational correction for high-risk SQL, such as queries that fail execution or return empty results. Empirically this step only improves accuracy modestly, but it matters for robustness because it directly allows the system to “reject” obviously broken outputs.</p>
+
+    <h3>Rules for identifying high-risk outputs</h3>
+    <p>SQL₃ is executed directly:</p>
+    <ul style="margin:14px 0 14px 24px;color:var(--ink)">
+      <li><span class="hl">Syntax error</span> → enter the correction loop</li>
+      <li><span class="hl">Empty result</span> → enter the correction loop (possibly over-constrained or using the wrong column)</li>
+      <li><span class="hl">Normal result</span> → return directly</li>
+    </ul>
+
+    <h3>Dialogue loop</h3>
+    <p>Feed the current SQL and the error message back to the LLM and ask it to rewrite. If the rewritten query still has an error, keep the full conversation history and continue until success or the maximum number of turns N is reached:</p>
+    <div class="formula">
+      SQL<sub>4</sub><sup>(i+1)</sup> = f<sub>LLM</sub>( 𝒮′ , 𝒱′ , 𝒟′ , ℰ , 𝒬 , 𝒞 , SQL<sub>4</sub><sup>(≤i)</sup> , E<sup>(≤i)</sup> )<br>
+      <span style="color:var(--muted)">until SQL<sub>4</sub><sup>(i)</sup> executes successfully, or i = N</span>
+    </div>
+
+    <pre><code><span class="kw">def</span> <span class="fn">mtsc</span>(SQL_3, N):
+    sql, err = SQL_3, check_error(SQL_3)
+    history = []
+    <span class="kw">for</span> i <span class="kw">in</span> range(N):
+        <span class="kw">if</span> err <span class="kw">is None</span>:
+            <span class="kw">return</span> sql           <span class="cmt"># executes successfully and non-empty</span>
+        history.append((sql, err))
+        sql = LLM_refine(history, S_prime, V_prime, D_prime, E, Q, C)
+        err = check_error(sql)
+    <span class="kw">return</span> sql                   <span class="cmt"># rounds exhausted; return current best</span></code></pre>
+  </div>
+</section>
+
+<section id="datasets">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Datasets &amp; Metrics</h2>
+
+    <div class="grid g3">
+      <div class="card"><h4>BIRD</h4><p>A large cross-domain benchmark emphasizing noisy external knowledge, noisy values, and complex queries—harder than Spider. This is the main evaluation setting.</p></div>
+      <div class="card"><h4>Spider</h4><p>A large cross-domain benchmark with complex multi-table queries, used to test generalization.</p></div>
+      <div class="card"><h4>SDS</h4><p>Subsampled Development Set — follows CHESS by sampling 10% of BIRD dev from each DB for ablation, keeping cost manageable.</p></div>
+    </div>
+
+    <h3>Four evaluation metrics</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>EX — Execution Accuracy</h4>
+        <p>The proportion of predicted SQL queries whose execution results exactly match the ground truth. This is the standard metric.</p>
+      </div>
+      <div class="card">
+        <h4>VES — Valid Efficiency Score</h4>
+        <p>An execution-efficiency score for valid SQL queries, i.e., those with matching results. Provided by BIRD.</p>
+      </div>
+      <div class="card">
+        <h4>NSR — Non-Strict Recall</h4>
+        <p>Total number of intersecting elements between linked schema and GT schema / total number of GT elements. Allows partial omissions.</p>
+      </div>
+      <div class="card">
+        <h4>SRR — Strict Recall Rate</h4>
+        <p>The linked schema must <strong>fully contain</strong> the GT schema to score 1; otherwise 0. This is the paper’s key breakthrough point.</p>
+      </div>
+    </div>
+
+    <div class="formula">
+      NSR = Σ |S<sub>gt,i</sub> ∩ S̃<sub>i</sub>| &nbsp;/&nbsp; Σ |S<sub>gt,i</sub>|<br>
+      SRR = Σ 𝕀( S̃<sub>i</sub> ⊇ S<sub>gt,i</sub> )  /  n
+    </div>
+    <p class="lead" style="font-size:15px">Paper objective: <span class="hl2">maximize SRR while keeping |S̃| as small as possible</span>—complete recall with a short prompt.</p>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Experimental Results — Transferability across Backbones</h2>
+    <p class="lead">The results highlight three points: (1) 67.21% on BIRD dev is open-source SOTA; (2) 87.9% on Spider test approaches MCS-SQL; and (3) the DeepSeek backbone is cheaper than most GPT-4 systems while delivering comparable performance.</p>
+
+    <h3>BIRD dev summary</h3>
+    <div class="grid g3">
+      <div class="card"><h4>EX (GPT-4o)</h4><p class="big">67.21</p><p>open-source SOTA</p></div>
+      <div class="card"><h4>VES (GPT-4o)</h4><p class="big">70.32</p><p>valid efficiency</p></div>
+      <div class="card"><h4>SRR (GPT-4o)</h4><p class="big">94<span style="font-size:18px">%</span></p><p>strict schema recall, new SOTA</p></div>
+    </div>
+
+    <h3>Spider Test Set</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table II · Execution Accuracy on Spider Test Set. * = fine-tuned</caption>
+        <thead><tr><th>Method</th><th>Model</th><th>Date</th><th>EX</th></tr></thead>
+        <tbody>
+          <tr><td>DAIL-SQL</td><td>GPT-4</td><td>Sep 2023</td><td class="num">86.6</td></tr>
+          <tr><td>DIN-SQL</td><td>GPT-4</td><td>Sep 2023</td><td class="num">85.3</td></tr>
+          <tr><td>DTS-SQL*</td><td>DeepSeek 7B</td><td>Feb 2024</td><td class="num">84.4</td></tr>
+          <tr><td>MCS-SQL</td><td>GPT-4</td><td>May 2024</td><td class="num">89.6</td></tr>
+          <tr><td>TA-SQL</td><td>GPT-4</td><td>May 2024</td><td class="num">85.0</td></tr>
+          <tr><td>CHESS</td><td>Openllms</td><td>Jun 2024</td><td class="num">87.2</td></tr>
+          <tr><td>PET-SQL</td><td>GPT-4</td><td>Jun 2024</td><td class="num">87.6</td></tr>
+          <tr><td>MAG-SQL</td><td>GPT-4</td><td>Aug 2024</td><td class="num">85.6</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-3.5-Turbo</td><td>Sep 2024</td><td class="num">75.5</td></tr>
+          <tr><td>MAC-SQL</td><td>GPT-4</td><td>Sep 2024</td><td class="num">82.8</td></tr>
+          <tr><td>MSc-SQL*</td><td>Gemma-2-9B</td><td>Oct 2024</td><td class="num">84.7</td></tr>
+          <tr><td class="ours">RSL-SQL (this paper)</td><td>DeepSeek</td><td>Oct 2024</td><td class="num">87.5</td></tr>
+          <tr class="best"><td class="ours">RSL-SQL (this paper)</td><td>GPT-4o</td><td>Oct 2024</td><td class="num">87.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>RSL-SQL is not SOTA on Spider (MCS-SQL leads with 89.6), but the fact that RSL-SQL with DeepSeek can approach GPT-4 baselines is evidence of the method’s transferability.</p>
+
+    <h3>Token Consumption and Cost</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table V · Token consumption and estimated cost of different methods on the full BIRD dev set</caption>
+        <thead><tr><th>Method</th><th>Model</th><th>Input (M)</th><th>Output (M)</th><th>Cost ($)</th><th>EX</th></tr></thead>
+        <tbody>
+          <tr><td>MAC-SQL</td><td>GPT-4</td><td class="num">9.63</td><td class="num">0.89</td><td class="num">342.44</td><td class="num">59.39</td></tr>
+          <tr><td>TA-SQL</td><td>GPT-4</td><td class="num">10.71</td><td class="num">0.51</td><td class="num">351.55</td><td class="num">56.19</td></tr>
+          <tr><td>E-SQL</td><td>GPT-4o</td><td class="num">67.28</td><td class="num">1.44</td><td class="num">182.56</td><td class="num">65.58</td></tr>
+          <tr class="best"><td class="ours">RSL-SQL (this paper)</td><td>DeepSeek</td><td class="num">21.90</td><td class="num">0.73</td><td class="num">3.27</td><td class="num">63.56</td></tr>
+          <tr class="best"><td class="ours">RSL-SQL (this paper)</td><td>GPT-4o</td><td class="num">21.90</td><td class="num">0.73</td><td class="num">62.06</td><td class="num">67.21</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Key comparison:</strong> RSL-SQL (GPT-4o) costs <span class="hl">$62 vs E-SQL’s $182</span>—only one-third of E-SQL’s token count, while EX is 1.6 percentage points higher. Switching to DeepSeek costs only <span class="hl2">$3.27</span> to reach 63.56% EX, already beating many GPT-4 baselines.</p>
+    </div>
+
+    <h3>Schema Linking Recall (Table III Summary)</h3>
+    <p>The paper’s core numbers: Bidirectional Schema Linking reaches <span class="hl">94%</span> SRR on BIRD (GPT-4o), surpassing:</p>
+    <ul style="margin:14px 0 14px 24px;color:var(--ink)">
+      <li><span class="hl">CHESS</span> — 89.7% SRR (using retrieval + multi-turn LLM filtering)</li>
+      <li><span class="hl">MCS-SQL</span> — 89.8% SRR (multi-prompt + multiple-choice)</li>
+    </ul>
+    <p>More importantly, RSL-SQL needs only <span class="hl2">1–2 LLM calls</span>, whereas CHESS / MCS-SQL require multiple turns. At the same time, it uses about 83% fewer columns than the full schema. FSL alone has lower recall; BSL' alone is already close to 90%; only their union reaches 94%.</p>
+  </div>
+</section>
+
+<section id="ablation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>Ablation — Which Components Matter Most?</h2>
+    <p class="lead">The authors add components incrementally on BIRD dev and observe changes in EX. The conclusion: Step 2 (CIA) and Step 3 (BSS) are the core; together they account for more than 70% of the total gain.</p>
+
+    <h3>Trend from incrementally adding components (BIRD dev)</h3>
+
+    <div class="figbox">
+      <svg viewBox="0 0 720 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="80" y1="40" x2="80" y2="260" stroke="#26313f"/>
+        <line x1="80" y1="260" x2="680" y2="260" stroke="#26313f"/>
+
+        <!-- y-axis labels -->
+        <text x="70" y="265" fill="#93a1b3" font-size="10" text-anchor="end">55</text>
+        <text x="70" y="220" fill="#93a1b3" font-size="10" text-anchor="end">58</text>
+        <text x="70" y="175" fill="#93a1b3" font-size="10" text-anchor="end">61</text>
+        <text x="70" y="130" fill="#93a1b3" font-size="10" text-anchor="end">64</text>
+        <text x="70" y="85" fill="#93a1b3" font-size="10" text-anchor="end">67</text>
+        <text x="70" y="40" fill="#93a1b3" font-size="10" text-anchor="end">70</text>
+
+        <!-- horizontal gridlines -->
+        <line x1="80" y1="220" x2="680" y2="220" stroke="#26313f" stroke-dasharray="2,3"/>
+        <line x1="80" y1="175" x2="680" y2="175" stroke="#26313f" stroke-dasharray="2,3"/>
+        <line x1="80" y1="130" x2="680" y2="130" stroke="#26313f" stroke-dasharray="2,3"/>
+        <line x1="80" y1="85" x2="680" y2="85" stroke="#26313f" stroke-dasharray="2,3"/>
+
+        <!-- GPT-4o line: Basic 62.06 → +BSL 63.21 → +CIA 65.06 → +BSS 66.62 → +MTSC 67.21 (illustrative trajectory) -->
+        <!-- y = 260 - (val-55)/15 * 45 ; 67.21 -> 260-12.21/15*45 = 260-36.63 = 223.37? wait recompute: scale 55-70 over 260-40 -->
+        <!-- scale: y = 260 - (val-55) * (220/15) -->
+        <!-- 62.06 -> 260 - 7.06*14.67 = 156.4 -->
+        <!-- 63.21 -> 260 - 8.21*14.67 = 139.6 -->
+        <!-- 65.06 -> 260 - 10.06*14.67 = 112.4 -->
+        <!-- 66.62 -> 260 - 11.62*14.67 = 89.5 -->
+        <!-- 67.21 -> 260 - 12.21*14.67 = 80.9 -->
+        <polyline points="160,156 280,140 400,112 520,90 640,81" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <circle cx="160" cy="156" r="5" fill="#5ad1c0"/>
+        <circle cx="280" cy="140" r="5" fill="#5ad1c0"/>
+        <circle cx="400" cy="112" r="5" fill="#5ad1c0"/>
+        <circle cx="520" cy="90" r="5" fill="#5ad1c0"/>
+        <circle cx="640" cy="81" r="6" fill="#5ad1c0" stroke="#fff" stroke-width="1"/>
+        <text x="640" y="70" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">67.21</text>
+
+        <!-- DeepSeek line: 57.63 → 58.5 → 61 → 63 → 63.56 (illustrative) -->
+        <!-- 57.63 -> 260-2.63*14.67 = 221.4 -->
+        <!-- 58.5  -> 260-3.5*14.67 = 208.7 -->
+        <!-- 61.0  -> 260-6.0*14.67 = 172.0 -->
+        <!-- 63.0  -> 260-8.0*14.67 = 142.7 -->
+        <!-- 63.56 -> 260-8.56*14.67 = 134.4 -->
+        <polyline points="160,221 280,209 400,172 520,143 640,134" fill="none" stroke="#f4a259" stroke-width="2.5" stroke-dasharray="6,4"/>
+        <circle cx="160" cy="221" r="5" fill="#f4a259"/>
+        <circle cx="280" cy="209" r="5" fill="#f4a259"/>
+        <circle cx="400" cy="172" r="5" fill="#f4a259"/>
+        <circle cx="520" cy="143" r="5" fill="#f4a259"/>
+        <circle cx="640" cy="134" r="6" fill="#f4a259" stroke="#fff" stroke-width="1"/>
+        <text x="640" y="125" fill="#f4a259" font-size="11" text-anchor="middle" font-weight="700">63.56</text>
+
+        <!-- x-axis labels -->
+        <text x="160" y="280" fill="#93a1b3" font-size="10.5" text-anchor="middle">Basic</text>
+        <text x="280" y="280" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ BSL</text>
+        <text x="400" y="280" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ CIA</text>
+        <text x="520" y="280" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ BSS</text>
+        <text x="640" y="280" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ MTSC</text>
+
+        <text x="160" y="296" fill="#5b6675" font-size="9" text-anchor="middle">prompt</text>
+        <text x="280" y="296" fill="#5b6675" font-size="9" text-anchor="middle">Step 1</text>
+        <text x="400" y="296" fill="#5b6675" font-size="9" text-anchor="middle">Step 2</text>
+        <text x="520" y="296" fill="#5b6675" font-size="9" text-anchor="middle">Step 3</text>
+        <text x="640" y="296" fill="#5b6675" font-size="9" text-anchor="middle">Step 4</text>
+
+        <!-- legend -->
+        <rect x="500" y="20" width="14" height="3" fill="#5ad1c0"/>
+        <text x="520" y="25" fill="#5ad1c0" font-size="11">GPT-4o</text>
+        <rect x="595" y="20" width="14" height="3" fill="#f4a259"/>
+        <text x="615" y="25" fill="#f4a259" font-size="11">DeepSeek</text>
+
+        <text x="40" y="150" fill="#93a1b3" font-size="11" transform="rotate(-90 40 150)" text-anchor="middle">EX (%)</text>
+      </svg>
+      <div class="figcap">Figure 2 · Illustrative trend of BIRD dev EX as steps are accumulated (redrawn from Table IV / Fig. 8 in the paper; values are endpoints mentioned in the paper text)</div>
+    </div>
+
+    <p>The paper explicitly states:</p>
+    <ul style="margin:14px 0 14px 24px;color:var(--ink)">
+      <li>Basic prompt (GPT-4o) → <span class="hl">62.06%</span>; DeepSeek → <span class="hl2">57.63%</span></li>
+      <li>Each step adds <span class="hl">1–3 percentage points</span></li>
+      <li>Step 2 (CIA) + Step 3 (BSS) together contribute <span class="hl">70%+</span> of the total gain</li>
+      <li>Step 4 (MTSC) yields a smaller gain but is important for robustness</li>
+    </ul>
+
+    <h3>Negative impact vs Positive gain (Fig. 7)</h3>
+    <p>The paper uses two bar charts to show that after Step 2 adds H<sub>Aug</sub>, <strong>negative impact rises slightly while positive gain rises substantially</strong>, making the net effect positive. Step 3 (BSS) then significantly pushes negative impact back down while positive gain continues to increase.</p>
+
+    <h3>How BSL differs across backbones</h3>
+    <div class="callout warn">
+      <p><strong>Strong and weak models respond differently to schema linking:</strong></p>
+      <p>• <span class="hl">GPT-4o</span>: bidirectional &gt; backward &gt; forward, because a stronger model is less sensitive to noise and the recall improvement translates directly into EX gains.</p>
+      <p>• <span class="hl2">DeepSeek</span>: backward-only schema linking is slightly better than bidirectional, because weaker models are more precision-sensitive and excessive recall becomes interference.</p>
+      <p>This echoes the conclusion of paper [40]: the stronger the model, the more recall matters; the weaker the model, the more precision matters.</p>
+    </div>
+
+    <h3>Contributions of CIA sub-components (Table VI/VII)</h3>
+    <p>Removing H<sub>E</sub>, H<sub>C</sub>, H<sub>K</sub>, and 𝒟′ individually shows that:</p>
+    <ul style="margin:14px 0 14px 24px;color:var(--ink)">
+      <li><strong>𝒟′ (column descriptions)</strong> is the most stable single component—bringing 1%+ gains for both GPT-4o and DeepSeek</li>
+      <li><strong>SQL components (H<sub>E</sub>+H<sub>C</sub>+H<sub>K</sub>)</strong> add another 2%+ overall, but only 0.46% on DeepSeek (because the components generated by DeepSeek itself are lower quality)</li>
+    </ul>
+  </div>
+</section>
+
+<section id="case">
+  <div class="wrap">
+    <div class="sec-num">SECTION 10</div>
+    <h2>Case Studies — Two Failure-Repair Modes</h2>
+
+    <h3>(A) Maximize positive gain (CIA recovers a question)</h3>
+    <p>Section §04 already showed the <code>preferred_foot</code> + <code>MIN potential</code> example: after CIA predicts <code>'MIN'</code> as a keyword, the LLM rewrites ORDER BY + LIMIT 1 into the correct subquery, avoiding the “tied for lowest” corner case.</p>
+
+    <h3>(B) Minimize negative impact (BSS falls back to SQL₁)</h3>
+    <p>Section §05 already showed the <code>molecule TR151</code> example: Step 2 added the unnecessary filter <code>label='+'</code>, causing ℛ₂ to be empty. BSS sees that ℛ₂ is empty while ℛ₁ returns one row <code>'-'</code>, and correctly selects SQL₁ back.</p>
+
+    <div class="callout">
+      <p><strong>Putting the two cases together:</strong> CIA is “offense”—adding back what should be included—while BSS is “defense”—rolling back what went too far. The cleverness of RSL-SQL is that both directions are placed in the same pipeline and compensate for each other.</p>
+    </div>
+  </div>
+</section>
+
+<section id="limit">
+  <div class="wrap">
+    <div class="sec-num">SECTION 11</div>
+    <h2>Limitations &amp; Takeaways</h2>
+
+    <h3>Limitations not stated explicitly in the paper but worth noting</h3>
+    <div class="callout hot">
+      <p><strong>Limitation 1 · Backward linking depends on SQL₁ not being too poor.</strong>Exact column-name matching partially mitigates this, but if SQL₁ seriously hallucinates nonexistent column names, BSL' cannot rescue it.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 2 · BSS relies on the LLM correctly interpreting execution results.</strong>When ℛ₁ and ℛ₂ are both non-empty and both “look plausible but are wrong,” BSS has no oracle signal available.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 3 · Transferability to weaker models has a ceiling.</strong>The ablation shows that on DeepSeek, bidirectional is slightly worse than backward-only, implying that this framework may need reweighting on weaker open-source models.</p>
+    </div>
+
+    <h3>Reusable design patterns in practice</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Treat SQL₁ as insurance</h4>
+        <p>Do not treat the first-round prompt as a disposable draft. A “draft SQL generated from the full schema” is a very cheap safety net that can cover for schema-linking failures.</p>
+      </div>
+      <div class="card">
+        <h4>Use execution results for ensembling</h4>
+        <p>Cheaper and more reliable than purely semantic LLM voting. There is no need to sample N candidates; two meaningfully different candidates are enough to hedge.</p>
+      </div>
+      <div class="card">
+        <h4>Have the LLM predict keywords first</h4>
+        <p>CIA’s H<sub>K</sub> effectively forces the LLM to self-plan, grounding the raw question better into SQL structure.</p>
+      </div>
+      <div class="card">
+        <h4>Distinguish schema-linking strategies for strong vs weak backbones</h4>
+        <p>Do not assume “higher recall is always better”—for 7B/13B-scale models, excessive noise can instead drag down EX.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Cao, Zheng, Fan, Zhang, Chen &amp; Bai (2024) · <em>RSL-SQL: Robust Schema Linking in Text-to-SQL Generation</em></p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2411.00073">arXiv:2411.00073</a> &nbsp;·&nbsp; <a href="https://github.com/Laqcce-cao/RSL-SQL">Code Laqcce-cao/RSL-SQL</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a paper digest summary; figures and tables are redrawn / compiled from the paper. Numerical values should be checked against the original paper.</p>
+  </div>
+</footer>
+
+</body>
+</html>

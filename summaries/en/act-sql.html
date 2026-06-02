@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ACT-SQL Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  /* HERO */
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  /* NAV */
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+
+  /* CARDS */
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+  /* CALLOUT */
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  /* FORMULA */
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+  /* CODE */
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  /* TABLE */
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  /* DIAGRAM */
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  /* PIPELINE STEPS */
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">EMNLP 2023 Findings · Paper Digest</div>
+    <h1 class="title">ACT-<span class="sql">SQL</span></h1>
+    <p class="subtitle">Using "automatically generated chain-of-thought" for Text-to-SQL in-context learning — no manual annotation, one API call to generate SQL, and SOTA among in-context learning methods on the Spider dev set.</p>
+    <div class="meta-row">
+      <span class="tag lit">In-Context Learning</span>
+      <span class="tag lit">Chain-of-Thought</span>
+      <span class="tag lit">Schema Linking</span>
+      <span class="tag">Text-to-SQL</span>
+      <span class="tag">GPT-3.5-turbo / GPT-4</span>
+      <span class="tag">Spider · SParC · CoSQL</span>
+    </div>
+    <p class="authors">Hanchong Zhang, Ruisheng Cao, Lu Chen*, Hongshen Xu, Kai Yu · Shanghai Jiao Tong University X-LANCE Lab · <a href="https://arxiv.org/abs/2310.17342">arXiv:2310.17342</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem Statement</a>
+    <a href="#method">02 Methodology</a>
+    <a href="#actcot">03 ACT-SQL Auto-CoT</a>
+    <a href="#multiturn">04 Multi-turn Extension</a>
+    <a href="#data">05 Datasets</a>
+    <a href="#exp">06 Experimental Results</a>
+    <a href="#prompts">07 Prompt Source Code</a>
+    <a href="#future">08 Limitations &amp; Future Work</a>
+  </div>
+</nav>
+
+<!-- ================= PROBLEM ================= -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem Statement</h2>
+    <p class="lead">The goal of Text-to-SQL is to translate a natural-language question into the corresponding SQL query given a database schema, so ordinary users can access relational databases in a more intuitive way.</p>
+
+    <p>Prior work centered on <strong>cross-domain</strong> semantic parsers: in datasets such as Spider, SParC, and CoSQL, the databases used in train / dev / test do not overlap. The traditional approach trains dedicated text-to-SQL models (such as RAT-SQL, LGESQL, and PICARD). Although their scores are strong, they have three structural pain points:</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>Expensive data</h4><p>They require large amounts of high-quality manually annotated training examples, making dataset construction costly.</p></div>
+      <div class="card"><h4>Slow training</h4><p>Finetuning consumes substantial compute resources and time.</p></div>
+      <div class="card"><h4>Hard to deploy</h4><p>The model structures are complex (for example, AST-based), making productionization and maintenance difficult.</p></div>
+    </div>
+
+    <p>The emergence of LLMs opens a new path through in-context learning: no finetuning is needed; zero-shot / few-shot prompts can already work. But the authors point out that LLM-based methods at the time still had clear gaps:</p>
+
+    <div class="callout">
+      <p>① <span class="hl2">Simple prompts perform poorly</span>: prompt designs such as Rajkumar et al. (2022) are too plain and lag behind finetuned models.</p>
+      <p>② <span class="hl2">Complex pipelines are slow and expensive</span>: DIN-SQL uses a multi-step workflow and needs to call the LLM API <strong>multiple times (around 4)</strong> to generate one SQL query.</p>
+      <p>③ <span class="hl2">No automatic CoT</span>: although CoT improves reasoning, it requires manual example selection and annotation; text-to-SQL had no method for automatically generating CoT.</p>
+      <p>④ <span class="hl2">Not extended to multi-turn settings</span>: in-context learning methods had not yet been expanded to multi-turn dialogue datasets such as SParC and CoSQL.</p>
+    </div>
+
+    <h3>Three Core Contributions</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>Exploring the prompt-design space</h4><p>The paper systematically studies how DB schema presentation formats and few-shot exemplar selection strategies affect LLM performance.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Proposing ACT-SQL automatic CoT</h4><p>It automatically generates chain-of-thought rationales, <span class="hl">requiring only one API call per SQL query</span>, saving time and cost while achieving in-context-learning SOTA on the Spider dev set.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Extending to multi-turn Text-to-SQL</h4><p>It reaches performance comparable to finetuned models on SParC and CoSQL.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= METHOD ================= -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Methodology</h2>
+    <p class="lead">The authors formalize SQL generation as a single LLM call. Performance depends on three variables: the database presentation format, the exemplar selection strategy, and the design of the exemplar prompt.</p>
+
+    <div class="formula">S = LLM( I , D , Q , E )<br><span style="color:var(--muted)">I = instruction &nbsp;·&nbsp; D = database schema &nbsp;·&nbsp; Q = question &nbsp;·&nbsp; E = [(D₁,Q₁,P₁), …, (Dₙ,Qₙ,Pₙ)] exemplar list, where Pᵢ is an answer prompt containing the gold SQL</span></div>
+
+    <h3>2.1 Database Presentation Format (DB Prompt Style)</h3>
+    <p>Under zero-shot evaluation, the schema presentation format almost dominates LLM performance. The authors compare five formats:</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Five DB schema presentation formats</caption>
+        <thead><tr><th>Format</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>Table(Column)</code></td><td>Lists one table and its columns per line, following the example in OpenAI's official documentation.</td></tr>
+          <tr><td><code>Table(Column)(PF)</code></td><td>Adds primary-key (PK) and foreign-key (FK) information to the end of the previous format.</td></tr>
+          <tr><td><code>Create(NoPF)</code></td><td>Uses SQL <code>create table</code> syntax to describe the schema, including column types but no PK/FK.</td></tr>
+          <tr><td><code>Create(EoC)</code></td><td>Based on Create, adds PK/FK information at the end of the corresponding column (End of Column).</td></tr>
+          <tr><td><code>Create(EoT)</code></td><td>Based on Create, adds PK/FK information at the end of the whole table (End of Table).</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>In addition, <span class="hl">c example data rows (DB contents)</span> are appended after each table to help the model infer actual stored values (for example, distinguishing "France" from "French").</p>
+
+    <pre><code><span class="kw">create table</span> singer (
+  Singer_ID number,
+  Name text,
+  Country text,
+  ...
+  <span class="kw">primary key</span> (Singer_ID)
+)
+<span class="cmt">/* 3 example rows from table singer:
+   Singer_ID  Name        Country      ...
+   1          Joe Sharp   Netherlands  ...
+   2          Timbaland   United States ...
+   3          Justin Brown France       ... */</span></code></pre>
+
+    <h3>2.2 Exemplar Selection — Hybrid Strategy</h3>
+    <p>The authors use a hybrid <strong>static + dynamic</strong> strategy. Each test case receives <code>ns + nd</code> exemplars:</p>
+    <div class="grid g2">
+      <div class="card"><h4>Static exemplars ns</h4><p>Randomly sample <code>ns</code> examples from the training set and use them in the context of <strong>every</strong> test case.</p></div>
+      <div class="card"><h4>Dynamic exemplars nd</h4><p>For the current test question, compute <strong>question similarity</strong> with a pretrained model and choose the top-<code>nd</code> most relevant examples from the train set.</p></div>
+    </div>
+    <p>Core intuition: the closer a dynamic exemplar's question is, the more useful information it can provide to the LLM.</p>
+  </div>
+</section>
+
+<!-- ================= ACT-CoT ================= -->
+<section id="actcot">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Core: ACT-SQL Automatic CoT</h2>
+    <p class="lead">The authors design the CoT prompt in a form "similar to schema linking" — but the key is that it can be <strong>automatically generated</strong>, with no manual annotation at all.</p>
+
+    <p>Traditional schema linking maps and connects question tokens to schema items (tables / columns) through string matching. ACT-SQL follows the same spirit: for each training example (schema + question + gold SQL), it automatically derives a reasoning chain indicating which question slice corresponds to which column/table.</p>
+
+    <h3>Automatic Generation Algorithm</h3>
+    <p>Given a question <code>q = (q₁,…,q|q|)</code> and SQL <code>s</code>, define a slice <code>qᵢ,ⱼ = (qᵢ,…,qⱼ)</code>. The pipeline has three steps:</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>Enumerate columns in the SQL</h4><p>For each <code>[tab].[col]</code>, use a pretrained model to compute its similarity to all question slices, and link it to the most relevant slice. <span class="hl2">Ignore columns in the GROUP BY clause</span> (they are usually not mentioned directly in the question).</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Enumerate tables in the SQL</h4><p>Exclude tables that already appeared in step ①. For the remaining tables that only appear in FROM, likewise find and link the most relevant question slice.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Enumerate values</h4><p>Add the values appearing in the SQL to the CoT, then append the complete SQL to the end of the CoT.</p></div></div>
+    </div>
+
+    <div class="formula">Most relevant slice &nbsp;=&nbsp; argmax<sub>qᵢ,ⱼ</sub>  Sim( [tab].[col] , qᵢ,ⱼ )</div>
+
+    <!-- DIAGRAM: pipeline -->
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <!-- inputs -->
+        <rect x="20" y="30" width="180" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="110" y="55" fill="#93a1b3" font-size="13" text-anchor="middle">Question q</text>
+        <rect x="20" y="90" width="180" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="110" y="115" fill="#93a1b3" font-size="13" text-anchor="middle">Gold SQL s</text>
+        <rect x="20" y="150" width="180" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="110" y="175" fill="#93a1b3" font-size="13" text-anchor="middle">Schema D</text>
+
+        <!-- engine -->
+        <rect x="280" y="70" width="200" height="110" rx="12" fill="#141b25" stroke="#5ad1c0" stroke-width="1.5"/>
+        <text x="380" y="105" fill="#5ad1c0" font-size="14" text-anchor="middle" font-weight="700">Similarity Matching</text>
+        <text x="380" y="128" fill="#e8edf4" font-size="11" text-anchor="middle">Sim(schema item,</text>
+        <text x="380" y="144" fill="#e8edf4" font-size="11" text-anchor="middle">question slice)</text>
+        <text x="380" y="166" fill="#93a1b3" font-size="10" text-anchor="middle">text2vec pretrained model</text>
+
+        <line x1="200" y1="50"  x2="278" y2="100" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="200" y1="110" x2="278" y2="120" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="200" y1="170" x2="278" y2="145" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <!-- output -->
+        <rect x="555" y="55" width="185" height="140" rx="12" fill="#1b2430" stroke="#f4a259" stroke-width="1.5"/>
+        <text x="647" y="82" fill="#f4a259" font-size="13" text-anchor="middle" font-weight="700">Auto-CoT</text>
+        <text x="570" y="105" fill="#c8d3e0" font-size="9.5">Let's think step</text>
+        <text x="570" y="120" fill="#c8d3e0" font-size="9.5">by step.</text>
+        <text x="570" y="138" fill="#c8d3e0" font-size="9.5">According to "...",</text>
+        <text x="570" y="152" fill="#c8d3e0" font-size="9.5">columns [...] may</text>
+        <text x="570" y="166" fill="#c8d3e0" font-size="9.5">be used.</text>
+        <text x="570" y="184" fill="#5ad1c0" font-size="9.5">SELECT ... (final)</text>
+        <line x1="480" y1="125" x2="553" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <text x="380" y="225" fill="#93a1b3" font-size="11" text-anchor="middle">① columns → ② tables → ③ values, linked in order to the most relevant question slices and written into CoT</text>
+      </svg>
+      <div class="figcap">Figure 1 · ACT-SQL automatic CoT generation pipeline (redrawn from Figures 1–2 in the paper)</div>
+    </div>
+
+    <h3>Example of Automatically Generated CoT (Paper Table 13)</h3>
+    <p>Question: "Find the package choices and series names of TV channels that have high-definition TV." The few-shot version mistakenly places <code>Hight_definition_TV</code> into SELECT. After applying ACT-SQL, the model first performs complete schema linking and finally writes the correct SQL without redundant columns:</p>
+    <pre><code><span class="fn">Let's think step by step.</span>
+According to <span class="str">"TV channel that has high definition TV"</span>,
+  columns [TV_Channel.Hight_definition_TV] may be used.
+According to <span class="str">"package choice and series name"</span>,
+  columns [TV_Channel.Package_Option] and
+  [TV_Channel.series_name] may be used.
+So the final answer is:
+<span class="kw">SELECT</span> package_option , series_name
+<span class="kw">FROM</span> TV_Channel <span class="kw">WHERE</span> Hight_definition_TV = <span class="str">'yes'</span></code></pre>
+
+    <div class="callout">
+      <p><strong>Key advantage:</strong> the whole reasoning chain is generated by the LLM in <span class="hl">the same</span> output — ACT-SQL does not need extra LLM API calls to produce CoT, so it is <strong>faster and cheaper</strong> than multi-step methods such as DIN-SQL.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MULTI-TURN ================= -->
+<section id="multiturn">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Extending to Multi-turn Text-to-SQL</h2>
+    <p class="lead">Multi-turn questions depend on shared context, so single-turn prompts and auto-CoT cannot be applied directly (schema-linking information may be scattered across multiple utterances).</p>
+
+    <p>The authors adopt a <strong>two-stage method</strong>: first use an LLM to <span class="hl2">rewrite</span> multi-turn questions into standalone questions with context dependencies removed, convert the multi-turn dataset into a single-turn dataset, and then apply the in-context learning method above. For each multi-turn dataset, they <strong>manually annotate 10 rewriting examples</strong> to fix the format and improve quality.</p>
+
+    <div class="callout warn">
+      <p><strong>Known weakness:</strong> rewriting quality directly affects the score. If rewriting omits key information (for example, the word "airline" from the first sentence disappears in later turns), the error propagates through schema linking — this is also the main reason ACT-SQL performs worse on multi-turn datasets than on single-turn ones.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DATASETS ================= -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Datasets</h2>
+
+    <h3>Single-turn + Robustness Variants</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Single-turn text-to-SQL datasets</caption>
+        <thead><tr><th>Dataset</th><th>Scale / Characteristics</th><th>Use</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Spider</strong></td><td>200 databases, 138 domains; 8,659 train examples and 1,034 dev examples (test is not public). Comes with an evaluation script that divides SQL into easy / medium / hard / extra difficulty levels.</td><td>Main evaluation benchmark</td></tr>
+          <tr><td><strong>Spider-Syn</strong></td><td>Replaces schema-related words in questions with synonyms, breaking simple string matching.</td><td>Synonym robustness</td></tr>
+          <tr><td><strong>Spider-DK</strong></td><td>Defines five types of domain knowledge and adds examples that reflect realistic rewrites.</td><td>Domain-knowledge generalization</td></tr>
+          <tr><td><strong>Spider-Realistic</strong></td><td>Removes explicit mentions of column names from questions to test text-table alignment ability.</td><td>Text-table alignment</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Multi-turn Dialogue</h3>
+    <div class="grid g2">
+      <div class="card"><h4>SParC</h4><p>4,298 coherent question sequences, with 12k+ individual questions and corresponding SQL queries.</p></div>
+      <div class="card"><h4>CoSQL</h4><p>10k+ annotated SQL queries; each dialogue simulates the realistic setting where a user explores a database and an expert retrieves data with SQL.</p></div>
+    </div>
+
+    <h3>Evaluation Metrics</h3>
+    <div class="grid g3">
+      <div class="card"><h4>EM</h4><p>Exact Match: every component of the predicted SQL must be equivalent to the gold SQL (values are not compared).</p></div>
+      <div class="card"><h4>EX</h4><p>Execution Accuracy: the execution result must be correct, usually more precise than EM.</p></div>
+      <div class="card"><h4>TS</h4><p>Test-Suite: the execution result must be correct across multiple database instances with the same schema.</p></div>
+    </div>
+    <p>For multi-turn evaluation, the paper additionally uses <span class="hl">QM (question-level)</span> and <span class="hl">IM (score only if the entire interaction is correct)</span>.</p>
+  </div>
+</section>
+
+<!-- ================= EXPERIMENTS ================= -->
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Experimental Results</h2>
+    <p class="lead">The primary model is the low-cost GPT-3.5-turbo; GPT-4 is used on Spider to validate auto-CoT. The similarity model is text2vec-base-chinese; temperature = 0 (greedy).</p>
+
+    <h3>6.1 Zero-shot: Effect of the Number of DB Content Rows</h3>
+    <p>Fix the <code>Table(Column)</code> format and vary only the number of appended example data rows. Performance is worst without content; <span class="hl">best at 3 rows</span>; adding more rows does not help. All subsequent experiments use 3 rows.</p>
+
+    <!-- BAR CHART: rows of DB content -->
+    <div class="figbox">
+      <svg viewBox="0 0 700 280" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- axes -->
+        <line x1="60" y1="20" x2="60" y2="220" stroke="#26313f"/>
+        <line x1="60" y1="220" x2="660" y2="220" stroke="#26313f"/>
+        <!-- y labels (TS approx scale 60-72) -->
+        <text x="50" y="225" fill="#5b6675" font-size="10" text-anchor="end">60</text>
+        <text x="50" y="120" fill="#5b6675" font-size="10" text-anchor="end">66</text>
+        <text x="50" y="25" fill="#5b6675" font-size="10" text-anchor="end">72</text>
+        <text x="20" y="125" fill="#93a1b3" font-size="11" transform="rotate(-90 20 125)" text-anchor="middle">TS (%)</text>
+
+        <!-- bars: illustrative trend, peak at 3 rows -->
+        <!-- 0 rows -->
+        <rect x="110" y="150" width="80" height="70" rx="4" fill="#3a4658"/>
+        <text x="150" y="240" fill="#93a1b3" font-size="11" text-anchor="middle">0 rows</text>
+        <text x="150" y="143" fill="#93a1b3" font-size="10" text-anchor="middle">≈64</text>
+        <!-- 1 row -->
+        <rect x="230" y="95" width="80" height="125" rx="4" fill="#4a7d8c"/>
+        <text x="270" y="240" fill="#93a1b3" font-size="11" text-anchor="middle">1 row</text>
+        <text x="270" y="88" fill="#93a1b3" font-size="10" text-anchor="middle">≈67</text>
+        <!-- 3 rows (best) -->
+        <rect x="350" y="55" width="80" height="165" rx="4" fill="#5ad1c0"/>
+        <text x="390" y="240" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">3 rows ★</text>
+        <text x="390" y="48" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">≈69.4</text>
+        <!-- 5 rows -->
+        <rect x="470" y="68" width="80" height="152" rx="4" fill="#4a7d8c"/>
+        <text x="510" y="240" fill="#93a1b3" font-size="11" text-anchor="middle">5 rows</text>
+        <text x="510" y="61" fill="#93a1b3" font-size="10" text-anchor="middle">≈68.8</text>
+
+        <text x="360" y="265" fill="#5b6675" font-size="10" text-anchor="middle">Number of appended data rows (trend illustration: peak at 3 rows)</text>
+      </svg>
+      <div class="figcap">Figure 2 · Zero-shot performance trend of GPT-3.5-turbo with different numbers of DB content rows (redrawn from Figure 3 in the paper; values are illustrative)</div>
+    </div>
+
+    <h3>6.2 Zero-shot: Comparing DB Formats</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · GPT-3.5-turbo zero-shot under different DB formats (Spider dev)</caption>
+        <thead><tr><th>DB Style</th><th>EM</th><th>EX</th><th>TS</th></tr></thead>
+        <tbody>
+          <tr><td>Table(Column)</td><td class="num">45.3</td><td class="num">78.3</td><td class="num">69.4</td></tr>
+          <tr class="best"><td>Table(Column)(PF)</td><td class="num">45.4</td><td class="num">79.0</td><td class="num">69.1</td></tr>
+          <tr><td>Create(NoPF)</td><td class="num">45.3</td><td class="num">77.0</td><td class="num">66.1</td></tr>
+          <tr><td>Create(EoC)</td><td class="num">44.8</td><td class="num">79.2</td><td class="num">67.7</td></tr>
+          <tr><td>Create(EoT)</td><td class="num">44.8</td><td class="num">78.3</td><td class="num">67.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Under zero-shot, the <code>Table(Column)</code> family works better (it is close to OpenAI's official documentation and resembles pretraining data); formats with PK/FK help on EX/TS, showing that key information is useful to the model.</p>
+
+    <h3>6.3 Main Results: Comparison with Existing Methods (Spider dev)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · ACT-SQL vs existing in-context learning methods (fewer API calls per SQL is better)</caption>
+        <thead><tr><th>LLM</th><th>Method</th><th>API/SQL</th><th>EM</th><th>EX</th><th>TS</th></tr></thead>
+        <tbody>
+          <tr><td>Codex</td><td>Rajkumar (2022)</td><td class="num">1</td><td class="num">–</td><td class="num">67.0</td><td class="num">55.1</td></tr>
+          <tr><td>Codex</td><td>Chang & Fosler (2023)</td><td class="num">1</td><td class="num">–</td><td class="num">76.8</td><td class="num">–</td></tr>
+          <tr><td>Codex</td><td>DIN-SQL</td><td class="num">4</td><td class="num">57.2</td><td class="num">–</td><td class="num">69.9</td></tr>
+          <tr><td>GPT-4</td><td>DIN-SQL</td><td class="num">4</td><td class="num">60.1</td><td class="num">82.8</td><td class="num">74.2</td></tr>
+          <tr class="best"><td>GPT-3.5-turbo</td><td class="ours">ACT-SQL (this paper)</td><td class="num">1</td><td class="num">62.7</td><td class="num">80.4</td><td class="num">71.4</td></tr>
+          <tr class="best"><td>GPT-4</td><td class="ours">ACT-SQL (this paper)</td><td class="num">1</td><td class="num">61.7</td><td class="num">82.9</td><td class="num">74.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p>With <strong>only 1</strong> API call, ACT-SQL achieves the best results among existing in-context learning methods on EM / EX / TS — the GPT-4 version reaches EX 82.9 and TS 74.5, both surpassing DIN-SQL, which requires 4 calls; the GPT-3.5 version further reaches EM 62.7.</p>
+    </div>
+
+    <h3>6.4 Dev vs Test: The Hidden Advantage of In-context Learning</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · Dev → test score changes across methods</caption>
+        <thead><tr><th>Type</th><th>Method</th><th>Dev</th><th>Test</th><th>Trend</th></tr></thead>
+        <tbody>
+          <tr><td>Finetuned</td><td>Graphix-3B+PICARD</td><td class="num">81.0</td><td class="num">77.6</td><td style="color:var(--hot)">↓</td></tr>
+          <tr><td>Finetuned</td><td>RESDSQL-3B+NatSQL</td><td class="num">84.1</td><td class="num">79.9</td><td style="color:var(--hot)">↓</td></tr>
+          <tr><td>In-context learning</td><td>C3</td><td class="num">81.8</td><td class="num">82.3</td><td style="color:var(--acc)">↑</td></tr>
+          <tr><td>In-context learning</td><td>DIN-SQL</td><td class="num">82.8</td><td class="num">85.3</td><td style="color:var(--acc)">↑</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Because finetuned models are selected based on dev performance, they are prone to overfit and drop on the test set; for in-context learning methods, dev/test are "equivalent" from the model's perspective, so this gap does not appear — meaning ACT-SQL's dev score is more representative.</p>
+
+    <h3>6.5 Results on Robustness Variants</h3>
+    <div class="grid g3">
+      <div class="card"><h4>Spider-Syn</h4><p class="big">59.3</p><p>ACT-SQL TS; few-shot is 54.5. CoT brings a clear improvement.</p></div>
+      <div class="card"><h4>Spider-DK</h4><p class="big">62.4</p><p>ACT-SQL TS; EX reaches 68.2, <span class="hl">surpassing finetuned models</span> (thanks to the broad domain knowledge contained in LLMs).</p></div>
+      <div class="card"><h4>Spider-Realistic</h4><p class="big">61.2</p><p>ACT-SQL TS, comparable to finetuned models.</p></div>
+    </div>
+
+    <h3>6.6 Multi-turn Datasets (QM / IM, TS)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 8–9 · SParC and CoSQL dev (TS excerpt)</caption>
+        <thead><tr><th>Dataset</th><th>Method</th><th>QM (TS)</th><th>IM (TS)</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="3">SParC</td><td>GAZP+BERT (finetuned)</td><td class="num">—</td><td class="num">—</td></tr>
+          <tr><td>Few-shot (this paper)</td><td class="num">55.8</td><td class="num">31.5</td></tr>
+          <tr><td class="ours">ACT-SQL (this paper)</td><td class="num">56.9</td><td class="num">29.6</td></tr>
+          <tr><td rowspan="2">CoSQL</td><td>Few-shot (this paper)</td><td class="num">55.5</td><td class="num">22.9</td></tr>
+          <tr><td class="ours">ACT-SQL (this paper)</td><td class="num">55.2</td><td class="num">21.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>In the multi-turn setting, ACT-SQL has <strong>no clear advantage</strong> over few-shot (IM even drops slightly). Overall it is comparable to the finetuned GAZP+BERT model but still leaves room for improvement — the authors attribute this to the unstable quality of "question rewriting" in the two-stage method.</p>
+  </div>
+</section>
+
+<!-- ================= PROMPTS ================= -->
+<section id="prompts">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Prompt Source Code — From the GitHub Repo</h2>
+    <p class="lead">Below are the key code snippets directly extracted from <code><a href="https://github.com/X-LANCE/text2sql-GPT" style="color:var(--acc)">X-LANCE/text2sql-GPT</a></code>, showing how ACT-SQL actually assembles prompts. The examples in Appendix C of the paper all come from these functions.</p>
+
+    <h3>7.1 System message — just one sentence</h3>
+    <p>Whether zero-shot or few-shot, the system message given to the Chat model is always this line (from <code>util/prompt.py</code> <code>get_prompt()</code>):</p>
+    <pre><code><span class="cmt"># util/prompt.py · line 66</span>
+prompt = [{<span class="str">'role'</span>: <span class="str">'system'</span>,
+           <span class="str">'content'</span>: <span class="str">'Given the database schema, you need to '</span>
+                      <span class="str">'translate the question into the SQL query.'</span>}]</code></pre>
+    <div class="callout">
+      <p>Note that there is <strong>no complex role-playing, no rule list, and no few-shot instruction preamble</strong>. The whole system prompt has only 14 words; all "teaching" is conveyed through subsequent user/assistant exemplar dialogues.</p>
+    </div>
+
+    <h3>7.2 Main prompt assembly function <code>get_prompt()</code></h3>
+    <p>This is the core entry point of the paper's method: it concatenates the system message, several examples of (user question + assistant SQL or CoT), and finally the actual test case's user question into one multi-turn dialogue.</p>
+    <pre><code><span class="cmt"># util/prompt.py · get_prompt() · simplified</span>
+<span class="kw">def</span> <span class="fn">get_prompt</span>(self, args, db_id=<span class="kw">None</span>, question=<span class="kw">None</span>, shots=[], c_num=-1):
+    <span class="kw">if</span> c_num &lt; 0:
+        c_num = args.content  <span class="cmt"># number of DB example rows (paper uses 3)</span>
+
+    <span class="kw">if</span> args.gpt <span class="kw">in</span> GPT_CHAT_MODELS:  <span class="cmt"># gpt-3.5-turbo / gpt-4</span>
+        prompt = [{<span class="str">'role'</span>: <span class="str">'system'</span>,
+                   <span class="str">'content'</span>: <span class="str">'Given the database schema, you need to '</span>
+                              <span class="str">'translate the question into the SQL query.'</span>}]
+
+        <span class="cmt"># ===== Append ns + nd examples one by one (static + dynamic) =====</span>
+        <span class="kw">for</span> shot <span class="kw">in</span> shots:
+            prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>,
+                <span class="str">'content'</span>: <span class="fn">f</span><span class="str">"Database schema:\n{self.db_prompts[shot['db_id']][c_num]}\n"</span>
+                           <span class="fn">f</span><span class="str">"Question: {shot['question']}"</span>})
+            <span class="kw">if</span> args.cot:
+                prompt.append({<span class="str">'role'</span>: <span class="str">'assistant'</span>, <span class="str">'content'</span>: shot[<span class="str">'cot'</span>]})
+            <span class="kw">else</span>:
+                prompt.append({<span class="str">'role'</span>: <span class="str">'assistant'</span>, <span class="str">'content'</span>: shot[<span class="str">'query'</span>]})
+
+        <span class="cmt"># ===== Finally append the actual test case to be answered =====</span>
+        <span class="kw">if</span> db_id <span class="kw">and</span> question:
+            prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>,
+                <span class="str">'content'</span>: <span class="fn">f</span><span class="str">'Database schema:\n{self.db_prompts[db_id][c_num]}\n'</span>
+                           <span class="fn">f</span><span class="str">'Question: {question}'</span>})
+
+    <span class="kw">elif</span> args.gpt <span class="kw">in</span> GPT_COMPLETION_MODELS:  <span class="cmt"># code-davinci-002, text-davinci-003</span>
+        prompt = <span class="str">''</span>
+        <span class="kw">for</span> shot <span class="kw">in</span> shots:
+            prompt += <span class="str">'Given the database schema:\n'</span>
+            prompt += self.db_prompts[shot[<span class="str">'db_id'</span>]][c_num] + <span class="str">'\n'</span>
+            prompt += <span class="str">'Translate the natural utterance into the SQL query: '</span> \
+                      + shot[<span class="str">'question'</span>] + <span class="str">'\n'</span>
+            prompt += (shot[<span class="str">'cot'</span>] <span class="kw">if</span> args.cot <span class="kw">else</span> shot[<span class="str">'query'</span>]) + <span class="str">'\n'</span>
+        <span class="kw">if</span> db_id <span class="kw">and</span> question:
+            prompt += <span class="str">'Given the database schema:\n'</span>
+            prompt += self.db_prompts[db_id][c_num] + <span class="str">'\n'</span>
+            prompt += <span class="str">'Translate the natural utterance into the SQL query: '</span> + question + <span class="str">'\n'</span>
+            <span class="cmt"># Trigger CoT reasoning</span>
+            prompt += <span class="str">"Let's think step by step."</span> <span class="kw">if</span> args.cot <span class="kw">else</span> <span class="str">'SELECT'</span>
+
+    <span class="kw">return</span> prompt</code></pre>
+
+    <div class="callout warn">
+      <p><strong>Implementation-level observable details:</strong></p>
+      <p>① Chat models pass few-shot examples through <span class="hl">multi-turn user/assistant messages</span>; Completion models concatenate them into a single string.</p>
+      <p>② In CoT mode, <code>shot['cot']</code> (the full reasoning chain pre-generated in <code>cot.py</code>) is used directly as the assistant response.</p>
+      <p>③ Completion models forcibly append <code>"Let's think step by step."</code> (CoT) or <code>"SELECT"</code> (to trigger direct SQL continuation) at the end; Chat models do not need this trick because they continue directly via role=assistant.</p>
+    </div>
+
+    <h3>7.3 Database schema string templates — how the five formats are generated</h3>
+    <p>All formats are built and cached in <code>self.db_prompts[db_id][c_num]</code> by <code>PromptMaker.__init__</code> at startup. The key branches are:</p>
+    <pre><code><span class="cmt"># util/prompt.py · __init__ simplified</span>
+<span class="kw">for</span> i <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(tabs)):
+    <span class="kw">if</span> args.api_doc:
+        <span class="cmt"># ===== Table(Column) format: OpenAI official docs style =====</span>
+        self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"# {tabs[i]}({', '.join([col[1] for col in cols if col[0] == i])})\n"</span>
+    <span class="kw">else</span>:
+        <span class="cmt"># ===== Create(...) family: SQL DDL style =====</span>
+        self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">'create table {tabs[i]} (\n'</span>
+        <span class="kw">for</span> j <span class="kw">in</span> <span class="fn">range</span>(<span class="fn">len</span>(cols)):
+            <span class="kw">if</span> cols[j][0] == i:
+                self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"    {cols[j][1]} {db['column_types'][j]}"</span>
+                <span class="kw">if</span> args.pf == <span class="str">'eoc'</span>:  <span class="cmt"># End of Column: PK/FK at end of each column</span>
+                    <span class="kw">if</span> j <span class="kw">in</span> db[<span class="str">'primary_keys'</span>]:
+                        self.db_prompts[db_id][c_num] += <span class="str">' primary key'</span>
+                    <span class="kw">for</span> fk <span class="kw">in</span> db[<span class="str">'foreign_keys'</span>]:
+                        <span class="kw">if</span> fk[0] == j:
+                            self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">' references {tabs[cols[fk[1]][0]]}({cols[fk[1]][1]})'</span>
+                self.db_prompts[db_id][c_num] += <span class="str">',\n'</span>
+        <span class="kw">if</span> args.pf == <span class="str">'eot'</span>:  <span class="cmt"># End of Table: PK/FK at end of whole table</span>
+            pks = [cols[pk][1] <span class="kw">for</span> pk <span class="kw">in</span> db[<span class="str">'primary_keys'</span>] <span class="kw">if</span> cols[pk][0] == i]
+            <span class="kw">if</span> <span class="fn">len</span>(pks) &gt; 0:
+                self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"    primary key ({', '.join(pks)}),\n"</span>
+            <span class="kw">for</span> fk <span class="kw">in</span> db[<span class="str">'foreign_keys'</span>]:
+                <span class="kw">if</span> cols[fk[0]][0] == i:
+                    self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">'    foreign key ({cols[fk[0]][1]}) references ...,\n'</span>
+        self.db_prompts[db_id][c_num] = self.db_prompts[db_id][c_num][:-2] + <span class="str">'\n)\n'</span>
+
+    <span class="cmt"># ===== Append DB example rows (c_num rows, paper uses 3) =====</span>
+    <span class="kw">if</span> c_num &gt; 0 <span class="kw">and</span> os.path.exists(db_path):
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        db_contents = cursor.execute(<span class="fn">f</span><span class="str">'SELECT * FROM {tabs[i]} LIMIT {c_num}'</span>).fetchall()
+        self.db_prompts[db_id][c_num] += <span class="str">'/*\n'</span>
+        self.db_prompts[db_id][c_num] += <span class="fn">f</span><span class="str">"{len(db_contents)} example rows from table {tabs[i]}:\n"</span>
+        self.db_prompts[db_id][c_num] += <span class="str">'\t'</span>.join([col[1] <span class="kw">for</span> col <span class="kw">in</span> cols <span class="kw">if</span> col[0] == i]) + <span class="str">'\n'</span>
+        <span class="kw">for</span> record <span class="kw">in</span> db_contents:
+            self.db_prompts[db_id][c_num] += <span class="str">'\t'</span>.join([<span class="fn">str</span>(record[col[1]]) <span class="kw">for</span> col <span class="kw">in</span> cols <span class="kw">if</span> col[0] == i]) + <span class="str">'\n'</span>
+        self.db_prompts[db_id][c_num] += <span class="str">'*/\n'</span></code></pre>
+
+    <p>The corresponding CLI flags:</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Mapping from arg flags ↔ DB formats in the paper</caption>
+        <thead><tr><th>Paper format</th><th><code>--api_doc</code></th><th><code>--pf</code></th></tr></thead>
+        <tbody>
+          <tr><td>Table(Column)</td><td>True</td><td>no</td></tr>
+          <tr><td>Table(Column)(PF)</td><td>True</td><td>eoc / eot</td></tr>
+          <tr><td>Create(NoPF)</td><td>False</td><td>no</td></tr>
+          <tr><td>Create(EoC)</td><td>False</td><td>eoc</td></tr>
+          <tr class="best"><td>Create(EoT) ★ best</td><td>False</td><td>eot</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.4 ACT-SQL Auto-CoT Generation — core logic in <code>cot.py</code></h3>
+    <p>This section operationalizes the paper's algorithm for "automatically generating chain-of-thought": given training examples (schema + question + gold SQL), it finds the most relevant question slices for every table/column/value in the SQL and concatenates them into CoT.</p>
+    <pre><code><span class="cmt"># cot.py · core loop (comments simplified)</span>
+<span class="kw">for</span> i, example <span class="kw">in</span> <span class="fn">enumerate</span>(dataset):
+    <span class="kw">if</span> <span class="str">'cot'</span> <span class="kw">in</span> example: <span class="kw">continue</span>
+
+    <span class="cmt"># ① Extract every contiguous (i,j) slice of the question and encode</span>
+    words = word_tokenize(example[<span class="str">'question'</span>])
+    phrases = [<span class="str">' '</span>.join(words[a:b]) <span class="kw">for</span> a,b <span class="kw">in</span> combinations(<span class="fn">range</span>(<span class="fn">len</span>(words)+1), 2)]
+    phrase_encodings = sentence_encoder.encode(phrases, normalize_embeddings=<span class="kw">True</span>, ...)
+
+    <span class="cmt"># ② Extract tables / columns / values referenced by the gold SQL</span>
+    tables  = get_tables_in_sql (example[<span class="str">'sql'</span>], dbs[example[<span class="str">'db_id'</span>]])
+    columns = get_columns_in_sql(example[<span class="str">'sql'</span>], dbs[example[<span class="str">'db_id'</span>]])
+    values  = get_values_in_sql (example[<span class="str">'sql'</span>])
+
+    <span class="cmt"># ③ Tables already covered by their columns are not listed again (paper notes this)</span>
+    schema_items = []
+    <span class="kw">for</span> table <span class="kw">in</span> tables:
+        <span class="kw">for</span> column <span class="kw">in</span> columns:
+            <span class="kw">if</span> table <span class="kw">in</span> column: <span class="kw">break</span>
+        <span class="kw">else</span>:
+            schema_items.append((table, <span class="str">'table'</span>))
+    <span class="kw">for</span> column <span class="kw">in</span> columns:
+        schema_items.append((column, <span class="str">'column'</span>))
+
+    <span class="cmt"># ④ For each schema item, find the highest-similarity question slice</span>
+    schema_linkings = {}
+    <span class="kw">for</span> schema_item <span class="kw">in</span> schema_items:
+        encoding = sentence_encoder.encode(schema_item[0], ...)
+        scores = util.cos_sim(encoding, phrase_encodings).squeeze(0).tolist()
+        phrase = phrases[<span class="fn">max</span>(<span class="fn">enumerate</span>(scores), key=<span class="kw">lambda</span> x: x[1])[0]]
+        <span class="kw">if</span> phrase <span class="kw">not in</span> schema_linkings:
+            schema_linkings[phrase] = {<span class="str">'table'</span>: [], <span class="str">'column'</span>: []}
+        schema_linkings[phrase][schema_item[1]].append(schema_item[0])
+
+    <span class="cmt"># ⑤ Assemble the CoT string (this is the format of the assistant response in the prompt!)</span>
+    example[<span class="str">'cot'</span>] = <span class="str">"Let's think step by step.\n"</span>
+    <span class="kw">for</span> phrase <span class="kw">in</span> schema_linkings:
+        example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">'According to "{phrase}",'</span>
+        <span class="kw">if</span> schema_linkings[phrase][<span class="str">'table'</span>]:
+            example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">' tables [{", ".join(schema_linkings[phrase]["table"])}]'</span>
+        <span class="kw">if</span> schema_linkings[phrase][<span class="str">'column'</span>]:
+            <span class="kw">if</span> example[<span class="str">'cot'</span>].endswith(<span class="str">']'</span>):
+                example[<span class="str">'cot'</span>] += <span class="str">' and'</span>
+            example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">' columns [{", ".join(schema_linkings[phrase]["column"])}]'</span>
+        example[<span class="str">'cot'</span>] += <span class="str">' may be used.\n'</span>
+    <span class="kw">if</span> values:
+        example[<span class="str">'cot'</span>] += <span class="fn">f</span><span class="str">'Values [{", ".join(values)}] may be used.\n'</span>
+    example[<span class="str">'cot'</span>] += <span class="str">'So the final answer is:\n'</span>
+    example[<span class="str">'cot'</span>] += <span class="str">' '</span>.join(example[<span class="str">'query'</span>].strip(<span class="str">'\t ;'</span>).split())</code></pre>
+
+    <div class="callout">
+      <p><strong>The CoT template has only these four sentence patterns:</strong></p>
+      <p>• <code>Let's think step by step.</code></p>
+      <p>• <code>According to "<em>{phrase}</em>", tables [<em>...</em>] and columns [<em>...</em>] may be used.</code></p>
+      <p>• <code>Values [<em>...</em>] may be used.</code> (if the SQL contains values)</p>
+      <p>• <code>So the final answer is: <em>{complete SQL}</em></code></p>
+      <p>No LLM participates in generating the CoT — the whole segment is a string assembled purely from rules + sentence embeddings. This is the key to the cost savings of "<span class="hl">1 API call</span>": the CoT is pre-generated offline before training, stored in the <code>cot</code> field of <code>train.json</code>, and pasted directly as an assistant exemplar at inference time.</p>
+    </div>
+
+    <h3>7.5 Multi-turn Question Rewriting — <code>get_prompt_remove_dependency()</code></h3>
+    <p>For SParC / CoSQL, the two-stage method "flattens" multi-turn dialogues into single-turn questions. The first stage uses this prompt:</p>
+    <pre><code><span class="cmt"># util/prompt.py · get_prompt_remove_dependency()</span>
+<span class="kw">@staticmethod</span>
+<span class="kw">def</span> <span class="fn">get_prompt_remove_dependency</span>(gpt, questions, shots):
+    <span class="kw">def</span> <span class="fn">preprocess</span>(q_list):
+        result = <span class="str">''</span>
+        <span class="kw">for</span> i, q <span class="kw">in</span> <span class="fn">enumerate</span>(q_list):
+            result += <span class="fn">str</span>(i + 1) + <span class="str">'. '</span> + q + <span class="str">'\n'</span>
+        <span class="kw">return</span> result.strip()
+
+    <span class="kw">if</span> gpt <span class="kw">in</span> GPT_CHAT_MODELS:
+        prompt = [{<span class="str">'role'</span>: <span class="str">'system'</span>,
+                   <span class="str">'content'</span>: <span class="str">'Given the list of questions, you need to '</span>
+                              <span class="str">'rewrite them to remove the context dependency.'</span>}]
+        <span class="kw">for</span> shot <span class="kw">in</span> shots:  <span class="cmt"># paper: 10 manually-annotated rewrite examples per dataset</span>
+            prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>,      <span class="str">'content'</span>: preprocess(shot[<span class="str">'q_multiturn'</span>])})
+            prompt.append({<span class="str">'role'</span>: <span class="str">'assistant'</span>, <span class="str">'content'</span>: preprocess(shot[<span class="str">'q'</span>])})
+        prompt.append({<span class="str">'role'</span>: <span class="str">'user'</span>, <span class="str">'content'</span>: preprocess(questions)})
+    <span class="kw">return</span> prompt</code></pre>
+
+    <p>The original multi-turn questions are numbered as <code>"1. ... \n2. ... \n3. ..."</code> and sent to the LLM, which is expected to output the same numbering but rewritten as standalone questions without context dependencies. <span class="hl2">This is where errors occur</span> (paper Table 10 case) — the LLM occasionally fails to remove dependencies or drops information.</p>
+
+    <h3>7.6 Complete zero-shot prompt (what is actually sent to the API)</h3>
+    <p>Putting all the pieces above together, the following is the message array that GPT-3.5-turbo sees under zero-shot + Create(EoT) + 3 example rows:</p>
+    <pre><code>[
+  {
+    <span class="str">"role"</span>: <span class="str">"system"</span>,
+    <span class="str">"content"</span>: <span class="str">"Given the database schema, you need to translate the question into the SQL query."</span>
+  },
+  {
+    <span class="str">"role"</span>: <span class="str">"user"</span>,
+    <span class="str">"content"</span>: <span class="str">"Database schema:\ncreate table stadium (\n    Stadium_ID number,\n    Location text,\n    Name text,\n    ...\n    primary key (Stadium_ID)\n)\n/*\n3 example rows from table stadium:\nStadium_ID  Location      Name           ...\n1           Raith Rovers  Stark's Park   ...\n2           Ayr United    Somerset Park  ...\n3           East Fife     Bayview Stadium...\n*/\ncreate table singer (\n    ...\n)\n...\nQuestion: How many singers do we have?"</span>
+  }
+]</code></pre>
+
+    <p>In few-shot CoT mode, after <code>system</code> there are additionally <span class="hl">2(static) + 2(dynamic) = 4 sets of (user / assistant)</span> dialogues; the assistant content in each set is exactly the "Let's think step by step. ..." string pre-generated by <code>cot.py</code>.</p>
+
+    <div class="callout hot">
+      <p><strong>In short, ACT-SQL's prompt philosophy:</strong> it does not rely on carefully sculpted instructions or multiple API calls; instead, it spends the effort on <span class="hl">"putting good examples in the right places"</span> — the static+dynamic hybrid exemplars provide format references, and the automatically generated CoT provides a thinking trajectory of "schema linking → writing SQL". The entire prompt is simple enough to generate with one page of code.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FUTURE ================= -->
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Limitations &amp; Future Work</h2>
+
+    <div class="callout hot">
+      <p><strong>① The exemplar selection strategy is relatively simple:</strong> the numbers of static/dynamic exemplars, <code>ns</code> and <code>nd</code>, are hyperparameters and still need to be chosen manually; the hybrid strategy itself is fairly plain and leaves room for improvement.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>② Robustness-variant scores are still weak:</strong> scores on some Spider robustness variants are relatively poor and merit targeted follow-up exploration.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>③ Multi-turn performance is the main open problem:</strong> the two-stage "rewrite → single-turn" approach can cause cascading schema-linking errors when rewriting quality is poor. Improving LLM performance on multi-turn text-to-SQL is the <span class="hl2">challenging future work</span> explicitly named by the authors — this paper only completes a preliminary exploration.</p>
+    </div>
+
+    <h3>Conclusion in one sentence</h3>
+    <p class="lead">ACT-SQL uses an "automatically generated, schema-linking-like chain-of-thought" to achieve SOTA among in-context learning methods on the Spider dev set with <strong>a single API call and zero manual annotation</strong>, while preliminarily extending the method to multi-turn scenarios — balancing performance, speed, and cost.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Zhang, Cao, Chen, Xu &amp; Yu (2023) · Findings of EMNLP 2023, pp. 3501–3532</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2310.17342">arXiv:2310.17342</a> &nbsp;·&nbsp; <a href="https://github.com/X-LANCE/text2sql-GPT">Code github.com/X-LANCE/text2sql-GPT</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a paper-digest summary; figures and tables are redrawn / organized from the paper. Numerical values should defer to the original paper.</p>
+  </div>
+</footer>
+
+</body>
+</html>
