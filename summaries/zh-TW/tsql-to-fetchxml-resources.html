@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>T-SQL → FetchXML 轉換資源整理</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=Noto+Sans+TC:wght@400;500;700&display=swap');
+
+  :root{
+    --bg:#0d0f14;
+    --bg-soft:#14171f;
+    --panel:#181c26;
+    --line:#262c3a;
+    --ink:#e7e9ef;
+    --ink-dim:#9aa1b2;
+    --ink-faint:#6c7283;
+    --accent:#6fe3c0;
+    --accent2:#ffb454;
+    --accent3:#7aa2ff;
+    --danger:#ff7a85;
+    --code-bg:#0a0c11;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(1200px 600px at 85% -10%, rgba(122,162,255,.10), transparent 60%),
+      radial-gradient(900px 500px at -10% 20%, rgba(111,227,192,.08), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:"Noto Sans TC","Newsreader",serif;
+    line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:880px;margin:0 auto;padding:72px 28px 120px;}
+
+  header.masthead{border-bottom:1px solid var(--line);padding-bottom:34px;margin-bottom:48px;}
+  .kicker{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.28em;text-transform:uppercase;color:var(--accent);}
+  h1{font-family:"Newsreader",serif;font-weight:600;font-size:clamp(34px,6vw,56px);line-height:1.08;margin:14px 0 18px;letter-spacing:-.01em;}
+  h1 .arrow{color:var(--accent2);font-style:italic;}
+  .lede{color:var(--ink-dim);font-size:17px;max-width:62ch;margin:0;}
+  .meta{margin-top:22px;font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink-faint);}
+
+  nav.toc{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:22px 26px;margin:0 0 56px;}
+  nav.toc .t{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:12px;}
+  nav.toc ol{margin:0;padding-left:20px;columns:2;column-gap:36px;}
+  nav.toc li{margin:5px 0;}
+  nav.toc a{color:var(--ink-dim);text-decoration:none;border-bottom:1px solid transparent;transition:.2s;}
+  nav.toc a:hover{color:var(--accent);border-color:var(--accent);}
+
+  section{margin-bottom:60px;scroll-margin-top:24px;}
+  h2{font-family:"Newsreader",serif;font-weight:600;font-size:30px;margin:0 0 4px;letter-spacing:-.01em;display:flex;align-items:baseline;gap:14px;}
+  h2 .num{font-family:"IBM Plex Mono",monospace;font-size:15px;color:var(--accent);font-weight:500;}
+  h3{font-family:"Noto Sans TC";font-weight:700;font-size:17px;margin:28px 0 8px;color:var(--ink);}
+  p{margin:12px 0;}
+  a.link{color:var(--accent3);text-decoration:none;border-bottom:1px solid rgba(122,162,255,.35);}
+  a.link:hover{border-color:var(--accent3);}
+
+  .tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;padding:3px 9px;border-radius:999px;border:1px solid var(--line);color:var(--ink-dim);margin:0 6px 6px 0;}
+  .tag.oss{color:var(--accent);border-color:rgba(111,227,192,.4);}
+  .tag.closed{color:var(--accent2);border-color:rgba(255,180,84,.4);}
+  .tag.pick{color:#0d0f14;background:var(--accent);border-color:var(--accent);font-weight:600;}
+
+  ul{margin:12px 0;padding-left:22px;}
+  li{margin:7px 0;color:var(--ink);}
+  li::marker{color:var(--accent);}
+
+  /* summary table */
+  .tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;margin:8px 0 4px;}
+  table{border-collapse:collapse;width:100%;font-size:14px;min-width:560px;}
+  th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;}
+  th{background:var(--panel);font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-faint);font-weight:500;}
+  tr:last-child td{border-bottom:none;}
+  td:first-child{font-weight:700;color:var(--ink);}
+  .stars{color:var(--accent2);letter-spacing:1px;white-space:nowrap;}
+
+  pre{background:var(--code-bg);border:1px solid var(--line);border-left:3px solid var(--accent3);border-radius:8px;padding:16px 18px;overflow-x:auto;font-family:"IBM Plex Mono",monospace;font-size:13px;line-height:1.6;color:#cdd3e0;margin:14px 0;}
+  code{font-family:"IBM Plex Mono",monospace;font-size:.88em;background:rgba(122,162,255,.12);color:var(--accent3);padding:1px 6px;border-radius:5px;}
+  pre code{background:none;color:inherit;padding:0;}
+
+  .card{background:var(--bg-soft);border:1px solid var(--line);border-radius:14px;padding:24px 28px;margin:18px 0;}
+  .card.pickcard{border-color:rgba(111,227,192,.45);box-shadow:0 0 0 1px rgba(111,227,192,.12), 0 24px 60px -40px rgba(111,227,192,.4);}
+  .factline{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink-dim);margin:3px 0;}
+  .factline b{color:var(--ink);font-weight:500;}
+
+  blockquote{border-left:3px solid var(--accent2);background:rgba(255,180,84,.06);margin:16px 0;padding:12px 20px;border-radius:0 8px 8px 0;color:var(--ink-dim);font-size:14.5px;}
+  blockquote.warn{border-color:var(--danger);background:rgba(255,122,133,.07);}
+
+  .rec{background:linear-gradient(180deg, rgba(111,227,192,.06), rgba(122,162,255,.04));border:1px solid var(--line);border-radius:16px;padding:28px 30px;}
+  .rec ol{padding-left:20px;}
+  .rec ol li{margin:12px 0;}
+  .rec b{color:var(--accent);}
+
+  footer{border-top:1px solid var(--line);margin-top:70px;padding-top:26px;font-size:12.5px;color:var(--ink-faint);font-family:"IBM Plex Mono",monospace;}
+  footer ul{columns:2;column-gap:30px;padding-left:18px;}
+  footer li{color:var(--ink-faint);margin:4px 0;}
+
+  @media(max-width:640px){
+    nav.toc ol,footer ul{columns:1;}
+    .wrap{padding:48px 18px 80px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker">Dataverse · Dynamics 365 · TDS</div>
+    <h1>T-SQL <span class="arrow">→</span> FetchXML<br>轉換資源整理</h1>
+    <p class="lede">將 Microsoft Dataverse 用的 T-SQL（含 TDS endpoint 語法）轉成 FetchXML 的工具、開源專案與技術文章彙整 —— 聚焦於可程式化嵌入 NL2SQL / eval pipeline 的方案。</p>
+    <div class="meta">整理日期 2026-06-02 · 6 項資源 · 4 個開源 · 3 篇延伸閱讀</div>
+  </header>
+
+  <nav class="toc">
+    <div class="t">目錄</div>
+    <ol>
+      <li><a href="#tldr">總覽對照</a></li>
+      <li><a href="#sql4cds">SQL 4 CDS（首選）</a></li>
+      <li><a href="#sql2fetchxml">SQL2FetchXML</a></li>
+      <li><a href="#customapi">FetchXmlToSql Custom API</a></li>
+      <li><a href="#builder">FetchXML Builder</a></li>
+      <li><a href="#fetchxml-studio">FetchXML Studio</a></li>
+      <li><a href="#sdk">官方 SDK 範例</a></li>
+      <li><a href="#blogs">延伸閱讀：技術部落格</a></li>
+      <li><a href="#rec">給 NL2SQL/TDS 的建議</a></li>
+    </ol>
+  </nav>
+
+  <section id="tldr">
+    <h2><span class="num">00</span>總覽對照</h2>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>資源</th><th>類型</th><th>開源</th><th>推薦</th><th>一句話</th></tr></thead>
+        <tbody>
+          <tr><td>SQL 4 CDS</td><td>Engine + XrmToolBox/SSMS/ADS 外掛 + NuGet</td><td>✅ 開源</td><td class="stars">★★★★★</td><td>最完整、唯一仍積極維護</td></tr>
+          <tr><td>SQL2FetchXML</td><td>線上轉換器</td><td>—</td><td class="stars">★★★☆</td><td>免安裝快試，但限制多</td></tr>
+          <tr><td>FetchXmlToSql API</td><td>Dataverse 內建（未文件化）</td><td>—</td><td class="stars">★★★</td><td>反向轉換，官方途徑</td></tr>
+          <tr><td>FetchXML Builder</td><td>XrmToolBox 外掛</td><td>✅ 開源</td><td class="stars">★★★★</td><td>編輯 FetchXML + 產生多種語法</td></tr>
+          <tr><td>FetchXML Studio</td><td>Power Platform ToolBox 外掛</td><td>✅ 開源</td><td class="stars">★★★</td><td>視覺化建構 + SQL↔FetchXML 雙向預覽</td></tr>
+          <tr><td>Convert queries 範例</td><td>.NET SDK 範例</td><td>✅ 開源</td><td class="stars">★★</td><td>FetchXML↔QueryExpression</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="sql4cds">
+    <h2><span class="num">01</span>SQL 4 CDS</h2>
+    <span class="tag pick">首選</span><span class="tag oss">開源</span><span class="tag">NuGet 可嵌入</span><span class="tag">TDS endpoint</span>
+
+    <div class="card pickcard">
+      <div class="factline"><b>作者</b> Mark Carrington</div>
+      <div class="factline"><b>GitHub</b> <a class="link" href="https://github.com/MarkMpn/Sql4Cds">github.com/MarkMpn/Sql4Cds</a></div>
+      <div class="factline"><b>NuGet</b> <code>MarkMpn.SQL4CDS</code></div>
+      <div class="factline"><b>官網</b> <a class="link" href="https://markcarrington.dev/sql-4-cds/">markcarrington.dev/sql-4-cds</a></div>
+    </div>
+
+    <h3>它能做什麼</h3>
+    <p>讓你用標準 SQL 語法查詢與操作 Dataverse / D365 的資料與 metadata，支援 <code>SELECT</code> / <code>INSERT</code> / <code>UPDATE</code> / <code>DELETE</code>。在可能時，查詢會被轉成 FetchXML —— 因此你可以用熟悉的 SQL 產生 FetchXML，再用於 plugin 或整合。</p>
+
+    <h3>為什麼適合 NL2SQL / TDS 場景</h3>
+    <ul>
+      <li><b>核心 engine 是獨立 NuGet 套件</b>，可直接嵌入程式或 pipeline，不必透過 GUI ——適合做為 eval pipeline 的程式化元件。</li>
+      <li>同時提供 <b>.NET Framework 4.6.2+</b> 與 <b>.NET Core 3.1+</b> 組件。</li>
+      <li>engine 會把所有「FetchXML 有直接對應」的 SQL 語法轉成 FetchXML；無對應的功能（calculated fields、HAVING 等）則盡量把可下推的 filter 放進 FetchXML，其餘在記憶體中計算。</li>
+      <li><b>可直接走 TDS endpoint</b>：connection 屬性可指定在可行時用 preview TDS Endpoint 執行 SELECT。</li>
+      <li>內建大量 FetchXML / TDS endpoint 不直接支援的 SQL 功能。</li>
+    </ul>
+
+    <h3>進階能力</h3>
+    <ul>
+      <li><b>Metadata 查詢</b>：把 SQL 轉成 <code>RetrieveMetadataChangesRequest</code> / <code>RetrieveAllOptionSetsRequest</code>。</li>
+      <li><b>CTE 支援</b>（v8.0.0 起）：non-recursive 展開成 subquery 以相容 TDS Endpoint；recursive 在可能時轉成 hierarchical FetchXML filter。</li>
+      <li><b>JSON</b>：<code>OPENJSON</code>、<code>JSON_QUERY</code>、<code>ISJSON</code>。</li>
+      <li>效能：<code>RetrieveTotalRecordCountRequest</code> 加速 <code>SELECT count(*)</code>、自動分頁、繞過 <code>AggregateQueryRecordLimit</code>。</li>
+    </ul>
+
+    <p>產生的 FetchXML 中會帶上 <code>xmlns:generator="MarkMpn.SQL4CDS"</code> 命名空間並盡量內含完整 filter，例如：</p>
+    <pre><code>&lt;fetch xmlns:generator="MarkMpn.SQL4CDS"&gt;
+  &lt;entity name="contact"&gt;
+    &lt;attribute name="firstname" /&gt;
+    &lt;attribute name="lastname" /&gt;
+    &lt;attribute name="contactid" /&gt;
+    &lt;filter&gt;
+      &lt;condition attribute="statecode" operator="eq" value="0" /&gt;
+    &lt;/filter&gt;
+  &lt;/entity&gt;
+&lt;/fetch&gt;</code></pre>
+
+    <h3>取得方式</h3>
+    <ul>
+      <li>XrmToolBox 外掛：<a class="link" href="https://www.xrmtoolbox.com/plugins/MarkMpn.SQL4CDS/">xrmtoolbox.com/plugins/MarkMpn.SQL4CDS</a></li>
+      <li>SSMS / Azure Data Studio 擴充</li>
+      <li>NuGet 程式化嵌入：<code>MarkMpn.SQL4CDS</code></li>
+    </ul>
+
+    <blockquote>部分查詢無法純靠 FetchXML 執行，這類會出現警告，表示需要 SQL 4 CDS 額外的記憶體內處理。這個「可否完全下推」的訊號，剛好可拿來當 eval 指標。</blockquote>
+  </section>
+
+  <section id="sql2fetchxml">
+    <h2><span class="num">02</span>SQL2FetchXML</h2>
+    <span class="tag closed">線上服務</span><span class="tag">KingswaySoft</span><span class="tag">免安裝</span>
+
+    <div class="card">
+      <div class="factline"><b>網址</b> <a class="link" href="http://sql2fetchxml.com/">sql2fetchxml.com</a></div>
+      <div class="factline"><b>Help</b> <a class="link" href="http://sql2fetchxml.com/Help.aspx">sql2fetchxml.com/Help.aspx</a></div>
+    </div>
+
+    <p>貼上 SQL 點 convert 即得 FetchXML，適合快速試手。支援 <code>SELECT FROM WHERE AND OR LIKE GROUP BY ORDER BY AS TOP DISTINCT NOLOCK INNER JOIN LEFT OUTER JOIN ON IN</code> 與聚合 <code>COUNT/MAX/MIN/AVG/SUM</code>，並會自動移除 <code>Filtered</code> 前綴。</p>
+
+    <h3>運算子表示法</h3>
+    <p>FetchXML 專屬運算子用去掉 dash 的 SQL 函式表示：<code>next-x-weeks</code> → <code>nextxweeks(n)</code>、<code>today</code> → <code>today()</code>、<code>eq-userid</code> → <code>equserid()</code>。若運算子本身是 SQL 關鍵字（如 <code>on</code>、<code>in</code>）需加 <code>x</code> 前綴：</p>
+    <pre><code>SELECT * FROM contact
+WHERE createdon = xon('2011-01-11T00:00:00')</code></pre>
+
+    <blockquote class="warn">已知限制：對括號、巢狀 select 處理不佳；大小寫偶有出錯；無法處理 <code>NOT IN</code> / <code>NOT EXISTS</code> / <code>EXCEPT</code>（多半其實是 FetchXML 本身限制）。嚴謹評估建議以 SQL 4 CDS 為主，本工具僅作快速參照、勿當 ground truth。</blockquote>
+  </section>
+
+  <section id="customapi">
+    <h2><span class="num">03</span>FetchXmlToSql Custom API</h2>
+    <span class="tag closed">官方內建</span><span class="tag">未文件化</span><span class="tag">反向</span>
+
+    <p>方向與你需求相反（FetchXML → SQL），但屬官方途徑。透過 Dataverse 內建但<b>未文件化</b>的 Custom API Function <code>FetchXMLToSql</code>：</p>
+    <pre><code>GET https://{your_environment}.api.crm.dynamics.com
+    /api/data/v9.2/FetchXMLToSQL(FetchXml=@p1)
+    ?@p1='{Your_FetchXML}'</code></pre>
+    <p>也可在 XrmToolBox 用 <b>Custom API Tester</b> 呼叫。常見用途是 virtual table 指向 SQL Server 時把 FetchXML 轉回 SQL。</p>
+    <blockquote class="warn">⚠️ 因屬未文件化功能，無保證持續可用，正式產品不建議依賴。</blockquote>
+  </section>
+
+  <section id="builder">
+    <h2><span class="num">04</span>FetchXML Builder</h2>
+    <span class="tag oss">開源</span><span class="tag">XrmToolBox</span><span class="tag">多語法輸出</span>
+
+    <div class="card">
+      <div class="factline"><b>外掛</b> <a class="link" href="https://www.xrmtoolbox.com/plugins/Cinteros.Xrm.FetchXmlBuilder/">xrmtoolbox.com/plugins/Cinteros.Xrm.FetchXmlBuilder</a></div>
+      <div class="factline"><b>官網</b> <a class="link" href="https://fetchxmlbuilder.com/">fetchxmlbuilder.com</a></div>
+    </div>
+    <p>對 Dataverse / Power Apps / D365 建立與執行 FetchXML。對本主題的價值在於能在多種語法間互轉：產生 <b>C# QueryExpression、WebAPI / OData query string、Power Automate List Records、SQL / JavaScript / C# stub</b>。可與 SQL 4 CDS 互通 —— 在 SQL 4 CDS 寫 SQL → 丟到 Builder 編輯，反之亦可。</p>
+  </section>
+
+  <section id="fetchxml-studio">
+    <h2><span class="num">05</span>FetchXML Studio</h2>
+    <span class="tag oss">開源</span><span class="tag">Power Platform ToolBox</span><span class="tag">視覺化</span>
+
+    <div class="card">
+      <div class="factline"><b>GitHub</b> <a class="link" href="https://github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio">github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio</a></div>
+    </div>
+
+    <p>Power Platform ToolBox 生態系的開源視覺化 FetchXML 建構器。主要用途是編寫 FetchXML，但整合了 §03 提到的未文件化 <code>FetchXMLToSQL</code> API，提供 SQL ↔ FetchXML 雙向預覽，可當作語法對照時的另一個快速工具。</p>
+  </section>
+
+  <section id="sdk">
+    <h2><span class="num">06</span>官方 SDK 範例：FetchXML ↔ QueryExpression</h2>
+    <span class="tag oss">開源範例</span><span class="tag">PowerApps-Samples</span>
+
+    <p>文件：<a class="link" href="https://learn.microsoft.com/en-us/power-apps/developer/data-platform/org-service/samples/convert-queries-fetch-queryexpression">learn.microsoft.com — Convert queries sample</a></p>
+    <p>示範用 <code>QueryExpressionToFetchXmlRequest</code> 與 <code>FetchXmlToQueryExpressionRequest</code> 雙向轉換。雖非 T-SQL→FetchXML，但若 pipeline 已用 QueryExpression 作中介層，這是官方支援的轉換路徑。</p>
+  </section>
+
+  <section id="blogs">
+    <h2><span class="num">07</span>延伸閱讀：技術部落格</h2>
+    <span class="tag">部落格</span><span class="tag">MVP</span><span class="tag">社群</span>
+
+    <h3>Mark Carrington 官方部落格</h3>
+    <div class="card">
+      <div class="factline"><b>網址</b> <a class="link" href="https://markcarrington.dev/blog/">markcarrington.dev/blog</a></div>
+    </div>
+    <p>SQL 4 CDS 原作者本人的部落格，是這個主題最深入的技術來源。詳述 TDS Endpoint 底層、把 cursor、UNION hint、大量 UPDATE 等較難語法轉成 FetchXML 的內部實作與效能優化心得，是想理解 §01 engine 行為時的第一手材料。</p>
+
+    <h3>Hosk's Dynamics 365 Blog</h3>
+    <div class="card">
+      <div class="factline"><b>文章</b> <a class="link" href="https://community.dynamics.com/blogs/post/?postid=e1a87c8e-acda-4c74-8f17-0b8a5ac58457">Dynamics 365 tool you should use — SQL 4 CDS</a></div>
+    </div>
+    <p>Microsoft MVP 從企業架構師視角介紹如何用既有 SQL 知識，透過開源工具快速縮短上手 Dataverse FetchXML 的曲線，含實務維運腳本範例。適合決策層與初次接觸 Dataverse 的 SQL 老手。</p>
+
+    <h3>Msdynamicsblog (Deepesh Somani) &amp; Arun Potti's Blog</h3>
+    <div class="card">
+      <div class="factline"><b>文章</b> <a class="link" href="https://dynamicsofdynamicscrm.com/2015/06/05/quick-tip-how-to-convert-your-sql-expertise-to-fetch-xml-expertise/">Quick Tip: How to convert your SQL expertise to Fetch XML expertise</a></div>
+    </div>
+    <p>社群經典的「思維轉換」教學。示範用早期 KingswaySoft 的 <code>sql2fetchxml.com</code> 線上服務，把常見 Inner / Left Join 與篩選條件對應到 FetchXML 的 <code>&lt;link-entity&gt;</code> 與 <code>&lt;filter&gt;</code> 節點 —— 文章雖舊，對建立心智模型仍很有用。</p>
+  </section>
+
+  <section id="rec">
+    <h2><span class="num">→</span>給 Dataverse NL2SQL / TDS 的建議</h2>
+    <div class="rec">
+      <ol>
+        <li><b>程式化嵌入</b>：直接用 <code>MarkMpn.SQL4CDS</code> engine NuGet，把模型產生的 T-SQL 餵進去轉 FetchXML，並比對是否「可完全下推」(fully foldable) 作為一個 eval 指標。</li>
+        <li><b>可下推性是好訊號</b>：能完全轉成 FetchXML，代表查詢落在 Dataverse 原生能力內；需要記憶體處理的部分可標記為「超出 FetchXML / 可能超出 TDS endpoint」案例。</li>
+        <li><b>TDS endpoint 對齊</b>：SQL 4 CDS 的 connection 屬性可切換是否走 TDS endpoint，方便比較 FetchXML 路徑與 TDS 路徑的行為差異（呼應你先前測 OFFSET / EXCEPT / CTE 支援度的工作）。</li>
+        <li><b>線上快查</b>：臨時想看某段 SQL 的 FetchXML 長相時用 SQL2FetchXML，但別當成 ground truth。</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <div style="margin-bottom:12px;letter-spacing:.2em;">來源</div>
+    <ul>
+      <li>github.com/MarkMpn/Sql4Cds（README / Changelog）</li>
+      <li>NuGet · MarkMpn.SQL4CDS</li>
+      <li>markcarrington.dev/sql-4-cds + /blog</li>
+      <li>xrmtoolbox.com 外掛頁</li>
+      <li>sql2fetchxml.com + Help（KingswaySoft）</li>
+      <li>learn.microsoft.com — FetchXML / Convert queries</li>
+      <li>LinkedIn (Lucio Kubo) — FetchXMLToSql API</li>
+      <li>github.com/mohsinonxrm/pptb-mxrm-fetchxml-studio</li>
+      <li>community.dynamics.com — Hosk's blog</li>
+      <li>dynamicsofdynamicscrm.com — Deepesh Somani / Arun Potti</li>
+    </ul>
+  </footer>
+
+</div>
+</body>
+</html>
