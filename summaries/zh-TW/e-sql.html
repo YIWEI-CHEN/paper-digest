@@ -618,10 +618,6 @@ schools using <span class="kw">COUNT</span> aggregate function in the <span clas
        並分析 candidate SQL 的執行錯誤訊息(若有)。
 <span class="cmt"># Step 5</span> - Finalize the SQL: 結合問句意圖、evidence、候選條件,
        決定修補或重寫 candidate。</code></pre>
-
-    <div class="callout warn">
-      <p><strong>對 Yi-Wei Dataverse 工作的可借鏡之處:</strong>E-SQL 用「<span class="hl">把 schema 寫進問句</span>」取代「過濾 schema」的核心想法,跟你在 Dataverse 上對 LLM 注入 SQL 模式提示(例如 DateTime/DateOnly 欄位的處理)有方法論上的呼應 —— 與其讓 LLM 自己推斷,不如直接在問句層級就把約束「明文化」。CPG 用 <code>LIKE '%val%'</code> 從實際 DB 補正預測值的設計,對處理 CRM 表(account/contact)裡使用者寫不全的名稱也直接適用。</p>
-    </div>
   </div>
 </section>
 

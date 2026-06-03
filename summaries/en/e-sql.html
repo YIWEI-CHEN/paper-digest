@@ -618,10 +618,6 @@ schools using <span class="kw">COUNT</span> aggregate function in the <span clas
        and analyze the candidate SQL's execution error messages (if any).
 <span class="cmt"># Step 5</span> - Finalize the SQL: combine question intent, evidence, and candidate conditions
        to decide whether to patch or rewrite the candidate.</code></pre>
-
-    <div class="callout warn">
-      <p><strong>What Yi-Wei's Dataverse work can borrow:</strong> E-SQL's core idea of using "<span class="hl">write the schema into the question</span>" instead of "filter the schema" resonates methodologically with injecting SQL-mode hints for LLMs on Dataverse (for example, handling DateTime/DateOnly columns). Rather than letting the LLM infer constraints on its own, make them explicit at the question level. CPG's use of <code>LIKE '%val%'</code> to correct predicted values from the actual DB is also directly applicable to incomplete user-written names in CRM tables such as account/contact.</p>
-    </div>
   </div>
 </section>
 
