@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mem0 Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430;
+  --ink:#e8edf4; --muted:#93a1b3; --line:#26313f;
+  --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2025 · Paper Digest</div>
+    <h1 class="title">Mem<span class="sql">0</span></h1>
+    <p class="subtitle">Compress multi-session dialogue into compact memory via extract → consolidate → retrieve, so LLM agents stay coherent across sessions while cutting p95 latency by 91%.</p>
+    <div class="meta-row">
+      <span class="tag lit">Long-Term Memory</span>
+      <span class="tag lit">LLM Agent</span>
+      <span class="tag">Tool-Call Updates</span>
+      <span class="tag">Graph Memory</span>
+      <span class="tag">LOCOMO Benchmark</span>
+    </div>
+    <p class="authors">Prateek Chhikara, Dev Khant, Saket Aryan, Taranjeet Singh, Deshraj Yadav · Mem0 AI · <a href="https://arxiv.org/abs/2504.19413">arXiv:2504.19413</a> · <a href="https://github.com/mem0ai/mem0">github.com/mem0ai/mem0</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#mem0">02 Mem0 Architecture</a>
+    <a href="#mem0g">03 Mem0g Graph Memory</a>
+    <a href="#algo">04 Update Algorithm</a>
+    <a href="#dataset">05 LOCOMO &amp; Evaluation</a>
+    <a href="#results">06 Main Results</a>
+    <a href="#latency">07 Latency &amp; Cost</a>
+    <a href="#prompts">08 Prompts</a>
+    <a href="#future">09 Conclusion &amp; Future Work</a>
+  </div>
+</nav>
+
+<!-- ====================== 01 ====================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem Statement — Why isn't a longer context enough?</h2>
+    <p class="lead">Even with GPT-4o's 128K, o1's 200K, and Gemini 1.5's 10M context windows, LLM agents still "forget" user preferences across days and weeks. Mem0 argues this isn't a context-length problem — it's the absence of a human-like mechanism for <strong>selectively storing, consolidating, and recalling</strong> information.</p>
+
+    <h3>1.1 Concrete failure modes without persistent memory</h3>
+    <p>The paper uses the vegetarian-user example from Figure 1: in session one the user mentions being vegetarian and dairy-free; later when asked "what should I have for dinner?", a memory-less system recommends chicken — directly contradicting the prior preference. This kind of failure breaks user trust and is especially damaging in high-stakes domains like healthcare, education, and enterprise support.</p>
+
+    <h3>1.2 Why "just stuff everything into context" isn't the answer either</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Conversations eventually exceed any window</h4>
+        <p>Over weeks and months, dialogue accumulates hundreds of thousands of tokens — even 10M context fills up. Full-context only delays the problem, never solves it.</p>
+      </div>
+      <div class="card">
+        <h4>Attention degrades at distance</h4>
+        <p>Research shows attention quality degrades over distant tokens (Guo 2024, Nelson 2024). Critical info buried under thousands of tokens of programming chat often gets missed.</p>
+      </div>
+      <div class="card">
+        <h4>Real conversations jump topics</h4>
+        <p>A user might mention diet, switch to programming for hours, then return to dinner — full-context has to re-read all history on every query, which is wildly expensive.</p>
+      </div>
+      <div class="card">
+        <h4>Token and latency costs are prohibitive</h4>
+        <p>Later experiments will confirm: full-context p95 latency ≈ 17 seconds and 26K tokens per query — completely impractical for production.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Mem0's core thesis:</strong> don't stuff raw conversation into the prompt — use a dedicated memory layer that <span class="hl">extracts salient facts → consolidates redundancy → retrieves only the most relevant fragments at query time</span>. This is a "structured, persistent, evolving" memory module that lets agents preserve identity across sessions.</p>
+    </div>
+
+    <h3>1.3 Contributions</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>① Propose Mem0 architecture</h4>
+        <p>Two-phase pipeline (extraction + update) where an LLM uses tool-call to pick among ADD / UPDATE / DELETE / NOOP for each candidate memory.</p>
+      </div>
+      <div class="card">
+        <h4>② Propose Mem0g variant</h4>
+        <p>Structures memory as a directed labeled graph — entities as nodes, relationships as edges. Excels at temporal and open-domain reasoning.</p>
+      </div>
+      <div class="card">
+        <h4>③ Most comprehensive LOCOMO benchmark to date</h4>
+        <p>Compares against six categories: 5 memory systems + RAG + full-context + OpenAI memory + LangMem + Zep.</p>
+      </div>
+      <div class="card">
+        <h4>④ Quantify the efficiency trade-off</h4>
+        <p>vs full-context: only 4–6 J points lower, but cuts p95 latency by 91% and token cost by over 90%.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ====================== -->
+<section id="mem0">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Mem0 Architecture — Extraction + Update</h2>
+    <p class="lead">Mem0 uses incremental processing: every new message pair triggers one pipeline run that extracts candidate facts and decides which memory operation to apply. The entire flow leverages the LLM's tool-call mechanism for classification — no separate classifier needed.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 880 360" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar1" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="ar2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+        <rect x="20" y="20" width="380" height="320" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="40" y="48" fill="#5ad1c0" font-size="13" font-weight="700">EXTRACTION PHASE</text>
+
+        <rect x="40" y="70" width="160" height="40" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="120" y="95" fill="#e8edf4" font-size="12" text-anchor="middle">new pair (m_{t-1}, m_t)</text>
+
+        <rect x="220" y="70" width="160" height="40" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="300" y="88" fill="#e8edf4" font-size="11" text-anchor="middle">conversation summary S</text>
+        <text x="300" y="102" fill="#93a1b3" font-size="10" text-anchor="middle">(async refreshed)</text>
+
+        <rect x="40" y="130" width="340" height="40" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="210" y="148" fill="#e8edf4" font-size="11" text-anchor="middle">recent messages {m_{t-m}, ..., m_{t-2}}</text>
+        <text x="210" y="162" fill="#93a1b3" font-size="10" text-anchor="middle">m = 10</text>
+
+        <rect x="100" y="200" width="220" height="46" rx="8" fill="#141b25" stroke="#8c7bff"/>
+        <text x="210" y="220" fill="#8c7bff" font-size="12" font-weight="700" text-anchor="middle">Prompt P = (S, recent, m_{t-1}, m_t)</text>
+        <text x="210" y="236" fill="#93a1b3" font-size="10" text-anchor="middle">→ Extraction LLM φ(P)</text>
+
+        <rect x="80" y="270" width="260" height="46" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="210" y="290" fill="#f4a259" font-size="12" font-weight="700" text-anchor="middle">candidate facts Ω = {ω₁, ..., ωₙ}</text>
+        <text x="210" y="306" fill="#93a1b3" font-size="10" text-anchor="middle">(salient memories)</text>
+
+        <line x1="120" y1="110" x2="160" y2="195" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="300" y1="110" x2="260" y2="195" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="210" y1="170" x2="210" y2="195" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="210" y1="246" x2="210" y2="265" stroke="#8c7bff" marker-end="url(#ar1)"/>
+
+        <line x1="400" y1="293" x2="455" y2="293" stroke="#f4a259" stroke-width="2" marker-end="url(#ar2)"/>
+
+        <rect x="460" y="20" width="400" height="320" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="480" y="48" fill="#f4a259" font-size="13" font-weight="700">UPDATE PHASE</text>
+
+        <rect x="480" y="70" width="360" height="60" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="660" y="92" fill="#e8edf4" font-size="12" text-anchor="middle">for each fact ω in Ω:</text>
+        <text x="660" y="110" fill="#93a1b3" font-size="11" text-anchor="middle">retrieve top-s=10 similar memories</text>
+        <text x="660" y="124" fill="#93a1b3" font-size="11" text-anchor="middle">from vector DB</text>
+
+        <rect x="540" y="150" width="240" height="44" rx="8" fill="#141b25" stroke="#8c7bff"/>
+        <text x="660" y="170" fill="#8c7bff" font-size="12" font-weight="700" text-anchor="middle">LLM Tool Call</text>
+        <text x="660" y="186" fill="#93a1b3" font-size="10" text-anchor="middle">classify operation</text>
+
+        <rect x="475" y="215" width="80" height="38" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="515" y="240" fill="#5ad1c0" font-size="13" font-weight="700" text-anchor="middle">ADD</text>
+
+        <rect x="565" y="215" width="80" height="38" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="605" y="240" fill="#f4a259" font-size="13" font-weight="700" text-anchor="middle">UPDATE</text>
+
+        <rect x="655" y="215" width="80" height="38" rx="8" fill="#1b2430" stroke="#ff6b6b"/>
+        <text x="695" y="240" fill="#ff6b6b" font-size="13" font-weight="700" text-anchor="middle">DELETE</text>
+
+        <rect x="745" y="215" width="80" height="38" rx="8" fill="#1b2430" stroke="#93a1b3"/>
+        <text x="785" y="240" fill="#93a1b3" font-size="13" font-weight="700" text-anchor="middle">NOOP</text>
+
+        <ellipse cx="660" cy="305" rx="120" ry="22" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="660" y="310" fill="#5ad1c0" font-size="12" text-anchor="middle">Vector DB (knowledge base)</text>
+
+        <line x1="660" y1="130" x2="660" y2="145" stroke="#f4a259" marker-end="url(#ar2)"/>
+        <line x1="660" y1="194" x2="660" y2="210" stroke="#8c7bff" marker-end="url(#ar1)"/>
+        <line x1="515" y1="253" x2="600" y2="285" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="605" y1="253" x2="640" y2="285" stroke="#f4a259" marker-end="url(#ar2)"/>
+        <line x1="695" y1="253" x2="680" y2="285" stroke="#ff6b6b" marker-end="url(#ar1)"/>
+      </svg>
+      <div class="figcap">Figure 2 · Mem0 full pipeline: left = extraction phase, right = update phase (redrawn from paper Figure 2)</div>
+    </div>
+
+    <h3>2.1 Extraction phase</h3>
+    <p>When a new message pair <code>(m<sub>t-1</sub>, m<sub>t</sub>)</code> (typically a user turn + assistant turn) arrives, the system assembles context from two sources:</p>
+    <ul style="list-style:none;padding-left:0;margin:16px 0">
+      <li style="padding:8px 0;border-bottom:1px dashed var(--line)"><span class="hl">(1) Conversation summary S</span> — periodically refreshed by an async background module; captures the semantic backbone of the whole conversation.</li>
+      <li style="padding:8px 0;border-bottom:1px dashed var(--line)"><span class="hl">(2) The last m messages</span> — <code>{m<sub>t-m</sub>, ..., m<sub>t-2</sub>}</code> — provide fine-grained temporal context. In the experiments <code>m = 10</code>.</li>
+    </ul>
+
+    <div class="formula">
+      P = (S, {m<sub>t-m</sub>, ..., m<sub>t-2</sub>}, m<sub>t-1</sub>, m<sub>t</sub>)<br>
+      φ(P) → Ω = {ω₁, ω₂, ..., ωₙ}<br>
+      <span style="color:var(--muted)">φ = extraction LLM (GPT-4o-mini); Ω = set of candidate facts</span>
+    </div>
+
+    <h3>2.2 Update phase — four-way tool-call selection</h3>
+    <p>For each candidate fact ω<sub>i</sub>, the system first uses vector embeddings to retrieve the top-<code>s = 10</code> most similar memories from the DB. The candidate fact plus its similar memories are fed to the LLM via a function-calling tool-call interface, which picks one operation:</p>
+
+    <div class="grid g4">
+      <div class="card">
+        <h4 style="color:var(--acc)">ADD</h4>
+        <p>No semantically equivalent memory exists → create a new one.</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--acc2)">UPDATE</h4>
+        <p>An existing memory can be enriched → overwrite with the richer version.</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--hot)">DELETE</h4>
+        <p>The new fact contradicts an existing memory → remove the stale one.</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--muted)">NOOP</h4>
+        <p>No change needed (fact already exists or is irrelevant).</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Why not a separate classifier?</strong> The paper explicitly notes they chose to "let the LLM decide directly via reasoning + tool-call" rather than train a dedicated classifier. The reasoning: the LLM can already judge the semantic relationship between candidate fact and existing memories correctly; adding a classifier layer would add latency, training overhead, and wouldn't generalize.</p>
+    </div>
+
+    <h3>2.3 Experimental configuration</h3>
+    <pre><code><span class="cmt"># Mem0 default configuration (paper Section 2.1, last paragraph)</span>
+m = <span class="str">10</span>                <span class="cmt"># recent message window</span>
+s = <span class="str">10</span>                <span class="cmt"># number of similar memories to compare</span>
+LLM = <span class="str">"gpt-4o-mini"</span>   <span class="cmt"># all LLM operations (extraction + update)</span>
+vector_db = <span class="str">"dense embeddings"</span>   <span class="cmt"># similarity search during update phase</span></code></pre>
+  </div>
+</section>
+
+<!-- ====================== 03 ====================== -->
+<section id="mem0g">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Mem0g — Graph-structured Memory Variant</h2>
+    <p class="lead">Mem0g represents conversation facts as a directed labeled graph: entities as nodes, relationships as edges. This structure helps especially with tasks requiring relational reasoning across multiple turns — particularly temporal and open-domain queries. The underlying store is Neo4j.</p>
+
+    <h3>3.1 Graph definition</h3>
+    <div class="formula">
+      G = (V, E, L)<br>
+      &nbsp;&nbsp;V : entity nodes (Alice, San_Francisco, ...)<br>
+      &nbsp;&nbsp;E : relationship edges (lives_in, prefers, owns, ...)<br>
+      &nbsp;&nbsp;L : labels (node types: Person / City / Event ...)
+    </div>
+    <p>Each node <code>v ∈ V</code> carries three fields: ① entity type, ② semantic embedding <code>e<sub>v</sub></code>, ③ metadata (including creation timestamp <code>t<sub>v</sub></code>). Relationships are stored as triplets <code>(v<sub>s</sub>, r, v<sub>d</sub>)</code>.</p>
+
+    <h3>3.2 Two-stage extraction</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Entity Extractor</h4>
+        <p>An LLM identifies entities and their types from the conversation. The paper's travel-planning example: destinations (cities, countries), transportation modes, dates, activities, participant preferences — essentially any discrete information that could be referenced later.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Relationship Generator</h4>
+        <p>For each candidate entity pair, an LLM decides whether a meaningful relationship exists and, if so, assigns a label (<code>lives_in</code>, <code>prefers</code>, <code>owns</code>, <code>happened_on</code>, ...), producing triplets that form the graph's edges.</p>
+      </div></div>
+    </div>
+
+    <h3>3.3 Update strategy — conflict detection</h3>
+    <p>When a new triplet arrives, the system computes embeddings for both source and destination entities, then searches the graph for existing nodes with similarity above threshold <code>t</code>; it branches on whether both/one/neither end already exists. <strong>Key design: conflicting old relationships are not physically deleted</strong> but marked invalid — this preserves the historical trail needed for temporal reasoning.</p>
+
+    <h3>3.4 Dual retrieval strategy</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Entity-centric path</h4>
+        <p>Extract key entities from the query → find matching nodes in the graph → systematically traverse incoming and outgoing edges → build a relevant subgraph. Good for "find a specific attribute of a known person" queries.</p>
+      </div>
+      <div class="card">
+        <h4>Semantic triplet path</h4>
+        <p>Encode the entire query as a dense embedding → score similarity against every triplet's textual encoding → return those above threshold, ranked by similarity. Good for conceptual queries where no anchor entity is obvious.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Implementation stack:</strong> graph DB = <span class="hl">Neo4j</span>; extractor / update module = <span class="hl">GPT-4o-mini + function calling</span> for structured extraction.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 04 ====================== -->
+<section id="algo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Update Algorithm — Algorithm 1</h2>
+    <p class="lead">This algorithm describes how the update phase decides what to do with each candidate fact. Mem0 and Mem0g share the same logic — only the storage backend differs.</p>
+
+    <pre><code><span class="cmt"># Algorithm 1 · Memory Management System: Update Operations</span>
+<span class="cmt"># Input : retrieved facts F, existing memory store M = {m1, ..., mn}</span>
+<span class="cmt"># Output: updated memory store M'</span>
+
+<span class="kw">procedure</span> <span class="fn">UpdateMemory</span>(F, M):
+    <span class="kw">for each</span> fact f <span class="kw">in</span> F:
+        operation = <span class="fn">ClassifyOperation</span>(f, M)
+
+        <span class="kw">if</span> operation == <span class="str">"ADD"</span>:
+            id = <span class="fn">GenerateUniqueID</span>()
+            M = M ∪ {(id, f, <span class="str">"ADD"</span>)}              <span class="cmt"># insert new fact</span>
+
+        <span class="kw">elif</span> operation == <span class="str">"UPDATE"</span>:
+            mi = <span class="fn">FindRelatedMemory</span>(f, M)
+            <span class="kw">if</span> <span class="fn">InformationContent</span>(f) &gt; <span class="fn">InformationContent</span>(mi):
+                M = (M \ {mi}) ∪ {(id_i, f, <span class="str">"UPDATE"</span>)}   <span class="cmt"># overwrite with richer info</span>
+
+        <span class="kw">elif</span> operation == <span class="str">"DELETE"</span>:
+            mi = <span class="fn">FindContradictedMemory</span>(f, M)
+            M = M \ {mi}                              <span class="cmt"># remove contradicted memory</span>
+
+        <span class="kw">elif</span> operation == <span class="str">"NOOP"</span>:
+            <span class="kw">pass</span>                                       <span class="cmt"># no change</span>
+
+    <span class="kw">return</span> M
+
+
+<span class="kw">function</span> <span class="fn">ClassifyOperation</span>(f, M):
+    <span class="kw">if not</span> <span class="fn">SemanticallySimilar</span>(f, M):
+        <span class="kw">return</span> <span class="str">"ADD"</span>           <span class="cmt"># brand new information</span>
+    <span class="kw">elif</span> <span class="fn">Contradicts</span>(f, M):
+        <span class="kw">return</span> <span class="str">"DELETE"</span>        <span class="cmt"># conflicts with existing memory</span>
+    <span class="kw">elif</span> <span class="fn">Augments</span>(f, M):
+        <span class="kw">return</span> <span class="str">"UPDATE"</span>        <span class="cmt"># enhances existing information</span>
+    <span class="kw">else</span>:
+        <span class="kw">return</span> <span class="str">"NOOP"</span>          <span class="cmt"># no change required</span></code></pre>
+
+    <div class="callout warn">
+      <p><strong>Key implementation detail:</strong> <code>ClassifyOperation</code> is not a separate model. Instead, "<span class="hl">f and the most similar memories from M are packed into a prompt, and the main LLM returns which operation to invoke via tool-call</span>". Predicates like <code>InformationContent</code>, <code>Contradicts</code>, and <code>Augments</code> are all implicitly resolved within that single LLM call — they are not separate utility functions.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 05 ====================== -->
+<section id="dataset">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>LOCOMO Dataset &amp; Evaluation Methodology</h2>
+    <p class="lead">LOCOMO is a benchmark purpose-built for long-term conversational memory: multi-session, cross-day dialogues paired with extensive QA. It's currently one of the most comprehensive memory-evaluation datasets available.</p>
+
+    <h3>5.1 LOCOMO structure</h3>
+    <div class="grid g4">
+      <div class="card">
+        <h4>Conversations</h4>
+        <p class="big">10</p>
+        <p>each multi-session</p>
+      </div>
+      <div class="card">
+        <h4>Avg dialogue turns</h4>
+        <p class="big">600</p>
+        <p>per conversation</p>
+      </div>
+      <div class="card">
+        <h4>Avg tokens</h4>
+        <p class="big">26K</p>
+        <p>per conversation</p>
+      </div>
+      <div class="card">
+        <h4>Avg QA pairs</h4>
+        <p class="big">200</p>
+        <p>per conversation</p>
+      </div>
+    </div>
+
+    <h3>5.2 Four question categories</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Single-hop</h4>
+        <p>Answer lies in a single dialogue turn — direct retrieval suffices.</p>
+      </div>
+      <div class="card">
+        <h4>Multi-hop</h4>
+        <p>Requires integrating information dispersed across multiple sessions.</p>
+      </div>
+      <div class="card">
+        <h4>Temporal</h4>
+        <p>Depends on event ordering and relative-time reasoning ("last month", "two weeks ago").</p>
+      </div>
+      <div class="card">
+        <h4>Open-domain</h4>
+        <p>Requires combining in-conversation knowledge with external world knowledge.</p>
+      </div>
+    </div>
+    <p style="font-size:14.5px;color:var(--muted)">The original LOCOMO also includes an adversarial category (testing whether agents can refuse unanswerable questions); the authors exclude it because ground truth answers are unavailable for that category.</p>
+
+    <h3>5.3 Evaluation metrics</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>F1 / BLEU-1</h4>
+        <p>Traditional lexical-overlap metrics. The paper explicitly calls out their weakness: "Alice was born in March" vs "Alice is born in July" — a factual error — still scores high under F1/B1 due to token overlap.</p>
+      </div>
+      <div class="card">
+        <h4>LLM-as-a-Judge (J) ⭐</h4>
+        <p>The headline metric. A stronger LLM scores responses on factual accuracy, relevance, completeness, and contextual appropriateness. To control stochasticity, <strong>every method is run 10 times and reported as mean ± 1σ</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>Deployment metrics</h4>
+        <p>Token consumption (using cl100k_base encoding) + search latency + total latency (p50/p95). These directly reflect production cost.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why is J the primary metric?</strong> Because in dialogue, the "correct answer" often admits multiple equivalent phrasings. F1/B1 can't capture semantic correctness; J lets an LLM act like a human grader, yielding much higher agreement with human judgments.</p>
+    </div>
+
+    <h3>5.4 Six baseline categories</h3>
+    <div class="grid g3">
+      <div class="card"><h4>① Established LOCOMO methods</h4><p>LoCoMo, ReadAgent, MemoryBank, MemGPT, A-Mem</p></div>
+      <div class="card"><h4>② Open-source memory</h4><p>LangMem (Hot Path)</p></div>
+      <div class="card"><h4>③ RAG</h4><p>chunk sizes 128–8192 × k ∈ {1, 2}</p></div>
+      <div class="card"><h4>④ Full-context</h4><p>entire 26K tokens stuffed into the prompt</p></div>
+      <div class="card"><h4>⑤ Proprietary</h4><p>OpenAI ChatGPT memory (gpt-4o-mini)</p></div>
+      <div class="card"><h4>⑥ Commercial memory provider</h4><p>Zep — a memory platform built for AI agents</p></div>
+    </div>
+    <p style="font-size:14.5px;color:var(--muted)">All baselines use the same setup for reproducibility: <code>gpt-4o-mini</code>, <code>text-embedding-small-3</code>, <code>temperature = 0</code>.</p>
+  </div>
+</section>
+
+<!-- ====================== 06 ====================== -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Main Results — Table 1 Column by Column</h2>
+    <p class="lead">The table below shows F1 / B1 / J for each method across the four question categories on LOCOMO. Bold = column best; orange = this paper's methods. J is reported as the mean of 10 runs ± 1σ.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Performance of memory-enabled systems across LOCOMO question types (higher is better)</caption>
+        <thead>
+          <tr>
+            <th rowspan="2">Method</th>
+            <th colspan="3">Single-Hop</th>
+            <th colspan="3">Multi-Hop</th>
+            <th colspan="3">Open-Domain</th>
+            <th colspan="3">Temporal</th>
+          </tr>
+          <tr>
+            <th>F1 ↑</th><th>B1 ↑</th><th>J ↑</th>
+            <th>F1 ↑</th><th>B1 ↑</th><th>J ↑</th>
+            <th>F1 ↑</th><th>B1 ↑</th><th>J ↑</th>
+            <th>F1 ↑</th><th>B1 ↑</th><th>J ↑</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>LoCoMo</td><td class="num">25.02</td><td class="num">19.75</td><td class="num">–</td><td class="num">12.04</td><td class="num">11.16</td><td class="num">–</td><td class="num">40.36</td><td class="num">29.05</td><td class="num">–</td><td class="num">18.41</td><td class="num">14.77</td><td class="num">–</td></tr>
+          <tr><td>ReadAgent</td><td class="num">9.15</td><td class="num">6.48</td><td class="num">–</td><td class="num">5.31</td><td class="num">5.12</td><td class="num">–</td><td class="num">9.67</td><td class="num">7.66</td><td class="num">–</td><td class="num">12.60</td><td class="num">8.87</td><td class="num">–</td></tr>
+          <tr><td>MemoryBank</td><td class="num">5.00</td><td class="num">4.77</td><td class="num">–</td><td class="num">5.56</td><td class="num">5.94</td><td class="num">–</td><td class="num">6.61</td><td class="num">5.16</td><td class="num">–</td><td class="num">9.68</td><td class="num">6.99</td><td class="num">–</td></tr>
+          <tr><td>MemGPT</td><td class="num">26.65</td><td class="num">17.72</td><td class="num">–</td><td class="num">9.15</td><td class="num">7.44</td><td class="num">–</td><td class="num">41.04</td><td class="num">34.34</td><td class="num">–</td><td class="num">25.52</td><td class="num">19.44</td><td class="num">–</td></tr>
+          <tr><td>A-Mem</td><td class="num">27.02</td><td class="num">20.09</td><td class="num">–</td><td class="num">12.14</td><td class="num">12.00</td><td class="num">–</td><td class="num">44.65</td><td class="num">37.06</td><td class="num">–</td><td class="num">45.85</td><td class="num">36.67</td><td class="num">–</td></tr>
+          <tr><td>A-Mem*</td><td class="num">20.76</td><td class="num">14.90</td><td class="num">39.79 ± 0.38</td><td class="num">9.22</td><td class="num">8.81</td><td class="num">18.85 ± 0.31</td><td class="num">33.34</td><td class="num">27.58</td><td class="num">54.05 ± 0.22</td><td class="num">35.40</td><td class="num">31.08</td><td class="num">49.91 ± 0.31</td></tr>
+          <tr><td>LangMem</td><td class="num">35.51</td><td class="num">26.86</td><td class="num">62.23 ± 0.75</td><td class="num">26.04</td><td class="num">22.32</td><td class="num">47.92 ± 0.47</td><td class="num">40.91</td><td class="num">33.63</td><td class="num">71.12 ± 0.20</td><td class="num">30.75</td><td class="num">25.84</td><td class="num">23.43 ± 0.39</td></tr>
+          <tr><td>Zep</td><td class="num">35.74</td><td class="num">23.30</td><td class="num">61.70 ± 0.32</td><td class="num">19.37</td><td class="num">14.82</td><td class="num">41.35 ± 0.48</td><td class="num">49.56</td><td class="num">38.92</td><td class="num">76.60 ± 0.13</td><td class="num">42.00</td><td class="num">34.53</td><td class="num">49.31 ± 0.50</td></tr>
+          <tr><td>OpenAI</td><td class="num">34.30</td><td class="num">23.72</td><td class="num">63.79 ± 0.46</td><td class="num">20.09</td><td class="num">15.42</td><td class="num">42.92 ± 0.63</td><td class="num">39.31</td><td class="num">31.16</td><td class="num">62.29 ± 0.12</td><td class="num">14.04</td><td class="num">11.25</td><td class="num">21.71 ± 0.20</td></tr>
+          <tr class="best"><td class="ours">Mem0 (ours)</td><td class="num">38.72</td><td class="num">27.13</td><td class="num">67.13 ± 0.65</td><td class="num">28.64</td><td class="num">21.58</td><td class="num">51.15 ± 0.31</td><td class="num">47.65</td><td class="num">38.72</td><td class="num">72.93 ± 0.11</td><td class="num">48.93</td><td class="num">40.51</td><td class="num">55.51 ± 0.34</td></tr>
+          <tr class="best"><td class="ours">Mem0g (ours)</td><td class="num">38.09</td><td class="num">26.03</td><td class="num">65.71 ± 0.45</td><td class="num">24.32</td><td class="num">18.82</td><td class="num">47.19 ± 0.67</td><td class="num">49.27</td><td class="num">40.30</td><td class="num">75.71 ± 0.21</td><td class="num">51.55</td><td class="num">40.28</td><td class="num">58.13 ± 0.44</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:13.5px;color:var(--muted)">A-Mem* denotes the authors' re-run of A-Mem (temperature=0) to generate J scores, which were unavailable in the original paper.</p>
+
+    <h3>6.1 Single-hop — Mem0 leads by a wide margin</h3>
+    <p>Mem0 wins with J = <span class="hl2">67.13</span>, beating second-place OpenAI (63.79) by ~5% and LangMem / Zep by ~8%. Mem0g loses slightly to Mem0 here, indicating that when information lives in a single turn, the relational structure offers limited benefit. A-Mem* trails by more than 25 points, underscoring the need for fine-grained, structured indexing.</p>
+
+    <h3>6.2 Multi-hop — Mem0 still on top</h3>
+    <p>Mem0 hits J = <span class="hl2">51.15</span> and F1 = 28.64, clearly ahead of every baseline. Notably Mem0g (47.19) does <em>not</em> beat Mem0 here; the authors hypothesize that graph structure may introduce overhead/redundancy when integrating complex information across sessions, while dense natural-language memory is more direct for these integrative tasks.</p>
+
+    <h3>6.3 Open-domain — Zep edges out by 0.89 points</h3>
+    <p>Zep takes first with J = <span class="hl">76.60</span>, with Mem0g close behind (75.71 — only 0.89 lower) and Mem0 at 72.93. The authors attribute this to Zep's consistent (if small) advantage when integrating conversational memory with external knowledge.</p>
+
+    <h3>6.4 Temporal — Mem0g's home turf</h3>
+    <p>Mem0g claims both the F1 (<span class="hl2">51.55</span>) and J (<span class="hl2">58.13</span>) best in the temporal column; Mem0 also scores a respectable 55.51. OpenAI collapses to 21.71 here — even though the prompt explicitly asks ChatGPT to extract memories with timestamps, most of the generated memories end up missing them. <strong>Conclusion: structured relational graph + explicit timestamps are key for temporal reasoning.</strong></p>
+
+    <div class="callout warn">
+      <p><strong>Common misreading:</strong> don't mistake "Zep wins open-domain" for "Zep is better overall". Zep loses by large margins on single-hop (61.70 vs Mem0 67.13), multi-hop (41.35 vs 51.15), and temporal (49.31 vs 58.13) — and uses 86× more tokens than Mem0 (see next section).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 07 ====================== -->
+<section id="latency">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Latency, Tokens, and Overall J — Table 2</h2>
+    <p class="lead">What the paper is really arguing is "Mem0 is accurate AND production-ready". This section reproduces search / total p50/p95 latencies and overall J, plus the memory-store size comparison.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Overall J vs latency (seconds). Memory tokens = size of each system's memory store.</caption>
+        <thead>
+          <tr>
+            <th>Method</th><th>K / chunk</th><th>Memory tokens</th>
+            <th>Search p50</th><th>Search p95</th>
+            <th>Total p50</th><th>Total p95</th>
+            <th>Overall J</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>RAG (k=1)</td><td class="num">128</td><td class="num">–</td><td class="num">0.281</td><td class="num">0.823</td><td class="num">0.774</td><td class="num">1.825</td><td class="num">47.77 ± 0.23</td></tr>
+          <tr><td>RAG (k=1)</td><td class="num">256</td><td class="num">–</td><td class="num">0.251</td><td class="num">0.710</td><td class="num">0.745</td><td class="num">1.628</td><td class="num">50.15 ± 0.16</td></tr>
+          <tr><td>RAG (k=1)</td><td class="num">512</td><td class="num">–</td><td class="num">0.240</td><td class="num">0.639</td><td class="num">0.772</td><td class="num">1.710</td><td class="num">46.05 ± 0.14</td></tr>
+          <tr><td>RAG (k=1)</td><td class="num">1024</td><td class="num">–</td><td class="num">0.240</td><td class="num">0.723</td><td class="num">0.821</td><td class="num">1.957</td><td class="num">40.74 ± 0.17</td></tr>
+          <tr><td>RAG (k=1)</td><td class="num">2048</td><td class="num">–</td><td class="num">0.255</td><td class="num">0.752</td><td class="num">0.996</td><td class="num">2.182</td><td class="num">37.93 ± 0.12</td></tr>
+          <tr><td>RAG (k=1)</td><td class="num">4096</td><td class="num">–</td><td class="num">0.254</td><td class="num">0.719</td><td class="num">1.093</td><td class="num">2.711</td><td class="num">36.84 ± 0.17</td></tr>
+          <tr><td>RAG (k=1)</td><td class="num">8192</td><td class="num">–</td><td class="num">0.279</td><td class="num">0.838</td><td class="num">1.396</td><td class="num">4.416</td><td class="num">44.53 ± 0.13</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">128</td><td class="num">–</td><td class="num">0.267</td><td class="num">0.624</td><td class="num">0.766</td><td class="num">1.829</td><td class="num">59.56 ± 0.19</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">256</td><td class="num">–</td><td class="num">0.255</td><td class="num">0.699</td><td class="num">0.802</td><td class="num">1.907</td><td class="num">60.97 ± 0.20</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">512</td><td class="num">–</td><td class="num">0.247</td><td class="num">0.746</td><td class="num">0.829</td><td class="num">1.729</td><td class="num">58.19 ± 0.18</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">1024</td><td class="num">–</td><td class="num">0.238</td><td class="num">0.702</td><td class="num">0.860</td><td class="num">1.850</td><td class="num">50.68 ± 0.13</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">2048</td><td class="num">–</td><td class="num">0.261</td><td class="num">0.829</td><td class="num">1.101</td><td class="num">2.791</td><td class="num">48.57 ± 0.22</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">4096</td><td class="num">–</td><td class="num">0.266</td><td class="num">0.944</td><td class="num">1.451</td><td class="num">4.822</td><td class="num">51.79 ± 0.15</td></tr>
+          <tr><td>RAG (k=2)</td><td class="num">8192</td><td class="num">–</td><td class="num">0.288</td><td class="num">1.124</td><td class="num">2.312</td><td class="num">9.942</td><td class="num">60.53 ± 0.16</td></tr>
+          <tr><td>Full-context</td><td class="num">–</td><td class="num">26031</td><td class="num">–</td><td class="num">–</td><td class="num">9.870</td><td class="num">17.117</td><td class="num">72.90 ± 0.19</td></tr>
+          <tr><td>A-Mem</td><td class="num">–</td><td class="num">2520</td><td class="num">0.668</td><td class="num">1.485</td><td class="num">1.410</td><td class="num">4.374</td><td class="num">48.38 ± 0.15</td></tr>
+          <tr><td>LangMem</td><td class="num">–</td><td class="num">127</td><td class="num">17.99</td><td class="num">59.82</td><td class="num">18.53</td><td class="num">60.40</td><td class="num">58.10 ± 0.21</td></tr>
+          <tr><td>Zep</td><td class="num">–</td><td class="num">3911</td><td class="num">0.513</td><td class="num">0.778</td><td class="num">1.292</td><td class="num">2.926</td><td class="num">65.99 ± 0.16</td></tr>
+          <tr><td>OpenAI</td><td class="num">–</td><td class="num">4437</td><td class="num">–</td><td class="num">–</td><td class="num">0.466</td><td class="num">0.889</td><td class="num">52.90 ± 0.14</td></tr>
+          <tr class="best"><td class="ours">Mem0 (ours)</td><td class="num">–</td><td class="num">1764</td><td class="num">0.148</td><td class="num">0.200</td><td class="num">0.708</td><td class="num">1.440</td><td class="num">66.88 ± 0.15</td></tr>
+          <tr class="best"><td class="ours">Mem0g (ours)</td><td class="num">–</td><td class="num">3616</td><td class="num">0.476</td><td class="num">0.657</td><td class="num">1.091</td><td class="num">2.590</td><td class="num">68.44 ± 0.17</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.1 Search latency — Mem0 is 3× faster than second place</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="100" y1="20" x2="100" y2="260" stroke="#26313f"/>
+        <line x1="100" y1="260" x2="730" y2="260" stroke="#26313f"/>
+
+        <line x1="100" y1="60" x2="730" y2="60" stroke="#26313f" stroke-dasharray="2 3"/>
+        <line x1="100" y1="110" x2="730" y2="110" stroke="#26313f" stroke-dasharray="2 3"/>
+        <line x1="100" y1="160" x2="730" y2="160" stroke="#26313f" stroke-dasharray="2 3"/>
+        <line x1="100" y1="210" x2="730" y2="210" stroke="#26313f" stroke-dasharray="2 3"/>
+
+        <text x="92" y="64" fill="#93a1b3" font-size="11" text-anchor="end">60s</text>
+        <text x="92" y="114" fill="#93a1b3" font-size="11" text-anchor="end">10s</text>
+        <text x="92" y="164" fill="#93a1b3" font-size="11" text-anchor="end">1s</text>
+        <text x="92" y="214" fill="#93a1b3" font-size="11" text-anchor="end">0.1s</text>
+        <text x="92" y="264" fill="#93a1b3" font-size="11" text-anchor="end">0s</text>
+        <text x="60" y="140" fill="#5ad1c0" font-size="11" text-anchor="middle" transform="rotate(-90 60 140)">Search p95 (log)</text>
+
+        <rect x="130" y="218" width="70" height="42" rx="4" fill="#5ad1c0"/>
+        <text x="165" y="278" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">Mem0 ★</text>
+        <text x="165" y="212" fill="#fff" font-size="11" text-anchor="middle">0.20</text>
+
+        <rect x="220" y="225" width="70" height="35" rx="4" fill="#f4a259"/>
+        <text x="255" y="278" fill="#f4a259" font-size="11" text-anchor="middle" font-weight="700">Mem0g ★</text>
+        <text x="255" y="219" fill="#fff" font-size="11" text-anchor="middle">0.66</text>
+
+        <rect x="310" y="227" width="70" height="33" rx="4" fill="#3a4658"/>
+        <text x="345" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">RAG-best</text>
+        <text x="345" y="221" fill="#c8d3e0" font-size="11" text-anchor="middle">0.70</text>
+
+        <rect x="400" y="229" width="70" height="31" rx="4" fill="#3a4658"/>
+        <text x="435" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">Zep</text>
+        <text x="435" y="223" fill="#c8d3e0" font-size="11" text-anchor="middle">0.78</text>
+
+        <rect x="490" y="200" width="70" height="60" rx="4" fill="#3a4658"/>
+        <text x="525" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">A-Mem</text>
+        <text x="525" y="194" fill="#c8d3e0" font-size="11" text-anchor="middle">1.49</text>
+
+        <rect x="580" y="60" width="70" height="200" rx="4" fill="#ff6b6b"/>
+        <text x="615" y="278" fill="#ff6b6b" font-size="11" text-anchor="middle">LangMem</text>
+        <text x="615" y="54" fill="#fff" font-size="11" text-anchor="middle" font-weight="700">59.82</text>
+
+        <text x="400" y="306" fill="#93a1b3" font-size="11" text-anchor="middle" font-style="italic">Units: seconds; LangMem (red) is out of the range for interactive applications</text>
+      </svg>
+      <div class="figcap">Figure 3 · Search latency p95 comparison (redrawn from paper Table 2 + Figure 4a)</div>
+    </div>
+
+    <h3>7.2 Total latency vs J — balancing efficiency and accuracy</h3>
+    <p>Sorting Table 2 by Total p95 and Overall J:</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Method</th><th>Overall J</th><th>Total p95 (s)</th><th>Latency cost per J point</th></tr></thead>
+        <tbody>
+          <tr><td>Full-context</td><td class="num">72.90</td><td class="num">17.117</td><td class="num">0.235</td></tr>
+          <tr class="best"><td class="ours">Mem0g (ours)</td><td class="num">68.44</td><td class="num">2.590</td><td class="num">0.038</td></tr>
+          <tr class="best"><td class="ours">Mem0 (ours)</td><td class="num">66.88</td><td class="num">1.440</td><td class="num">0.022</td></tr>
+          <tr><td>Zep</td><td class="num">65.99</td><td class="num">2.926</td><td class="num">0.044</td></tr>
+          <tr><td>RAG (k=2, 256)</td><td class="num">60.97</td><td class="num">1.907</td><td class="num">0.031</td></tr>
+          <tr><td>LangMem</td><td class="num">58.10</td><td class="num">60.400</td><td class="num">1.040</td></tr>
+          <tr><td>OpenAI</td><td class="num">52.90</td><td class="num">0.889</td><td class="num">0.017</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:13.5px;color:var(--muted)">"Latency cost per J point" = Total p95 ÷ Overall J, lower is better. (Derived in this digest, not reported in the paper.)</p>
+
+    <div class="callout">
+      <p><strong>The trade-off in one sentence:</strong> full-context still wins J (72.90), but takes <span class="hl2">17 seconds p95</span>. Mem0 hits 66.88 (only 6 J points lower) in <span class="hl">1.44 seconds</span> — 11.9× faster. Mem0g hits 68.44 (only 4.5 lower) in 2.59 seconds. That's a <span class="hl">91% cut</span> in p95 latency for Mem0 vs full-context.</p>
+    </div>
+
+    <h3>7.3 Memory-store size comparison</h3>
+    <div class="grid g4">
+      <div class="card"><h4>Mem0</h4><p class="big">7k</p><p>tokens / conversation</p></div>
+      <div class="card"><h4>Mem0g</h4><p class="big">14k</p><p>tokens (nodes + edges)</p></div>
+      <div class="card"><h4>Full-context</h4><p class="big">26k</p><p>raw conversation tokens</p></div>
+      <div class="card" style="border-color:var(--hot)"><h4 style="color:var(--hot)">Zep</h4><p class="big" style="color:var(--hot)">600k+</p><p>86× larger than Mem0</p></div>
+    </div>
+    <p>Zep's bloat stems from its design: every node caches a full abstractive summary AND the edges store facts too, creating heavy redundancy. The paper also calls out: after writing to Zep, immediate queries often fail; you have to wait hours of background processing for good results — <strong>unusable for real-time applications</strong>. By contrast, Mem0 graph construction completes in under a minute even in worst cases.</p>
+
+    <div class="callout warn">
+      <p><strong>The paper's headline pitch:</strong> Mem0 / Mem0g deliver "accuracy ≈ full-context, but with token and latency costs cut by more than an order of magnitude" — the production-ready balance that takes LLM agents from demo to real deployment.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 08 ====================== -->
+<section id="prompts">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Prompt Source — from Appendix A</h2>
+    <p class="lead">Appendix A of the paper lists the full prompts for LLM-as-a-Judge, Mem0/Mem0g answer generation, and the OpenAI ChatGPT memory baseline. Structures excerpted below; full text is in the paper, pp. 18–20.</p>
+
+    <h3>8.1 LLM-as-a-Judge prompt</h3>
+    <p>To keep evaluation fair, the authors instruct J to score generously when answers are semantically equivalent but phrased differently — e.g. different date formats (May 7th vs 7 May), or relative vs absolute time references (last Tuesday vs 2023-05-02), should both count as CORRECT.</p>
+    <pre><code>Your task is to label an answer to a question as <span class="str">"CORRECT"</span> or <span class="str">"WRONG"</span>.
+You will be given:
+  (1) a question (posed by one user to another user)
+  (2) a 'gold' (ground truth) answer
+  (3) a generated answer which you will score as CORRECT/WRONG
+
+<span class="cmt"># Example</span>
+Question:   Do you remember what I got the last time I went to Hawaii?
+Gold answer: A shell necklace
+<span class="cmt"># Generated answer can be much longer; be generous if it touches the same topic.</span>
+
+<span class="cmt"># Time-related questions: format / relative vs absolute time can both be CORRECT</span>
+<span class="cmt"># if they refer to the same date or period.</span>
+
+Question:         {question}
+Gold answer:      {gold_answer}
+Generated answer: {generated_answer}
+
+First, provide a short (one-sentence) explanation of your reasoning,
+then finish with CORRECT or WRONG. Do NOT include both labels.
+
+Return the label in json format with the key <span class="str">"label"</span>.</code></pre>
+
+    <h3>8.2 Mem0 answer-generation prompt</h3>
+    <pre><code>You are an intelligent memory assistant tasked with retrieving accurate
+information from conversation memories.
+
+<span class="cmt"># CONTEXT</span>
+You have access to memories from two speakers in a conversation.
+These memories contain timestamped information that may be relevant to
+answering the question.
+
+<span class="cmt"># INSTRUCTIONS</span>
+1. Carefully analyze all provided memories from both speakers
+2. Pay special attention to the timestamps to determine the answer
+3. If the question asks about a specific event or fact, look for direct evidence
+4. If the memories contain contradictory information, prioritize the most recent
+5. Convert relative time references (<span class="str">"last year"</span>) to specific dates based on
+   the memory timestamp. e.g. a memory from <span class="str">"4 May 2022"</span> mentioning <span class="str">"went to
+   India last year"</span> → trip in 2021.
+6. Always convert relative time references to specific dates/months/years.
+7. Focus only on the content of the memories; do not confuse character names
+   mentioned inside memories with the actual users who created them.
+8. The answer should be less than 5-6 words.
+
+<span class="cmt"># APPROACH (step by step)</span>
+1. Examine all memories related to the question
+2. Examine the timestamps and content carefully
+3. Look for explicit mentions of dates / times / locations / events
+4. If the answer requires calculation, show your work
+5. Formulate a precise, concise answer based solely on the evidence
+6. Double-check that your answer directly addresses the question
+7. Ensure your final answer is specific and avoids vague time references
+
+Memories for user {speaker_1_user_id}:
+{speaker_1_memories}
+
+Memories for user {speaker_2_user_id}:
+{speaker_2_memories}
+
+Question: {question}
+Answer:</code></pre>
+
+    <h3>8.3 Mem0g answer-generation prompt — almost identical to Mem0, with added graph relations</h3>
+    <pre><code><span class="cmt"># Same as 8.2, but APPROACH adds one step:</span>
+5. Analyze the knowledge graph relations to understand the user's knowledge context
+
+<span class="cmt"># And in addition to memories, the prompt also appends:</span>
+Memories for user {speaker_1_user_id}:
+{speaker_1_memories}
+Relations for user {speaker_1_user_id}:
+{speaker_1_graph_memories}
+
+Memories for user {speaker_2_user_id}:
+{speaker_2_memories}
+Relations for user {speaker_2_user_id}:
+{speaker_2_graph_memories}
+
+Question: {question}
+Answer:</code></pre>
+
+    <div class="callout">
+      <p><strong>Observation:</strong> the only differences between the Mem0 and Mem0g prompts are <span class="hl">"feed graph relations as additional context" and "add one instruction telling the model to analyze relations"</span>. In other words, Mem0g's accuracy gains come almost entirely from the structured memory on the retrieval side — not from different prompt engineering.</p>
+    </div>
+
+    <h3>8.4 OpenAI ChatGPT memory baseline prompt</h3>
+    <pre><code>Can you please extract relevant information from this conversation and
+create memory entries for each user mentioned? Please store these memories
+in your knowledge base in addition to the timestamp provided for future
+reference and personalized interactions.
+
+(1:56 pm on 8 May, 2023) Caroline: Hey Mel! Good to see you! ...
+(1:56 pm on 8 May, 2023) Melanie:  Hey Caroline! Good to see you! ...
+...
+<span class="cmt"># The entire LOCOMO conversation is fed directly into a single chat session</span></code></pre>
+    <p style="font-size:14.5px;color:var(--muted)">The authors explicitly note this baseline is "more lenient" than normal OpenAI memory usage, because they pass all extracted memories as context for downstream QA rather than only the question-relevant ones — giving OpenAI a fair-or-better setup. Even so, OpenAI scores only 21.71 on temporal questions.</p>
+  </div>
+</section>
+
+<!-- ====================== 09 ====================== -->
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>Conclusion &amp; Future Work</h2>
+    <p class="lead">The authors position this as the first step toward a "memory layer for production AI agents": already capable of keeping agents coherent across multi-session, cross-day dialogue at a token/latency budget compatible with production — with several follow-up directions still open.</p>
+
+    <h3>9.1 Overall gains the paper claims</h3>
+    <div class="grid g4">
+      <div class="card"><h4>Single-hop</h4><p class="big" style="color:var(--acc)">+5%</p><p>vs best baseline</p></div>
+      <div class="card"><h4>Multi-hop</h4><p class="big" style="color:var(--acc)">+7%</p><p>vs best baseline</p></div>
+      <div class="card"><h4>Temporal</h4><p class="big" style="color:var(--acc)">+11%</p><p>vs best baseline (Mem0g)</p></div>
+      <div class="card"><h4>p95 latency</h4><p class="big" style="color:var(--acc2)">−91%</p><p>vs full-context</p></div>
+    </div>
+
+    <h3>9.2 Future-work directions</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>① Reduce Mem0g graph operation overhead</h4>
+        <p>Although Mem0g delivers the highest J, its search/total latency is more than 3× Mem0's. More efficient graph traversal and incremental update strategies are needed.</p>
+      </div>
+      <div class="card">
+        <h4>② Hierarchical memory architectures</h4>
+        <p>Combine dense natural-language memory (fast, good for single-hop) with graph memory (precise, good for temporal / open-domain) in a layered design.</p>
+      </div>
+      <div class="card">
+        <h4>③ More human-like consolidation</h4>
+        <p>Inspired by sleep-time memory consolidation in humans, design smarter memory-consolidation pipelines that reduce redundancy and reinforce important events.</p>
+      </div>
+      <div class="card">
+        <h4>④ Beyond conversational scenarios</h4>
+        <p>Extend the Mem0 framework to procedural reasoning (multi-step task agents) and multimodal interaction (vision + audio + text).</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Caveats not discussed in the paper but worth noting:</strong> ① every Mem0 LLM call uses gpt-4o-mini; as base models advance, every baseline will also improve, so Mem0's relative gains may need re-benchmarking. ② LOCOMO is the most comprehensive benchmark of its kind, but with only 10 conversations × ~200 questions each, sample size is small; rankings may shift under different random seeds. ③ Zep still leads on open-domain, suggesting that "dense + graph" alone may not fully solve the integration of conversational knowledge with external knowledge.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Chhikara, Khant, Aryan, Singh, Yadav (2025) · arXiv preprint</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2504.19413">arXiv:2504.19413</a> · <a href="https://github.com/mem0ai/mem0">github.com/mem0ai/mem0</a> · <a href="https://mem0.ai/research">mem0.ai/research</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a digest of the paper; figures and tables have been redrawn/transcribed from the paper. All numerical values follow the original paper.</p>
+  </div>
+</footer>
+
+</body>
+</html>
