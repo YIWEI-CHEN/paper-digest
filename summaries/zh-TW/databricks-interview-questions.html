@@ -205,6 +205,19 @@ pre {
   line-height: 1.62;
 }
 code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
+}
+.py-keyword { color: #c792ea; }
+.py-builtin { color: #82aaff; }
+.py-type { color: #ffcb6b; }
+.py-function { color: #58d5c9; }
+.py-string { color: #ecc48d; }
+.py-number { color: #f78c6c; }
+.py-comment { color: #697989; font-style: italic; }
+.py-operator { color: #89ddff; }
 :not(pre) > code {
   color: var(--accent-2);
   background: var(--panel-2);
@@ -844,5 +857,111 @@ class Solution:
 <footer>
   Built for Databricks coding interview practice · Python solutions with Traditional Chinese explanations.
 </footer>
+<script>
+(() => {
+  const keywords = new Set([
+    "and", "as", "assert", "break", "class", "continue", "def", "del", "elif",
+    "else", "except", "False", "finally", "for", "from", "if", "import", "in",
+    "is", "lambda", "None", "nonlocal", "not", "or", "pass", "raise", "return",
+    "True", "try", "while", "with", "yield",
+  ]);
+  const builtins = new Set([
+    "abs", "all", "any", "bool", "dict", "divmod", "enumerate", "int", "len",
+    "list", "max", "min", "ord", "print", "range", "set", "str", "sum", "tuple",
+    "zip",
+  ]);
+  const types = new Set(["List", "deque", "defaultdict", "Solution", "HitCounter", "TimeMap", "TicTacToe"]);
+  const escapeHtml = (text) => text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const span = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  function readString(code, start) {
+    const prefixMatch = code.slice(start).match(/^([rRuUbBfF]{0,2})(?:"""|'''|"|')/);
+    if (!prefixMatch) return null;
+
+    const prefix = prefixMatch[1];
+    const quoteStart = start + prefix.length;
+    const quote = code.startsWith('"""', quoteStart) || code.startsWith("'''", quoteStart)
+      ? code.slice(quoteStart, quoteStart + 3)
+      : code[quoteStart];
+    let i = quoteStart + quote.length;
+
+    while (i < code.length) {
+      if (code.startsWith(quote, i)) {
+        i += quote.length;
+        break;
+      }
+      if (quote.length === 1 && code[i] === "\\") {
+        i += 2;
+      } else {
+        i += 1;
+      }
+    }
+
+    return i;
+  }
+
+  function highlightPython(code) {
+    let html = "";
+    let i = 0;
+
+    while (i < code.length) {
+      const ch = code[i];
+
+      if (ch === "#") {
+        const end = code.indexOf("\n", i);
+        const stop = end === -1 ? code.length : end;
+        html += span("py-comment", code.slice(i, stop));
+        i = stop;
+        continue;
+      }
+
+      const stringEnd = readString(code, i);
+      if (stringEnd !== null) {
+        html += span("py-string", code.slice(i, stringEnd));
+        i = stringEnd;
+        continue;
+      }
+
+      if (/\d/.test(ch)) {
+        const match = code.slice(i).match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?)/);
+        html += span("py-number", match[0]);
+        i += match[0].length;
+        continue;
+      }
+
+      if (/[A-Za-z_]/.test(ch)) {
+        const match = code.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+        const word = match[0];
+        const after = code.slice(i + word.length).match(/^\s*\(/);
+        let className = "";
+        if (keywords.has(word)) className = "py-keyword";
+        else if (builtins.has(word)) className = "py-builtin";
+        else if (types.has(word) || /^[A-Z]/.test(word)) className = "py-type";
+        else if (after) className = "py-function";
+
+        html += className ? span(className, word) : escapeHtml(word);
+        i += word.length;
+        continue;
+      }
+
+      if (/[-+*/%=!<>|&~^:,.()[\]{}]/.test(ch)) {
+        html += span("py-operator", ch);
+      } else {
+        html += escapeHtml(ch);
+      }
+      i += 1;
+    }
+
+    return html;
+  }
+
+  document.querySelectorAll("pre code.language-python").forEach((block) => {
+    block.innerHTML = highlightPython(block.textContent);
+  });
+})();
+</script>
 </body>
 </html>
