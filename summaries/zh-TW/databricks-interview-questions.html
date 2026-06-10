@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks Interview Questions · Python 解題筆記</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --panel-2: #1f2631;
+  --ink: #e6edf3;
+  --muted: #95a3b8;
+  --line: #2d3746;
+  --accent: #ffb000;
+  --accent-2: #58d5c9;
+  --accent-3: #c56cff;
+  --danger: #ff5470;
+  --code: #0a0f16;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(88, 213, 201, 0.10), transparent 35%),
+    radial-gradient(circle at 92% 10%, rgba(197, 108, 255, 0.10), transparent 34%),
+    var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+  line-height: 1.75;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+header.hero {
+  padding: 78px 0 52px;
+  border-bottom: 1px solid var(--line);
+}
+.kicker {
+  color: var(--accent-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(36px, 6vw, 68px);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+.subtitle {
+  max-width: 820px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(31, 38, 49, 0.78);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+}
+.pill.hot { color: var(--accent); border-color: rgba(255, 176, 0, 0.55); }
+.pill.purple { color: var(--accent-3); border-color: rgba(197, 108, 255, 0.55); }
+nav.toc {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(13, 17, 23, 0.88);
+  backdrop-filter: blur(12px);
+}
+nav.toc .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+nav.toc a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+nav.toc a:hover { color: #fff; background: var(--panel-2); }
+section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+h3 {
+  margin: 24px 0 10px;
+  color: var(--accent-2);
+  font-size: 19px;
+}
+p { margin: 12px 0; }
+a { color: var(--accent-2); }
+.note {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 176, 0, 0.35);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(255, 176, 0, 0.08);
+  color: #f7dd9a;
+}
+.grid { display: grid; gap: 18px; }
+.overview-grid { grid-template-columns: repeat(3, 1fr); }
+.card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(31, 38, 49, 0.94), rgba(21, 27, 35, 0.94));
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 22px;
+}
+.card strong { color: #fff; }
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+table { width: 100%; border-collapse: collapse; min-width: 860px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th {
+  color: var(--accent-2);
+  background: var(--panel-2);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+td { color: var(--muted); font-size: 14px; }
+td.problem { color: var(--ink); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+.problem-card {
+  margin-top: 26px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(21, 27, 35, 0.92);
+  box-shadow: 0 18px 44px var(--shadow);
+}
+.problem-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.problem-head h2 { font-size: clamp(24px, 3vw, 34px); }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.badge.medium { color: var(--accent); }
+.badge.hard { color: var(--danger); }
+.summary-list {
+  margin: 10px 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+.summary-list li { margin: 6px 0; }
+pre {
+  margin: 18px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--code);
+  color: #d6deeb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+:not(pre) > code {
+  color: var(--accent-2);
+  background: var(--panel-2);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+.complexity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.complexity div {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--panel-2);
+  color: var(--muted);
+}
+.complexity b { color: #fff; }
+footer {
+  padding: 44px 0 70px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .overview-grid, .complexity { grid-template-columns: 1fr; }
+  .problem-card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Databricks · Coding Interview Practice</div>
+    <h1>11 題 Python 解題筆記</h1>
+    <p class="subtitle">每題包含題目摘要、Python 解法、繁體中文解釋，以及 Time / Space Complexity。</p>
+    <div class="meta">
+      <span class="pill hot">9 Medium</span>
+      <span class="pill purple">1 Hard</span>
+      <span class="pill">Array · DP · BFS · Design · Greedy · Sliding Window</span>
+      <span class="pill">Updated 2026-06-09</span>
+    </div>
+    <div class="note">題目描述是根據公開題名與常見面試版本重新整理的原創摘要；重點放在面試時需要理解的輸入輸出、限制與解題策略。</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#overview">總覽</a>
+    <a href="#house-robber-ii">House Robber II</a>
+    <a href="#hit-counter">Hit Counter</a>
+    <a href="#ip-to-cidr">IP to CIDR</a>
+    <a href="#permutation-in-string">Permutation</a>
+    <a href="#house-robber">House Robber</a>
+    <a href="#time-map">TimeMap</a>
+    <a href="#rotting-oranges">Rotting Oranges</a>
+    <a href="#binary-matrix">Binary Matrix</a>
+    <a href="#knight-moves">Knight Moves</a>
+    <a href="#tic-tac-toe">Tic-Tac-Toe</a>
+    <a href="#text-justification">Text Justification</a>
+  </div>
+</nav>
+
+<main>
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>解題總覽</h2>
+      </div>
+      <div class="grid overview-grid">
+        <div class="card"><strong>常見模式</strong><p>這 11 題主要測 DP 狀態壓縮、Queue/BFS、滑動視窗、二分搜尋、greedy 切段，以及 O(1) 設計題。</p></div>
+        <div class="card"><strong>面試重點</strong><p>除了寫出可跑的程式，也要能說明邊界條件：空輸入、單元素、最後一行格式、過期時間、循環相鄰、網格阻擋。</p></div>
+        <div class="card"><strong>建議順序</strong><p>先練 House Robber / Permutation / BFS 題，再做 TimeMap / HitCounter / TicTacToe，最後處理 IP to CIDR 與 Text Justification。</p></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:24px">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Problem</th>
+              <th>Pattern</th>
+              <th>Difficulty</th>
+              <th>核心想法</th>
+              <th>Time</th>
+              <th>Space</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td class="problem">House Robber II</td><td>DP</td><td>Medium</td><td>環狀房子拆成「不取第一間」與「不取最後一間」兩條線性 DP。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>2</td><td class="problem">Design Hit Counter</td><td>Queue / Design</td><td>Medium</td><td>只保留 300 秒窗口內的 timestamp bucket。</td><td>O(1) hit, amortized O(k) get</td><td>O(300)</td></tr>
+            <tr><td>3</td><td class="problem">IP to CIDR</td><td>Bit / Greedy</td><td>Medium</td><td>每次取符合目前 IP 對齊且不超過剩餘數量的最大 CIDR block。</td><td>O(B)</td><td>O(B)</td></tr>
+            <tr><td>4</td><td class="problem">Permutation in String</td><td>Sliding Window</td><td>Medium</td><td>固定長度窗口比較 26 個字母計數是否完全一致。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>5</td><td class="problem">House Robber</td><td>DP</td><td>Medium</td><td>每間房子只需要記住前一格與前兩格最佳值。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>6</td><td class="problem">Time Based Key Value Store</td><td>Hash Map / Binary Search</td><td>Medium</td><td>每個 key 存遞增 timestamp，查詢時二分找最後一個不大於 query 的時間。</td><td>O(1) set, O(log m) get</td><td>O(total sets)</td></tr>
+            <tr><td>7</td><td class="problem">Rotting Oranges</td><td>Multi-source BFS</td><td>Medium</td><td>所有 rotten orange 同時出發，逐層感染 fresh orange。</td><td>O(mn)</td><td>O(mn)</td></tr>
+            <tr><td>8</td><td class="problem">Shortest Path in Binary Matrix</td><td>BFS</td><td>Medium</td><td>八方向 BFS，第一個到終點的距離就是最短路徑。</td><td>O(n²)</td><td>O(n²)</td></tr>
+            <tr><td>9</td><td class="problem">Minimum Knight Moves</td><td>BFS / Symmetry</td><td>Medium</td><td>利用棋盤對稱，把目標映射到第一象限並限制搜尋邊界。</td><td>O(|x||y|)</td><td>O(|x||y|)</td></tr>
+            <tr><td>10</td><td class="problem">Design Tic-Tac-Toe</td><td>Design</td><td>Medium</td><td>row/col/diagonal 用加減分累積，任一線絕對值達 n 即勝利。</td><td>O(1) per move</td><td>O(n)</td></tr>
+            <tr><td>11</td><td class="problem">Text Justification</td><td>Greedy / String</td><td>Hard</td><td>貪心塞滿每行，再平均分配空白；最後一行左對齊。</td><td>O(total chars)</td><td>O(output)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="house-robber-ii">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>1. House Robber II</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Dynamic Programming</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一排房子的金額 <code>nums</code>，小偷不能偷相鄰房子；但這次房子排成一圈，所以第一間與最後一間也相鄰。請回傳在不觸發警報下可偷到的最大金額。</p>
+        <ul class="summary-list">
+          <li>若只有一間房子，答案就是該房子的金額。</li>
+          <li>因為第一間與最後一間不能同時偷，所以問題可拆成兩個線性版本：<code>nums[0:n-1]</code> 與 <code>nums[1:n]</code>。</li>
+        </ul>
+        <h3>解法說明</h3>
+        <p>線性 House Robber 的狀態是：走到目前房子時，最佳答案只和「上一間以前的最佳」與「上上間以前的最佳」有關。環狀限制只需要避免首尾同時被選，因此分別計算「排除最後一間」與「排除第一間」，取最大值。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def rob(self, nums: List[int]) -&gt; int:
+        if not nums:
+            return 0
+        if len(nums) == 1:
+            return nums[0]
+
+        def rob_line(values: List[int]) -&gt; int:
+            two_back = 0
+            one_back = 0
+            for money in values:
+                two_back, one_back = one_back, max(one_back, two_back + money)
+            return one_back
+
+        return max(rob_line(nums[:-1]), rob_line(nums[1:]))</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，兩次線性掃描。</div>
+          <div><b>Space Complexity:</b> O(1)，只保留兩個 DP 變數；切片若嚴格計入會是 O(n)，可改傳 index 避免。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="hit-counter">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>2. Design Hit Counter</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Queue</span><span class="badge">Design</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計一個 hit counter，支援 <code>hit(timestamp)</code> 記錄某秒發生一次 hit，以及 <code>getHits(timestamp)</code> 回傳過去 5 分鐘，也就是最近 300 秒內的 hit 數量。timestamp 會以非遞減順序呼叫。</p>
+        <ul class="summary-list">
+          <li>在時間 <code>t</code> 查詢時，只保留 timestamp <code>&gt; t - 300</code> 的 hit。</li>
+          <li>若同一秒有很多 hits，使用 bucket 儲存 <code>[timestamp, count]</code> 比逐筆儲存更省空間。</li>
+        </ul>
+        <h3>解法說明</h3>
+        <p>用 deque 維護還沒過期的 timestamp bucket，並用 <code>total</code> 維護目前窗口內總 hit 數。新增 hit 時，如果最後一個 bucket 是同一秒就累加，否則新增 bucket。查詢時從隊首移除過期 bucket。</p>
+<pre><code class="language-python">from collections import deque
+
+
+class HitCounter:
+    def __init__(self):
+        self.hits = deque()
+        self.total = 0
+
+    def hit(self, timestamp: int) -&gt; None:
+        if self.hits and self.hits[-1][0] == timestamp:
+            self.hits[-1][1] += 1
+        else:
+            self.hits.append([timestamp, 1])
+        self.total += 1
+
+    def getHits(self, timestamp: int) -&gt; int:
+        while self.hits and self.hits[0][0] &lt;= timestamp - 300:
+            _, count = self.hits.popleft()
+            self.total -= count
+        return self.total</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> <code>hit</code> O(1)；<code>getHits</code> amortized O(k)，k 是這次被清掉的過期 bucket 數。</div>
+          <div><b>Space Complexity:</b> O(300) timestamp bucket；若 timestamp 粒度固定為秒且查詢會清理過期資料，窗口最多約 300 個秒級 bucket。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="ip-to-cidr">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>3. IP to CIDR</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Bit Manipulation</span><span class="badge">Greedy</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個起始 IPv4 位址 <code>ip</code> 與整數 <code>n</code>，要用最少的 CIDR blocks 精準覆蓋從 <code>ip</code> 開始的連續 <code>n</code> 個 IP，不可多覆蓋也不可漏掉。</p>
+        <ul class="summary-list">
+          <li>CIDR <code>a.b.c.d/prefix</code> 表示一段大小為 <code>2^(32 - prefix)</code> 的連續 IP。</li>
+          <li>每個 block 的起點必須按照 block 大小對齊。</li>
+        </ul>
+        <h3>解法說明</h3>
+        <p>先把 IPv4 轉成 32-bit 整數。對目前起點 <code>start</code>，<code>start &amp; -start</code> 代表它能對齊的最大 2 的冪次 block。接著若這個 block 比剩餘 <code>n</code> 還大，就一直除以 2，直到不會超出範圍。這是 greedy：每次選當前合法的最大 block，才能最少切段。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def ipToCIDR(self, ip: str, n: int) -&gt; List[str]:
+        start = self._to_int(ip)
+        blocks = []
+
+        while n &gt; 0:
+            max_size = start &amp; -start
+            if max_size == 0:
+                max_size = 1 &lt;&lt; 32
+
+            while max_size &gt; n:
+                max_size &gt;&gt;= 1
+
+            prefix = 32 - (max_size.bit_length() - 1)
+            blocks.append(f"{self._to_ip(start)}/{prefix}")
+
+            start += max_size
+            n -= max_size
+
+        return blocks
+
+    def _to_int(self, ip: str) -&gt; int:
+        value = 0
+        for part in ip.split("."):
+            value = value * 256 + int(part)
+        return value
+
+    def _to_ip(self, value: int) -&gt; str:
+        return ".".join(str((value &gt;&gt; shift) &amp; 255) for shift in (24, 16, 8, 0))</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(B)，B 是輸出的 CIDR block 數；IPv4 位元數固定，因此實務上是常數上界。</div>
+          <div><b>Space Complexity:</b> O(B)，用來存輸出 blocks。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="permutation-in-string">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>4. Permutation in String</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sliding Window</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給兩個小寫字串 <code>s1</code> 與 <code>s2</code>，判斷 <code>s2</code> 是否包含某個長度等於 <code>s1</code> 的子字串，且該子字串是 <code>s1</code> 的任一排列。</p>
+        <ul class="summary-list">
+          <li>排列只關心字母頻率，不關心順序。</li>
+          <li>窗口長度固定為 <code>len(s1)</code>。</li>
+        </ul>
+        <h3>解法說明</h3>
+        <p>維護 <code>s1</code> 的字母計數與目前窗口計數。每次窗口右移時只更新進來與出去的兩個字母。為了避免每步都比較 26 個元素，可維護 <code>matches</code>：有多少個字母的 need count 與 window count 相等；當 <code>matches == 26</code> 就找到排列。</p>
+<pre><code class="language-python">class Solution:
+    def checkInclusion(self, s1: str, s2: str) -&gt; bool:
+        if len(s1) &gt; len(s2):
+            return False
+
+        base = ord("a")
+        need = [0] * 26
+        window = [0] * 26
+
+        for i, ch in enumerate(s1):
+            need[ord(ch) - base] += 1
+            window[ord(s2[i]) - base] += 1
+
+        matches = sum(1 for i in range(26) if need[i] == window[i])
+        if matches == 26:
+            return True
+
+        left = 0
+        for right in range(len(s1), len(s2)):
+            add = ord(s2[right]) - base
+            if window[add] == need[add]:
+                matches -= 1
+            window[add] += 1
+            if window[add] == need[add]:
+                matches += 1
+
+            remove = ord(s2[left]) - base
+            if window[remove] == need[remove]:
+                matches -= 1
+            window[remove] -= 1
+            if window[remove] == need[remove]:
+                matches += 1
+            left += 1
+
+            if matches == 26:
+                return True
+
+        return False</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(|s1| + |s2|)，每個字元進出窗口一次。</div>
+          <div><b>Space Complexity:</b> O(1)，固定 26 個小寫英文字母計數。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="house-robber">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>5. House Robber</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Dynamic Programming</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一排房子的金額 <code>nums</code>，不能偷相鄰的兩間房子，請回傳可取得的最大金額。</p>
+        <h3>解法說明</h3>
+        <p>對每間房子有兩種選擇：不偷它，最佳值等於前一間的最佳；偷它，最佳值等於前兩間的最佳加上目前金額。轉移式為 <code>dp[i] = max(dp[i-1], dp[i-2] + nums[i])</code>。因為只依賴前兩格，可以用兩個變數壓縮空間。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def rob(self, nums: List[int]) -&gt; int:
+        two_back = 0
+        one_back = 0
+
+        for money in nums:
+            two_back, one_back = one_back, max(one_back, two_back + money)
+
+        return one_back</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，掃過所有房子一次。</div>
+          <div><b>Space Complexity:</b> O(1)，只保留兩個狀態。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="time-map">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>6. Time Based Key Value Store</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Map</span><span class="badge">Binary Search</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計 <code>TimeMap</code>，支援 <code>set(key, value, timestamp)</code> 與 <code>get(key, timestamp)</code>。查詢時要回傳該 key 在時間不超過 <code>timestamp</code> 的最新 value；若不存在則回傳空字串。對同一個 key，set 的 timestamp 會遞增。</p>
+        <h3>解法說明</h3>
+        <p>每個 key 對應兩個平行陣列：timestamps 與 values。因為 timestamp 已遞增，set 時 append 即可；get 時用 binary search 找到最後一個 <code>&lt;= timestamp</code> 的 index。</p>
+<pre><code class="language-python">from bisect import bisect_right
+from collections import defaultdict
+
+
+class TimeMap:
+    def __init__(self):
+        self.times = defaultdict(list)
+        self.values = defaultdict(list)
+
+    def set(self, key: str, value: str, timestamp: int) -&gt; None:
+        self.times[key].append(timestamp)
+        self.values[key].append(value)
+
+    def get(self, key: str, timestamp: int) -&gt; str:
+        times = self.times.get(key)
+        if not times:
+            return ""
+
+        index = bisect_right(times, timestamp) - 1
+        if index &lt; 0:
+            return ""
+        return self.values[key][index]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> <code>set</code> O(1)；<code>get</code> O(log m)，m 是該 key 的版本數。</div>
+          <div><b>Space Complexity:</b> O(total sets)，每次 set 都需要保留一個版本。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="rotting-oranges">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>7. Rotting Oranges</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Multi-source BFS</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個 grid：<code>0</code> 代表空格、<code>1</code> 代表新鮮橘子、<code>2</code> 代表腐爛橘子。每分鐘，腐爛橘子會讓上下左右相鄰的新鮮橘子腐爛。請回傳讓所有橘子腐爛需要幾分鐘；若永遠無法全部腐爛，回傳 <code>-1</code>。</p>
+        <h3>解法說明</h3>
+        <p>這是多源 BFS：一開始把所有 rotten oranges 放進 queue，然後一層代表一分鐘。每感染一顆 fresh orange，就把 fresh 數量減一並放入下一層 queue。BFS 結束後若還有 fresh，代表被空格隔離而不可達。</p>
+<pre><code class="language-python">from collections import deque
+from typing import List
+
+
+class Solution:
+    def orangesRotting(self, grid: List[List[int]]) -&gt; int:
+        rows = len(grid)
+        cols = len(grid[0])
+        queue = deque()
+        fresh = 0
+
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] == 2:
+                    queue.append((r, c))
+                elif grid[r][c] == 1:
+                    fresh += 1
+
+        minutes = 0
+        directions = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+
+        while queue and fresh &gt; 0:
+            for _ in range(len(queue)):
+                r, c = queue.popleft()
+                for dr, dc in directions:
+                    nr, nc = r + dr, c + dc
+                    if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and grid[nr][nc] == 1:
+                        grid[nr][nc] = 2
+                        fresh -= 1
+                        queue.append((nr, nc))
+            minutes += 1
+
+        return minutes if fresh == 0 else -1</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(mn)，每個格子最多進 queue 一次。</div>
+          <div><b>Space Complexity:</b> O(mn)，queue 最壞可能裝下大部分格子。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="binary-matrix">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>8. Shortest Path in Binary Matrix</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">BFS</span><span class="badge">Grid</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個 <code>n x n</code> 的 binary matrix，<code>0</code> 可走、<code>1</code> 阻擋。從左上角走到右下角，可往 8 個方向移動，路徑長度以經過的格子數計算。若不可達，回傳 <code>-1</code>。</p>
+        <h3>解法說明</h3>
+        <p>所有邊權相同，所以用 BFS。若起點或終點被阻擋，直接回傳 <code>-1</code>。BFS 第一次抵達終點時，因為是按距離逐層擴展，所以該距離一定最短。下面解法直接把走過的 <code>0</code> 改成 <code>1</code> 當 visited；若不想修改輸入，可改用 set。</p>
+<pre><code class="language-python">from collections import deque
+from typing import List
+
+
+class Solution:
+    def shortestPathBinaryMatrix(self, grid: List[List[int]]) -&gt; int:
+        n = len(grid)
+        if grid[0][0] == 1 or grid[n - 1][n - 1] == 1:
+            return -1
+
+        directions = [
+            (-1, -1), (-1, 0), (-1, 1),
+            (0, -1),           (0, 1),
+            (1, -1),  (1, 0),  (1, 1),
+        ]
+        queue = deque([(0, 0, 1)])
+        grid[0][0] = 1
+
+        while queue:
+            r, c, distance = queue.popleft()
+            if r == n - 1 and c == n - 1:
+                return distance
+
+            for dr, dc in directions:
+                nr, nc = r + dr, c + dc
+                if 0 &lt;= nr &lt; n and 0 &lt;= nc &lt; n and grid[nr][nc] == 0:
+                    grid[nr][nc] = 1
+                    queue.append((nr, nc, distance + 1))
+
+        return -1</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n²)，每個格子最多被處理一次。</div>
+          <div><b>Space Complexity:</b> O(n²)，queue 最壞情況可能包含許多格子。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="knight-moves">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>9. Minimum Knight Moves</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">BFS</span><span class="badge">Symmetry</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>在無限大棋盤上，騎士從 <code>(0, 0)</code> 出發，每次走西洋棋 knight 的 L 形步。給目標座標 <code>(x, y)</code>，回傳最少需要幾步。</p>
+        <h3>解法說明</h3>
+        <p>棋盤對 x 軸與 y 軸對稱，所以只要處理 <code>(abs(x), abs(y))</code>。用 BFS 找最短步數，並把搜尋範圍限制在 <code>[-2, x + 2] x [-2, y + 2]</code>；保留 -2 是因為最短路徑在靠近原點的小座標可能需要短暫繞到負方向。</p>
+<pre><code class="language-python">from collections import deque
+
+
+class Solution:
+    def minKnightMoves(self, x: int, y: int) -&gt; int:
+        target_x, target_y = abs(x), abs(y)
+        moves = [
+            (1, 2), (2, 1), (-1, 2), (-2, 1),
+            (1, -2), (2, -1), (-1, -2), (-2, -1),
+        ]
+
+        queue = deque([(0, 0, 0)])
+        seen = {(0, 0)}
+
+        while queue:
+            cur_x, cur_y, distance = queue.popleft()
+            if cur_x == target_x and cur_y == target_y:
+                return distance
+
+            for dx, dy in moves:
+                nx, ny = cur_x + dx, cur_y + dy
+                if (
+                    -2 &lt;= nx &lt;= target_x + 2
+                    and -2 &lt;= ny &lt;= target_y + 2
+                    and (nx, ny) not in seen
+                ):
+                    seen.add((nx, ny))
+                    queue.append((nx, ny, distance + 1))
+
+        return -1</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O((|x| + 5)(|y| + 5))，BFS 搜尋被限制在目標附近的矩形。</div>
+          <div><b>Space Complexity:</b> O((|x| + 5)(|y| + 5))，visited 與 queue 的大小。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="tic-tac-toe">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>10. Design Tic-Tac-Toe</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Design</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計一個 <code>n x n</code> Tic-Tac-Toe 遊戲，支援 <code>move(row, col, player)</code>。每次 move 後，若 player 獲勝就回傳 player 編號；否則回傳 <code>0</code>。可假設所有 move 都合法，且不會在遊戲已結束後繼續下。</p>
+        <h3>解法說明</h3>
+        <p>不用每次掃整個棋盤。把 player 1 的落子記為 <code>+1</code>，player 2 記為 <code>-1</code>；維護每列、每欄、主對角線、副對角線的總和。任一條線的絕對值等於 <code>n</code>，代表同一玩家佔滿該線。</p>
+<pre><code class="language-python">class TicTacToe:
+    def __init__(self, n: int):
+        self.n = n
+        self.rows = [0] * n
+        self.cols = [0] * n
+        self.diagonal = 0
+        self.anti_diagonal = 0
+
+    def move(self, row: int, col: int, player: int) -&gt; int:
+        delta = 1 if player == 1 else -1
+
+        self.rows[row] += delta
+        self.cols[col] += delta
+
+        if row == col:
+            self.diagonal += delta
+        if row + col == self.n - 1:
+            self.anti_diagonal += delta
+
+        if (
+            abs(self.rows[row]) == self.n
+            or abs(self.cols[col]) == self.n
+            or abs(self.diagonal) == self.n
+            or abs(self.anti_diagonal) == self.n
+        ):
+            return player
+
+        return 0</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(1) per move，只更新固定數量的 counter。</div>
+          <div><b>Space Complexity:</b> O(n)，rows 與 cols 各一個長度 n 的陣列。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="text-justification">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>11. Text Justification</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Greedy</span><span class="badge">String Formatting</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一串 words 與每行寬度 <code>maxWidth</code>，把文字排成多行且每行長度都剛好等於 <code>maxWidth</code>。每行要盡量塞入最多單字；非最後一行要左右對齊，空白平均分配，若無法整除，多出的空白優先放在左邊的 gap。最後一行與只有一個單字的行採左對齊。</p>
+        <h3>解法說明</h3>
+        <p>先 greedy 決定一行能放哪些單字：只要加上一個單字與至少一個空白不超過 <code>maxWidth</code> 就繼續放。決定一行後分兩種情況：最後一行或單字數為 1 時，用單一空白 join 後右側補空白；一般行則計算總空白數，平均分到 gaps，多餘空白從左到右補。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def fullJustify(self, words: List[str], maxWidth: int) -&gt; List[str]:
+        result = []
+        i = 0
+
+        while i &lt; len(words):
+            line_len = len(words[i])
+            j = i + 1
+
+            while j &lt; len(words) and line_len + 1 + len(words[j]) &lt;= maxWidth:
+                line_len += 1 + len(words[j])
+                j += 1
+
+            line_words = words[i:j]
+            words_len = sum(len(word) for word in line_words)
+            gaps = len(line_words) - 1
+
+            if j == len(words) or gaps == 0:
+                line = " ".join(line_words)
+                line += " " * (maxWidth - len(line))
+            else:
+                spaces = maxWidth - words_len
+                base_spaces, extra = divmod(spaces, gaps)
+                parts = []
+
+                for k, word in enumerate(line_words[:-1]):
+                    parts.append(word)
+                    parts.append(" " * (base_spaces + (1 if k &lt; extra else 0)))
+                parts.append(line_words[-1])
+                line = "".join(parts)
+
+            result.append(line)
+            i = j
+
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(total chars)，每個單字被分配到某一行並輸出一次；輸出本身也需要相同量級時間。</div>
+          <div><b>Space Complexity:</b> O(output)，回傳結果需要儲存所有行；額外暫存一行內容最多 O(maxWidth)。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Built for Databricks coding interview practice · Python solutions with Traditional Chinese explanations.
+</footer>
+</body>
+</html>
