@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkedIn Enterprise Text-to-SQL Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430;
+  --ink:#e8edf4; --muted:#93a1b3; --line:#26313f;
+  --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(36px,6vw,66px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">KDD 2025 · AAE Workshop · Paper Digest</div>
+    <h1 class="title">Enterprise Text-to-<span class="sql">SQL</span></h1>
+    <p class="subtitle">A full engineering account of LinkedIn's internal Text-to-SQL chatbot: knowledge-graph backbone plus a Researcher Agent for fixing hallucinations, achieving 53% expert-rated correctness and 300+ weekly active users on a data lake with millions of tables.</p>
+    <div class="meta-row">
+      <span class="tag lit">Enterprise Text-to-SQL</span>
+      <span class="tag lit">Knowledge Graph</span>
+      <span class="tag">Researcher Agent</span>
+      <span class="tag">Multi-Agent UI</span>
+      <span class="tag">Trino SQL</span>
+      <span class="tag">LinkedIn Production</span>
+    </div>
+    <p class="authors">Albert Chen, Manas Bundele, Gaurav Ahlawat, Patrick Stetz, Zhitao Wang and 13 more · LinkedIn · <a href="https://arxiv.org/abs/2507.14372">arXiv:2507.14372</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#overview">02 Architecture</a>
+    <a href="#kg">03 Knowledge Graph</a>
+    <a href="#clustering">04 ICA Clustering</a>
+    <a href="#writer">05 Query Writer Agent</a>
+    <a href="#ui">06 Multi-Agent UI</a>
+    <a href="#eval">07 Evaluation &amp; Ablations</a>
+    <a href="#deploy">08 Production</a>
+    <a href="#negative">09 Negative Results</a>
+    <a href="#conclusion">10 Conclusion</a>
+  </div>
+</nav>
+
+<!-- ====================== 01 ====================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem Statement — Spider 90% does not mean enterprise-ready</h2>
+    <p class="lead">Spider/BIRD execution accuracy has climbed from 54% to over 90%, but those numbers collapse the moment you move to a real enterprise data lake. LinkedIn set out to build a SQL assistant any employee at the company could use — and this paper is the full engineering write-up of that journey.</p>
+
+    <h3>1.1 Why academic benchmarks don't carry over</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Spider 1.0</h4>
+        <p class="big">90%+</p>
+        <p>SOTA execution accuracy as of Nov 2023 — looks essentially solved.</p>
+      </div>
+      <div class="card">
+        <h4>BIRD</h4>
+        <p class="big">76%</p>
+        <p>Best score as of Apr 2025. Sits between usable and unusable.</p>
+      </div>
+      <div class="card" style="border-color:var(--hot)">
+        <h4 style="color:var(--hot)">Spider 2.0</h4>
+        <p class="big" style="color:var(--hot)">31%</p>
+        <p>Apr 2025 SOTA is only 31%. Ground truth queries are over 100 lines on tables with 1000+ columns. <strong>The realistic enterprise benchmark.</strong></p>
+      </div>
+    </div>
+    <p>Even Uber's internal QueryGPT only reports roughly <span class="hl2">50%</span> overlap on ground-truth tables on their own eval set. In short, slapping a fine-tuned LLM on top of a schema is not enough.</p>
+
+    <h3>1.2 Four challenges specific to LinkedIn</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Schema scale explosion</h4>
+        <p>The data lake contains <strong>millions of tables</strong>, with popular tables reaching 100+ columns. Tables get deprecated regularly and many overlap in content — the model must first pick the right table to do anything useful.</p>
+      </div>
+      <div class="card">
+        <h4>Same words, different meanings (personalization)</h4>
+        <p>"Latest click-through rate" means something completely different to a notifications team vs a search team. The model must integrate user / product-area context to interpret correctly.</p>
+      </div>
+      <div class="card">
+        <h4>Business jargon and acronyms</h4>
+        <p>The company has its own acronyms and terms invisible to any public corpus — they must be mined from wikis, code repos, and historical queries.</p>
+      </div>
+      <div class="card">
+        <h4>Auxiliary tasks</h4>
+        <p>Users don't only want SQL — they want the chatbot to find tables, explain queries, and debug. "Text-to-SQL" is only one part of the chat experience.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The paper's three contributions:</strong> ① a <span class="hl">knowledge graph</span> that fuses schemas, code repos, query logs, wikis, jargon, and crowdsourced domain knowledge, with ICA to auto-cluster tables into product areas; ② a <span class="hl">Query Writer Agent</span> with multi-stage retrieval + ranking, plus a <span class="hl">Researcher Agent</span> that dynamically retrieves new tables during fix-up to resolve hallucinations; ③ a <span class="hl">Multi-Agent UI</span> that routes intents — query writing / data finding / query fixing / Q&amp;A — to keep follow-ups smooth.</p>
+      <p style="margin-top:10px"><em>"To our knowledge, this paper is the first detailed presentation of an enterprise Text-to-SQL solution."</em></p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ====================== -->
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Three-Layer Architecture</h2>
+    <p class="lead">Bottom-up: Knowledge Graph (semantic foundation) → Query Writer Agent (the SQL-generating core agent) → Multi-Agent Chat UI (user interface and intent routing). Data flow between the three layers is shown below.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ovar" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="ovar2" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L9,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <rect x="20" y="20" width="860" height="120" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="40" y="48" fill="#8c7bff" font-size="13" font-weight="700">LAYER 3 · MULTI-AGENT CHAT UI</text>
+
+        <rect x="40" y="65" width="150" height="56" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="115" y="88" fill="#e8edf4" font-size="12" text-anchor="middle">User Question</text>
+        <text x="115" y="106" fill="#93a1b3" font-size="11" text-anchor="middle">+ chat history</text>
+
+        <rect x="220" y="65" width="160" height="56" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="300" y="88" fill="#e8edf4" font-size="12" text-anchor="middle">Intent Classifier</text>
+        <text x="300" y="106" fill="#93a1b3" font-size="11" text-anchor="middle">route by intent</text>
+
+        <rect x="410" y="65" width="140" height="56" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="480" y="86" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">Query Writer</text>
+        <text x="480" y="104" fill="#93a1b3" font-size="10" text-anchor="middle">write query</text>
+
+        <rect x="565" y="65" width="140" height="56" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="635" y="86" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">Data Finder</text>
+        <text x="635" y="104" fill="#93a1b3" font-size="10" text-anchor="middle">suggest tables</text>
+
+        <rect x="720" y="65" width="140" height="56" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="790" y="86" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">Query Fixer / Q&amp;A</text>
+        <text x="790" y="104" fill="#93a1b3" font-size="10" text-anchor="middle">debug / answer</text>
+
+        <line x1="190" y1="93" x2="218" y2="93" stroke="#8c7bff" marker-end="url(#ovar)"/>
+        <line x1="380" y1="93" x2="408" y2="93" stroke="#8c7bff" marker-end="url(#ovar)"/>
+        <line x1="380" y1="100" x2="563" y2="100" stroke="#8c7bff" marker-end="url(#ovar)"/>
+        <line x1="380" y1="106" x2="718" y2="106" stroke="#8c7bff" marker-end="url(#ovar)"/>
+
+        <rect x="20" y="160" width="860" height="170" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="40" y="188" fill="#5ad1c0" font-size="13" font-weight="700">LAYER 2 · QUERY WRITER AGENT (4 steps)</text>
+
+        <rect x="50" y="210" width="170" height="100" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="135" y="234" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">① Retrieve Context</text>
+        <text x="135" y="254" fill="#93a1b3" font-size="11" text-anchor="middle">EBR + examples</text>
+        <text x="135" y="270" fill="#93a1b3" font-size="11" text-anchor="middle">+ user mentions</text>
+        <text x="135" y="296" fill="#5ad1c0" font-size="11" text-anchor="middle">K_ret = 20</text>
+
+        <rect x="240" y="210" width="170" height="100" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="325" y="234" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">② Rank Context</text>
+        <text x="325" y="254" fill="#93a1b3" font-size="11" text-anchor="middle">table ranker LLM</text>
+        <text x="325" y="270" fill="#93a1b3" font-size="11" text-anchor="middle">column ranker LLM</text>
+        <text x="325" y="296" fill="#5ad1c0" font-size="11" text-anchor="middle">K_rnk = 7</text>
+
+        <rect x="430" y="210" width="170" height="100" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="515" y="234" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">③ Write Query</text>
+        <text x="515" y="254" fill="#93a1b3" font-size="11" text-anchor="middle">tables + columns</text>
+        <text x="515" y="270" fill="#93a1b3" font-size="11" text-anchor="middle">+ examples + jargon</text>
+        <text x="515" y="296" fill="#5ad1c0" font-size="11" text-anchor="middle">gpt-4o</text>
+
+        <rect x="620" y="210" width="240" height="100" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="740" y="234" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">④ Validate &amp; Fix</text>
+        <text x="740" y="254" fill="#93a1b3" font-size="11" text-anchor="middle">Trino EXPLAIN VALIDATE</text>
+        <text x="740" y="270" fill="#93a1b3" font-size="11" text-anchor="middle">+ Researcher Agent</text>
+        <text x="740" y="296" fill="#f4a259" font-size="11" text-anchor="middle">retry ≤ 2 times</text>
+
+        <line x1="220" y1="260" x2="238" y2="260" stroke="#5ad1c0" marker-end="url(#ovar)"/>
+        <line x1="410" y1="260" x2="428" y2="260" stroke="#5ad1c0" marker-end="url(#ovar)"/>
+        <line x1="600" y1="260" x2="618" y2="260" stroke="#5ad1c0" marker-end="url(#ovar)"/>
+
+        <rect x="20" y="350" width="860" height="100" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="40" y="378" fill="#f4a259" font-size="13" font-weight="700">LAYER 1 · KNOWLEDGE GRAPH (5 indexes)</text>
+
+        <rect x="40" y="395" width="150" height="42" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="115" y="421" fill="#f4a259" font-size="11" text-anchor="middle">Table/Column Index</text>
+
+        <rect x="200" y="395" width="150" height="42" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="275" y="421" fill="#f4a259" font-size="11" text-anchor="middle">Usage Index</text>
+
+        <rect x="360" y="395" width="150" height="42" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="435" y="421" fill="#f4a259" font-size="11" text-anchor="middle">Table Cluster Index</text>
+
+        <rect x="520" y="395" width="150" height="42" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="595" y="421" fill="#f4a259" font-size="11" text-anchor="middle">Example Query Index</text>
+
+        <rect x="680" y="395" width="180" height="42" rx="8" fill="#1b2430" stroke="#f4a259"/>
+        <text x="770" y="421" fill="#f4a259" font-size="11" text-anchor="middle">Domain Knowledge + Jargon</text>
+
+        <line x1="450" y1="350" x2="450" y2="320" stroke="#f4a259" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ovar2)"/>
+        <text x="475" y="338" fill="#f4a259" font-size="11">feeds Query Writer</text>
+
+        <line x1="480" y1="140" x2="480" y2="210" stroke="#8c7bff" stroke-width="2" stroke-dasharray="6 4" marker-end="url(#ovar)"/>
+      </svg>
+      <div class="figcap">Figure 1 · LinkedIn Enterprise Text-to-SQL three-layer architecture (synthesized from paper Figures 1–3)</div>
+    </div>
+
+    <p>Each layer in the diagram is expanded in the sections that follow. Three keywords to anchor on: <span class="hl">the knowledge graph provides semantics</span>, <span class="hl">the Query Writer Agent turns semantics into SQL</span>, and <span class="hl">the multi-agent UI handles everything that isn't strictly T2S</span>.</p>
+  </div>
+</section>
+
+<!-- ====================== 03 ====================== -->
+<section id="kg">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Knowledge Graph — Wiring enterprise semantics into a graph</h2>
+    <p class="lead">The central node of the knowledge graph is the <strong>Table</strong>: from a table you can find its columns, common joins, example queries, domain-knowledge records, and the user groups with read permission. The other organizing node is the <strong>Product Area</strong>, which ties tables to teams.</p>
+
+    <h3>3.1 Node attributes (Table 1)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Attributes of the table / column nodes in the Knowledge Graph</caption>
+        <thead><tr><th>Node</th><th>Attributes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong style="color:var(--acc)">Table</strong></td>
+            <td>Database Name, Table Name, Human Description, AI Description, Usage Popularity, <span class="hl2">Table Cluster</span>, Tags, <span class="hl2">Certification Status</span>, Deprecation Status</td>
+          </tr>
+          <tr>
+            <td><strong style="color:var(--acc)">Column</strong></td>
+            <td>Database Name, Table Name, Column Name, Human Description, AI Description, Usage Popularity, <span class="hl2">Top Values</span>, Data Type, <span class="hl2">Column Type</span> (metric/dimension/attribute), Is Partition Key</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14.5px;color:var(--muted)">Key design choices: <span class="hl">Certification Status</span> flags governance-approved high-quality tables; <span class="hl">Column Type</span> distinguishes metrics, dimensions, and attributes so the LLM knows what a column is. When no human description exists, <strong>Glean Chat API auto-generates an AI description</strong>.</p>
+
+    <h3>3.2 The five indexes (§2.1.2)</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Table / Column Index</h4>
+        <p>Source: <strong>DataHub</strong>. Embeddings cover table name + description + tags. Supports EBR plus lookup by name or product area. <span class="hl">Refreshed weekly.</span></p>
+      </div>
+      <div class="card">
+        <h4>Usage Index</h4>
+        <p>Parses <strong>EXPLAIN plans (JSON) from successful Trino queries</strong> to aggregate popularity and common joins. Refreshed weekly.</p>
+      </div>
+      <div class="card">
+        <h4>Table Cluster Index</h4>
+        <p>A list of relevant datasets per user (see §04 ICA clustering). Refreshed weekly.</p>
+      </div>
+      <div class="card">
+        <h4>Example Query Index</h4>
+        <p>Human-authored queries from code repos and wikis. Wiki descriptions are embedded directly; code repo queries get auto-descriptions via <code>gpt-35-turbo</code> before embedding. <strong>Filters:</strong> creation date, execution count, filename, and whether the user has certified the query.</p>
+      </div>
+      <div class="card">
+        <h4>Domain Knowledge Index</h4>
+        <p>User-submitted product background, data explanations, and personal preferences, gathered in the chatbot UI. <span class="hl">Refreshed instantly</span> (a user submission takes effect immediately).</p>
+      </div>
+      <div class="card">
+        <h4>Jargon Map</h4>
+        <p>Source: company wiki. Stored as <code>{jargon → explanation}</code>; pulled at query time via string matching and appended to the LLM prompt.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Key distributed-design choice:</strong> different indexes have different refresh cadences — domain knowledge is instant while others are weekly — so user-contributed annotations pay off immediately. This is the <span class="hl">"user contributes → system improves → user contributes more"</span> flywheel.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 04 ====================== -->
+<section id="clustering">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>ICA Table Clustering — Picking each team's usual tables out of millions</h2>
+    <p class="lead">Millions of tables cannot be fed to an LLM. LinkedIn takes a <strong>user-table access matrix from three months of query history</strong> and runs <span class="hl">Independent Component Analysis (ICA)</span> for soft clustering, mapping each user and product area to its most relevant table subset.</p>
+
+    <h3>4.1 Pipeline (Algorithm 1)</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Filter out low-frequency tables</h4>
+        <p>Drop tables with too few total accesses or unique users — e.g. intermediate tables produced by data pipelines that no one queries directly.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Standardize the matrix</h4>
+        <p>Standardize across the user dimension (mean=0, std=1) so that a few heavy users don't dominate.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Run FastICA</h4>
+        <p>Use <code>sklearn.decomposition.FastICA</code> with <span class="hl2">N_comp = 200</span> components. Each component corresponds to one access pattern — typically a particular product team's working habits.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Soft clustering</h4>
+        <p>For each component, take the top <span class="hl2">T_c = 20</span> tables by absolute score. <strong>A single table can belong to multiple clusters — soft clustering is the key.</strong></p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Map users / teams to clusters</h4>
+        <p>For each user, sum their access counts per component and take the top components. For product areas, vote across the clusters of representative employees in the team email group, breaking ties by cluster access count.</p>
+      </div></div>
+    </div>
+
+    <h3>4.2 Why ICA instead of K-means?</h3>
+    <p>K-means is hard clustering — a table can only go to one cluster, but in reality a <code>member</code> table might be used by growth, ads, and search at once as a "shared table". ICA's <strong>soft clustering</strong> lets shared tables naturally show up in multiple clusters, and when a team disbands or a table is deprecated, simply rerunning the weekly job re-assigns everything automatically.</p>
+
+    <div class="callout warn">
+      <p><strong>Throughput:</strong> the whole clustering pipeline has a <span class="hl2">P90 runtime of 15 minutes</span>. Rerunning weekly is not a system bottleneck.</p>
+    </div>
+
+    <h3>4.3 Candidate-table assembly (Algorithm 4)</h3>
+    <pre><code><span class="kw">function</span> <span class="fn">GetCandidateTables</span>(user, product_areas):
+    user_clusters        = <span class="fn">GetUserGroupClusters</span>(user)
+    product_email_groups = <span class="fn">GetEmailGroups</span>(product_areas)
+    representative_users = <span class="fn">GetEmployees</span>(product_email_groups)
+    product_area_clusters = <span class="fn">GetUserGroupClusters</span>(representative_users)
+    clusters             = <span class="fn">merge</span>(user_clusters, product_area_clusters)
+
+    inferred_tables = <span class="fn">GetExtendedTables</span>(clusters)
+    explicit_tables = <span class="fn">GetExplicitTables</span>(product_areas)
+
+    <span class="kw">return</span> <span class="fn">merge</span>(inferred_tables, explicit_tables)</code></pre>
+    <p style="font-size:14.5px;color:var(--muted)">At the start of every chat session, this function flattens all clusters corresponding to the user + selected product areas and adds in manually-curated explicit tables — defining the search scope for the subsequent EBR. Long-tail tables outside this set are dynamically pulled in via in-chat follow-up.</p>
+  </div>
+</section>
+
+<!-- ====================== 05 ====================== -->
+<section id="writer">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Query Writer Agent — 4 steps to generate SQL</h2>
+    <p class="lead">Implemented in <strong>langchain</strong>. Inputs: question, user name, list of product areas. Output: a dict containing the SQL, an explanation, the tables/columns used, and assumptions for the user to verify.</p>
+
+    <h3>5.1 Step 1 — Retrieve Context</h3>
+    <p>Goal: high <strong>recall</strong>. First the candidate-table list from §04 bounds the search space, then we pull from <span class="hl">three sources</span>:</p>
+    <ol style="margin:14px 0 14px 24px;color:var(--ink)">
+      <li><span class="hl2">EBR with user question</span> — query the table index with the question's embedding; results restricted to candidate tables.</li>
+      <li><span class="hl2">Tables in retrieved examples</span> — first retrieve example queries similar to the user's question, then extract the tables those examples use.</li>
+      <li><span class="hl2">Tables in user question</span> — pick up any table names the user explicitly mentioned — <strong>this path is NOT restricted to the candidate set</strong>; if the user wants it, use it.</li>
+    </ol>
+    <p>The three combined produce <span class="hl">K_ret = 20</span> tables, then we fetch all their columns, plus the product area's domain knowledge and jargon entries.</p>
+
+    <h3>5.2 Step 2 — Rank Context (Table Ranker + Column Ranker)</h3>
+    <p>An LLM trims 20 tables down to <span class="hl">K_rnk = 7</span>. The Table Ranker LLM scores each table 1–10 with explanations, using:</p>
+    <ul style="list-style:none;padding-left:0;margin:14px 0">
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• table name and description</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• example queries that use the table</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• commonly joined / co-queried tables</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">• domain knowledge and jargon explanations</li>
+    </ul>
+    <p style="font-size:14.5px;color:var(--muted)">A notable callout from the authors: feeding the <strong>table schema</strong> to the ranker actually <span class="hl2">hurt recall and increased latency</span>, so schemas are omitted here.</p>
+
+    <p>The Column Ranker then selects columns from the top 7 tables into two tiers: <strong>relevant</strong> and <strong>potentially relevant</strong>. Including the second tier improves recall. Each table is rendered as a <code>CREATE TABLE</code> statement with columns ordered by usage popularity.</p>
+
+    <h3>5.3 Step 3 — Write Query</h3>
+    <p>The selected tables + columns + relevance scores and explanations + examples + domain knowledge + jargon all get packed into the prompt. The Query Writer LLM (<code>gpt-4o</code>) returns:</p>
+    <pre><code>{
+  <span class="str">"assumptions"</span>: [...],   <span class="cmt"># for the user to verify</span>
+  <span class="str">"query"</span>: <span class="str">"SELECT ..."</span>,
+  <span class="str">"explanation"</span>: <span class="str">"..."</span>,
+  <span class="str">"tables"</span>: [...],
+  <span class="str">"columns"</span>: [...]
+}</code></pre>
+
+    <h3>5.4 Step 4 — Validate &amp; Fix (Researcher Agent enters)</h3>
+    <p>The query validation loop runs at most <span class="hl2">twice</span>, handling two error categories:</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Syntax / compilation errors</h4>
+        <p>Validated via <code>Trino EXPLAIN VALIDATE</code>. The error message is fed straight back to a fixer LLM.</p>
+      </div>
+      <div class="card" style="border-color:var(--acc2)">
+        <h4 style="color:var(--acc2)">Table / column hallucination</h4>
+        <p>A <strong>separate custom hallucination validator</strong> catches all non-existent tables/columns in one pass (Trino EXPLAIN only returns one error at a time). This kind of error usually means the context lacked the right table, so a new round of retrieval is needed — Researcher Agent's cue.</p>
+      </div>
+    </div>
+
+    <h3>5.5 Researcher LLM Agent</h3>
+    <p>The Researcher is a <strong>self-reflecting agent</strong> built specifically for hallucination resolution. It has tools to search tables, fetch table schemas, and fetch metadata. For instance, it can search for the table most similar to a hallucinated one.</p>
+
+    <div class="callout">
+      <p><strong>Speed-tuning detail:</strong> the Researcher itself uses the faster <span class="hl">gpt-4o-mini</span> for search, but its <span class="hl2">self-reflection step uses the stronger gpt-4o</span>. Output is "updated context + recommendation on what data to use", which is then passed to the query fixer LLM to rewrite the query.</p>
+    </div>
+
+    <h3>5.6 Hyperparameters at a glance</h3>
+    <div class="grid g3">
+      <div class="card"><h4>K_ret</h4><p class="big">20</p><p>tables kept after retrieval</p></div>
+      <div class="card"><h4>K_rnk</h4><p class="big">7</p><p>tables passed to writer after ranking</p></div>
+      <div class="card"><h4>Validation loop</h4><p class="big">≤ 2</p><p>max two fix-up rounds</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 06 ====================== -->
+<section id="ui">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Multi-Agent UI — The interface may matter more than the LLM</h2>
+    <p class="lead">The biggest lesson the authors learned post-launch: users don't want Text-to-SQL — they want a <strong>general data assistant</strong> that can write queries, find tables, debug bugs, and answer any data question. That's why the system evolved into a multi-agent structure.</p>
+
+    <h3>6.1 Intent classifier routes to four agents</h3>
+    <div class="grid g4">
+      <div class="card">
+        <h4>Query Writer</h4>
+        <p>The core agent — the full pipeline from §05.</p>
+      </div>
+      <div class="card">
+        <h4>Data Finder</h4>
+        <p>Runs only the retrieve + rank stages of Query Writer, returning 7 suggested tables with metadata.</p>
+      </div>
+      <div class="card">
+        <h4>Query Fixer</h4>
+        <p>Dedicated to debugging query execution failures (permissions, syntax, schema).</p>
+      </div>
+      <div class="card">
+        <h4>Question-Answering</h4>
+        <p>All unsupported long-tail intents. Architecturally similar to Researcher Agent, with tools for schema lookup, wiki search, and query validation.</p>
+      </div>
+    </div>
+
+    <h3>6.2 Speed tricks for the Q&amp;A agent</h3>
+    <p>The Q&amp;A agent has the widest scope, so the authors use three speed-ups: ① <strong>evaluate question difficulty</strong> and skip self-reflection on simple ones; ② <strong>pre-fetch table metadata</strong> to avoid repeated tool calls; ③ both LLMs use <code>gpt-4o-mini</code>.</p>
+
+    <h3>6.3 UI design highlights</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Embedded in the existing SQL editor</h4>
+        <p>The chatbot lives in the sidebar of the company's SQL editor — users never switch tools. A "Fix with AI" button appears automatically whenever a query execution fails.</p>
+      </div>
+      <div class="card">
+        <h4>Rich UI elements</h4>
+        <p>Query output includes inline-commented SQL, validation results, an explanation, tables used, related reference queries, and assumptions to verify. Table output shows description, popularity, common joins, certification status, with checkboxes for users to pick which tables to use.</p>
+      </div>
+      <div class="card">
+        <h4>Quick-reply buttons</h4>
+        <p>Suggested follow-ups appear above the chat box — users can keep the conversation moving without typing.</p>
+      </div>
+      <div class="card">
+        <h4>Users contribute knowledge back</h4>
+        <p>The UI lets users add product areas, add domain knowledge, and certify example queries — all written straight into the knowledge graph, spinning the weekly flywheel.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Speed is critical.</strong> Multi-agent + state maintenance + intent classifier all stack latency. The production full model averages <span class="hl2">60 seconds</span> per reply — not fast, but acceptable for complex enterprise queries.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 07 ====================== -->
+<section id="eval">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Evaluation — Metrics and Ablations</h2>
+    <p class="lead">The authors built an internal benchmark: <strong>133 questions × 10 product areas × 167 ground-truth tables</strong>, with 60% of questions allowing multiple correct answers (multiple ground truths).</p>
+
+    <h3>7.1 Three metric categories</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Recall</h4>
+        <p>Table recall and column recall — did the bot find the right tables and columns? For multi-ground-truth questions, use the ground truth with the highest overlap.</p>
+      </div>
+      <div class="card">
+        <h4>Quality</h4>
+        <p>Overall score (1–5), compilation success rate, valid tables &amp; columns rate. Both human eval and LLM-as-judge (gpt-4o) are used.</p>
+      </div>
+      <div class="card">
+        <h4>Latency</h4>
+        <p>Number of LLM calls, EBR queries, DB queries — proxies for system complexity. Full model averages 60 seconds per question.</p>
+      </div>
+    </div>
+
+    <h3>7.2 Scoring rubric (Figure 4)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Figure 4 · 5-point rubric for human / LLM-as-judge</caption>
+        <thead><tr><th>Score</th><th>Definition</th></tr></thead>
+        <tbody>
+          <tr><td><strong style="color:var(--hot)">1</strong></td><td>Completely wrong; does not answer the question at all.</td></tr>
+          <tr><td><strong>2</strong></td><td>Right tables but 90% of columns are wrong; does not answer the question.</td></tr>
+          <tr><td><strong>3</strong></td><td>Right tables and most of the right columns, but has gaps requiring substantial effort or domain knowledge to fix; doesn't answer the question.</td></tr>
+          <tr><td><strong style="color:var(--acc)">4</strong></td><td>Right tables and almost all right columns; minor issues a non-expert can fix (e.g. wrong date filter). <span class="hl">Answers the question</span> but may miss trivial details.</td></tr>
+          <tr><td><strong style="color:var(--acc)">5</strong></td><td>Answers the question perfectly and completely.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.3 Ablation study (Table 2) — full reproduction</h3>
+    <p>Models: example embeddings use <code>E5-large-v2</code>, table/column embeddings use <code>text-embedding-ada-002</code>, Researcher LLM uses <code>gpt-4o-mini-2024-07-18</code>, other LLMs use <code>gpt-4o-2024-05-13</code>, temperature = 0, single run.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Ablation study (A.* = KG components, B.* = modeling components, C.* = both combined)</caption>
+        <thead>
+          <tr>
+            <th>Config</th><th>Description</th>
+            <th>Tab Recall</th><th>Col Recall</th>
+            <th>Score 4+</th><th>Compile OK</th><th>Valid T&amp;C</th>
+            <th>LLM</th><th>EBR</th><th>DB</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="best"><td><strong>Full</strong></td><td class="ours">All components</td><td class="num">78%</td><td class="num">56%</td><td class="num">48%</td><td class="num">96%</td><td class="num">99%</td><td class="num">4.6</td><td class="num">3.0</td><td class="num">9.4</td></tr>
+          <tr><td>A.5</td><td>Full w/o popularity or joins</td><td class="num">77%</td><td class="num">53%</td><td class="num">42%</td><td class="num">95%</td><td class="num">98%</td><td class="num">4.8</td><td class="num">3.0</td><td class="num">8.4</td></tr>
+          <tr><td>A.4</td><td>A.5 w/o domain knowledge or jargon</td><td class="num">76%</td><td class="num">52%</td><td class="num">49%</td><td class="num">96%</td><td class="num">99%</td><td class="num">4.7</td><td class="num">3.0</td><td class="num">8.5</td></tr>
+          <tr><td>A.3</td><td>A.4 w/o example queries</td><td class="num">60%</td><td class="num">38%</td><td class="num">24%</td><td class="num">98%</td><td class="num">100%</td><td class="num">4.6</td><td class="num">1.0</td><td class="num">7.0</td></tr>
+          <tr><td>A.2</td><td>A.3 w/o table or column attributes</td><td class="num">56%</td><td class="num">30%</td><td class="num">11%</td><td class="num">93%</td><td class="num">99%</td><td class="num">5.0</td><td class="num">1.0</td><td class="num">7.5</td></tr>
+          <tr><td>A.1</td><td>A.2 w/o table clusters (schemas only)</td><td class="num">45%</td><td class="num">24%</td><td class="num">9%</td><td class="num">88%</td><td class="num">99%</td><td class="num">5.1</td><td class="num">1.0</td><td class="num">7.1</td></tr>
+          <tr><td>B.3</td><td>Full w/o researcher agent</td><td class="num">75%</td><td class="num">53%</td><td class="num">47%</td><td class="num">95%</td><td class="num">98%</td><td class="num">4.3</td><td class="num">3.0</td><td class="num">9.5</td></tr>
+          <tr><td>B.2</td><td>B.3 w/o query fixer</td><td class="num">76%</td><td class="num">55%</td><td class="num">47%</td><td class="num">76%</td><td class="num">85%</td><td class="num">4.0</td><td class="num">3.0</td><td class="num">8.4</td></tr>
+          <tr><td>B.1</td><td>B.2 w/o rankers (EBR + writer only)</td><td class="num">67%</td><td class="num">50%</td><td class="num">46%</td><td class="num">66%</td><td class="num">77%</td><td class="num">2.0</td><td class="num">3.0</td><td class="num">7.1</td></tr>
+          <tr><td>C.4</td><td>(A.4, B.3) combination</td><td class="num">76%</td><td class="num">52%</td><td class="num">46%</td><td class="num">97%</td><td class="num">98%</td><td class="num">4.3</td><td class="num">3.0</td><td class="num">8.6</td></tr>
+          <tr><td>C.3</td><td>(A.3, B.2) combination</td><td class="num">60%</td><td class="num">37%</td><td class="num">20%</td><td class="num">77%</td><td class="num">87%</td><td class="num">4.0</td><td class="num">1.0</td><td class="num">6.1</td></tr>
+          <tr><td>C.2</td><td>(A.2, B.1) combination</td><td class="num">49%</td><td class="num">27%</td><td class="num">17%</td><td class="num">68%</td><td class="num">83%</td><td class="num">2.0</td><td class="num">1.0</td><td class="num">5.0</td></tr>
+          <tr><td>C.1</td><td>(A.1, B.1) combination</td><td class="num">37%</td><td class="num">23%</td><td class="num">16%</td><td class="num">67%</td><td class="num">81%</td><td class="num">1.9</td><td class="num">1.0</td><td class="num">3.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>7.4 Key observations</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="80" y1="20" x2="80" y2="260" stroke="#26313f"/>
+        <line x1="80" y1="260" x2="730" y2="260" stroke="#26313f"/>
+
+        <line x1="80" y1="60" x2="730" y2="60" stroke="#26313f" stroke-dasharray="2 3"/>
+        <line x1="80" y1="110" x2="730" y2="110" stroke="#26313f" stroke-dasharray="2 3"/>
+        <line x1="80" y1="160" x2="730" y2="160" stroke="#26313f" stroke-dasharray="2 3"/>
+        <line x1="80" y1="210" x2="730" y2="210" stroke="#26313f" stroke-dasharray="2 3"/>
+
+        <text x="72" y="64" fill="#93a1b3" font-size="11" text-anchor="end">50%</text>
+        <text x="72" y="114" fill="#93a1b3" font-size="11" text-anchor="end">40%</text>
+        <text x="72" y="164" fill="#93a1b3" font-size="11" text-anchor="end">30%</text>
+        <text x="72" y="214" fill="#93a1b3" font-size="11" text-anchor="end">10%</text>
+        <text x="72" y="264" fill="#93a1b3" font-size="11" text-anchor="end">0%</text>
+        <text x="40" y="140" fill="#5ad1c0" font-size="11" text-anchor="middle" transform="rotate(-90 40 140)">Score 4+ (%)</text>
+
+        <rect x="100" y="225" width="65" height="35" rx="4" fill="#ff6b6b"/>
+        <text x="132" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">A.1</text>
+        <text x="132" y="220" fill="#ff6b6b" font-size="11" text-anchor="middle">9%</text>
+
+        <rect x="180" y="220" width="65" height="40" rx="4" fill="#f4a259"/>
+        <text x="212" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">A.2</text>
+        <text x="212" y="215" fill="#f4a259" font-size="11" text-anchor="middle">11%</text>
+
+        <rect x="260" y="180" width="65" height="80" rx="4" fill="#f4a259"/>
+        <text x="292" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">A.3</text>
+        <text x="292" y="175" fill="#f4a259" font-size="11" text-anchor="middle">24%</text>
+
+        <rect x="340" y="55" width="65" height="205" rx="4" fill="#5ad1c0"/>
+        <text x="372" y="278" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">A.4 ★</text>
+        <text x="372" y="50" fill="#fff" font-size="11" text-anchor="middle" font-weight="700">49%</text>
+
+        <rect x="420" y="80" width="65" height="180" rx="4" fill="#3a4658"/>
+        <text x="452" y="278" fill="#93a1b3" font-size="11" text-anchor="middle">A.5</text>
+        <text x="452" y="75" fill="#c8d3e0" font-size="11" text-anchor="middle">42%</text>
+
+        <rect x="500" y="60" width="65" height="200" rx="4" fill="#8c7bff"/>
+        <text x="532" y="278" fill="#8c7bff" font-size="11" text-anchor="middle" font-weight="700">Full</text>
+        <text x="532" y="55" fill="#fff" font-size="11" text-anchor="middle" font-weight="700">48%</text>
+
+        <text x="400" y="306" fill="#93a1b3" font-size="11" text-anchor="middle" font-style="italic">A.1 = schemas only; A.4 = + table clusters + attributes + examples; Full = everything</text>
+      </svg>
+      <div class="figcap">Figure 2 · Cumulative contribution of each KG component to "Score 4+" (redrawn from Table 2)</div>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>The Knowledge Graph drives "quality"</h4>
+        <p>Score 4+ climbs from A.1's <strong>9%</strong> to Full's <strong>48%</strong>, with most of the lift from <span class="hl">example queries (A.3→A.4: +25 pp)</span>, table clusters, and table/column attributes. Semantic understanding can only come from the KG.</p>
+      </div>
+      <div class="card">
+        <h4>Modeling components drive "correctness"</h4>
+        <p>Compilation success rises from B.1's 66% to Full's 96%, valid T&amp;C from 77% to 99%, largely from <span class="hl">the query fixer and context rankers</span>. But the score gain is small — modeling components can't fix semantic understanding.</p>
+      </div>
+      <div class="card" style="border-color:var(--hot)">
+        <h4 style="color:var(--hot)">Surprising finding: domain knowledge hurts quality</h4>
+        <p>A.5 (with domain knowledge) achieves Score 4+ = <strong>42%</strong>; A.4 (without) achieves <strong>49%</strong>. The authors suspect "irrelevant domain knowledge records" cause interference.</p>
+      </div>
+      <div class="card">
+        <h4>C.4 is the "good enough" sweet spot</h4>
+        <p>C.4 reaches Score 4+ = 46% (only 2 pp below Full) with fewer components (A.4 KG + B.3 modeling), and uses 4.3 LLM calls vs 4.6 and 8.6 DB queries vs 9.4 — <span class="hl">cheaper with almost no quality loss</span>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 08 ====================== -->
+<section id="deploy">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Production Numbers</h2>
+    <p class="lead">The chatbot has been live since July 2024. Below are the real usage numbers at the time of writing (April 2025).</p>
+
+    <h3>8.1 Adoption</h3>
+    <div class="grid g4">
+      <div class="card">
+        <h4>WAU</h4>
+        <p class="big">300+</p>
+        <p>weekly active users</p>
+      </div>
+      <div class="card">
+        <h4>Power Users</h4>
+        <p class="big">100+</p>
+        <p>chat sessions per month</p>
+      </div>
+      <div class="card">
+        <h4>Weekly retention</h4>
+        <p class="big">20%</p>
+        <p>this-week actives who return next week</p>
+      </div>
+      <div class="card">
+        <h4>Code pasted to editor</h4>
+        <p class="big">33%</p>
+        <p>of sessions end with code in the SQL editor</p>
+      </div>
+    </div>
+
+    <h3>8.2 Expert review</h3>
+    <p>Domain experts from each of the 10 product areas rated the production version, returning ratings for 124 of 133 questions:</p>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Score 4+ (correct / close)</h4>
+        <p class="big" style="color:var(--acc)">53%</p>
+        <p>experts judged "correct" or "minor fix"</p>
+      </div>
+      <div class="card">
+        <h4>Score 3+</h4>
+        <p class="big">77%</p>
+        <p>"helpful for identifying tables and columns"</p>
+      </div>
+      <div class="card">
+        <h4>Top error: Filter</h4>
+        <p class="big" style="color:var(--hot)">24%</p>
+        <p>filter condition wrong; incorrect join only 4%.</p>
+      </div>
+    </div>
+
+    <h3>8.3 User satisfaction survey</h3>
+    <div class="callout">
+      <p><strong>"Very good" or "Excellent":</strong> <span class="hl2">39%</span> — "very good, requires only minor modifications" or "excellent, queries are correct".</p>
+      <p><strong>"Passes" or better:</strong> <span class="hl">95%</span> — "at least requires some modifications" but usable.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 09 ====================== -->
+<section id="negative">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>Negative Results — Academic tricks that didn't work here</h2>
+    <p class="lead">This section is the most valuable part of the paper. The authors tried three mainstream academic techniques, and <strong>all three failed</strong> in the LinkedIn setting. Free lessons for anyone building enterprise T2S.</p>
+
+    <h3>9.1 Multi-query + Self-Consistency: dies without query execution</h3>
+    <p>The academic recipe is to <strong>generate multiple queries and pick the most self-consistent</strong> (e.g. CHASE-SQL, CHESS). But in an enterprise setting:</p>
+    <ul style="list-style:none;padding-left:0;margin:14px 0">
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">❌ No data access — can't execute queries to compare outputs</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">❌ Users can't wait — multi-round generation noticeably increases latency</li>
+    </ul>
+    <p>A workaround (generating up to 3 ways to write the query as a kind of CoT) <span class="hl2">did not improve recall</span>. The authors' conclusion: self-consistency's effectiveness <strong>comes from input shuffling AND actual execution</strong> — neither can be skipped.</p>
+
+    <h3>9.2 Query Planner LLM Decomposition: smaller subtasks make things worse</h3>
+    <p>Following DIN-SQL — use a planner LLM to break the question into subtasks solved iteratively. Result:</p>
+    <ul style="list-style:none;padding-left:0;margin:14px 0">
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">❌ Adds extra latency</li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">❌ Generated queries become <strong>overly nested</strong></li>
+      <li style="padding:6px 0;border-bottom:1px dashed var(--line)">❌ Both recall and quality drop</li>
+    </ul>
+    <p>Even when they constrained the planner to "minimize the number of tasks" with few-shot examples, it still failed. The hypothesis: <span class="hl">gpt-4o is strong enough on its own that task decomposition only constrains its solution space</span> — smaller models may need it, but gpt-4o doesn't.</p>
+
+    <h3>9.3 Using planner subtasks for query expansion: no EBR gain</h3>
+    <p>Use the planner's subtasks as query strings for retrieval (a form of query expansion). The result: <span class="hl2">no improvement in EBR table recall</span>. The authors speculate that a prompt explicitly designed for query expansion might work, but the subtask format isn't quite right.</p>
+
+    <div class="callout hot">
+      <p><strong>Free lessons for anyone building enterprise T2S:</strong> academic SOTA tricks (multi-path generation, self-consistency, task decomposition) <span class="hl2">often don't transfer to production systems</span> — not because the tricks are wrong, but because (1) you can't execute queries, (2) you can't make users wait 5 minutes, (3) your base model may already be stronger than the academic-setup model. Investing in the KG and retrieval usually pays off more than model-side tricks.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 10 ====================== -->
+<section id="conclusion">
+  <div class="wrap">
+    <div class="sec-num">SECTION 10</div>
+    <h2>Conclusion &amp; Takeaways</h2>
+    <p class="lead">The authors claim this is the <strong>first publicly available, fully detailed enterprise Text-to-SQL paper</strong>. Required reading for any team building an internal SQL chatbot.</p>
+
+    <h3>10.1 Quantitative summary</h3>
+    <div class="grid g4">
+      <div class="card"><h4>Score 4+</h4><p class="big" style="color:var(--acc)">9% → 49%</p><p>schemas only → Full KG</p></div>
+      <div class="card"><h4>Table Recall</h4><p class="big" style="color:var(--acc)">37% → 78%</p><p>C.1 → Full</p></div>
+      <div class="card"><h4>Hallucination</h4><p class="big" style="color:var(--acc2)">23% → 1%</p><p>schema hallucination rate</p></div>
+      <div class="card"><h4>Compilation error</h4><p class="big" style="color:var(--acc2)">34% → 4%</p><p>SQL compile failure rate</p></div>
+    </div>
+
+    <h3>10.2 Applicability to Yi-Wei's Dataverse work</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>① The KG pattern transfers to CRM</h4>
+        <p>Building user-habit clusters over entity tables (account / contact / opportunity) and tying them to business units would directly attack the "many tables, each org uses only a few" problem on Dataverse.</p>
+      </div>
+      <div class="card">
+        <h4>② Researcher Agent for hallucination is the keystone</h4>
+        <p>NL2SQ on Dataverse routinely hallucinates non-existent entities / attributes. LinkedIn's "weak LLM searches + strong LLM self-reflects" two-stage design is a great pattern to copy for hallucination repair.</p>
+      </div>
+      <div class="card">
+        <h4>③ Domain knowledge isn't necessarily helpful</h4>
+        <p>Throwing all domain knowledge at the LLM <strong>actually dropped quality by 7 pp</strong>. Lesson: OneCRM / customer-specific knowledge also needs relevance filtering, not blind injection.</p>
+      </div>
+      <div class="card">
+        <h4>④ The Trino EXPLAIN VALIDATE idea transfers</h4>
+        <p>Use the query engine itself to do syntax + hallucination validation rather than having the LLM check its own work — applicable to both FetchXML and TDS. Since EXPLAIN returns one error at a time, pair it with a custom hallucination validator to catch all errors in one pass.</p>
+      </div>
+    </div>
+
+    <h3>10.3 Caveats the paper doesn't dwell on but are worth noting</h3>
+    <div class="callout hot">
+      <p>① <strong>The eval set is only 133 questions</strong>, all written and scored by the same domain experts — sample size is small and selection bias is real, so it's not directly comparable to Spider/BIRD.</p>
+      <p>② <strong>Production WAU of 300+ is only ~2% of LinkedIn's ~14k headcount.</strong> The authors don't discuss why broader adoption hasn't happened yet — likely the 60-second latency and 53% correctness are still adoption barriers.</p>
+      <p>③ <strong>All experiments are single runs</strong> at temperature 0, so they're reproducible but offer no variance estimate for the J metric.</p>
+      <p>④ The negative results sit in the appendix, but for practitioners they may be <strong>more valuable than the positive results</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Chen et al. (2025) · AAE '25 Workshop @ KDD '25, Toronto · 11 pages</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2507.14372">arXiv:2507.14372</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a digest of the paper; figures and tables have been redrawn/transcribed from the paper. All numerical values follow the original.</p>
+  </div>
+</footer>
+
+</body>
+</html>
