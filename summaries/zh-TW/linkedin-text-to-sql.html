@@ -762,27 +762,7 @@ footer a{color:var(--acc);text-decoration:none}
       <div class="card"><h4>Compilation Error</h4><p class="big" style="color:var(--acc2)">34% → 4%</p><p>SQL 編譯失敗率</p></div>
     </div>
 
-    <h3>10.2 對 Yi-Wei Dataverse 工作的借鏡點</h3>
-    <div class="grid g2">
-      <div class="card">
-        <h4>① Knowledge Graph 模式適用 CRM</h4>
-        <p>把 entity table (account / contact / opportunity) 與 user / business unit 用使用習慣分群,做成 cluster index,正好可解決 Dataverse 「table 多但每個 org 只用一小部分」的問題。</p>
-      </div>
-      <div class="card">
-        <h4>② Researcher Agent 解 hallucination 的設計很關鍵</h4>
-        <p>NL2SQ 在 Dataverse 經常 hallucinate 不存在的 entity / attribute。LinkedIn 用「弱 LLM 找 + 強 LLM self-reflect」的兩段式設計,值得參考做 hallucination 修補。</p>
-      </div>
-      <div class="card">
-        <h4>③ Domain knowledge 不一定有用</h4>
-        <p>把 domain knowledge 一股腦丟給 LLM 反而<strong>降低品質 7 pp</strong>。提示:OneCRM / customer-specific knowledge 也需要 relevance filtering,不能無腦塞。</p>
-      </div>
-      <div class="card">
-        <h4>④ Trino EXPLAIN VALIDATE 的 idea 可遷移</h4>
-        <p>用 query engine 自己做 syntax + hallucination 驗證,而不是讓 LLM 自我檢查 — 對 FetchXML / TDS 都可遷移。EXPLAIN 每次只回一個錯 → 額外加一支自製 hallucination validator 一次抓完。</p>
-      </div>
-    </div>
-
-    <h3>10.3 paper 未明說但值得注意的限制</h3>
+    <h3>10.2 paper 未明說但值得注意的限制</h3>
     <div class="callout hot">
       <p>① <strong>Eval set 只有 133 題</strong>,且全是 domain expert 自己出題、自己評分 — sample size 與 selection bias 都偏小,難跟 Spider/BIRD 直接比。</p>
       <p>② <strong>Production WAU 300+ 對 LinkedIn 全公司 (~14k 員工) 只是 ~2%</strong>,作者並未討論為何不能普及給更多人 — 可能是 60 秒延遲 / 53% 正確率仍是門檻。</p>

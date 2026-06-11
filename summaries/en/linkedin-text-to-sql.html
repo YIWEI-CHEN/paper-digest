@@ -762,27 +762,7 @@ footer a{color:var(--acc);text-decoration:none}
       <div class="card"><h4>Compilation error</h4><p class="big" style="color:var(--acc2)">34% → 4%</p><p>SQL compile failure rate</p></div>
     </div>
 
-    <h3>10.2 Applicability to Yi-Wei's Dataverse work</h3>
-    <div class="grid g2">
-      <div class="card">
-        <h4>① The KG pattern transfers to CRM</h4>
-        <p>Building user-habit clusters over entity tables (account / contact / opportunity) and tying them to business units would directly attack the "many tables, each org uses only a few" problem on Dataverse.</p>
-      </div>
-      <div class="card">
-        <h4>② Researcher Agent for hallucination is the keystone</h4>
-        <p>NL2SQ on Dataverse routinely hallucinates non-existent entities / attributes. LinkedIn's "weak LLM searches + strong LLM self-reflects" two-stage design is a great pattern to copy for hallucination repair.</p>
-      </div>
-      <div class="card">
-        <h4>③ Domain knowledge isn't necessarily helpful</h4>
-        <p>Throwing all domain knowledge at the LLM <strong>actually dropped quality by 7 pp</strong>. Lesson: OneCRM / customer-specific knowledge also needs relevance filtering, not blind injection.</p>
-      </div>
-      <div class="card">
-        <h4>④ The Trino EXPLAIN VALIDATE idea transfers</h4>
-        <p>Use the query engine itself to do syntax + hallucination validation rather than having the LLM check its own work — applicable to both FetchXML and TDS. Since EXPLAIN returns one error at a time, pair it with a custom hallucination validator to catch all errors in one pass.</p>
-      </div>
-    </div>
-
-    <h3>10.3 Caveats the paper doesn't dwell on but are worth noting</h3>
+    <h3>10.2 Caveats the paper doesn't dwell on but are worth noting</h3>
     <div class="callout hot">
       <p>① <strong>The eval set is only 133 questions</strong>, all written and scored by the same domain experts — sample size is small and selection bias is real, so it's not directly comparable to Spider/BIRD.</p>
       <p>② <strong>Production WAU of 300+ is only ~2% of LinkedIn's ~14k headcount.</strong> The authors don't discuss why broader adoption hasn't happened yet — likely the 60-second latency and 53% correctness are still adoption barriers.</p>
