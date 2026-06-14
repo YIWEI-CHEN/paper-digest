@@ -474,13 +474,13 @@ class Solution:
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sliding Window</span></div>
         </div>
         <h3>題目整理</h3>
-        <p>給兩個小寫字串 <code>s1</code> 與 <code>s2</code>，判斷 <code>s2</code> 是否包含某個長度等於 <code>s1</code> 的子字串，且該子字串是 <code>s1</code> 的任一排列。</p>
+        <p>給兩個小寫字串 <code>s1</code> 與 <code>s2</code>，判斷 <code>s2</code> 是否包含 <code>s1</code> 的子字串，且該子字串是 <code>s1</code> 的任一排列。</p>
         <ul class="summary-list">
           <li>排列只關心字母頻率，不關心順序。</li>
           <li>窗口長度固定為 <code>len(s1)</code>。</li>
         </ul>
         <h3>解法說明</h3>
-        <p>維護 <code>s1</code> 的字母計數與目前窗口計數。每次窗口右移時只更新進來與出去的兩個字母。為了避免每步都比較 26 個元素，可維護 <code>matches</code>：有多少個字母的 need count 與 window count 相等；當 <code>matches == 26</code> 就找到排列。</p>
+        <p>維護 <code>s1</code> 的字母計數<code>need</code>與目前<code>s2</code>窗口字母計數<code>window</code>。每次窗口右移時更新進來與出去的字母。為了避免每步都比較 26 個元素，可維護 <code>matches</code>：在 need  與 window  有多少個字母的頻率相等；當 <code>matches == 26</code> 就找到排列。</p>
 <pre><code class="language-python">class Solution:
     def checkInclusion(self, s1: str, s2: str) -&gt; bool:
         if len(s1) &gt; len(s2):
