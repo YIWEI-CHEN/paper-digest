@@ -710,7 +710,9 @@ class Solution:
         <h3>題目整理</h3>
         <p>在無限大棋盤上，騎士從 <code>(0, 0)</code> 出發，每次走西洋棋 knight 的 L 形步。給目標座標 <code>(x, y)</code>，回傳最少需要幾步。</p>
         <h3>解法說明</h3>
-        <p>棋盤對 x 軸與 y 軸對稱，所以只要處理 <code>(abs(x), abs(y))</code>。用 BFS 找最短步數，並把搜尋範圍限制在 <code>[-2, x + 2] x [-2, y + 2]</code>；保留 -2 是因為最短路徑在靠近原點的小座標可能需要短暫繞到負方向。</p>
+        <p>棋盤對 x 軸與 y 軸對稱，所以只要處理 <code>(abs(x), abs(y))</code>。用 BFS 找最短步數，並把搜尋範圍限制在 <code>[-2, x + 2] x [-2, y + 2]</code>。</p>
+        <p><b>Why is the lower bound -2?</b> A knight's shortest path may temporarily move into negative coordinates, especially for targets near the origin (e.g., <code>(1, 1)</code>). Since a knight can move at most 2 squares backward in one step, keeping the lower bound at <code>-2</code> preserves all shortest paths.<br>騎士最短路徑可能會短暫繞到負座標，而單步最多往負方向退 2 格，因此下界保留到 <code>-2</code> 就足夠。</p>
+        <p><b>Why is the upper bound x+2/y+2?</b> A knight's shortest path may temporarily overshoot the target by up to 2 squares before reaching it. Since a knight moves at most 2 squares in one direction per step, searching beyond <code>x + 2</code> or <code>y + 2</code> is unnecessary for any shortest path.<br>騎士最短路徑可能會短暫超過目標，但因為單步最多跨 2 格，所以搜尋到 <code>x + 2</code>、<code>y + 2</code> 就足夠涵蓋所有最短路徑。</p>
 <pre><code class="language-python">from collections import deque
 
 
