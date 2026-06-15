@@ -569,6 +569,7 @@ class Solution:
         <p>設計 <code>TimeMap</code>，支援 <code>set(key, value, timestamp)</code> 與 <code>get(key, timestamp)</code>。查詢時要回傳該 key 在時間不超過 <code>timestamp</code> 的最新 value；若不存在則回傳空字串。對同一個 key，set 的 timestamp 會遞增。</p>
         <h3>解法說明</h3>
         <p>每個 key 對應兩個平行陣列：timestamps 與 values。因為 timestamp 已遞增，set 時 append 即可；get 時用 binary search 找到最後一個 <code>&lt;= timestamp</code> 的 index。</p>
+        <p><b>What is bisect_right?</b> <code>bisect_right(a, x)</code> returns the insertion index for <code>x</code> in a sorted list <code>a</code>, placing it to the right of any existing entries equal to <code>x</code>. This index also equals the count of elements <code>&lt;= x</code>. The binary search moves right whenever <code>x &gt;= a[mid]</code>, which is why duplicates end up on the left of the returned position.<br>中文：<code>bisect_right</code> 回傳 <code>x</code> 在已排序串列中的插入點，並排在所有相同值的後面（等於 <code>&lt;= x</code> 的元素個數）。</p>
 <pre><code class="language-python">from bisect import bisect_right
 from collections import defaultdict
 
