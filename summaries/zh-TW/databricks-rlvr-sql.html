@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks RLVR Text2SQL 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:720px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:14px 0 14px 22px;color:var(--ink)}
+li{margin:7px 0}
+
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.card .big.o{color:var(--acc2)}
+
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2025 · 論文導讀</div>
+    <h1 class="title">Databricks-RLVR-<span class="sql">32B</span></h1>
+    <p class="subtitle">用一套「精簡、通用」的 RLVR 訓練配方（模型／prompt 選擇 → TAO 離線暖身 → 線上 RLVR → self-consistency），不靠額外資料、不靠閉源大模型，在 BIRD 私有測試集衝上 SOTA：單次呼叫 73.56%、self-consistency 75.68%，而且生成次數更少。</p>
+    <div class="meta-row">
+      <span class="tag lit">RLVR</span>
+      <span class="tag lit">TAO 離線 RL</span>
+      <span class="tag">GRPO+</span>
+      <span class="tag">Self-Consistency</span>
+      <span class="tag">Text-to-SQL</span>
+      <span class="tag">BIRD Benchmark</span>
+      <span class="tag">Qwen2.5-32B-Coder</span>
+    </div>
+    <p class="authors">The Databricks Mosaic Research and Genie Teams（Alnur Ali、Ashutosh Baheti、Jonathan Frankle、Dipendra Misra、Matei Zaharia、Yue Zhang 等）· Databricks · <a href="https://arxiv.org/abs/2509.21459">arXiv:2509.21459</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#method">02 方法論</a>
+    <a href="#pipeline">03 訓練流程</a>
+    <a href="#data">04 資料集</a>
+    <a href="#results">05 實驗結果</a>
+    <a href="#examples">06 生成範例</a>
+    <a href="#limits">07 限制與未來</a>
+  </div>
+</nav>
+
+<!-- ============ 01 PROBLEM ============ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 為什麼企業需要「客製化推理模型」</h2>
+    <p class="lead">現成 LLM 在通用任務上表現亮眼，但碰到企業內部的「組織專屬知識」就會卡住。這篇報告主張：用 <span class="hl">可驗證獎勵的強化學習（RLVR）</span> 把模型後訓練成一個專精的推理模型，並以 text-to-SQL 當作可量化的代理任務來驗證。</p>
+
+    <p>論文開門見山指出，off-the-shelf LLM 在 bespoke 企業任務上有幾個固定痛點：不懂組織專屬術語（例如「churned users」每家公司定義不同）、不知道內部偏好（某些查詢一定要用特定欄位排序）、不會用內部的 API／工具、也不知道資料放在哪。和數學題不同，這些組織知識在網路上往往受保護、樣本稀少，預訓練資料根本沒涵蓋。</p>
+
+    <p>要補這個知識落差，方法之一就是<strong>後訓練（post-training）</strong>。對資料科學與寫程式這類任務，常常可以算出一個<strong>可驗證的獎勵（verifiable reward）</strong>：不需要另外訓練 reward model，本身就是客觀的品質指標。以 text2sql 為例，只要把模型產生的 SQL 拿去資料庫執行，再跟 gold SQL 的執行結果比對，就能得到 0/1 的對錯訊號 —— 這正是 RLVR 的甜蜜點。</p>
+
+    <div class="callout">
+      <p><strong>核心主張：</strong>不需要精雕細琢的 agentic pipeline、不需要巨量自製訓練資料、也不需要閉源模型。一套「簡單但完整」的 RLVR 配方，就能把單一開源模型訓練到 text-to-SQL 的 state-of-the-art。</p>
+    </div>
+
+    <h3>論文的四個貢獻</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>① 首投即 SOTA</h4>
+        <p>第一次送交 BIRD leaderboard 就在私有測試集拿下單模型類別的 state-of-the-art：單次呼叫 <span class="hl2">73.56%</span>、self-consistency <span class="hl2">75.68%</span>。</p>
+      </div>
+      <div class="card">
+        <h4>② 簡單通用的配方</h4>
+        <p>模型／prompt 選擇 → TAO 離線暖身 → 線上 RLVR → self-consistency。沒有任何 BIRD train set 以外的資料，也沒用 proprietary 模型。</p>
+      </div>
+      <div class="card">
+        <h4>③ 更好的泛化</h4>
+        <p>dev 70.80% → test 73.56%，從 dev 到 private test 幾乎不掉分，泛化能力比其他頂尖投稿更穩。</p>
+      </div>
+      <div class="card">
+        <h4>④ 更省的推理</h4>
+        <p>self-consistency 只用 <span class="hl">7 次生成</span> 就贏過第二名（需要 8–32 次），算力效率更高。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>一個反直覺發現：</strong>在 BIRD 這個任務上，GPT-4o、O3、Claude Sonnet 等閉源模型，竟然<strong>打不過</strong> Qwen 與 Llama 系列的開源模型。這挑戰了「閉源一定比較強」的普遍認知，作者把深入探究留給 future work。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 02 METHODOLOGY ============ -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>方法論 — 選對地基、定好獎勵</h2>
+    <p class="lead">在開始訓練之前，作者先做兩件「便宜但關鍵」的事：把基底模型與 prompt 選對，並把 verifiable reward 定義成最貼近評測指標的形式。</p>
+
+    <h3>2.1 模型與 Prompt 選擇</h3>
+    <p>作者在 BIRD dev 上掃過一整排開源與閉源模型、配上不同 prompt。結論是 <span class="hl">Qwen 2.5 32B Coder Instruct</span> 的 dev 表現最佳，這也和文獻中 OmniSQL 研究回報的最佳結果一致。於是它被選為後續 RLVR 的基底模型。</p>
+
+    <p>Prompt 方面以 <strong>OmniSQL prompt</strong> 為起點，但做了兩個重要修改：</p>
+    <ul>
+      <li><strong>改寫資料庫編碼（database encoding）</strong>：讓 LLM 更容易理解 schema 與資料。</li>
+      <li><strong>加入引導推理的指令</strong>：早期實驗發現，用原始 OmniSQL prompt 時模型常常<strong>完全不輸出推理 trace</strong>，所以額外加上 instructions 來逼出 reasoning。</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>為什麼推理 trace 重要：</strong>整個 pipeline 把 LLM 當成 reasoning model 使用 —— 先產生一段包含推理的 trace，再用 delimiter 把最終 SQL 從 trace 中抽出來。沒有 reasoning，RLVR 能優化的空間就少很多。</p>
+    </div>
+
+    <h3>2.2 可驗證獎勵（Verifiable Reward）</h3>
+    <p>獎勵定義刻意保持簡單，TAO 與 RLVR 兩階段共用同一個：直接拿 BIRD 的 0-1 執行比對指標，再對「語法錯誤、無法執行」的 SQL 加上 <span class="hl2">−1</span> 的懲罰。</p>
+
+    <div class="formula">reward(y) =<br>&nbsp;&nbsp;&nbsp;+1&nbsp;&nbsp;若 execute(y) 的結果 == execute(gold) 的結果<br>&nbsp;&nbsp;&nbsp;&nbsp;0&nbsp;&nbsp;若執行成功但結果不符<br>&nbsp;&nbsp;&nbsp;−1&nbsp;&nbsp;若 y 是語法錯誤、無法執行的 SQL<br><span style="color:var(--muted)">y = 模型產生的 SQL；gold = 標準答案 SQL；獎勵直接等於評測指標再加上一個 −1 懲罰項</span></div>
+
+    <p>作者特別提到：他們嘗試過 <strong>reward shaping</strong>（更花俏的獎勵設計），但在初步實驗中<strong>沒有帶來顯著提升</strong>，所以維持這個極簡形式。這呼應了 RLVR 的一個精神 —— 獎勵越接近真實評測目標越好。</p>
+  </div>
+</section>
+
+<!-- ============ 03 PIPELINE ============ -->
+<section id="pipeline">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>訓練流程 — TAO 暖身 + 線上 RLVR</h2>
+    <p class="lead">這是論文的核心配方：先用離線 RL（TAO）給模型一個好的 inductive bias 暖身，再用線上 RLVR 精修，最後在推理時加上 self-consistency。三段是互補的。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arro" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <!-- Row 1: data -> LLM -> sample -> execute -> reward -->
+        <rect x="14" y="34" width="150" height="62" rx="10" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="89" y="60" fill="#e8edf4" font-size="13" text-anchor="middle" font-weight="700">BIRD Train Set</text>
+        <text x="89" y="78" fill="#93a1b3" font-size="10.5" text-anchor="middle">query + schema</text>
+        <text x="89" y="91" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ gold SQL</text>
+
+        <line x1="164" y1="65" x2="196" y2="65" stroke="#5ad1c0" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <rect x="200" y="34" width="140" height="62" rx="10" fill="#141b25" stroke="#8c7bff"/>
+        <text x="270" y="62" fill="#fff" font-size="14" text-anchor="middle" font-weight="700">LLM&nbsp; P&#952;</text>
+        <text x="270" y="80" fill="#93a1b3" font-size="10.5" text-anchor="middle">Qwen2.5-32B-Coder</text>
+
+        <line x1="340" y1="65" x2="372" y2="65" stroke="#5ad1c0" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <rect x="376" y="34" width="140" height="62" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="446" y="60" fill="#e8edf4" font-size="12.5" text-anchor="middle">取樣 k 個</text>
+        <text x="446" y="78" fill="#93a1b3" font-size="11" text-anchor="middle">y&#8321; … y&#8342;</text>
+
+        <line x1="516" y1="65" x2="548" y2="65" stroke="#5ad1c0" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <rect x="552" y="34" width="140" height="62" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="622" y="60" fill="#e8edf4" font-size="12.5" text-anchor="middle">執行並比對</text>
+        <text x="622" y="78" fill="#93a1b3" font-size="11" text-anchor="middle">vs gold SQL</text>
+
+        <line x1="692" y1="65" x2="724" y2="65" stroke="#5ad1c0" stroke-width="1.6" marker-end="url(#arr)"/>
+
+        <rect x="728" y="34" width="138" height="62" rx="10" fill="#1b2430" stroke="#f4a259"/>
+        <text x="797" y="58" fill="#f4a259" font-size="12.5" text-anchor="middle" font-weight="700">可驗證獎勵</text>
+        <text x="797" y="78" fill="#93a1b3" font-size="11" text-anchor="middle">+1 / 0 / &#8722;1</text>
+
+        <!-- reward down to training stages -->
+        <line x1="797" y1="96" x2="797" y2="150" stroke="#f4a259" stroke-width="1.6"/>
+        <line x1="797" y1="150" x2="470" y2="150" stroke="#f4a259" stroke-width="1.6"/>
+        <line x1="470" y1="150" x2="470" y2="196" stroke="#f4a259" stroke-width="1.6" marker-end="url(#arro)"/>
+        <text x="640" y="142" fill="#f4a259" font-size="10.5" text-anchor="middle">用獎勵更新模型</text>
+
+        <!-- Row 2: TAO -> RLVR -->
+        <rect x="190" y="200" width="190" height="64" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="285" y="226" fill="#fff" font-size="13.5" text-anchor="middle" font-weight="700">① TAO 離線 RL</text>
+        <text x="285" y="246" fill="#93a1b3" font-size="10.5" text-anchor="middle">暖身：給好的 inductive bias</text>
+
+        <line x1="380" y1="232" x2="436" y2="232" stroke="#5ad1c0" stroke-width="1.6" marker-end="url(#arr)"/>
+        <text x="408" y="222" fill="#93a1b3" font-size="10" text-anchor="middle">warm start</text>
+
+        <rect x="440" y="200" width="200" height="64" rx="10" fill="#1b2430" stroke="#f4a259"/>
+        <text x="540" y="226" fill="#f4a259" font-size="13.5" text-anchor="middle" font-weight="700">② 線上 RLVR</text>
+        <text x="540" y="246" fill="#93a1b3" font-size="10.5" text-anchor="middle">GRPO+ · 低 LR · 低/零 KL</text>
+
+        <!-- update theta feedback to LLM -->
+        <line x1="285" y1="200" x2="285" y2="120" stroke="#8c7bff" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <line x1="285" y1="120" x2="272" y2="98" stroke="#8c7bff" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arr)"/>
+        <text x="225" y="150" fill="#8c7bff" font-size="10.5" text-anchor="middle">更新 &#952;</text>
+
+        <!-- Row 3: self-consistency -->
+        <line x1="540" y1="264" x2="540" y2="300" stroke="#5ad1c0" stroke-width="1.5" marker-end="url(#arr)"/>
+        <rect x="380" y="304" width="320" height="56" rx="10" fill="#141b25" stroke="#26313f"/>
+        <text x="540" y="328" fill="#e8edf4" font-size="13" text-anchor="middle" font-weight="700">③ 推理時 Self-Consistency</text>
+        <text x="540" y="347" fill="#93a1b3" font-size="10.5" text-anchor="middle">產生 7 個回應 · 無參數加權多數決</text>
+      </svg>
+      <div class="figcap">圖 1 · RLVR 微調 pipeline（依論文 Figure 1 與第 3 節重繪）</div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>TAO 離線暖身（Test-time Adaptive Optimization）</h4>
+        <p>TAO 是 Databricks 提出的離線 RL 方法，目的是替後續 RLVR「暖身」、給模型一個好的 inductive bias。單一輪 TAO：對每個 BIRD 訓練點用當前模型生成多個回應 → 用上面的 verifiable reward 算分 → 在收集到的資料上做離線 RL 優化。這個流程可重複多輪。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>線上 RLVR（在最佳 TAO 模型之上）</h4>
+        <p>用 Databricks 的 fine-tuning 服務做線上 RLVR。掃超參數後發現：<span class="hl">較低的 learning rate</span> 與 <span class="hl">較低的 KL-divergence 係數</span> 較理想；甚至<strong>完全移除 KL 項也不太傷效能</strong>，呼應近期文獻。底層基於 GRPO，並加上數項改良 —— 讓訓練聚焦在困難題、避免 reward 飽和。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>推理時 Self-Consistency</h4>
+        <p>在微調後的模型上，產生 <span class="hl">7 個</span> 回應，用一個<strong>無參數的加權多數決</strong>挑出最一致的答案。RLVR 與 self-consistency 的增益是互補的。</p>
+      </div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>一個工程上的取捨：</strong>作者只做「有限度」的 TAO 訓練。原因是初步實驗顯示 —— TAO 過度訓練反而會讓後續線上 RL 階段的整體增益變小。換句話說，暖身要適可而止，把空間留給線上 RLVR。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 04 DATASET ============ -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>資料集 — BIRD Benchmark</h2>
+    <p class="lead">所有訓練與評測都只用 BIRD 這一個 text-to-SQL benchmark，刻意不引入任何額外資料，藉此凸顯「是 RL 在扛重活，而不是資料工程」。</p>
+
+    <div class="grid g4">
+      <div class="card"><h4>Train</h4><p class="big">9,428</p><p>訓練樣本</p></div>
+      <div class="card"><h4>Dev</h4><p class="big">1,534</p><p>用於選模型／調超參</p></div>
+      <div class="card"><h4>Test</h4><p class="big">1,789</p><p>私有、不公開</p></div>
+      <div class="card"><h4>評測</h4><p class="big o">0/1</p><p>執行結果比對</p></div>
+    </div>
+
+    <p>每一筆 BIRD 資料點包含：使用者的自然語言 <strong>query</strong>、提供額外說明的 <strong>evidence</strong> 欄位、一個含多張表的 <strong>database</strong>，以及代表正確答案的 <strong>gold SQL</strong>。作者把 query 與 evidence 合併成一個統一的使用者查詢餵給模型。</p>
+
+    <p>評測指標是嚴格的 <strong>0-1 執行比對</strong>：把 gold SQL 與生成 SQL 都在資料庫上執行，輸出相符記 1、不符記 0。測試集<strong>不公開</strong>，因此能避免資料污染（contamination）與 benchmark hacking 的疑慮 —— 這也是為什麼「dev → test 幾乎不掉分」特別有說服力。</p>
+
+    <div class="callout">
+      <p><strong>為什麼 text2sql 難：</strong>挑戰在於要在「複雜資料庫的脈絡」下理解查詢 —— 表很多、欄位很多、欄名可能有歧義、正確的欄位值要去資料裡找、還可能需要 join 多張表才能回答問題。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 05 RESULTS ============ -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>實驗結果 — 從基底到 SOTA</h2>
+    <p class="lead">先看「沒有 test-time compute」的結果，再看加上 self-consistency 的結果。兩張 leaderboard 表都顯示 Databricks-RLVR-32B 拿下測試集第一。</p>
+
+    <h3>5.1 起點：各家 vanilla LLM 在 BIRD dev 的表現</h3>
+    <p>下圖是論文 Figure 2 的重繪。亮點是：開源的 <span class="hl">Qwen 2.5 Coder（32B）以 64.80 拿下 vanilla 第一</span>，而 GPT-4o、O1、O3-mini、Claude Sonnet 等<span class="hl2">閉源模型（橘色）反而落後</span>。這直接支撐了論文「閉源不一定更強」的反直覺發現，也解釋了為何挑 Qwen 當基底。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 540" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- axis -->
+        <line x1="232" y1="14" x2="232" y2="500" stroke="#26313f"/>
+        <!-- gridlines at 20/40/60 -->
+        <line x1="369" y1="14" x2="369" y2="500" stroke="#1b2430"/>
+        <line x1="506" y1="14" x2="506" y2="500" stroke="#1b2430"/>
+        <line x1="643" y1="14" x2="643" y2="500" stroke="#1b2430"/>
+        <text x="369" y="516" fill="#5b6675" font-size="10" text-anchor="middle">20</text>
+        <text x="506" y="516" fill="#5b6675" font-size="10" text-anchor="middle">40</text>
+        <text x="643" y="516" fill="#5b6675" font-size="10" text-anchor="middle">60</text>
+        <text x="232" y="516" fill="#5b6675" font-size="10" text-anchor="middle">0</text>
+
+        <!-- bars: scale 6.857 px per point, x0=232 -->
+        <!-- Qwen 2.5 Coder 64.80 (teal, base) -->
+        <text x="226" y="33" fill="#5ad1c0" font-size="11" text-anchor="end" font-weight="700">Qwen2.5 Coder 32B &#9733;</text>
+        <rect x="232" y="22" width="444" height="16" rx="3" fill="#5ad1c0"/>
+        <text x="683" y="34" fill="#5ad1c0" font-size="10.5" font-weight="700">64.80</text>
+        <!-- GPT-4o 63.82 (orange proprietary) -->
+        <text x="226" y="57" fill="#93a1b3" font-size="11" text-anchor="end">GPT-4o</text>
+        <rect x="232" y="46" width="438" height="16" rx="3" fill="#b9763f"/>
+        <text x="677" y="58" fill="#f4a259" font-size="10.5">63.82</text>
+        <!-- Llama 3.1 70b 63.43 -->
+        <text x="226" y="81" fill="#93a1b3" font-size="11" text-anchor="end">Llama 3.1 70B</text>
+        <rect x="232" y="70" width="435" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="674" y="82" fill="#c8d3e0" font-size="10.5">63.43</text>
+        <!-- Llama 3.3 70b 63.43 -->
+        <text x="226" y="105" fill="#93a1b3" font-size="11" text-anchor="end">Llama 3.3 70B</text>
+        <rect x="232" y="94" width="435" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="674" y="106" fill="#c8d3e0" font-size="10.5">63.43</text>
+        <!-- O1 62.39 -->
+        <text x="226" y="129" fill="#93a1b3" font-size="11" text-anchor="end">O1</text>
+        <rect x="232" y="118" width="428" height="16" rx="3" fill="#b9763f"/>
+        <text x="667" y="130" fill="#f4a259" font-size="10.5">62.39</text>
+        <!-- O3-mini 62.39 -->
+        <text x="226" y="153" fill="#93a1b3" font-size="11" text-anchor="end">O3-mini</text>
+        <rect x="232" y="142" width="428" height="16" rx="3" fill="#b9763f"/>
+        <text x="667" y="154" fill="#f4a259" font-size="10.5">62.39</text>
+        <!-- Qwen QwQ 32B 60.82 -->
+        <text x="226" y="177" fill="#93a1b3" font-size="11" text-anchor="end">Qwen QwQ 32B</text>
+        <rect x="232" y="166" width="417" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="656" y="178" fill="#c8d3e0" font-size="10.5">60.82</text>
+        <!-- Qwen 3-32B 60.50 -->
+        <text x="226" y="201" fill="#93a1b3" font-size="11" text-anchor="end">Qwen 3-32B</text>
+        <rect x="232" y="190" width="415" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="654" y="202" fill="#c8d3e0" font-size="10.5">60.50</text>
+        <!-- Gemma 3 27B 60.43 -->
+        <text x="226" y="225" fill="#93a1b3" font-size="11" text-anchor="end">Gemma 3 27B</text>
+        <rect x="232" y="214" width="414" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="653" y="226" fill="#c8d3e0" font-size="10.5">60.43</text>
+        <!-- Claude Sonnet 59.26 -->
+        <text x="226" y="249" fill="#93a1b3" font-size="11" text-anchor="end">Claude Sonnet</text>
+        <rect x="232" y="238" width="406" height="16" rx="3" fill="#b9763f"/>
+        <text x="645" y="250" fill="#f4a259" font-size="10.5">59.26</text>
+        <!-- GPT-4o-mini 58.28 -->
+        <text x="226" y="273" fill="#93a1b3" font-size="11" text-anchor="end">GPT-4o-mini</text>
+        <rect x="232" y="262" width="400" height="16" rx="3" fill="#b9763f"/>
+        <text x="639" y="274" fill="#f4a259" font-size="10.5">58.28</text>
+        <!-- DeepSeek R1 Distill 70B 57.95 -->
+        <text x="226" y="297" fill="#93a1b3" font-size="11" text-anchor="end">DeepSeek R1 Dist. 70B</text>
+        <rect x="232" y="286" width="397" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="636" y="298" fill="#c8d3e0" font-size="10.5">57.95</text>
+        <!-- Gemma 3 12B 52.93 -->
+        <text x="226" y="321" fill="#93a1b3" font-size="11" text-anchor="end">Gemma 3 12B</text>
+        <rect x="232" y="310" width="363" height="16" rx="3" fill="#4a7d8c"/>
+        <text x="602" y="322" fill="#c8d3e0" font-size="10.5">52.93</text>
+        <!-- Llama 3.1 8B 41.92 -->
+        <text x="226" y="345" fill="#93a1b3" font-size="11" text-anchor="end">Llama 3.1 8B</text>
+        <rect x="232" y="334" width="287" height="16" rx="3" fill="#3a4658"/>
+        <text x="526" y="346" fill="#c8d3e0" font-size="10.5">41.92</text>
+        <!-- Gemma 3 4B 34.75 -->
+        <text x="226" y="369" fill="#93a1b3" font-size="11" text-anchor="end">Gemma 3 4B</text>
+        <rect x="232" y="358" width="238" height="16" rx="3" fill="#3a4658"/>
+        <text x="477" y="370" fill="#c8d3e0" font-size="10.5">34.75</text>
+        <!-- Gemma 3 1B 4.76 -->
+        <text x="226" y="393" fill="#93a1b3" font-size="11" text-anchor="end">Gemma 3 1B</text>
+        <rect x="232" y="382" width="33" height="16" rx="3" fill="#3a4658"/>
+        <text x="272" y="394" fill="#c8d3e0" font-size="10.5">4.76</text>
+
+        <!-- legend -->
+        <rect x="250" y="430" width="13" height="13" rx="2" fill="#5ad1c0"/><text x="270" y="441" fill="#93a1b3" font-size="10.5">所選基底</text>
+        <rect x="340" y="430" width="13" height="13" rx="2" fill="#b9763f"/><text x="360" y="441" fill="#93a1b3" font-size="10.5">閉源模型</text>
+        <rect x="430" y="430" width="13" height="13" rx="2" fill="#4a7d8c"/><text x="450" y="441" fill="#93a1b3" font-size="10.5">開源模型</text>
+        <text x="232" y="470" fill="#5b6675" font-size="10">BIRD dev · greedy decoding（O1 / O3-mini 為 temperature decoding）</text>
+      </svg>
+      <div class="figcap">圖 2 · 各家 vanilla LLM 在 BIRD dev 的執行準確率（依論文 Figure 2 重繪，數值為論文原值）</div>
+    </div>
+
+    <h3>5.2 配方的累積增益</h3>
+    <p>把基底一路堆上去：Qwen 基底 dev 64.80 → 加 TAO 67.40 → 加 RLVR（完整模型）dev 70.80 / test 73.56 → 再加 self-consistency test 75.68。每一段都帶來真實增益。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- y axis 0-80, plot area y:30(=80) .. 250(=0) => 2.75 px per point -->
+        <line x1="70" y1="30" x2="70" y2="250" stroke="#26313f"/>
+        <line x1="70" y1="250" x2="710" y2="250" stroke="#26313f"/>
+        <!-- gridlines -->
+        <line x1="70" y1="195" x2="710" y2="195" stroke="#1b2430"/><text x="60" y="199" fill="#5b6675" font-size="10" text-anchor="end">20</text>
+        <line x1="70" y1="140" x2="710" y2="140" stroke="#1b2430"/><text x="60" y="144" fill="#5b6675" font-size="10" text-anchor="end">40</text>
+        <line x1="70" y1="85"  x2="710" y2="85"  stroke="#1b2430"/><text x="60" y="89" fill="#5b6675" font-size="10" text-anchor="end">60</text>
+        <text x="60" y="254" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+
+        <!-- bars width 86, gap. centers at 150,275,400,525,650 -->
+        <!-- base 64.80 -> h=178 -> y=72 -->
+        <rect x="112" y="72" width="76" height="178" rx="4" fill="#3a4658"/>
+        <text x="150" y="64" fill="#c8d3e0" font-size="12" text-anchor="middle" font-weight="700">64.80</text>
+        <text x="150" y="268" fill="#93a1b3" font-size="10.5" text-anchor="middle">Qwen 基底</text>
+        <text x="150" y="282" fill="#5b6675" font-size="9.5" text-anchor="middle">dev</text>
+
+        <!-- +TAO 67.40 -> h=185 -> y=65 -->
+        <rect x="237" y="65" width="76" height="185" rx="4" fill="#4a7d8c"/>
+        <text x="275" y="57" fill="#c8d3e0" font-size="12" text-anchor="middle" font-weight="700">67.40</text>
+        <text x="275" y="268" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ TAO</text>
+        <text x="275" y="282" fill="#5b6675" font-size="9.5" text-anchor="middle">dev</text>
+
+        <!-- +RLVR dev 70.80 -> h=194.7 -> y=55 -->
+        <rect x="362" y="55" width="76" height="195" rx="4" fill="#5ad1c0"/>
+        <text x="400" y="47" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">70.80</text>
+        <text x="400" y="268" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ RLVR</text>
+        <text x="400" y="282" fill="#5b6675" font-size="9.5" text-anchor="middle">dev</text>
+
+        <!-- +RLVR test 73.56 -> h=202.3 -> y=48 -->
+        <rect x="487" y="48" width="76" height="202" rx="4" fill="#f4a259"/>
+        <text x="525" y="40" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">73.56</text>
+        <text x="525" y="268" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ RLVR</text>
+        <text x="525" y="282" fill="#5b6675" font-size="9.5" text-anchor="middle">test ★</text>
+
+        <!-- +RLVR+SC test 75.68 -> h=208.1 -> y=42 -->
+        <rect x="612" y="42" width="76" height="208" rx="4" fill="#f4a259"/>
+        <text x="650" y="34" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">75.68</text>
+        <text x="650" y="268" fill="#93a1b3" font-size="10.5" text-anchor="middle">+ SC</text>
+        <text x="650" y="282" fill="#5b6675" font-size="9.5" text-anchor="middle">test ★</text>
+
+        <text x="390" y="306" fill="#5b6675" font-size="10" text-anchor="middle">BIRD 執行準確率（%）· 灰/藍/綠為 dev，橘為 private test（SOTA）</text>
+      </svg>
+      <div class="figcap">圖 3 · 訓練配方的累積增益（整理自論文 Table 1、Table 2 與摘要；dev 與 test 為不同切分，僅作趨勢對照）</div>
+    </div>
+
+    <h3>5.3 Table 1 — 不用 self-consistency（單模型、單次呼叫）</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · BIRD leaderboard，單模型單次呼叫類別；準確率為執行 exact-match（dev / test）</caption>
+        <thead><tr><th>Model</th><th>Dev set</th><th>Test set</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Databricks-RLVR-32B（本文）</td><td class="num">70.80</td><td class="num">73.56</td></tr>
+          <tr><td>Qwen2.5-32B-Coder-Instruct + TAO（本文）</td><td class="num">67.40</td><td class="num">–</td></tr>
+          <tr><td>Qwen2.5-32B-Coder-Instruct（基底）</td><td class="num">64.80</td><td class="num">–</td></tr>
+          <tr><td>Arctic-Text2SQL-R1-32B</td><td class="num">70.47</td><td class="num">71.83</td></tr>
+          <tr><td>Arctic-ExCoT-70B</td><td class="num">68.51</td><td class="num">68.53</td></tr>
+          <tr><td>Command A</td><td class="num">63.49</td><td class="num">65.68</td></tr>
+          <tr><td>OneSQL-v0.1-Qwen-32B</td><td class="num">64.60</td><td class="num">63.33</td></tr>
+          <tr><td>SuperSQL</td><td class="num">58.50</td><td class="num">62.66</td></tr>
+          <tr><td>SFT CodeS-15B</td><td class="num">58.47</td><td class="num">60.37</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>重點：</strong>完整模型拿下單次呼叫類別的測試集第一（73.56%）。值得注意的是 <span class="hl">只做有限度 TAO 就已達 67.40%</span> —— 在投稿當下，這個數字按 dev 排名已可進 leaderboard 前 10。</p>
+    </div>
+
+    <h3>5.4 Table 2 — 加上 self-consistency（單模型類別）</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · BIRD leaderboard，單模型類別 + self-consistency；「回應數」分箱：few(1–7)、many(8–32)、scale(&gt;32)</caption>
+        <thead><tr><th>Model</th><th>Dev set</th><th>Test set</th><th>回應數</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Databricks-RLVR-32B（本文）</td><td class="num">–</td><td class="num">75.68</td><td class="num">7</td></tr>
+          <tr><td>Sophon-Text2SQL-32B</td><td class="num">72.43</td><td class="num">74.79</td><td class="num">8–32</td></tr>
+          <tr><td>Arctic-Text2SQL-R1-32B</td><td class="num">72.20</td><td class="num">73.84</td><td class="num">1–7</td></tr>
+          <tr><td>Arctic-Text2SQL-R1-14B</td><td class="num">71.40</td><td class="num">72.22</td><td class="num">1–7</td></tr>
+          <tr><td>SIFT-32B</td><td class="num">70.08</td><td class="num">70.93</td><td class="num">&gt;32</td></tr>
+          <tr><td>CrazyData-Text2SQL-32B</td><td class="num">–</td><td class="num">70.71</td><td class="num">8–32</td></tr>
+          <tr><td>Infly-RL-SQL-32B</td><td class="num">70.08</td><td class="num">70.60</td><td class="num">1–7</td></tr>
+          <tr><td>Arctic-Text2SQL-R1-7B</td><td class="num">70.70</td><td class="num">70.43</td><td class="num">1–7</td></tr>
+          <tr><td>XiYanSQL-QwenCoder-32B</td><td class="num">67.01</td><td class="num">69.03</td><td class="num">1–7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p><strong>更省也更強：</strong>Databricks-RLVR-32B 以 <span class="hl2">75.68%</span> 拿下測試集第一，而且<strong>只用 7 次生成</strong>，比第二名 Sophon（8–32 次）省下可觀算力。論文強調：RLVR 與 self-consistency 的增益是<strong>互補</strong>的 —— RLVR 先把單次能力拉滿，self-consistency 再疊加邊際收益。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 06 EXAMPLES ============ -->
+<section id="examples">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>生成範例 — 模型在想什麼</h2>
+    <p class="lead">附錄列出幾個模型生成樣本。最有意思的是模型會「先寫一版、再自我優化」，以及一個典型的失敗模式。以下節錄自論文附錄。</p>
+
+    <h3>範例 A（成功）：模型自我修正、優化掉一個 JOIN</h3>
+    <p><strong>問題：</strong>在 race 為 god/eternal 的 superheroes 中，有幾位是男性？<br>
+    <strong>Evidence：</strong>race「god/eternal」對應 <code>race_id = 21</code>；male 對應 <code>gender.id = 1</code>。<strong>資料庫：</strong>superhero</p>
+    <p>模型先依「字面」寫出一版 join 三張表的查詢：</p>
+    <pre><code><span class="kw">SELECT</span> COUNT(*)
+<span class="kw">FROM</span> superhero <span class="kw">AS</span> h
+<span class="kw">JOIN</span> race <span class="kw">AS</span> r <span class="kw">ON</span> h.race_id = r.id
+<span class="kw">JOIN</span> gender <span class="kw">AS</span> g <span class="kw">ON</span> h.gender_id = g.id
+<span class="kw">WHERE</span> r.race = <span class="str">'God/Eternal'</span> <span class="kw">AND</span> g.gender = <span class="str">'Male'</span>;</code></pre>
+    <p>接著它<strong>讀懂了 evidence</strong>，發現可以直接用 <code>race_id = 21</code> 省掉對 race 表的 join，主動改寫成更精簡的版本：</p>
+    <pre><code><span class="cmt">-- 用 evidence 給的 race_id 直接過濾，省掉一個 JOIN</span>
+<span class="kw">SELECT</span> COUNT(*)
+<span class="kw">FROM</span> superhero <span class="kw">AS</span> h
+<span class="kw">JOIN</span> gender <span class="kw">AS</span> g <span class="kw">ON</span> h.gender_id = g.id
+<span class="kw">WHERE</span> h.race_id = 21 <span class="kw">AND</span> g.gender = <span class="str">'Male'</span>;</code></pre>
+    <div class="callout">
+      <p><strong>為什麼這個範例有代表性：</strong>它展示了 RLVR 訓練出的「推理 → 自我修正」行為 —— 模型不只翻譯，還會回頭利用 evidence 把查詢優化得更穩健。</p>
+    </div>
+
+    <h3>範例 B（失敗）：張冠李戴 + 忘記 DISTINCT</h3>
+    <p><strong>問題：</strong>卡牌「Ancestor's Chosen」的德文 type 是什麼？<strong>資料庫：</strong>card_games</p>
+    <pre><code><span class="kw">SELECT</span> fd.type
+<span class="kw">FROM</span> cards c
+<span class="kw">JOIN</span> foreign_data fd <span class="kw">ON</span> c.uuid = fd.uuid
+<span class="kw">WHERE</span> c.name = <span class="str">'Ancestor''s Chosen'</span> <span class="kw">AND</span> fd.language = <span class="str">'German'</span>;</code></pre>
+    <div class="callout hot">
+      <p><strong>論文點出兩個錯誤：</strong>(1) 模型取的是 <code>foreign_data</code> 表的 type，而非 <code>cards</code> 表的 type —— 兩者名稱相近但值不同，造成混淆；(2) 忘了對回傳值套用 <code>DISTINCT</code>。這正是 text2sql 在「欄名歧義 + 多表脈絡」下的典型陷阱。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 07 LIMITS ============ -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>限制與未來工作</h2>
+    <p class="lead">這是一份技術報告（technical report），定位是「展示 Databricks 的 RLVR／TAO 微調服務」，因此在實作細節（服務內部的 RLVR 改良）上有所保留。以下整理作者明確點出的限制與開放問題。</p>
+
+    <div class="callout hot">
+      <p><strong>限制 1 — BIRD 只是 proxy：</strong>作者反覆強調 BIRD 只是企業任務的「代理任務」。真正的價值主張是「這套配方很簡單、因此可廣泛套用到 BI、資料科學、coding 等企業領域」，但報告本身只在 BIRD 上驗證。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>限制 2 — 閉源為何落後仍是謎：</strong>「proprietary LLM 在此任務上表現不如 Qwen／Llama」是個反直覺觀察，作者明說<strong>把深入探究留給 future work</strong>，沒有給出機制性解釋。</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>實作細節保留：</strong>RLVR 服務在 GRPO 之上的「聚焦困難題、避免 reward 飽和」等改良只有概念性描述；TAO 的具體優化式、超參數掃描範圍也未完整公開。沒有公開的程式碼倉庫，方法將整合進 Databricks 的 <strong>Agent Bricks</strong> 產品。</p>
+    </div>
+
+    <h3>一句話總結</h3>
+    <p>這篇報告的訊息很乾脆：<strong>在能算出可驗證獎勵的任務上，與其堆砌複雜 agentic pipeline 或巨量自製資料，不如把「選對基底 + 簡單獎勵 + TAO 暖身 + 線上 RLVR + 輕量 self-consistency」這套配方做扎實</strong> —— 單一開源 32B 模型就能在 text-to-SQL 拿下 SOTA，而且更省算力、泛化更穩。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>The Databricks Mosaic Research and Genie Teams (2025) · <em>A State-of-the-Art SQL Reasoning Model using RLVR</em></p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2509.21459">arXiv:2509.21459</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>
