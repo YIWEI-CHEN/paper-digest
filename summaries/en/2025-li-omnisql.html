@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniSQL · Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:16px 0 16px 22px;color:var(--ink)}
+li{margin:7px 0}
+
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">PVLDB 2025 · Paper Digest</div>
+    <h1 class="title">Omni<span class="sql">SQL</span></h1>
+    <p class="subtitle">A four-step "progressive pipeline" that auto-synthesizes 2.5M text-to-SQL training samples with no human annotation — and a 7B open-source model that matches or beats GPT-4o and DeepSeek-V3.</p>
+    <div class="meta-row">
+      <span class="tag lit">Data Synthesis</span>
+      <span class="tag lit">SynSQL-2.5M</span>
+      <span class="tag lit">SQL-to-Question</span>
+      <span class="tag">Chain-of-Thought</span>
+      <span class="tag">Web Tables</span>
+      <span class="tag">Qwen2.5-Coder · LoRA</span>
+      <span class="tag">Spider · BIRD · 9 benchmarks</span>
+    </div>
+    <p class="authors">Haoyang Li, Shang Wu, Xiaokang Zhang, Xinmei Huang, Jing Zhang, Fuxin Jiang, Shuai Wang, Tieying Zhang, Jianjun Chen, Rui Shi, Hong Chen, Cuiping Li · Renmin University of China + ByteDance · <a href="https://arxiv.org/abs/2503.02240">arXiv:2503.02240</a> · <a href="https://github.com/RUCKBReasoning/OmniSQL">github.com/RUCKBReasoning/OmniSQL</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#overview">02 Framework</a>
+    <a href="#db">03 Database</a>
+    <a href="#sql">04 SQL Gen</a>
+    <a href="#question">05 Question</a>
+    <a href="#cot">06 CoT</a>
+    <a href="#dataset">07 SynSQL-2.5M</a>
+    <a href="#model">08 Training</a>
+    <a href="#results">09 Main Results</a>
+    <a href="#ablation">10 Ablation</a>
+    <a href="#limit">11 Limitations</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — Fine-tuned models "ace the test but can't do the job"</h2>
+    <p class="lead">Text-to-SQL turns natural-language questions into executable SQL, letting non-experts query databases. In the LLM era there are two routes — prompting and fine-tuning — but both have hard limits in the real world. OmniSQL argues that fine-tuning open-source models on large-scale, diverse, high-quality <em>synthetic</em> data is the way to solve cost, privacy, and generalization at once.</p>
+
+    <h3>The two dominant paradigms, and their pain</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Prompting-based</h4>
+        <p>Carefully crafted prompts on powerful closed-source LLMs (GPT-4 etc.). Downsides: <span class="hl2">high usage cost, data-privacy concerns, and little control</span> over model behavior — all gated behind APIs.</p>
+      </div>
+      <div class="card">
+        <h4>Fine-tuning-based</h4>
+        <p>Fine-tune on existing sets like Spider / BIRD. Downside: public data covers too narrow a slice, so models <span class="hl2">collapse when generalizing</span> to complex or domain-specific databases.</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>The key observation (evidence of collapse):</strong> Qwen2.5-Coder-7B-Instruct fine-tuned on Spider + BIRD does well on same-distribution dev sets, but on out-of-domain ScienceBenchmark / EHRSQL it drops to just <span class="hl2">43.8% / 31.4%</span> execution accuracy — while zero-shot GPT-4-Turbo scores <span class="hl">59.2% / 43.1%</span>. Fine-tuning overfits to the benchmark distribution.</p>
+    </div>
+
+    <h3>Why not just augment existing data?</h3>
+    <p>Prior data-augmentation work mostly grows new samples that <em>hug the distribution</em> of existing datasets, so <strong>diversity, quality, and scalability</strong> all suffer; many also need hand-built templates or grammars, which doesn't scale. OmniSQL wants a framework that is simultaneously:</p>
+    <div class="grid g3">
+      <div class="card"><h4>Automatic</h4><p>Minimal-to-no human intervention; the whole flow is LLM-driven.</p></div>
+      <div class="card"><h4>Scalable</h4><p>Generates large-scale, cross-domain, diverse data.</p></div>
+      <div class="card"><h4>Realistic</h4><p>Synthetic data aligns with real users' needs and scenarios.</p></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Three contributions:</strong> (1) an automatic, scalable text-to-SQL data-synthesis framework; (2) <span class="hl">SynSQL-2.5M</span> — the first million-scale (2.54M-sample) text-to-SQL dataset, every sample carrying a CoT solution; (3) <span class="hl">OmniSQL</span> (7B/14B/32B), which sets a new open-source SOTA with far fewer parameters and matches top closed-source models.</p>
+    </div>
+  </div>
+</section>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Framework — break the hard problem into four easy steps</h2>
+    <p class="lead">The core tension is automation + scalability vs. quality + diversity. OmniSQL's answer is a <strong>progressive pipeline</strong> that decouples synthesis into four independent, individually controllable sub-tasks — each handled by a relatively small open-source LLM.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <rect x="14" y="86" width="120" height="58" rx="10" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="74" y="110" fill="#c8b6ff" font-size="13" text-anchor="middle">Web Table</text>
+        <text x="74" y="128" fill="#5b6675" font-size="10.5" text-anchor="middle">TabLib seed</text>
+        <rect x="168" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="243" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">① Database</text>
+        <text x="243" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">generate + enhance</text>
+        <text x="243" y="138" fill="#5ad1c0" font-size="10" text-anchor="middle">10.15 tbl · 7.3 col</text>
+        <rect x="350" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="425" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">② SQL Query</text>
+        <text x="425" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">4 complexity levels</text>
+        <text x="425" y="138" fill="#5ad1c0" font-size="10" text-anchor="middle">simple→highly complex</text>
+        <rect x="532" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="607" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">③ NL Question</text>
+        <text x="607" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">back-translate · 9 styles</text>
+        <text x="607" y="138" fill="#5ad1c0" font-size="10" text-anchor="middle">SQL → question</text>
+        <rect x="714" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#f4a259"/>
+        <text x="789" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">④ CoT Solution</text>
+        <text x="789" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">step-by-step reasoning</text>
+        <text x="789" y="138" fill="#f4a259" font-size="10" text-anchor="middle">+ fixes bad SQL</text>
+        <line x1="134" y1="115" x2="160" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="318" y1="115" x2="342" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="500" y1="115" x2="524" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="682" y1="115" x2="706" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <rect x="300" y="186" width="320" height="34" rx="8" fill="#0a0e14" stroke="#f4a259"/>
+        <text x="460" y="208" fill="#f4a259" font-size="11.5" text-anchor="middle">&lt;database, question, SQL query, CoT solution&gt; quadruple</text>
+        <line x1="789" y1="150" x2="789" y2="203" stroke="#f4a259" marker-end="url(#arr)"/>
+        <line x1="620" y1="203" x2="789" y2="203" stroke="#26313f"/>
+      </svg>
+      <div class="figcap">Fig 1 · OmniSQL's four-step progressive synthesis pipeline (redrawn from paper Figure 1)</div>
+    </div>
+
+    <p>Crucially the pipeline runs <span class="hl">SQL → Question</span> (synthesize the SQL first, then back-translate to natural language) — not the reverse. Why: translating SQL into natural language is "more accurate and less ambiguous" than going the other way, which guarantees the quality of each &lt;question, SQL&gt; pair.</p>
+    <p>To avoid a single LLM's stylistic bias, the paper uses <strong>multiple open-source model families</strong> across steps: Llama3.1 (8B/70B), DeepSeek-Coder (6.7B/33B, V2-Lite), Qwen2.5 (7B–72B), and Qwen2.5-Coder (7B–32B). Larger models are assigned more of the synthesis workload to keep quality high.</p>
+  </div>
+</section>
+
+<section id="db">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Step 1 — Grow realistic databases from web tables</h2>
+    <p class="lead">Real enterprise databases are scarce online because they hold sensitive data — but structured <strong>web tables</strong> are everywhere. OmniSQL's insight: hand the LLM a web table, ask it to infer a plausible business scenario behind it, then design a relational database that could store that data.</p>
+
+    <h3>Two stages: generate + enhance</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Table-driven database generation</h4>
+        <p>Given a web table, prompt the LLM to first imagine the business scenario behind it, then design a database of several related tables. Each table carries a name, description, column names, column types, column descriptions, a primary key, and two sample rows; tables are linked by primary/foreign keys. The number of tables K is drawn from a normal distribution <span class="hl">K ~ N(10, 4²)</span> to encourage more complex schemas.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Database enhancement</h4>
+        <p>First-pass schemas have two flaws: tables that are too simple (avg. 4 columns) and incomplete primary/foreign keys — a symptom of LLM "shortcut learning". A second enhancement step asks the LLM to add relevant columns to each table and complete missing primary/foreign-key relationships.</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Enhancement, quantified:</strong> initial databases average <span class="hl">9.15 tables / 4.86 columns</span>; after enhancement they reach <span class="hl">10.15 tables / 7.3 columns</span> — real-world complexity. All databases are hosted in SQLite.</p>
+    </div>
+
+    <p>Why trust LLMs to write good schemas? The paper analyzed StarCoder's pre-training corpus and found <strong>975,420 .sql files</strong>, 42% of which contain at least one <code>CREATE TABLE</code> — LLMs saw schema definitions extensively during pre-training. By contrast, GitSchemas / SchemaPile scrape DDL from GitHub (limited by the scarcity of high-quality SQL files), and WikiDBs stitches Wikidata tables together (risking joining unrelated tables and breaking consistency).</p>
+
+    <h3>The actual prompt (excerpt from the repo)</h3>
+    <p>The database-synthesis prompt asks the LLM to do three things at once: identify the domain, propose an enterprise-level scenario, and output a JSON schema — explicitly requesting "ultra-wide tables" of 15–50 columns. Excerpt from <code>data_synthesis/database_synthesis/prompt_templates/schema_prompt.txt</code>:</p>
+    <pre><code><span class="cmt">**Task Overview:**</span>
+Given a table in Markdown format, your task is to complete the following three tasks:
+
+<span class="cmt">## Task 1</span>
+Analyze the table's header and rows to briefly summarize its domain.
+The output domain should be surrounded by [START_DOMAIN] and [END_DOMAIN].
+
+<span class="cmt">## Task 2</span>
+Based on the table, propose a complex, enterprise-level, real-world
+business scenario ... surrounded by [START_SCENARIO] and [END_SCENARIO].
+
+<span class="cmt">## Task 3</span>
+Create a comprehensive database schema in json format ...
+The schema for each table should comprise: table_name, table_description,
+column_names, column_types, column_descriptions, primary_key, sample_rows.
+... establish and define the foreign_keys ...
+3. <span class="str">**Ultra-Wide Tables**</span>: Incorporate ultra-wide tables ... 15-50 columns ...</code></pre>
+  </div>
+</section>
+
+<section id="sql">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Step 2 — Complexity-aware SQL generation</h2>
+    <p class="lead">Asking an LLM to just "write SQL" yields a complexity imbalance: small models write trivial queries, large ones write overly complex ones. OmniSQL fixes this by defining four explicit complexity levels and, for each query, sampling one level and steering the LLM to match it.</p>
+
+    <h3>Four complexity levels (per the repo's criteria)</h3>
+    <div class="grid g4">
+      <div class="card"><h4>Simple</h4><p>Single table only, no joins allowed.</p></div>
+      <div class="card"><h4>Moderate</h4><p>Joins (INNER / LEFT / CROSS…) and richer WHERE clauses (IN / BETWEEN / LIKE).</p></div>
+      <div class="card"><h4>Complex</h4><p>Nested subqueries, self-joins, window functions, CTEs, complex WHERE/HAVING.</p></div>
+      <div class="card"><h4>Highly Complex</h4><p>Multiple CTEs, recursive CTEs, advanced window / analytical functions combined.</p></div>
+    </div>
+
+    <p>Beyond complexity, the prompt injects a few key components to keep queries meaningful and realistic:</p>
+    <ul>
+      <li><strong>Advanced SQL Functions:</strong> randomly sample a few engine-supported advanced functions (with names + descriptions), encouraged but not mandatory. This study uses the <span class="hl">SQLite</span> engine.</li>
+      <li><strong>Database Values:</strong> randomly sample real values from a few columns to help the LLM write meaningful predicates.</li>
+      <li><strong>Column Selection Constraint:</strong> constrain the number of columns the final SELECT returns, drawn from a <span class="hl">geometric distribution (p = 0.6)</span> — naturally biased toward small numbers, mirroring how real questions usually want just a few columns.</li>
+    </ul>
+
+    <h3>Post-processing: filter out the noise</h3>
+    <p>After generation: (1) rule-filter out non-SELECT queries and actually execute the rest on the synthetic databases, dropping syntax errors and timeouts; (2) extract <strong>SQL templates</strong> (masking only values) and keep just one query per template for diversity. e.g. <code>... WHERE age &gt; 18</code> and <code>... WHERE age &gt; 55</code> share a template, so only one is kept.</p>
+
+    <p>The SQL-synthesis prompt itself is terse (excerpt from <code>sql_synthesis_prompt.txt</code>):</p>
+    <pre><code><span class="cmt">**Task Overview**</span>
+Create an executable SQL query based on the provided information.
+
+<span class="cmt">**Database Schema**</span>  {schema_str}
+{sql_function_prompt}
+{db_value_prompt}
+
+<span class="cmt">**SQL Query Complexity**</span>
+Ensure the SQL query matches the {complexity} level ... {criterion}
+
+<span class="cmt">**SQL Query Requirements**</span>
+1. Use the syntax specific to the {db_engine} database engine.
+2. Incorporate advanced functions if appropriate, but ... not mandatory.
+3. Address real-world data analysis needs. Avoid trivial ... queries.
+4. <span class="str">(Very important)</span> Ensure the final SQL query selects {column_count} columns.
+
+<span class="cmt">**Answer**</span>  Let's proceed step by step.</code></pre>
+  </div>
+</section>
+
+<section id="question">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Step 3 — Back-translate into questions, in nine styles</h2>
+    <p class="lead">When back-translating SQL into questions, OmniSQL targets both semantic accuracy and linguistic diversity. Real users phrase questions in wildly different ways — from formal-and-explicit to vague-and-metaphorical — and a model trained on one register breaks on synonym substitution or paraphrasing.</p>
+
+    <h3>Nine language styles</h3>
+    <div class="grid g3">
+      <div class="card"><h4>Clear intent (6)</h4><p>formal, colloquial, imperative, interrogative, descriptive, concise — intent is clear, only the tone varies.</p></div>
+      <div class="card"><h4>Needs inference (2)</h4><p>vague, metaphorical — ambiguous words or figurative language needing external knowledge; the LLM also synthesizes that knowledge.</p></div>
+      <div class="card"><h4>Multi-turn (1)</h4><p>conversational — simulates a multi-turn &lt;User&gt; / &lt;Assistant&gt; dialogue where the user clarifies intent step by step.</p></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>One SQL, four registers (from the repo's style definitions):</strong></p>
+      <p><span class="hl">Formal:</span> Find all students older than 18 years and return their home addresses.</p>
+      <p><span class="hl">Colloquial:</span> Hey! Could you help me find all the students who are over 18? I'd love to know their names and where they live.</p>
+      <p><span class="hl">Vague:</span> What are the names and addresses of those older students?<br><span style="color:#5b6675">(External Knowledge: 'older students' refers to age ≥ 18.)</span></p>
+      <p><span class="hl">Metaphorical:</span> Find the names and addresses of those who have reached adulthood.<br><span style="color:#5b6675">(External Knowledge: 'reached adulthood' refers to age ≥ 18.)</span></p>
+    </div>
+
+    <h3>Semantic Consistency Selector</h3>
+    <p>Each SQL yields multiple candidate questions. To pick the most semantically accurate one, embed candidates with Sentence Transformers (<code>all-mpnet-base-v2</code>), compute each candidate's average cosine similarity to all others, and select the one <strong>closest to the semantic center</strong>. Intuition: correct questions cluster together; mistranslations are the outliers.</p>
+
+    <div class="formula">selected = argmax<sub>i</sub> ( 1/(N-1) · Σ<sub>j≠i</sub> cos( emb(q<sub>i</sub>), emb(q<sub>j</sub>) ) )
+<span style="color:var(--muted)">q: candidate question; emb: all-mpnet-base-v2 sentence vector. Highest average similarity = closest to the semantic center.</span></div>
+  </div>
+</section>
+
+<section id="cot">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Step 4 — CoT solutions (that fix bad SQL along the way)</h2>
+    <p class="lead">To bridge the gap between question and SQL, OmniSQL generates a chain-of-thought solution for every &lt;database, question, SQL&gt; triplet, spelling out the steps from question to query. This boosts interpretability and provides a high-quality training signal.</p>
+
+    <p>A typical CoT: analyze what the question asks → identify the relevant tables / columns / filters → assemble joins, filters, aggregations, and groupings step by step → emit the final SQL.</p>
+
+    <div class="callout warn">
+      <p><strong>An unexpected payoff — CoT self-corrects:</strong> the paper found CoT-generated SQL sometimes differs from the original, and is <span class="hl2">usually a better fit for the question</span>. The original triplets occasionally have minor issues (unnecessary columns, wrong join paths); step-by-step reasoning lets the LLM catch and fix them during synthesis.</p>
+    </div>
+
+    <p>The key design: the CoT prompt frames the original SQL as a colleague's <strong>reference solution</strong>, explicitly says it "may or may not be correct," and tells the LLM not to mention it. This nudges the LLM to override a wrong reference. Excerpt from <code>cot_synthesis_prompt_template.txt</code>:</p>
+    <pre><code>You are a senior data analyst specializing in SQL. Your task is to
+translate a natural language question into an executable SQLite query,
+providing a detailed reasoning trace.
+
+You will also receive a <span class="str">reference solution</span> from a colleague, which
+may or may not be correct. ... you are asked not to mention the
+reference solution in any form. The reference solution might include:
+1. Unnecessary table and column selections.
+2. Incorrect or excessive joins.
+3. Misalignment with the question.
+4. Opportunities for simplification.
+
+[Database Schema]: {schema}
+[Natural Language Question]: {question}
+[Reference Solution]: ```sql {sql} ```
+Provide your step-by-step text-to-SQL solution here.</code></pre>
+
+    <div class="callout">
+      <p><strong>Reliability: majority vote.</strong> Multiple candidate CoTs are generated per triplet, grouped by their SQL's <strong>execution result</strong>, and the final CoT is picked from the largest group. A separate check: on 5,000 cases where execution results differed before/after CoT, GPT-4o judged which SQL better matched the question — <span class="hl">4,699 / 5,000 (93.98%)</span> preferred the post-CoT version, confirming this step substantially improves data quality.</p>
+    </div>
+  </div>
+</section>
+
+<section id="dataset">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>SynSQL-2.5M — the first million-scale dataset</h2>
+    <p class="lead">Running the pipeline produces SynSQL-2.5M: <strong>2,544,390</strong> &lt;database, question, SQL, CoT&gt; quadruples spanning <strong>16,583</strong> synthetic databases across many real domains (social-media sentiment, product inventory, movie analytics, galaxy morphology…). Seeds came from ~1.32M web tables sampled from TabLib; after language / size / dedup / semantic filtering, 19,935 tables remained, finally expanding into 16,583 structurally complete databases.</p>
+
+    <div class="grid g4">
+      <div class="card"><p class="big">2.54M</p><p>text-to-SQL samples</p></div>
+      <div class="card"><p class="big">16,583</p><p>synthetic databases</p></div>
+      <div class="card"><p class="big">2.19M</p><p>unique SQL skeletons</p></div>
+      <div class="card"><p class="big">100%</p><p>with CoT solutions (a first)</p></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Overall dataset statistics († each WikiSQL DB is single-table; * BIRD unique-SQL unknown due to hidden test set)</caption>
+        <thead><tr><th>Dataset</th><th>Source</th><th># Example</th><th># Unique SQL</th><th># DB</th><th>Styles</th><th>Knowledge</th><th>CoT</th></tr></thead>
+        <tbody>
+          <tr><td>WikiSQL</td><td>Human+Template</td><td class="num">80,654</td><td class="num">80,257</td><td class="num">26,531†</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>Spider</td><td>Human</td><td class="num">10,181</td><td class="num">4,489</td><td class="num">200</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>BIRD</td><td>Human</td><td class="num">12,751</td><td class="num">–*</td><td class="num">95</td><td>–</td><td>✓</td><td>–</td></tr>
+          <tr><td>ScienceBenchmark</td><td>LLM+Human+Tmpl</td><td class="num">5,031</td><td class="num">3,652</td><td class="num">3</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>EHRSQL</td><td>Human+Template</td><td class="num">20,108</td><td class="num">18,253</td><td class="num">2</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr class="best"><td class="ours">SynSQL-2.5M</td><td>LLM-Gen</td><td class="num">2,544,390</td><td class="num">2,412,915</td><td class="num">16,583</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Database complexity (per-DB averages; DE = database enhancement)</caption>
+        <thead><tr><th>Dataset</th><th># DB</th><th>#Tbl/DB</th><th>#Col/DB</th><th>#PK/DB</th><th>#FK/DB</th></tr></thead>
+        <tbody>
+          <tr><td>WikiSQL</td><td class="num">26,531</td><td class="num">1.00</td><td class="num">6.34</td><td class="num">1.00</td><td class="num">0.00</td></tr>
+          <tr><td>Spider</td><td class="num">200</td><td class="num">5.11</td><td class="num">26.82</td><td class="num">4.70</td><td class="num">4.79</td></tr>
+          <tr><td>BIRD*</td><td class="num">95</td><td class="num">7.64</td><td class="num">54.56</td><td class="num">6.71</td><td class="num">6.58</td></tr>
+          <tr><td>SynSQL-2.5M (w/o DE)</td><td class="num">16,583</td><td class="num">9.15</td><td class="num">44.47</td><td class="num">9.15</td><td class="num">8.56</td></tr>
+          <tr class="best"><td class="ours">SynSQL-2.5M</td><td class="num">16,583</td><td class="num">10.15</td><td class="num">74.07</td><td class="num">10.14</td><td class="num">9.61</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · SQL statistics (excerpt; Agg.=aggregations, Func.=functions)</caption>
+        <thead><tr><th>Dataset</th><th>#Tables</th><th>#Joins</th><th>#Func.</th><th>#Tokens</th><th>#Subq.</th><th>#Window</th><th>#CTEs</th><th>#Uniq Skeleton</th></tr></thead>
+        <tbody>
+          <tr><td>Spider</td><td class="num">1.52</td><td class="num">0.48</td><td class="num">0.51</td><td class="num">14.85</td><td class="num">604</td><td class="num">0</td><td class="num">0</td><td class="num">2,136</td></tr>
+          <tr><td>BIRD*</td><td class="num">1.98</td><td class="num">0.94</td><td class="num">0.67</td><td class="num">24.75</td><td class="num">843</td><td class="num">10</td><td class="num">9</td><td class="num">4,596</td></tr>
+          <tr><td>EHRSQL</td><td class="num">3.60</td><td class="num">0.62</td><td class="num">2.63</td><td class="num">41.62</td><td class="num">17,989</td><td class="num">3,207</td><td class="num">0</td><td class="num">2,447</td></tr>
+          <tr class="best"><td class="ours">SynSQL-2.5M</td><td class="num">4.00</td><td class="num">1.75</td><td class="num">1.49</td><td class="num">57.05</td><td class="num">612,647</td><td class="num">33,916</td><td class="num">1,073,483</td><td class="num">2,190,988</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>SynSQL averages <span class="hl">1.75 joins/query</span> (vs. Spider 0.48, BIRD 0.94), ~<span class="hl">40% of queries use CTEs</span>, and it covers 83 engine functions across 2.19M+ unique skeletons — clearly out-complexing and out-diversifying human-annotated datasets.</p>
+
+    <h3>Quality: it beats human-annotated BIRD</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>GPT-4o as judge</h4>
+        <p>Across four aspects (database / question / SQL / overall sample), each criterion scored excellent–poor and weighted. On 1,000 samples each vs. BIRD, SynSQL-2.5M <span class="hl">wins on nearly every criterion</span>.</p>
+      </div>
+      <div class="card">
+        <h4>Human experts (1,000 samples)</h4>
+        <p>Three senior CS grad students gave pass/fail: <span class="hl">96%</span> of databases realistic & complete, <span class="hl">97%</span> of questions meaningful, <span class="hl">89%</span> of SQL appropriate, <span class="hl">86%</span> of full samples fully correct — high-quality "silver-standard" data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>OmniSQL — model & training</h2>
+    <p class="lead">Using SynSQL-2.5M plus the human-labeled Spider / BIRD data, the authors fine-tune OmniSQL at 7B / 14B / 32B, all built on the Qwen2.5-Coder-Instruct family.</p>
+
+    <h3>How input / output is built</h3>
+    <p><strong>Input</strong> = database schema (formatted as <code>CREATE TABLE</code> statements) + the natural-language question. Each column is enriched via comments with three signals: column descriptions, representative values (two per column), and question-relevant values. <strong>Output</strong> = the CoT solution (step-by-step reasoning + final SQL). Since Spider / BIRD only ship gold SQL without CoT, the authors synthesize CoT for them using the Step-4 technique.</p>
+
+    <div class="formula">Loss = − E<sub>(x,y)∼D</sub> [ Σ<sub>t</sub> log P<sub>θ</sub>( y<sub>t</sub> | x, y<sub>&lt;t</sub> ) ]
+<span style="color:var(--muted)">Standard conditional next-token prediction: x = input (schema+question), y = output (CoT solution).</span></div>
+
+    <h3>Training details</h3>
+    <ul>
+      <li><strong>Base:</strong> Qwen2.5-Coder-7B / 14B / 32B-Instruct (pre-trained on 92 programming languages).</li>
+      <li><strong>Fine-tuning:</strong> 7B and 14B use <span class="hl">full fine-tuning</span>; 32B uses <span class="hl">LoRA</span> (r = 256, α = 512, on q/k/v_proj) due to compute limits. LoRA versions of 7B/14B are also provided for comparison.</li>
+      <li><strong>Hyperparameters:</strong> AdamW, batch size 512, 2 epochs, context length 8192; peak LR 2e-5 / 4e-6 / 2e-4; 5% linear warmup then cosine decay to 10%. bfloat16 + DeepSpeed-Zero.</li>
+      <li><strong>Compute:</strong> one node of 8×A800-80GB; ~<span class="hl">6 / 12 / 20 days</span> for 7B / 14B / 32B. Inference via vLLM.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>Main results — a 7B open model beats GPT-4o</h2>
+    <p class="lead">Evaluated on 9 datasets (3 standard + 3 domain-specific + 3 robustness), using execution accuracy (EX) and test-suite accuracy (TS). "Gre" = greedy decoding; "Maj" = sample 8 and majority-vote by execution result. Note: OmniSQL is evaluated in a <strong>single-step, single-model</strong> setting and is not directly compared to multi-agent frameworks.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 (excerpt) · Average accuracy across 9 datasets (%). Bold = best within each scale group</caption>
+        <thead><tr><th>LLM</th><th>Scale</th><th>Avg (Gre)</th><th>Avg (Maj)</th></tr></thead>
+        <tbody>
+          <tr><td>GPT-4o-mini</td><td>closed</td><td class="num">56.2</td><td class="num">58.0</td></tr>
+          <tr><td>GPT-4-Turbo</td><td>closed</td><td class="num">59.4</td><td class="num">60.0</td></tr>
+          <tr><td>GPT-4o</td><td>closed</td><td class="num">58.9</td><td class="num">59.9</td></tr>
+          <tr><td>Qwen2.5-Coder-7B-Instruct</td><td>~7B</td><td class="num">52.8</td><td class="num">58.4</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-7B</td><td>7B</td><td class="num">61.2</td><td class="num">63.1</td></tr>
+          <tr><td>Qwen2.5-Coder-14B-Instruct</td><td>14B</td><td class="num">59.3</td><td class="num">61.1</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-14B</td><td>14B</td><td class="num">62.2</td><td class="num">63.9</td></tr>
+          <tr><td>Qwen2.5-Coder-32B-Instruct</td><td>32B</td><td class="num">60.8</td><td class="num">63.1</td></tr>
+          <tr><td>Qwen2.5-72B-Instruct</td><td>72B</td><td class="num">58.5</td><td class="num">60.7</td></tr>
+          <tr><td>Meta-Llama-3.1-70B-Instruct</td><td>70B</td><td class="num">57.6</td><td class="num">59.2</td></tr>
+          <tr><td>DeepSeek-V3 (MoE)</td><td>671B</td><td class="num">59.9</td><td class="num">60.7</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-32B</td><td>32B</td><td class="num">63.2</td><td class="num">64.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>In one line:</strong> even at 7B, OmniSQL-7B's average (61.2 Gre / 63.1 Maj) already <span class="hl">beats GPT-4o (58.9 / 59.9) and DeepSeek-V3 671B (59.9 / 60.7)</span>. OmniSQL-32B tops the whole table at 63.2 / 64.8.</p>
+    </div>
+
+    <h3>Per-benchmark breakdown (greedy decoding)</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 (excerpt) · Three OmniSQL scales vs. Qwen2.5-Coder bases, greedy, per dataset (%)</caption>
+        <thead><tr><th>Model</th><th>Spider dev</th><th>Spider test</th><th>BIRD dev</th><th>Spider2.0-SQLite</th><th>Science</th><th>EHRSQL</th><th>DK</th><th>Syn</th><th>Real</th></tr></thead>
+        <tbody>
+          <tr><td>Qwen2.5-Coder-7B</td><td class="num">73.4</td><td class="num">82.2</td><td class="num">50.9</td><td class="num">1.5</td><td class="num">45.2</td><td class="num">24.3</td><td class="num">67.5</td><td class="num">63.1</td><td class="num">66.7</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-7B</td><td class="num">81.2</td><td class="num">87.9</td><td class="num">63.9</td><td class="num">10.4</td><td class="num">50.2</td><td class="num">34.9</td><td class="num">76.1</td><td class="num">69.7</td><td class="num">76.2</td></tr>
+          <tr><td>Qwen2.5-Coder-14B</td><td class="num">78.1</td><td class="num">86.6</td><td class="num">61.5</td><td class="num">5.9</td><td class="num">52.2</td><td class="num">31.6</td><td class="num">73.6</td><td class="num">68.2</td><td class="num">76.2</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-14B</td><td class="num">81.4</td><td class="num">88.3</td><td class="num">64.2</td><td class="num">10.4</td><td class="num">56.9</td><td class="num">39.9</td><td class="num">72.9</td><td class="num">69.0</td><td class="num">76.4</td></tr>
+          <tr><td>Qwen2.5-Coder-32B</td><td class="num">77.7</td><td class="num">87.5</td><td class="num">64.5</td><td class="num">5.9</td><td class="num">54.8</td><td class="num">36.4</td><td class="num">78.3</td><td class="num">69.9</td><td class="num">72.4</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-32B</td><td class="num">80.9</td><td class="num">87.6</td><td class="num">64.5</td><td class="num">11.9</td><td class="num">57.2</td><td class="num">42.4</td><td class="num">76.1</td><td class="num">69.7</td><td class="num">78.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>Standard benchmarks</h4><p>OmniSQL-7B hits 87.9% on Spider test (greedy), beating the best public leaderboard method DAIL-SQL+GPT-4+SC (86.6%) by 1.3%. With majority voting the three scales reach 88.9 / 88.3 / <span class="hl">89.8%</span>. On BIRD dev, OmniSQL-32B reaches 67.0% (Maj), competitive with fine-tuned-GPT-4o Distillery (67.2%).</p></div>
+      <div class="card"><h4>Domain generalization</h4><p>On the hardest, Spider2.0-SQLite: 7B baselines score only 0.7–3.7%, but OmniSQL-7B gets <span class="hl">10.4%</span>. On EHRSQL (medical), OmniSQL-32B scores 46.8% (Maj), <span class="hl">beating GPT-4o (45.5%)</span>.</p></div>
+      <div class="card"><h4>Robustness</h4><p>On Spider-Syn / Spider-Realistic (synonym substitution) it beats baselines in most cases. The one exception is Spider-DK (implicit domain knowledge), where 14B/32B trail their bases — see Limitations.</p></div>
+    </div>
+
+    <p>Tellingly, some open models (Qwen2.5-Coder-32B, Llama-3.1-70B) beat closed models on <strong>standard</strong> sets but lose that edge on <strong>domain-specific</strong> ones — likely because they ingested Spider / BIRD training data during pre-/fine-tuning. OmniSQL stays consistently strong across both.</p>
+  </div>
+</section>
+
+<section id="ablation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 10</div>
+    <h2>Ablations — what each design choice contributes</h2>
+    <p class="lead">All ablations use Qwen2.5-Coder-7B as the base, under greedy decoding.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Ablations on synthetic data / CoT (%, greedy; FT = fine-tuning)</caption>
+        <thead><tr><th>Setting</th><th>Spider dev</th><th>Spider test</th><th>BIRD</th><th>Spider2.0</th><th>Science</th><th>EHRSQL</th><th>DK</th><th>Syn</th><th>Real</th></tr></thead>
+        <tbody>
+          <tr><td>Qwen2.5-Coder-7B (base)</td><td class="num">73.4</td><td class="num">82.2</td><td class="num">50.9</td><td class="num">1.5</td><td class="num">45.2</td><td class="num">24.3</td><td class="num">67.5</td><td class="num">63.1</td><td class="num">66.7</td></tr>
+          <tr><td>FT w/ SynSQL-2.5M</td><td class="num">74.6</td><td class="num">83.5</td><td class="num">59.9</td><td class="num">9.6</td><td class="num">48.5</td><td class="num">37.2</td><td class="num">71.6</td><td class="num">61.6</td><td class="num">70.3</td></tr>
+          <tr><td>FT w/ CoT-enhanced Spider+BIRD</td><td class="num">80.3</td><td class="num">86.6</td><td class="num">59.6</td><td class="num">5.9</td><td class="num">49.5</td><td class="num">26.0</td><td class="num">72.0</td><td class="num">70.0</td><td class="num">76.4</td></tr>
+          <tr><td>FT w/ original Spider+BIRD</td><td class="num">76.9</td><td class="num">80.7</td><td class="num">55.1</td><td class="num">3.0</td><td class="num">43.8</td><td class="num">31.4</td><td class="num">65.8</td><td class="num">65.9</td><td class="num">71.9</td></tr>
+          <tr class="best"><td class="ours">+ both combined (OmniSQL-7B)</td><td class="num">81.2</td><td class="num">87.9</td><td class="num">63.9</td><td class="num">10.4</td><td class="num">50.2</td><td class="num">34.9</td><td class="num">76.1</td><td class="num">69.7</td><td class="num">76.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>Value of synthetic data</h4><p>Fine-tuning on SynSQL-2.5M alone gives +9.0% on BIRD and +12.9% on EHRSQL over the base. Removing SynSQL (keeping only CoT-enhanced Spider+BIRD) drops 7 datasets consistently — it fills the coverage gaps left by human data.</p></div>
+      <div class="card"><h4>Value of CoT</h4><p>Comparing "CoT-enhanced" vs "original" Spider+BIRD, removing CoT hurts almost everywhere. CoT delivers both stronger reasoning and the correction of mislabeled samples.</p></div>
+      <div class="card"><h4>Data scale</h4><p>Training on 20%→100% subsets (1 epoch each), accuracy rises <span class="hl">monotonically with data</span> and hasn't saturated at 100% — more data should help further.</p></div>
+    </div>
+
+    <h3>Versus prior data-augmentation methods</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · Improvement from synthetic data (%). † uses EX on Spider dev</caption>
+        <thead><tr><th>Method</th><th>Spider w/o</th><th>Spider w/</th><th>Δ</th><th>BIRD w/o</th><th>BIRD w/</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr><td>DT-Fixup + Syn†</td><td class="num">74.6</td><td class="num">76.1</td><td class="num">+1.5</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+          <tr><td>T5-3B + PICARD + Syn†</td><td class="num">79.3</td><td class="num">81.4</td><td class="num">+2.1</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+          <tr><td>Sense-13B</td><td class="num">79.4</td><td class="num">82.9</td><td class="num">+3.5</td><td class="num">51.6</td><td class="num">52.9</td><td class="num">+1.3</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-7B (greedy)</td><td class="num">76.9</td><td class="num">81.2</td><td class="num">+4.3</td><td class="num">55.1</td><td class="num">63.9</td><td class="num">+8.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Sense, which also uses an LLM to synthesize data, gains only +1.3% on BIRD; OmniSQL's pipeline gains <span class="hl">+8.8%</span> — the decoupled "SQL→Question + CoT correction" design yields clearly higher quality.</p>
+  </div>
+</section>
+
+<section id="limit">
+  <div class="wrap">
+    <div class="sec-num">SECTION 11</div>
+    <h2>Limitations & takeaways</h2>
+    <p class="lead">The paper is candid about a few boundaries and points to where the framework can extend.</p>
+
+    <div class="callout hot">
+      <p><strong>Limitation 1 — implicit domain knowledge (Spider-DK):</strong> OmniSQL-14B/32B actually <span class="hl2">trail their base models</span> on Spider-DK, which needs commonsense / implicit knowledge that the broadly-pretrained base has a stronger foundation in. Takeaway: add a new language style that injects commonsense knowledge.</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>Limitation 2 — single-step, single-model only:</strong> OmniSQL deliberately isolates the core "single LLM, single-step" capability and does <strong>not</strong> directly compare to multi-stage, multi-agent frameworks (CHASE-SQL, Alpha-SQL). There is headroom by adding schema linking, SQL revision, SQL selection, etc.</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>Limitation 3 — SQLite as the default dialect:</strong> the framework can in principle generate PostgreSQL / MySQL / BigQuery and other mainstream dialects (LLMs have seen them in pre-training), but this study uses SQLite to align with classic benchmarks. Cross-dialect validation is still pending.</p>
+    </div>
+    <div class="callout">
+      <p><strong>Positioning: silver-, not gold-standard.</strong> Human eval shows 86% of full samples are fully correct — high-quality "silver-standard" data, good for training but not zero-error. The signal from scale outweighs the residual noise.</p>
+    </div>
+
+    <h3>Three design tricks worth remembering</h3>
+    <div class="grid g3">
+      <div class="card"><h4>Go SQL→Question</h4><p>Back-translation is more accurate and less ambiguous than forward translation — it locks in pair quality at the source.</p></div>
+      <div class="card"><h4>Frame original SQL as a "reference"</h4><p>Saying "may be wrong, don't mention it" lets the CoT override and fix it — 93.98% of cases get better.</p></div>
+      <div class="card"><h4>Decouple → use small models</h4><p>Four simple sub-tasks each go to a small open-source model, removing dependence on expensive closed LLMs — that's what makes million-scale feasible.</p></div>
+    </div>
+
+    <p>The dataset, all three model scales, and the full synthesis / training / evaluation code are open-sourced (SynSQL-2.5M under Apache 2.0). For anyone building their own text-to-SQL training data, this four-step pipeline is a directly copyable recipe.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Li, Wu, Zhang, Huang, Zhang, Jiang, Wang, Zhang, Chen, Shi, Chen &amp; Li (2025) · <em>OmniSQL: Synthesizing High-quality Text-to-SQL Data at Scale</em> · PVLDB 18(11)</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2503.02240">arXiv:2503.02240</a> &nbsp;·&nbsp; <a href="https://github.com/RUCKBReasoning/OmniSQL">code RUCKBReasoning/OmniSQL</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a paper-digest summary; figures are redrawn / compiled from the paper, and all numbers follow the original.</p>
+  </div>
+</footer>
+
+</body>
+</html>

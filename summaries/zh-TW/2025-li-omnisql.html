@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OmniSQL 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:16px 0 16px 22px;color:var(--ink)}
+li{margin:7px 0}
+
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">PVLDB 2025 · 論文導讀</div>
+    <h1 class="title">Omni<span class="sql">SQL</span></h1>
+    <p class="subtitle">不靠人工標註，用四步驟「漸進式管線」自動合成 250 萬筆 text-to-SQL 訓練資料；只有 7B 的開源模型就追平甚至超越 GPT-4o 與 DeepSeek-V3。</p>
+    <div class="meta-row">
+      <span class="tag lit">Data Synthesis</span>
+      <span class="tag lit">SynSQL-2.5M</span>
+      <span class="tag lit">SQL-to-Question</span>
+      <span class="tag">Chain-of-Thought</span>
+      <span class="tag">Web Tables</span>
+      <span class="tag">Qwen2.5-Coder · LoRA</span>
+      <span class="tag">Spider · BIRD · 9 benchmarks</span>
+    </div>
+    <p class="authors">Haoyang Li, Shang Wu, Xiaokang Zhang, Xinmei Huang, Jing Zhang, Fuxin Jiang, Shuai Wang, Tieying Zhang, Jianjun Chen, Rui Shi, Hong Chen, Cuiping Li · 中國人民大學 + ByteDance · <a href="https://arxiv.org/abs/2503.02240">arXiv:2503.02240</a> · <a href="https://github.com/RUCKBReasoning/OmniSQL">github.com/RUCKBReasoning/OmniSQL</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#overview">02 框架總覽</a>
+    <a href="#db">03 資料庫合成</a>
+    <a href="#sql">04 SQL 合成</a>
+    <a href="#question">05 問題合成</a>
+    <a href="#cot">06 CoT 合成</a>
+    <a href="#dataset">07 SynSQL-2.5M</a>
+    <a href="#model">08 OmniSQL 訓練</a>
+    <a href="#results">09 主結果</a>
+    <a href="#ablation">10 Ablation</a>
+    <a href="#limit">11 限制與啟示</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 微調模型「考過試卻不會做事」</h2>
+    <p class="lead">Text-to-SQL 把自然語言問句翻成可執行 SQL，讓非專家也能查資料庫。LLM 時代有兩條路線：prompting 與 fine-tuning，但兩者在真實場景都有硬傷。OmniSQL 主張：用「大規模、多樣、高品質」的合成資料去微調開源模型，才能同時解決成本、隱私與泛化。</p>
+
+    <h3>兩種主流範式各自的痛點</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Prompting-based</h4>
+        <p>靠精心設計的 prompt 呼叫強大的閉源 LLM（GPT-4 等）。缺點：<span class="hl2">使用成本高、資料隱私疑慮、行為難以控制</span>，且高度依賴 API。</p>
+      </div>
+      <div class="card">
+        <h4>Fine-tuning-based</h4>
+        <p>在 Spider / BIRD 等既有資料集上微調。缺點：公開資料涵蓋面太窄，<span class="hl2">泛化到複雜或專業領域時崩盤</span>。</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>關鍵觀察（泛化崩盤的證據）：</strong>把 Qwen2.5-Coder-7B-Instruct 在 Spider + BIRD 訓練集上微調，它在同分佈的 dev set 表現很好，但在 out-of-domain 的 ScienceBenchmark / EHRSQL 只剩 <span class="hl2">43.8% / 31.4%</span> 執行準確率 —— 反而是 zero-shot 的 GPT-4-Turbo 拿到 <span class="hl">59.2% / 43.1%</span>。微調「過擬合」到了既有 benchmark 的分佈。</p>
+    </div>
+
+    <h3>為什麼不直接擴增既有資料？</h3>
+    <p>過去的 data augmentation 多半是「貼著既有資料集的分佈」去長新樣本，導致<strong>多樣性、品質、可擴展性</strong>都受限；不少方法還要人工設計複雜的模板或文法，難以規模化。OmniSQL 要的是一個同時滿足三個條件的框架：</p>
+    <div class="grid g3">
+      <div class="card"><h4>Automatic 自動</h4><p>幾乎不需要人工介入，全流程由 LLM 驅動。</p></div>
+      <div class="card"><h4>Scalable 可擴展</h4><p>能產生大規模、跨領域的多樣資料。</p></div>
+      <div class="card"><h4>Realistic 真實</h4><p>合成資料貼近真實使用者的需求與情境。</p></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>三大貢獻：</strong>(1) 一套自動且可擴展的 text-to-SQL 資料合成框架；(2) <span class="hl">SynSQL-2.5M</span> —— 第一個百萬級（254 萬筆）text-to-SQL 資料集，每筆都含 CoT 解題；(3) <span class="hl">OmniSQL</span>（7B/14B/32B）以遠少的參數量刷新開源 SOTA，並追平頂尖閉源模型。</p>
+    </div>
+  </div>
+</section>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>框架總覽 — 把難題拆成四個簡單步驟</h2>
+    <p class="lead">核心難點是「自動化 + 可擴展」與「品質 + 多樣性」之間的矛盾。OmniSQL 的解法是一條<strong>漸進式管線（progressive pipeline）</strong>：把合成任務解耦成四個彼此獨立、各自可控的子任務，每步都用相對小型的開源 LLM 就能完成。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 920 230" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="11" markerHeight="11" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <!-- seed -->
+        <rect x="14" y="86" width="120" height="58" rx="10" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="74" y="110" fill="#c8b6ff" font-size="13" text-anchor="middle">Web Table</text>
+        <text x="74" y="128" fill="#5b6675" font-size="10.5" text-anchor="middle">TabLib 種子</text>
+        <!-- step1 -->
+        <rect x="168" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="243" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">① Database</text>
+        <text x="243" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">生成 + 結構增強</text>
+        <text x="243" y="138" fill="#5ad1c0" font-size="10" text-anchor="middle">10.15 tbl · 7.3 col</text>
+        <!-- step2 -->
+        <rect x="350" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="425" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">② SQL Query</text>
+        <text x="425" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">四級複雜度</text>
+        <text x="425" y="138" fill="#5ad1c0" font-size="10" text-anchor="middle">simple→highly complex</text>
+        <!-- step3 -->
+        <rect x="532" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="607" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">③ NL Question</text>
+        <text x="607" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">回譯 · 九種語氣</text>
+        <text x="607" y="138" fill="#5ad1c0" font-size="10" text-anchor="middle">back-translation</text>
+        <!-- step4 -->
+        <rect x="714" y="80" width="150" height="70" rx="10" fill="#141b25" stroke="#f4a259"/>
+        <text x="789" y="104" fill="#fff" font-size="12.5" text-anchor="middle" font-weight="700">④ CoT Solution</text>
+        <text x="789" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">step-by-step 推理</text>
+        <text x="789" y="138" fill="#f4a259" font-size="10" text-anchor="middle">並修正錯誤 SQL</text>
+        <!-- arrows -->
+        <line x1="134" y1="115" x2="160" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="318" y1="115" x2="342" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="500" y1="115" x2="524" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="682" y1="115" x2="706" y2="115" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <!-- output -->
+        <rect x="300" y="186" width="320" height="34" rx="8" fill="#0a0e14" stroke="#f4a259"/>
+        <text x="460" y="208" fill="#f4a259" font-size="11.5" text-anchor="middle">&lt;database, question, SQL query, CoT solution&gt; 四元組</text>
+        <line x1="789" y1="150" x2="789" y2="203" stroke="#f4a259" marker-end="url(#arr)"/>
+        <line x1="620" y1="203" x2="789" y2="203" stroke="#26313f"/>
+      </svg>
+      <div class="figcap">圖 1 · OmniSQL 的四步驟漸進式合成管線（依論文 Figure 1 重繪）</div>
+    </div>
+
+    <p>注意這條管線的方向是 <span class="hl">「SQL → Question」</span>（先有 SQL，再回譯成自然語言），而非反過來。原因：把 SQL 翻成自然語言，比把模糊的自然語言翻成精確 SQL 來得「更準確、歧義更低」，這保證了 &lt;question, SQL&gt; 配對的品質。</p>
+    <p>為了避免單一 LLM 的偏好造成風格偏差，論文在不同步驟用上<strong>多個開源模型家族</strong>分工：Llama3.1（8B/70B）、DeepSeek-Coder（6.7B/33B、V2-Lite）、Qwen2.5（7B–72B）、Qwen2.5-Coder（7B–32B），越大的模型分配越多合成工作量以確保品質。</p>
+  </div>
+</section>
+
+<section id="db">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>步驟一 — 用網路表格「長」出真實資料庫</h2>
+    <p class="lead">真實企業資料庫因為敏感資訊而難以取得，但結構化的 <strong>web tables</strong> 卻在網路上俯拾即是。OmniSQL 的洞見：給 LLM 一張網路表格，請它推斷背後合理的商業情境，再設計一個能存放這些資料的關聯式資料庫。</p>
+
+    <h3>兩階段：生成 + 增強</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Table-driven database generation</h4>
+        <p>給定一張 web table，prompt LLM 先想像表格背後的商業情境，再設計一個含多張關聯表的資料庫。每張表都帶 table 名稱、描述、欄名、欄型別、欄描述、主鍵，外加兩列範例資料；表與表之間用主鍵 / 外鍵串起來。表的數量 K 取自常態分佈 <span class="hl">K ~ N(10, 4²)</span>，鼓勵生成較複雜的 schema。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Database enhancement（結構增強）</h4>
+        <p>LLM 第一次生成的 schema 常有兩個毛病：表太簡單（平均才 4 欄）、主鍵 / 外鍵不完整 —— 這是 LLM 的「捷徑學習」傾向。於是再加一步增強：請 LLM 為每張表補上相關欄位、補齊缺漏的主 / 外鍵關係。</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>增強的量化效果：</strong>初版資料庫平均 <span class="hl">9.15 表 / 4.86 欄</span>；增強後變成 <span class="hl">10.15 表 / 7.3 欄</span>，達到貼近真實世界的複雜度。所有資料庫都用 SQLite 部署管理。</p>
+    </div>
+
+    <p>為什麼相信 LLM 能生出好 schema？論文分析 StarCoder 的預訓練資料，找到 <strong>975,420 個 .sql 檔</strong>，其中 42% 至少含一個 <code>CREATE TABLE</code> 敘述 —— LLM 在預訓練階段就大量見過 schema 定義。相較之下，GitSchemas / SchemaPile 從 GitHub 抽 DDL，可擴展性受限於高品質 SQL 檔的稀缺；WikiDBs 從 Wikidata 拼表，又有「把不相關的表硬連在一起」的一致性風險。</p>
+
+    <h3>實際 prompt（節錄自 repo）</h3>
+    <p>資料庫合成 prompt 要 LLM 一次做三件事：判斷領域、構思企業級情境、輸出 JSON schema；並特別要求加入「15–50 欄的超寬表」。以下節錄自 <code>data_synthesis/database_synthesis/prompt_templates/schema_prompt.txt</code>：</p>
+    <pre><code><span class="cmt">**Task Overview:**</span>
+Given a table in Markdown format, your task is to complete the following three tasks:
+
+<span class="cmt">## Task 1</span>
+Analyze the table's header and rows to briefly summarize its domain.
+The output domain should be surrounded by [START_DOMAIN] and [END_DOMAIN].
+
+<span class="cmt">## Task 2</span>
+Based on the table, propose a complex, enterprise-level, real-world
+business scenario ... surrounded by [START_SCENARIO] and [END_SCENARIO].
+
+<span class="cmt">## Task 3</span>
+Create a comprehensive database schema in json format ...
+The schema for each table should comprise: table_name, table_description,
+column_names, column_types, column_descriptions, primary_key, sample_rows.
+... establish and define the foreign_keys ...
+3. <span class="str">**Ultra-Wide Tables**</span>: Incorporate ultra-wide tables ... 15-50 columns ...</code></pre>
+  </div>
+</section>
+
+<section id="sql">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>步驟二 — 複雜度可控的 SQL 生成</h2>
+    <p class="lead">直接叫 LLM 寫 SQL 會出現複雜度失衡：小模型只會寫簡單查詢、大模型又愛寫超複雜的。OmniSQL 的解法是明確定義四級複雜度，每次隨機抽一級、要求 LLM 對齊該級別。</p>
+
+    <h3>四級複雜度（依 repo 的判準）</h3>
+    <div class="grid g4">
+      <div class="card"><h4>Simple</h4><p>只查單表、不允許 join。</p></div>
+      <div class="card"><h4>Moderate</h4><p>含 join（INNER / LEFT / CROSS…）、較複雜的 WHERE（IN / BETWEEN / LIKE）。</p></div>
+      <div class="card"><h4>Complex</h4><p>巢狀子查詢、self-join、window functions、CTE、複雜 WHERE/HAVING。</p></div>
+      <div class="card"><h4>Highly Complex</h4><p>多個 CTE、遞迴 CTE、進階 window / 分析函式組合運用。</p></div>
+    </div>
+
+    <p>除了複雜度，prompt 還塞進幾個關鍵元件來確保查詢「有意義又真實」：</p>
+    <ul>
+      <li><strong>Advanced SQL Functions：</strong>隨機抽幾個資料庫引擎支援的進階函式（附名稱與說明），鼓勵但不強制使用。本研究以 <span class="hl">SQLite</span> 引擎為主。</li>
+      <li><strong>Database Values：</strong>隨機抽幾個欄位的實際值，幫助 LLM 生出有語意的述詞（predicate）。</li>
+      <li><strong>Column Selection Constraint：</strong>限制最終 SELECT 的欄位數，取自<span class="hl">幾何分佈（p = 0.6）</span> —— 自然偏向小數字，貼近「真實問句通常只要幾個欄位」的情境。</li>
+    </ul>
+
+    <h3>後處理：把雜訊濾掉</h3>
+    <p>生成後做品質控管：(1) 用規則濾掉非 SELECT 查詢，並在合成資料庫上實際執行，剔除語法錯誤或逾時的；(2) 抽取 <strong>SQL 模板</strong>（只遮掉值），每個模板只留一條，確保多樣性。例如 <code>... WHERE age &gt; 18</code> 和 <code>... WHERE age &gt; 55</code> 同模板，只保留一條。</p>
+
+    <p>SQL 合成 prompt 本體很精簡（節錄自 <code>sql_synthesis_prompt.txt</code>）：</p>
+    <pre><code><span class="cmt">**Task Overview**</span>
+Create an executable SQL query based on the provided information.
+
+<span class="cmt">**Database Schema**</span>  {schema_str}
+{sql_function_prompt}
+{db_value_prompt}
+
+<span class="cmt">**SQL Query Complexity**</span>
+Ensure the SQL query matches the {complexity} level ... {criterion}
+
+<span class="cmt">**SQL Query Requirements**</span>
+1. Use the syntax specific to the {db_engine} database engine.
+2. Incorporate advanced functions if appropriate, but ... not mandatory.
+3. Address real-world data analysis needs. Avoid trivial ... queries.
+4. <span class="str">(Very important)</span> Ensure the final SQL query selects {column_count} columns.
+
+<span class="cmt">**Answer**</span>  Let's proceed step by step.</code></pre>
+  </div>
+</section>
+
+<section id="question">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>步驟三 — 九種語氣的問題回譯</h2>
+    <p class="lead">把 SQL 回譯成自然語言問句時，OmniSQL 同時追求「語意準確」與「語言多樣」。真實使用者問問題的方式千變萬化 —— 從正式明確到含糊隱喻，若訓練資料只有一種腔調，模型遇到同義詞替換或改寫就會崩。</p>
+
+    <h3>九種語言風格</h3>
+    <div class="grid g3">
+      <div class="card"><h4>清楚表意（6 種）</h4><p>formal、colloquial、imperative、interrogative、descriptive、concise —— 意圖清楚，只是語氣不同。</p></div>
+      <div class="card"><h4>需要推理（2 種）</h4><p>vague、metaphorical —— 用模糊詞或比喻，需額外的 external knowledge 才能解讀；LLM 會一併合成這份知識。</p></div>
+      <div class="card"><h4>多輪對話（1 種）</h4><p>conversational —— 模擬使用者逐步澄清意圖的多輪 &lt;User&gt; / &lt;Assistant&gt; 對話。</p></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>同一條 SQL、四種腔調（取自 repo 的 style 定義）：</strong></p>
+      <p><span class="hl">Formal：</span>Find all students older than 18 years and return their home addresses.</p>
+      <p><span class="hl">Colloquial：</span>Hey! Could you help me find all the students who are over 18? I'd love to know their names and where they live.</p>
+      <p><span class="hl">Vague：</span>What are the names and addresses of those older students?<br><span style="color:#5b6675">（External Knowledge：'older students' refers to age ≥ 18.）</span></p>
+      <p><span class="hl">Metaphorical：</span>Find the names and addresses of those who have reached adulthood.<br><span style="color:#5b6675">（External Knowledge：'reached adulthood' refers to age ≥ 18.）</span></p>
+    </div>
+
+    <h3>語意一致性選擇器（Semantic Consistency Selector）</h3>
+    <p>每條 SQL 會生成多個候選問句。為了挑出語意最準的那個，用 Sentence Transformers（<code>all-mpnet-base-v2</code>）把候選嵌入向量，計算每個候選與其他候選的平均餘弦相似度，選<strong>最接近語意中心</strong>的那條。直覺：語意正確的問句會彼此靠近，離群的往往是翻錯的。</p>
+
+    <div class="formula">selected = argmax<sub>i</sub> ( 1/(N-1) · Σ<sub>j≠i</sub> cos( emb(q<sub>i</sub>), emb(q<sub>j</sub>) ) )
+<span style="color:var(--muted)">q：候選問句；emb：all-mpnet-base-v2 句向量。選平均相似度最高 = 最靠近語意中心者。</span></div>
+  </div>
+</section>
+
+<section id="cot">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>步驟四 — CoT 解題（順手修正錯誤 SQL）</h2>
+    <p class="lead">為了銜接「問題」與「SQL」之間的鴻溝，OmniSQL 為每個 &lt;database, question, SQL&gt; 三元組生成一段 chain-of-thought 解題，明確寫出從問句推導到 SQL 的步驟。這不只提升可解釋性，更提供高品質的訓練訊號。</p>
+
+    <p>典型的 CoT 會：先分析問題要什麼 → 找出相關的表 / 欄 / 過濾條件 → 一步步組裝 join、filter、aggregation、grouping，最後吐出完整 SQL。</p>
+
+    <div class="callout warn">
+      <p><strong>意外收穫 —— CoT 會自我修正：</strong>論文發現 CoT 生出的 SQL 有時跟原始 SQL 不一樣，而且<span class="hl2">通常更貼合問題</span>。因為原始三元組偶有小瑕疵（多選欄位、錯的 join path），CoT 的逐步推理過程讓 LLM 能在解題時抓到並修掉這些錯。</p>
+    </div>
+
+    <p>關鍵設計：CoT prompt 把原始 SQL 當成「同事給的<strong>參考解</strong>」，並明說它「可能對也可能錯」、要 LLM 別在答案裡提到它。這巧妙地讓 LLM 願意推翻錯誤的參考解。節錄自 <code>cot_synthesis_prompt_template.txt</code>：</p>
+    <pre><code>You are a senior data analyst specializing in SQL. Your task is to
+translate a natural language question into an executable SQLite query,
+providing a detailed reasoning trace.
+
+You will also receive a <span class="str">reference solution</span> from a colleague, which
+may or may not be correct. ... you are asked not to mention the
+reference solution in any form. The reference solution might include:
+1. Unnecessary table and column selections.
+2. Incorrect or excessive joins.
+3. Misalignment with the question.
+4. Opportunities for simplification.
+
+[Database Schema]: {schema}
+[Natural Language Question]: {question}
+[Reference Solution]: ```sql {sql} ```
+Provide your step-by-step text-to-SQL solution here.</code></pre>
+
+    <div class="callout">
+      <p><strong>可靠性：多數決。</strong>每個三元組生成多個候選 CoT，依其 SQL 的<strong>執行結果</strong>分組，從票數最多的群組裡選最終 CoT。另一項驗證：抽 5,000 筆「CoT 前後執行結果不同」的案例，請 GPT-4o 評判哪個 SQL 更貼合問題 —— <span class="hl">4,699 / 5,000（93.98%）</span>偏好 CoT 之後的版本，證實這一步顯著提升資料品質。</p>
+    </div>
+  </div>
+</section>
+
+<section id="dataset">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>SynSQL-2.5M — 第一個百萬級資料集</h2>
+    <p class="lead">把上述管線跑起來，就得到 SynSQL-2.5M：<strong>2,544,390</strong> 筆 &lt;database, question, SQL, CoT&gt; 四元組，橫跨 <strong>16,583</strong> 個合成資料庫、各種真實領域（社群情緒分析、商品庫存、電影分析、星系形態分析…）。種子來自 TabLib 取樣的約 132 萬張網路表格，經語言 / 大小 / 去重 / 語意四道過濾後留下 19,935 張，最終成功展開成 16,583 個結構完整的資料庫。</p>
+
+    <div class="grid g4">
+      <div class="card"><p class="big">2.54M</p><p>text-to-SQL 樣本</p></div>
+      <div class="card"><p class="big">16,583</p><p>合成資料庫</p></div>
+      <div class="card"><p class="big">2.19M</p><p>unique SQL skeletons</p></div>
+      <div class="card"><p class="big">100%</p><p>附 CoT 解題（首見）</p></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · 各資料集總體統計（† WikiSQL 每庫單表；* BIRD 測試集不可得故無法計算 unique SQL）</caption>
+        <thead><tr><th>Dataset</th><th>Source</th><th># Example</th><th># Unique SQL</th><th># DB</th><th>Styles</th><th>Knowledge</th><th>CoT</th></tr></thead>
+        <tbody>
+          <tr><td>WikiSQL</td><td>Human+Template</td><td class="num">80,654</td><td class="num">80,257</td><td class="num">26,531†</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>Spider</td><td>Human</td><td class="num">10,181</td><td class="num">4,489</td><td class="num">200</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>BIRD</td><td>Human</td><td class="num">12,751</td><td class="num">–*</td><td class="num">95</td><td>–</td><td>✓</td><td>–</td></tr>
+          <tr><td>ScienceBenchmark</td><td>LLM+Human+Tmpl</td><td class="num">5,031</td><td class="num">3,652</td><td class="num">3</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr><td>EHRSQL</td><td>Human+Template</td><td class="num">20,108</td><td class="num">18,253</td><td class="num">2</td><td>–</td><td>–</td><td>–</td></tr>
+          <tr class="best"><td class="ours">SynSQL-2.5M</td><td>LLM-Gen</td><td class="num">2,544,390</td><td class="num">2,412,915</td><td class="num">16,583</td><td>✓</td><td>✓</td><td>✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · 資料庫複雜度（每庫平均；DE = database enhancement）</caption>
+        <thead><tr><th>Dataset</th><th># DB</th><th>#Tbl/DB</th><th>#Col/DB</th><th>#PK/DB</th><th>#FK/DB</th></tr></thead>
+        <tbody>
+          <tr><td>WikiSQL</td><td class="num">26,531</td><td class="num">1.00</td><td class="num">6.34</td><td class="num">1.00</td><td class="num">0.00</td></tr>
+          <tr><td>Spider</td><td class="num">200</td><td class="num">5.11</td><td class="num">26.82</td><td class="num">4.70</td><td class="num">4.79</td></tr>
+          <tr><td>BIRD*</td><td class="num">95</td><td class="num">7.64</td><td class="num">54.56</td><td class="num">6.71</td><td class="num">6.58</td></tr>
+          <tr><td>SynSQL-2.5M (w/o DE)</td><td class="num">16,583</td><td class="num">9.15</td><td class="num">44.47</td><td class="num">9.15</td><td class="num">8.56</td></tr>
+          <tr class="best"><td class="ours">SynSQL-2.5M</td><td class="num">16,583</td><td class="num">10.15</td><td class="num">74.07</td><td class="num">10.14</td><td class="num">9.61</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · SQL 統計（節錄；Agg.=aggregations、Func.=functions）</caption>
+        <thead><tr><th>Dataset</th><th>#Tables</th><th>#Joins</th><th>#Func.</th><th>#Tokens</th><th>#Subq.</th><th>#Window</th><th>#CTEs</th><th>#Uniq Skeleton</th></tr></thead>
+        <tbody>
+          <tr><td>Spider</td><td class="num">1.52</td><td class="num">0.48</td><td class="num">0.51</td><td class="num">14.85</td><td class="num">604</td><td class="num">0</td><td class="num">0</td><td class="num">2,136</td></tr>
+          <tr><td>BIRD*</td><td class="num">1.98</td><td class="num">0.94</td><td class="num">0.67</td><td class="num">24.75</td><td class="num">843</td><td class="num">10</td><td class="num">9</td><td class="num">4,596</td></tr>
+          <tr><td>EHRSQL</td><td class="num">3.60</td><td class="num">0.62</td><td class="num">2.63</td><td class="num">41.62</td><td class="num">17,989</td><td class="num">3,207</td><td class="num">0</td><td class="num">2,447</td></tr>
+          <tr class="best"><td class="ours">SynSQL-2.5M</td><td class="num">4.00</td><td class="num">1.75</td><td class="num">1.49</td><td class="num">57.05</td><td class="num">612,647</td><td class="num">33,916</td><td class="num">1,073,483</td><td class="num">2,190,988</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>SynSQL 的 SQL 平均 <span class="hl">1.75 joins/query</span>（Spider 0.48、BIRD 0.94），約 <span class="hl">40% 的查詢用到 CTE</span>，涵蓋 83 種引擎函式、超過 219 萬種 unique skeleton —— 在複雜度與多樣性上都明顯勝過人工資料集。</p>
+
+    <h3>品質評估：贏過人工標註的 BIRD</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>GPT-4o as Judge</h4>
+        <p>從四面向（資料庫 / 問題 / SQL / 整體樣本）各細項用 excellent–poor 評分並加權。各抽 1,000 筆與 BIRD 比較，SynSQL-2.5M <span class="hl">幾乎所有準則都勝過 BIRD</span>。</p>
+      </div>
+      <div class="card">
+        <h4>人類專家評估（1,000 筆）</h4>
+        <p>三位資工背景的資深研究生做 pass/fail：<span class="hl">96%</span> 資料庫真實且結構完整、<span class="hl">97%</span> 問題有意義、<span class="hl">89%</span> SQL 適當、<span class="hl">86%</span> 整體樣本完全正確 —— 屬高品質「銀標」資料。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>OmniSQL — 模型與訓練</h2>
+    <p class="lead">用 SynSQL-2.5M 加上 Spider / BIRD 的人工資料，微調出 7B / 14B / 32B 三種規模的 OmniSQL，基座是 Qwen2.5-Coder-Instruct 系列。</p>
+
+    <h3>輸入 / 輸出怎麼組</h3>
+    <p><strong>輸入</strong>＝資料庫 schema（格式化為 <code>CREATE TABLE</code> 敘述）＋自然語言問題。每個欄位再以註解附上三種輔助資訊：欄位描述、代表值（每欄取兩個值）、與問題相關的值。<strong>輸出</strong>＝CoT 解題（含逐步推理與最終 SQL）。由於 Spider / BIRD 只有黃金 SQL 沒有 CoT，論文用步驟四的技術替它們補上 CoT。</p>
+
+    <div class="formula">Loss = − E<sub>(x,y)∼D</sub> [ Σ<sub>t</sub> log P<sub>θ</sub>( y<sub>t</sub> | x, y<sub>&lt;t</sub> ) ]
+<span style="color:var(--muted)">標準的條件式 next-token prediction：x 輸入（schema+問題）、y 輸出（CoT 解題）。</span></div>
+
+    <h3>訓練細節</h3>
+    <ul>
+      <li><strong>基座：</strong>Qwen2.5-Coder-7B / 14B / 32B-Instruct（預訓練涵蓋 92 種程式語言）。</li>
+      <li><strong>微調方式：</strong>7B 與 14B 用<span class="hl">全參數微調</span>；32B 因算力受限改用 <span class="hl">LoRA</span>（r = 256、α = 512，掛在 q/k/v_proj）。另提供 7B/14B 的 LoRA 版供對照。</li>
+      <li><strong>超參數：</strong>AdamW、batch size 512、2 epochs、context length 8192；peak LR 分別 2e-5 / 4e-6 / 2e-4；5% linear warmup 後 cosine 衰減到 10%。bfloat16 + DeepSpeed-Zero。</li>
+      <li><strong>算力：</strong>單機 8×A800-80GB；7B / 14B / 32B 各約 <span class="hl">6 / 12 / 20 天</span>。推理用 vLLM。</li>
+    </ul>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>主結果 — 7B 開源模型打贏 GPT-4o</h2>
+    <p class="lead">在 9 個資料集上評估（標準 3 + 領域 3 + 強健性 3），指標為執行準確率 EX 與 test-suite 準確率 TS。「Gre」= greedy decoding，「Maj」= 取樣 8 個再依執行結果多數決。重點：OmniSQL 在<strong>單步推理、單一模型</strong>設定下評估，不與多 agent 框架直接比較。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4（節錄）· 9 個資料集的平均準確率（%）。粗體 = 各規模組最佳</caption>
+        <thead><tr><th>LLM</th><th>規模</th><th>Avg (Gre)</th><th>Avg (Maj)</th></tr></thead>
+        <tbody>
+          <tr><td>GPT-4o-mini</td><td>閉源</td><td class="num">56.2</td><td class="num">58.0</td></tr>
+          <tr><td>GPT-4-Turbo</td><td>閉源</td><td class="num">59.4</td><td class="num">60.0</td></tr>
+          <tr><td>GPT-4o</td><td>閉源</td><td class="num">58.9</td><td class="num">59.9</td></tr>
+          <tr><td>Qwen2.5-Coder-7B-Instruct</td><td>~7B</td><td class="num">52.8</td><td class="num">58.4</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-7B</td><td>7B</td><td class="num">61.2</td><td class="num">63.1</td></tr>
+          <tr><td>Qwen2.5-Coder-14B-Instruct</td><td>14B</td><td class="num">59.3</td><td class="num">61.1</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-14B</td><td>14B</td><td class="num">62.2</td><td class="num">63.9</td></tr>
+          <tr><td>Qwen2.5-Coder-32B-Instruct</td><td>32B</td><td class="num">60.8</td><td class="num">63.1</td></tr>
+          <tr><td>Qwen2.5-72B-Instruct</td><td>72B</td><td class="num">58.5</td><td class="num">60.7</td></tr>
+          <tr><td>Meta-Llama-3.1-70B-Instruct</td><td>70B</td><td class="num">57.6</td><td class="num">59.2</td></tr>
+          <tr><td>DeepSeek-V3 (MoE)</td><td>671B</td><td class="num">59.9</td><td class="num">60.7</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-32B</td><td>32B</td><td class="num">63.2</td><td class="num">64.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>一句話：</strong>就算只有 7B，OmniSQL-7B 的平均（61.2 Gre / 63.1 Maj）就已經<span class="hl">超過 GPT-4o（58.9 / 59.9）與 DeepSeek-V3 671B（59.9 / 60.7）</span>。OmniSQL-32B 更以 63.2 / 64.8 拿下全表最佳。</p>
+    </div>
+
+    <h3>逐 benchmark 拆解（greedy decoding）</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4（節錄）· 三種規模 OmniSQL vs 基座 Qwen2.5-Coder，greedy 各資料集（%）</caption>
+        <thead><tr><th>Model</th><th>Spider dev</th><th>Spider test</th><th>BIRD dev</th><th>Spider2.0-SQLite</th><th>Science</th><th>EHRSQL</th><th>DK</th><th>Syn</th><th>Real</th></tr></thead>
+        <tbody>
+          <tr><td>Qwen2.5-Coder-7B</td><td class="num">73.4</td><td class="num">82.2</td><td class="num">50.9</td><td class="num">1.5</td><td class="num">45.2</td><td class="num">24.3</td><td class="num">67.5</td><td class="num">63.1</td><td class="num">66.7</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-7B</td><td class="num">81.2</td><td class="num">87.9</td><td class="num">63.9</td><td class="num">10.4</td><td class="num">50.2</td><td class="num">34.9</td><td class="num">76.1</td><td class="num">69.7</td><td class="num">76.2</td></tr>
+          <tr><td>Qwen2.5-Coder-14B</td><td class="num">78.1</td><td class="num">86.6</td><td class="num">61.5</td><td class="num">5.9</td><td class="num">52.2</td><td class="num">31.6</td><td class="num">73.6</td><td class="num">68.2</td><td class="num">76.2</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-14B</td><td class="num">81.4</td><td class="num">88.3</td><td class="num">64.2</td><td class="num">10.4</td><td class="num">56.9</td><td class="num">39.9</td><td class="num">72.9</td><td class="num">69.0</td><td class="num">76.4</td></tr>
+          <tr><td>Qwen2.5-Coder-32B</td><td class="num">77.7</td><td class="num">87.5</td><td class="num">64.5</td><td class="num">5.9</td><td class="num">54.8</td><td class="num">36.4</td><td class="num">78.3</td><td class="num">69.9</td><td class="num">72.4</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-32B</td><td class="num">80.9</td><td class="num">87.6</td><td class="num">64.5</td><td class="num">11.9</td><td class="num">57.2</td><td class="num">42.4</td><td class="num">76.1</td><td class="num">69.7</td><td class="num">78.1</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>標準 benchmark</h4><p>OmniSQL-7B 在 Spider test 達 87.9%（greedy），勝過排行榜最佳公開法 DAIL-SQL+GPT-4+SC（86.6%）1.3%。多數決下三種規模分別到 88.9 / 88.3 / <span class="hl">89.8%</span>。BIRD dev 上 OmniSQL-32B 達 67.0%（Maj），逼近微調 GPT-4o 的 Distillery（67.2%）。</p></div>
+      <div class="card"><h4>領域泛化</h4><p>最難的 Spider2.0-SQLite：7B 級 baseline 只有 0.7–3.7%，OmniSQL-7B 卻有 <span class="hl">10.4%</span>。EHRSQL（醫療）上 OmniSQL-32B 拿 46.8%（Maj），<span class="hl">超過 GPT-4o（45.5%）</span>。</p></div>
+      <div class="card"><h4>強健性</h4><p>Spider-Syn / Spider-Realistic（同義詞替換）大多勝過 baseline。唯獨 Spider-DK（隱含領域知識）14B/32B 略遜基座 —— 詳見限制一節。</p></div>
+    </div>
+
+    <p>有趣的是：部分開源模型（如 Qwen2.5-Coder-32B、Llama-3.1-70B）在<strong>標準資料集</strong>上反而贏過閉源模型，但一到<strong>領域資料集</strong>優勢就消失 —— 因為它們很可能在預訓練 / 微調時吃過 Spider / BIRD 的訓練集。OmniSQL 則在標準與領域 benchmark 上都保持穩定領先。</p>
+  </div>
+</section>
+
+<section id="ablation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 10</div>
+    <h2>Ablation — 拆開看每個設計的貢獻</h2>
+    <p class="lead">論文用 Qwen2.5-Coder-7B 當基座做了多組消融，全部 greedy decoding。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · 合成資料 / CoT 的消融（%，greedy；FT = fine-tuning）</caption>
+        <thead><tr><th>設定</th><th>Spider dev</th><th>Spider test</th><th>BIRD</th><th>Spider2.0</th><th>Science</th><th>EHRSQL</th><th>DK</th><th>Syn</th><th>Real</th></tr></thead>
+        <tbody>
+          <tr><td>Qwen2.5-Coder-7B（基座）</td><td class="num">73.4</td><td class="num">82.2</td><td class="num">50.9</td><td class="num">1.5</td><td class="num">45.2</td><td class="num">24.3</td><td class="num">67.5</td><td class="num">63.1</td><td class="num">66.7</td></tr>
+          <tr><td>FT w/ SynSQL-2.5M</td><td class="num">74.6</td><td class="num">83.5</td><td class="num">59.9</td><td class="num">9.6</td><td class="num">48.5</td><td class="num">37.2</td><td class="num">71.6</td><td class="num">61.6</td><td class="num">70.3</td></tr>
+          <tr><td>FT w/ CoT-enhanced Spider+BIRD</td><td class="num">80.3</td><td class="num">86.6</td><td class="num">59.6</td><td class="num">5.9</td><td class="num">49.5</td><td class="num">26.0</td><td class="num">72.0</td><td class="num">70.0</td><td class="num">76.4</td></tr>
+          <tr><td>FT w/ original Spider+BIRD</td><td class="num">76.9</td><td class="num">80.7</td><td class="num">55.1</td><td class="num">3.0</td><td class="num">43.8</td><td class="num">31.4</td><td class="num">65.8</td><td class="num">65.9</td><td class="num">71.9</td></tr>
+          <tr class="best"><td class="ours">＋ 兩者合併 (OmniSQL-7B)</td><td class="num">81.2</td><td class="num">87.9</td><td class="num">63.9</td><td class="num">10.4</td><td class="num">50.2</td><td class="num">34.9</td><td class="num">76.1</td><td class="num">69.7</td><td class="num">76.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>合成資料的價值</h4><p>只用 SynSQL-2.5M 微調，相對基座在 BIRD +9.0%、EHRSQL +12.9%。把 SynSQL 從訓練組移除（只留 CoT-enhanced Spider+BIRD），七個資料集一致下滑 —— 它補上了人工資料的涵蓋缺口。</p></div>
+      <div class="card"><h4>CoT 的價值</h4><p>比較「CoT-enhanced Spider+BIRD」與「original Spider+BIRD」，移除 CoT 幾乎在所有資料集都掉分。CoT 同時帶來「強化推理」與「修正錯標」兩種增益。</p></div>
+      <div class="card"><h4>資料規模</h4><p>用 20%→100% 子集各訓一 epoch，準確率<span class="hl">隨資料量單調上升</span>，且到 100% 仍未飽和 —— 暗示更多資料還能再漲。</p></div>
+    </div>
+
+    <h3>對比既有 data augmentation 方法</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · 合成資料帶來的增益對比（%）。† 在 Spider dev 用 EX 指標</caption>
+        <thead><tr><th>Method</th><th>Spider w/o</th><th>Spider w/</th><th>Δ</th><th>BIRD w/o</th><th>BIRD w/</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr><td>DT-Fixup + Syn†</td><td class="num">74.6</td><td class="num">76.1</td><td class="num">+1.5</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+          <tr><td>T5-3B + PICARD + Syn†</td><td class="num">79.3</td><td class="num">81.4</td><td class="num">+2.1</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+          <tr><td>Sense-13B</td><td class="num">79.4</td><td class="num">82.9</td><td class="num">+3.5</td><td class="num">51.6</td><td class="num">52.9</td><td class="num">+1.3</td></tr>
+          <tr class="best"><td class="ours">OmniSQL-7B (greedy)</td><td class="num">76.9</td><td class="num">81.2</td><td class="num">+4.3</td><td class="num">55.1</td><td class="num">63.9</td><td class="num">+8.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>同樣用 LLM 合成的 Sense 在 BIRD 只帶來 +1.3%，OmniSQL 的管線卻帶來 <span class="hl">+8.8%</span> —— 「SQL→Question + CoT 修正」的解耦設計，品質明顯更高。</p>
+  </div>
+</section>
+
+<section id="limit">
+  <div class="wrap">
+    <div class="sec-num">SECTION 11</div>
+    <h2>限制與啟示</h2>
+    <p class="lead">論文相當誠實地標出幾個邊界，也指出可延伸的方向。</p>
+
+    <div class="callout hot">
+      <p><strong>限制 1 — 隱含領域知識（Spider-DK）：</strong>OmniSQL-14B/32B 在 Spider-DK 反而<span class="hl2">輸給基座</span>。因為 Spider-DK 需要常識 / 隱含知識，而基座在海量語料上的底子更厚。啟示：可新增一種「融入常識知識」的語言風格來補強。</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>限制 2 — 只測單步、單模型：</strong>OmniSQL 刻意隔離出「單一 LLM、單步推理」的核心能力，<strong>不</strong>與 CHASE-SQL、Alpha-SQL 等多階段多 agent 框架直接比較。換言之，加上 schema linking、SQL revision、SQL selection 等技巧後還有上行空間。</p>
+    </div>
+    <div class="callout warn">
+      <p><strong>限制 3 — 以 SQLite 為預設方言：</strong>框架原則上可生成 PostgreSQL / MySQL / BigQuery 等主流方言（LLM 預訓練多半見過），但本研究為了對齊經典 benchmark 而以 SQLite 為主。跨方言的實證仍待補。</p>
+    </div>
+    <div class="callout">
+      <p><strong>定位：銀標而非金標。</strong>人工評估顯示整體樣本 86% 完全正確 —— 屬高品質「silver-standard」資料，足以用於訓練，但非零錯誤。規模化帶來的訊號量，蓋過了殘餘雜訊。</p>
+    </div>
+
+    <h3>三個值得記住的設計巧思</h3>
+    <div class="grid g3">
+      <div class="card"><h4>方向選 SQL→Question</h4><p>回譯比正向翻譯更準、歧義更低，從源頭鎖住配對品質。</p></div>
+      <div class="card"><h4>把原 SQL 當「參考解」</h4><p>明說「可能有錯、別提它」，讓 CoT 敢於推翻並修正 —— 93.98% 案例變更好。</p></div>
+      <div class="card"><h4>解耦 → 用小模型</h4><p>四個簡單子任務各自交給開源小模型，擺脫對昂貴閉源 LLM 的依賴，才談得上百萬級規模。</p></div>
+    </div>
+
+    <p>資料集、三種規模模型與完整合成 / 訓練 / 評估程式碼皆已開源（SynSQL-2.5M 採 Apache 2.0）。對想自建 text-to-SQL 訓練資料的人來說，這四步驟管線是一份可直接照抄的食譜。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Li, Wu, Zhang, Huang, Zhang, Jiang, Wang, Zhang, Chen, Shi, Chen &amp; Li (2025) · <em>OmniSQL: Synthesizing High-quality Text-to-SQL Data at Scale</em> · PVLDB 18(11)</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2503.02240">arXiv:2503.02240</a> &nbsp;·&nbsp; <a href="https://github.com/RUCKBReasoning/OmniSQL">程式碼 RUCKBReasoning/OmniSQL</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>
