@@ -209,8 +209,15 @@ footer a{color:var(--acc);text-decoration:none}
     </ul>
 
     <div class="callout">
-      <p><strong>為什麼推理 trace 重要：</strong>整個 pipeline 把 LLM 當成 reasoning model 使用 —— 先產生一段包含推理的 trace，再用 delimiter 把最終 SQL 從 trace 中抽出來。沒有 reasoning，RLVR 能優化的空間就少很多。</p>
+      <p><strong>為什麼推理 trace 重要：</strong>整個 pipeline 把 LLM 當成 reasoning model 使用 —— 先產生一段包含推理的 trace，再用 delimiter 把最終 SQL 從 trace 中抽出來。引進 reasoning，RLVR 能提升模型效能的空間就大很多。</p>
     </div>
+
+    <p><strong>為什麼「引進 reasoning，RLVR 能提升模型效能的空間就大很多」？</strong>可以從 RLVR 的運作機制拆成三點來看：</p>
+    <ul>
+      <li><strong>要有「獎勵變異」才有梯度。</strong>GRPO 這類 RLVR 是在同一題上取樣多個回應，再用「獎勵相對於該組平均」算出的 <span class="hl">advantage</span> 來更新權重。如果模型直接吐 SQL、輸出又短又定型，取樣到的回應會彼此太像 → 獎勵幾乎一致（不是全對就是全錯）→ advantage 趨近 0 → 幾乎沒有梯度可學。推理 trace 製造出不同的思路分支，帶來獎勵變異，RLVR 才有可學的訊號。</li>
+      <li><strong>更大的 credit-assignment 表面。</strong>RLVR 更新的是整段生成序列的 token log-prob。一句裸 SQL 只有寥寥幾個 token；而推理 trace 是上百個 token 的中間決策（schema linking、選哪些表、怎麼解讀 evidence）。等於把「可被獎勵塑形的對象」，從最後那個 SQL，擴大成<strong>整個思考過程</strong> —— 模型學的是「怎麼想」，而不只是「最後輸出什麼」。</li>
+      <li><strong>推理就是可被強化的探索。</strong>有 trace，模型才能在定案前先探索中間步驟；RL 再把「容易導向正確執行」的模式強化起來 —— 例如 <a href="#examples" style="color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)">範例 A</a> 裡先寫三表 join、再讀 evidence 自我優化掉一個 join。沒有 trace 就是即刻定案，沒有中間步驟可獎勵，policy 只能被淺淺地推一下。</li>
+    </ul>
 
     <h3>2.2 可驗證獎勵（Verifiable Reward）</h3>
     <p>獎勵定義刻意保持簡單，TAO 與 RLVR 兩階段共用同一個：直接拿 BIRD 的 0-1 執行比對指標，再對「語法錯誤、無法執行」的 SQL 加上 <span class="hl2">−1</span> 的懲罰。</p>
@@ -227,6 +234,36 @@ footer a{color:var(--acc);text-decoration:none}
     <div class="sec-num">SECTION 03</div>
     <h2>訓練流程 — TAO 暖身 + 線上 RLVR</h2>
     <p class="lead">這是論文的核心配方：先用離線 RL（TAO）給模型一個好的 inductive bias 暖身，再用線上 RLVR 精修，最後在推理時加上 self-consistency。三段是互補的。</p>
+
+    <h3>先把三個關鍵詞講清楚</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>RL 後訓練（post-training）</h4>
+        <p>不像監督式微調直接給「標準答案」要模型模仿；RL 後訓練讓模型<strong>自己生成</strong>，再依好壞給一個分數（reward），然後調整權重 —— <strong>讓高分輸出更容易出現、低分更不容易</strong>。模型是從「自己試、被打分」中學，而不是背答案。</p>
+      </div>
+      <div class="card">
+        <h4>可驗證獎勵（verifiable reward）</h4>
+        <p>分數不是另外訓練一個 reward model 來「猜」好壞（那會貴、又可能被鑽漏洞），而是直接拿<strong>客觀事實</strong>當分數：把 SQL 執行、跟 gold 結果比對。獎勵即真相 —— 所以特別適合 SQL、數學、寫程式這種「能跑、能驗證」的任務。</p>
+      </div>
+      <div class="card">
+        <h4>GRPO 與 KL「韁繩」</h4>
+        <p>底層用 GRPO：同一題取樣多個回應，用「<strong>比同組平均好多少</strong>」當更新訊號。KL-divergence 項像一條<strong>韁繩</strong>，把微調後的模型拉住、別離原模型太遠以免崩壞；本文發現這條韁繩可放很鬆、甚至拿掉，效能也不太掉。</p>
+      </div>
+    </div>
+
+    <h3>離線（TAO）vs 線上（RLVR）—— 為什麼兩段都要</h3>
+    <p>兩階段最大的差別，在於「<strong>訓練資料是否跟著模型一起更新</strong>」：</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>TAO ＝ 離線 RL（先暖身）</h4>
+        <p>先用<strong>當前模型</strong>對每題生成一批回應、算好 reward，<strong>存成一份固定的資料集</strong>，再在這份「快照」上做 RL 優化。資料不隨訓練即時更新，所以較便宜、較穩定，適合快速給模型一個好的起手式（inductive bias）。整個流程可重複多輪。</p>
+      </div>
+      <div class="card">
+        <h4>RLVR ＝ 線上 RL（再精修）</h4>
+        <p>邊訓練邊<strong>即時</strong>從<strong>不斷變強的模型</strong>取樣新回應、即時算 reward、即時更新 —— 訓練資料永遠跟著最新的 policy 走。訊號更貼切、效能上限更高，但也更貴、更吃調參。本文把它疊在最佳 TAO 模型之上。</p>
+      </div>
+    </div>
+    <p>策略上就是：<strong>先用便宜穩定的離線 TAO 暖身、給好的 inductive bias，再用更強的線上 RLVR 把效能往上頂</strong>，最後在推理時用 self-consistency 多投幾票收尾。每一段都建立在前一段的成果上。</p>
 
     <div class="figbox">
       <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
@@ -495,6 +532,12 @@ footer a{color:var(--acc);text-decoration:none}
     </div>
 
     <h3>5.3 Table 1 — 不用 self-consistency（單模型、單次呼叫）</h3>
+    <div class="callout">
+      <p><strong>這個類別名稱在講什麼？</strong>它界定了一個投稿「用多少機器、花多少推理算力」：</p>
+      <p><strong>單模型（single-model）：</strong>整個系統就是<strong>一套權重</strong>的單一模型（這裡是 TAO + RLVR 微調後的 Qwen2.5-32B-Coder）。排除 ensemble、以及串接多個不同模型／agent 的 pipeline（例如另外接 schema-linker、generator、candidate-selector）。</p>
+      <p><strong>單次呼叫（single-call）：</strong>每題只做<strong>一次</strong> LLM 生成就產出最終 SQL。沒有任何 test-time compute —— 不做 self-consistency、不取樣投票、也沒有多輪 agentic 重試。這量測的是模型最純粹的「一次到位」能力。</p>
+      <p>對照 §5.4 的 Table 2：一樣是單模型，但<strong>加上 self-consistency</strong>（生成 7 個回應、用無參數加權多數決挑答案），所以多了「回應數」欄位，分數也從 73.56% 推到 75.68%，代價是更多推理算力。</p>
+    </div>
     <div class="tbl-wrap">
       <table>
         <caption>Table 1 · BIRD leaderboard，單模型單次呼叫類別；準確率為執行 exact-match（dev / test）</caption>

@@ -209,8 +209,15 @@ footer a{color:var(--acc);text-decoration:none}
     </ul>
 
     <div class="callout">
-      <p><strong>Why the reasoning trace matters:</strong> the whole pipeline treats the LLM as a reasoning model — it generates a trace containing reasoning, and the final SQL is extracted from the trace via delimiters. Without reasoning, there's far less for RLVR to optimize.</p>
+      <p><strong>Why the reasoning trace matters:</strong> the whole pipeline treats the LLM as a reasoning model — it generates a trace containing reasoning, and the final SQL is extracted from the trace via delimiters. With reasoning, there's far more room for RLVR to improve the model's performance.</p>
     </div>
+
+    <p><strong>Why does introducing a reasoning trace give RLVR far more room to improve the model's performance?</strong> It comes down to three properties of how RLVR actually works:</p>
+    <ul>
+      <li><strong>You need reward variance to get a gradient.</strong> GRPO-style RLVR samples several responses per question and updates weights using each one's <span class="hl">advantage</span> (its reward relative to the group mean). If the model emits SQL directly — short, peaked outputs — the sampled responses look alike, so their rewards are nearly identical (all right or all wrong), the advantage collapses toward 0, and there's almost no gradient. A reasoning trace introduces branching thought paths that create the reward variance RLVR needs to have anything to learn from.</li>
+      <li><strong>A larger credit-assignment surface.</strong> RLVR updates token log-probs across the entire generated sequence. A bare SQL answer is only a handful of tokens; a reasoning trace is hundreds of tokens of intermediate decisions (schema linking, which tables to join, how to read the evidence). That turns the thing being shaped from "the final SQL" into <strong>the whole thinking process</strong> — the model learns <em>how to reason</em>, not just <em>what to output</em>.</li>
+      <li><strong>Reasoning is exploration that RL can reinforce.</strong> With a trace, the model can explore intermediate steps before committing; RL then reinforces the patterns that tend to lead to correct execution — e.g. in <a href="#examples" style="color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)">Example A</a>, writing a 3-table join first, then reading the evidence to optimize a join away. Without a trace it commits immediately, leaving no intermediate steps to reward, so the policy can only be nudged shallowly.</li>
+    </ul>
 
     <h3>2.2 Verifiable reward</h3>
     <p>The reward is deliberately simple and shared by both TAO and RLVR: take BIRD's 0-1 execution-match metric, then add a <span class="hl2">−1</span> penalty for SQL that is syntactically invalid / non-executable.</p>
@@ -227,6 +234,36 @@ footer a{color:var(--acc);text-decoration:none}
     <div class="sec-num">SECTION 03</div>
     <h2>Training Pipeline — TAO Warm-up + Online RLVR</h2>
     <p class="lead">This is the paper's core recipe: warm-start the model with offline RL (TAO) to give it a good inductive bias, refine it with online RLVR, then add self-consistency at inference. The three stages are complementary.</p>
+
+    <h3>First, three key terms made clear</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>RL post-training</h4>
+        <p>Unlike supervised fine-tuning, which hands the model a "correct answer" to imitate, RL post-training lets the model <strong>generate on its own</strong>, scores each output by quality (the reward), and then adjusts the weights to <strong>make high-reward outputs more likely and low-reward ones less likely</strong>. The model learns by trying and being graded — not by memorizing answers.</p>
+      </div>
+      <div class="card">
+        <h4>Verifiable reward</h4>
+        <p>The score doesn't come from a separately trained reward model that "guesses" quality (expensive, and gameable) — it comes straight from <strong>objective truth</strong>: execute the SQL and compare its result to the gold result. The reward <em>is</em> the ground truth, which is why this fits SQL, math, and coding — tasks you can run and verify.</p>
+      </div>
+      <div class="card">
+        <h4>GRPO &amp; the KL "leash"</h4>
+        <p>The base algorithm is GRPO: sample several responses to the same question and use "<strong>how much better than the group average</strong>" as the update signal. The KL-divergence term is a <strong>leash</strong> keeping the fine-tuned model from drifting too far from the original (and collapsing); the paper finds this leash can be loosened a lot — even removed — with little loss.</p>
+      </div>
+    </div>
+
+    <h3>Offline (TAO) vs online (RLVR) — why you want both</h3>
+    <p>The key difference between the two stages is <strong>whether the training data updates along with the model</strong>:</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>TAO = offline RL (warm-up)</h4>
+        <p>First use the <strong>current model</strong> to generate a batch of responses per question and score them, <strong>freezing it into a fixed dataset</strong>, then run RL optimization on that snapshot. The data doesn't update during training, so it's cheaper and more stable — ideal for quickly giving the model a good starting inductive bias. The whole loop can be repeated for several rounds.</p>
+      </div>
+      <div class="card">
+        <h4>RLVR = online RL (refinement)</h4>
+        <p>Sample fresh responses <strong>on the fly</strong> from the <strong>continually improving model</strong>, score and update in real time — the training data always tracks the latest policy. The signal is more on-target and the ceiling is higher, but it's costlier and more sensitive to tuning. The paper stacks this on top of the best TAO model.</p>
+      </div>
+    </div>
+    <p>The strategy, then: <strong>warm up cheaply and stably with offline TAO to set a good inductive bias, then push performance higher with the more powerful online RLVR</strong>, and finally close out with self-consistency voting at inference. Each stage builds on the last.</p>
 
     <div class="figbox">
       <svg viewBox="0 0 880 380" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
@@ -477,6 +514,12 @@ footer a{color:var(--acc);text-decoration:none}
     </div>
 
     <h3>5.3 Table 1 — without self-consistency (single-model, single-call)</h3>
+    <div class="callout">
+      <p><strong>What does this category name mean?</strong> It pins down how much machinery and inference compute a submission is allowed to use:</p>
+      <p><strong>Single-model:</strong> the system is one model — a <strong>single set of weights</strong> (here, Qwen2.5-32B-Coder fine-tuned with TAO + RLVR). This excludes ensembles and multi-model / multi-agent pipelines that orchestrate several different models (e.g. a separate schema-linker + generator + candidate-selector).</p>
+      <p><strong>Single-call:</strong> exactly <strong>one</strong> LLM generation per question produces the final SQL. No test-time compute — no self-consistency, no sampling-and-voting, no multi-turn agentic retry. It measures the model's purest one-shot ability.</p>
+      <p>Contrast with Table 2 in §5.4: still single-model, but it <strong>adds self-consistency</strong> (generate 7 responses, pick the answer via a parameter-free weighted majority vote), which is why it gains a "Num. responses" column and pushes the score from 73.56% to 75.68% — at the cost of more inference compute.</p>
+    </div>
     <div class="tbl-wrap">
       <table>
         <caption>Table 1 · BIRD leaderboard, single-model single-call category; exact-match execution accuracy (dev / test)</caption>
