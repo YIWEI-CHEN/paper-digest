@@ -426,6 +426,7 @@ class HitCounter:
         </ul>
         <h3>解法說明</h3>
         <p>先把 IPv4 轉成 32-bit 整數。對目前起點 <code>start</code>，<code>start &amp; -start</code> 代表它能對齊的最大 2 的冪次 block。接著若這個 block 比剩餘 <code>n</code> 還大，就一直除以 2，直到不會超出範圍。這是 greedy：每次選當前合法的最大 block，才能最少切段。</p>
+        <p><b>Why <code>start &amp; -start</code>?</b> In two's complement, <code>-start</code> is computed by flipping all bits and adding 1, which has the effect of preserving the lowest set bit while flipping everything to its left. So when you AND <code>start</code> with <code>-start</code>, all bits cancel out except that lowest set bit. The value you get is the largest power-of-two that <code>start</code> is divisible by, which directly tells you the maximum CIDR block size you can legally place at this starting address without violating alignment.<br>利用補數的性質，<code>start &amp; -start</code> 保留最低位的 1，得到起點能對齊的最大 2 的冪次，也就是當前位置合法的最大 CIDR block 大小。</p>
 <pre><code class="language-python">from typing import List
 
 
@@ -810,6 +811,8 @@ class Solution:
         <p>給一串 words 與每行寬度 <code>maxWidth</code>，把文字排成多行且每行長度都剛好等於 <code>maxWidth</code>。每行要盡量塞入最多單字；非最後一行要左右對齊，空白平均分配，若無法整除，多出的空白優先放在左邊的 gap。最後一行與只有一個單字的行採左對齊。</p>
         <h3>解法說明</h3>
         <p>先 greedy 決定一行能放哪些單字：只要加上一個單字與至少一個空白不超過 <code>maxWidth</code> 就繼續放。決定一行後分兩種情況：最後一行或單字數為 1 時，用單一空白 join 後右側補空白；一般行則計算總空白數，平均分到 gaps，多餘空白從左到右補。</p>
+        <p><b>What is divmod?</b> <code>divmod(a, b)</code> returns <code>(a // b, a % b)</code> -- the quotient and remainder in one call. Here it splits the total spaces evenly across gaps, with the remainder telling you how many left-side gaps need one extra space.<br>中文：一次取得商和餘數，商是每個 gap 的基本空白數，餘數是從左邊開始需要多補一格的 gap 數量。</p>
+        <p><b>Why <code>" " * (base_spaces + (1 if k &lt; extra else 0))</code>?</b> Each gap gets <code>base_spaces</code> spaces, plus one extra if it's among the first <code>extra</code> gaps (i.e. left-side gaps get the remainder first).<br>中文：每個 gap 填入基本空白數，前 <code>extra</code> 個 gap 從左到右各多補一格。</p>
 <pre><code class="language-python">from typing import List
 
 
