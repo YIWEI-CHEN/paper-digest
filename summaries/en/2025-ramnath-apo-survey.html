@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APO Survey 論文導讀 · Automatic Prompt Optimization</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430; --ink:#e8edf4; --muted:#93a1b3;
+  --line:#26313f; --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+/* LANGUAGE TOGGLE */
+body[data-lang="en"] .zh{display:none}
+body[data-lang="zh"] .en{display:none}
+.langtoggle{position:fixed;top:14px;right:18px;z-index:60;display:flex;gap:4px;background:rgba(13,17,23,.9);border:1px solid var(--line);border-radius:999px;padding:4px;backdrop-filter:blur(10px)}
+.langtoggle button{font-family:var(--mono);font-size:12px;color:var(--muted);background:none;border:none;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+.langtoggle button.active{background:var(--acc);color:#06231f;font-weight:600}
+
+/* HERO */
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5.5vw,64px);line-height:1.04;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:720px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+/* NAV */
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul{margin:14px 0 14px 22px;color:var(--ink)}
+li{margin:8px 0}
+
+/* CARDS */
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+/* CALLOUT */
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+
+/* FORMULA */
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:1.9}
+
+/* CODE */
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+/* TABLE */
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+.ours{color:var(--acc2);font-weight:600}
+
+/* DIAGRAM */
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+
+/* PIPELINE STEPS */
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+
+@media(max-width:720px){
+  .g2,.g3{grid-template-columns:1fr}
+  .wrap{padding:0 18px}
+  section{padding:46px 0}
+}
+</style>
+</head>
+<body data-lang="en">
+
+<div class="langtoggle">
+  <button id="btn-zh" onclick="setLang('zh')">繁中</button>
+  <button id="btn-en" class="active" onclick="setLang('en')">EN</button>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2025 · Survey · <span class="zh">論文導讀</span><span class="en">Paper Walkthrough</span></div>
+    <h1 class="title">Automatic Prompt<br><span class="sql">Optimization</span> Survey</h1>
+    <p class="subtitle zh">把散落在數十篇論文裡的「自動提示優化」方法，用一套 <strong>五階段框架</strong> 收斂成一張可比較的地圖：種子提示 → 評估回饋 → 候選生成 → 篩選保留 → 迭代深度。</p>
+    <p class="subtitle en">A single <strong>5-stage framework</strong> that collapses dozens of scattered Automatic Prompt Optimization papers into one comparable map: seed prompts → evaluation &amp; feedback → candidate generation → filter &amp; retain → iteration depth.</p>
+    <div class="meta-row">
+      <span class="tag lit">Automatic Prompt Optimization</span>
+      <span class="tag lit">5-Part Taxonomy</span>
+      <span class="tag">Black-Box LLM</span>
+      <span class="tag">Prompt Engineering</span>
+      <span class="tag">NLP Survey</span>
+    </div>
+    <p class="authors">Kiran Ramnath, Kang Zhou, Sheng Guan, … Lin Lee Cheong · Amazon Web Services · <a href="https://arxiv.org/abs/2502.16923">arXiv:2502.16923</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 <span class="zh">問題定義</span><span class="en">Problem</span></a>
+    <a href="#formal">02 <span class="zh">形式化</span><span class="en">Formulation</span></a>
+    <a href="#framework">03 <span class="zh">五階段框架</span><span class="en">Framework</span></a>
+    <a href="#generation">04 <span class="zh">候選生成</span><span class="en">Generation</span></a>
+    <a href="#filter">05 <span class="zh">篩選策略</span><span class="en">Filter</span></a>
+    <a href="#compare">06 <span class="zh">方法比較</span><span class="en">Comparison</span></a>
+    <a href="#theory">07 <span class="zh">理論視角</span><span class="en">Theory</span></a>
+    <a href="#future">08 <span class="zh">挑戰與未來</span><span class="en">Challenges</span></a>
+  </div>
+</nav>
+
+<!-- 01 PROBLEM -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2><span class="zh">問題定義 — 為什麼需要自動提示優化</span><span class="en">Problem — Why Automatic Prompt Optimization</span></h2>
+    <p class="lead zh">提示工程（prompt engineering）是讓 LLM 做對事情的關鍵一步，但它太脆弱、太吃人工，而且模型、任務、最佳實務都在快速變動。</p>
+    <p class="lead en">Prompt engineering is the crucial step to elicit the right behaviour from an LLM — but it is brittle, labour-intensive, and constantly invalidated by rapidly evolving models, tasks, and best practices.</p>
+
+    <p class="zh">作者觀察到：兩個語意幾乎相同的提示，效能卻可能差很多。LLM 對任務描述方式、few-shot 範例的<strong>排序</strong>、甚至格式化的細微風格都異常敏感。這道效能落差讓終端使用者難以採用。<span class="hl">Black-Box APO</span>（黑箱自動提示優化）因此興起：用自動化方法搜尋提示空間以提升任務表現。</p>
+    <p class="en">The authors observe that two semantically near-identical prompts can yield very different performance. LLMs are abnormally sensitive to how a task is described, the <strong>ordering</strong> of few-shot examples, and even stylistic formatting. That performance gap is an adoption barrier for end users. <span class="hl">Black-Box APO</span> emerged to close it by automatically searching the prompt space to improve task performance.</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4 class="zh">無需參數存取</h4><h4 class="en">No Parameter Access</h4>
+        <p class="zh">不需要碰到執行任務的 LLM 權重，純黑箱即可運作。</p>
+        <p class="en">Treats the task LLM as a pure black box — no access to its weights required.</p>
+      </div>
+      <div class="card">
+        <h4 class="zh">系統化搜尋</h4><h4 class="en">Systematic Search</h4>
+        <p class="zh">有方法地走過提示解空間，而非靠人類試誤。</p>
+        <p class="en">Walks the prompt solution space methodically instead of human trial-and-error.</p>
+      </div>
+      <div class="card">
+        <h4 class="zh">保留可解釋性</h4><h4 class="en">Stays Interpretable</h4>
+        <p class="zh">優化後的提示仍是人類可讀的文字，可被理解與審核。</p>
+        <p class="en">Optimized prompts remain human-readable text that can be inspected.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p class="zh"><strong>核心貢獻：</strong>一套 <span class="hl">五階段 APO 分類法（5-part taxonomy）</span>，搭配對各種設計選擇的細粒度分類，把全領域論文放進同一張可比較的框架（論文 Fig. 1 與附錄 Table 2/3/4）。</p>
+      <p class="en"><strong>Core contribution:</strong> a <span class="hl">5-part APO taxonomy</span> plus fine-grained categorization of design choices, placing the whole field's papers into one comparable framework (paper Fig. 1 and Appendix Tables 2/3/4).</p>
+    </div>
+  </div>
+</section>
+
+<!-- 02 FORMULATION -->
+<section id="formal">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2><span class="zh">形式化 — APO 的數學定義與骨架</span><span class="en">Formulation — Defining APO Formally</span></h2>
+    <p class="lead zh">給定一個任務模型與初始提示，APO 的目標是在某個指標與驗證集下，找出表現最好的提示模板。</p>
+    <p class="lead en">Given a task model and an initial prompt, APO seeks the best-performing prompt template under a chosen metric and validation set.</p>
+
+    <div class="formula">ρ<sub>opt</sub> := arg max<sub>ρ∈V</sub>  E<sub>x∼D<sub>val</sub></sub> [ f( M<sub>task</sub>(ρ ⊕ x) ) ]<br>
+    <span style="color:var(--muted)">ρ = 提示模板 / prompt template · M<sub>task</sub> = 任務模型 / task model · f = 評估指標 / metric · D<sub>val</sub> = 驗證集 / eval set · ⊕ = 提示與輸入串接 / concatenation</span></div>
+
+    <p class="zh">問題在於：離散提示的 token 序列搜尋空間是<strong>組合爆炸</strong>的，這個目標函數不可解。因此所有 APO 方法都退而求其近似解，並共享下面這個通用骨架（Algorithm 1）。</p>
+    <p class="en">The catch: the token-sequence search space for discrete prompts is <strong>combinatorial</strong>, making this objective intractable. So every APO method settles for an approximation, and they all share the general anatomy below (Algorithm 1).</p>
+
+    <pre><code><span class="cmt"># Algorithm 1 · Prompt optimization framework</span>
+P₀ := {ρ₁, ρ₂, …, ρ_k}            <span class="cmt">▷ §3 Seed prompts</span>
+D_val := {(xᵢ, yᵢ)}               <span class="cmt">▷ Validation set</span>
+f₁, …, f_m ∈ F                    <span class="cmt">▷ §4 Inference evaluation</span>
+<span class="kw">for</span> t = 1, 2, …, N <span class="kw">do</span>             <span class="cmt">▷ §7 Iteration depth</span>
+    G_t := <span class="fn">M_APO</span>(P, D_val, F)     <span class="cmt">▷ §5 Generate candidates</span>
+    P_t := <span class="fn">Select</span>(G_t, D_val, F)   <span class="cmt">▷ §6 Filter &amp; retain</span>
+    <span class="kw">if</span> f_convergence ≤ ε <span class="kw">then</span>      <span class="cmt">▷ §7 optional early stop</span>
+        <span class="kw">break</span>
+<span class="kw">return</span> arg max<sub>ρ∈P_N</sub> E<sub>x∼D_val</sub>[ f(M_task(ρ ⊕ x)) ]</code></pre>
+
+    <p class="zh">這個骨架對應到分類法的五個 <code>§</code> 區塊 —— 下一節正式拆解。</p>
+    <p class="en">This anatomy maps directly onto the five <code>§</code> blocks of the taxonomy — unpacked next.</p>
+  </div>
+</section>
+
+<!-- 03 FRAMEWORK -->
+<section id="framework">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2><span class="zh">五階段框架 — 本文的核心地圖</span><span class="en">The 5-Part Framework — The Core Map</span></h2>
+    <p class="lead zh">作者把任何一個 APO 系統拆成五個可獨立比較的決策階段。每一階段都有多種設計選項，這就是論文 Fig. 1 那棵分類樹的主幹。</p>
+    <p class="lead en">The authors decompose any APO system into five independently comparable decision stages. Each stage offers multiple design options — this is the trunk of the taxonomy tree in paper Fig. 1.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 860 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arrloop" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+        <rect x="14" y="120" width="140" height="60" rx="10" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="84" y="146" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">§3 Seed</text>
+        <text x="84" y="164" fill="#93a1b3" font-size="10" text-anchor="middle">種子提示</text>
+
+        <rect x="180" y="120" width="140" height="60" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="250" y="146" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">§4 Eval</text>
+        <text x="250" y="164" fill="#93a1b3" font-size="10" text-anchor="middle">評估與回饋</text>
+
+        <rect x="346" y="120" width="150" height="60" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="421" y="146" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">§5 Generate</text>
+        <text x="421" y="164" fill="#93a1b3" font-size="10" text-anchor="middle">候選生成</text>
+
+        <rect x="522" y="120" width="150" height="60" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="597" y="146" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">§6 Filter</text>
+        <text x="597" y="164" fill="#93a1b3" font-size="10" text-anchor="middle">篩選保留</text>
+
+        <rect x="698" y="120" width="150" height="60" rx="10" fill="#1b2430" stroke="#f4a259"/>
+        <text x="773" y="146" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">§7 Iterate</text>
+        <text x="773" y="164" fill="#93a1b3" font-size="10" text-anchor="middle">迭代深度</text>
+
+        <line x1="154" y1="150" x2="174" y2="150" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="320" y1="150" x2="340" y2="150" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="496" y1="150" x2="516" y2="150" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="672" y1="150" x2="692" y2="150" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <path d="M773,120 C773,40 421,40 421,114" fill="none" stroke="#f4a259" stroke-dasharray="5,4" marker-end="url(#arrloop)"/>
+        <text x="597" y="34" fill="#f4a259" font-size="10" text-anchor="middle">loop until N steps / convergence</text>
+      </svg>
+      <div class="figcap zh">圖 1 · APO 五階段骨架（依論文 Fig. 1 / Algorithm 1 重繪）</div>
+      <div class="figcap en">Fig. 1 · The 5-stage APO anatomy (redrawn from paper Fig. 1 / Algorithm 1)</div>
+    </div>
+
+    <h3 class="zh">§3 種子提示 — 從哪裡開始</h3><h3 class="en">§3 Seed Prompts — Where to Start</h3>
+    <p class="zh">兩條路線：<span class="hl2">人工指令</span>（ProTeGi、GPS、SPRIG 用人工撰寫指令當強基線）；以及 <span class="hl2">LLM 指令歸納（instruction induction）</span>——Honovich et al. 首創，讓 LLM 從少數示範反推出人類可讀的指令；APE 證明數百筆樣本就足以後續優化。SCULPT 甚至從 task-README 歸納指令，UniPrompt 則讓 LLM 填入結構化模板。</p>
+    <p class="en">Two routes: <span class="hl2">manual instructions</span> (ProTeGi, GPS, SPRIG use hand-written instructions as strong baselines); and <span class="hl2">LLM instruction induction</span> — pioneered by Honovich et al., letting an LLM infer a human-readable instruction from a few demonstrations; APE showed a few hundred samples suffice for downstream optimization. SCULPT even induces instructions from task-READMEs, while UniPrompt has the LLM fill structured templates.</p>
+
+    <h3 class="zh">§4 評估與回饋 — 怎麼判斷哪個提示好</h3><h3 class="en">§4 Evaluation &amp; Feedback — Judging Candidates</h3>
+    <p class="zh">分兩大類。<strong>數值分數</strong>：任務準確率（最常見，分類用 exact accuracy、程式碼用 execution accuracy、生成用 BLEU/Rouge/BERTScore）、獎勵模型分數（OIRL、DRPO）、基於熵的分數（CLAPS、GRIPS，需要整個輸出分布，黑箱常拿不到）、輸出的負對數似然（NLL，需要 log-prob）。<strong>LLM 回饋</strong>：用 LLM 產生文字回饋，可同時評估回應與提示、直接驅動改寫，缺點是多一次推論成本。<strong>人類回饋</strong>：GATE 的「生成式主動任務引導」、BPO 用偏好回饋訓練小模型、APOHF 用 dueling bandits 只靠偏好對。</p>
+    <p class="en">Two families. <strong>Numeric scores</strong>: task accuracy (most common — exact accuracy for classification, execution accuracy for code, BLEU/Rouge/BERTScore for generation), reward-model scores (OIRL, DRPO), entropy-based scores (CLAPS, GRIPS — need the full output distribution, often unavailable in black-box settings), and negative log-likelihood of the output (NLL — needs log-probs). <strong>LLM feedback</strong>: an LLM generates textual feedback that can judge both response and prompt and directly drive rewriting, at the cost of an extra inference call. <strong>Human feedback</strong>: GATE's "generative active task elicitation", BPO training a small model on preference feedback, and APOHF using dueling bandits over preference pairs only.</p>
+
+    <h3 class="zh">§5 候選生成 · §6 篩選 · §7 迭代</h3><h3 class="en">§5 Generation · §6 Filter · §7 Iteration</h3>
+    <p class="zh">這三階段內容最豐富，分別在第 4、5 節展開。簡言之：§5 從新候選提示「怎麼長出來」（啟發式編輯、輔助神經網路、元提示、覆蓋式、程式合成）；§6 是「留下哪些」（TopK、UCB/bandit、區域聯合搜尋、元啟發式集成）；§7 是「跑幾輪」（固定步數 vs. 變動步數含早停）。</p>
+    <p class="en">These three stages carry the most content and are expanded in the next two sections. In short: §5 is how new candidate prompts are <em>grown</em> (heuristic edits, auxiliary NNs, metaprompts, coverage-based, program synthesis); §6 is which ones to <em>keep</em> (TopK, UCB/bandits, region-based joint search, metaheuristic ensembles); §7 is how many <em>rounds</em> to run (fixed vs. variable steps with early stopping).</p>
+  </div>
+</section>
+
+<!-- 04 GENERATION -->
+<section id="generation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2><span class="zh">候選生成 — 新提示從哪裡長出來（§5）</span><span class="en">Candidate Generation — How New Prompts Are Grown (§5)</span></h2>
+    <p class="lead zh">這是 APO 的引擎室。方法從簡單的規則式編輯，一路到結合 LLM 評估與篩選的代理式系統。論文歸成五大子類。</p>
+    <p class="lead en">This is APO's engine room — ranging from simple rule-based edits to agentic systems that fuse LLM evaluation and filtering. The paper groups them into five sub-families.</p>
+
+    <h3 class="zh">5.1 啟發式編輯 Heuristic-based Edits</h3><h3 class="en">5.1 Heuristic-based Edits</h3>
+    <ul>
+      <li class="zh"><strong>蒙地卡羅取樣：</strong>ProTeGi 取樣多個文字「梯度」並生成 paraphrase 後繼者；PromptAgent 用 MCTS（選擇／擴展／模擬／回傳）。</li>
+      <li class="en"><strong>Monte Carlo sampling:</strong> ProTeGi samples multiple textual "gradients" and spawns paraphrase successors; PromptAgent uses MCTS (Selection / Expansion / Simulation / Backpropagation).</li>
+      <li class="zh"><strong>基因演算法：</strong>突變 + 交配。SPRIG 用 300 個成分（COT、角色、風格、情緒…）做 add/rephrase/swap/delete；PromptBreeder 自我參照式地連突變提示本身都演化；EvoPrompt 用差分演化跳出局部最優；PromptWizard 串成完整 pipeline。</li>
+      <li class="en"><strong>Genetic algorithms:</strong> mutate + cross-over. SPRIG uses a corpus of 300 components (COT, roles, styles, emotions…) with add/rephrase/swap/delete; PromptBreeder self-referentially evolves even the mutation prompts; EvoPrompt uses differential evolution to escape local optima; PromptWizard chains it into a full pipeline.</li>
+      <li class="zh"><strong>字詞／片語編輯：</strong>COPLE 先找「有影響力」的 token 再用 MLM 換同義字；GRIPS 用 add/delete/paraphrase/swap 四種片語編輯。</li>
+      <li class="en"><strong>Word/phrase edits:</strong> COPLE identifies "influential" tokens then swaps synonyms via an MLM; GRIPS uses four phrase-level edits (add/delete/paraphrase/swap).</li>
+      <li class="zh"><strong>詞彙剪枝：</strong>CLAPS 用 K-means 留下最接近群心的 top-2000 字；BDPL 用 PMI 留高共現 n-gram；PIN 用 Tsallis 熵正則化。</li>
+      <li class="en"><strong>Vocabulary pruning:</strong> CLAPS keeps the top-2000 words nearest cluster centroids via K-means; BDPL retains high-PMI n-grams; PIN adds Tsallis-entropy regularization.</li>
+    </ul>
+
+    <h3 class="zh">5.2 用輔助神經網路編輯</h3><h3 class="en">5.2 Editing via an Auxiliary Trained NN</h3>
+    <p class="zh">用一個比任務模型更小的、額外訓練的網路來改寫提示。<strong>強化學習：</strong>BDPL 用變異數縮減的 policy gradient；Prompt-OIRL 學離線獎勵模型再 best-of-N。<strong>微調 LLM：</strong>BPO 訓練 7B 模型做免獎勵對齊；FIPO 訓練 7B–13B 本地模型兼顧隱私與適配。<strong>GAN：</strong>Long et al. 把生成器／判別器對抗式聯合優化，並用提示改寫 LLM 改寫各自的提示。</p>
+    <p class="en">A smaller, separately trained network rewrites the prompt. <strong>RL:</strong> BDPL uses variance-reduced policy gradients; Prompt-OIRL learns an offline reward model then does best-of-N. <strong>Finetuning LLMs:</strong> BPO trains a 7B model for reward-free alignment; FIPO trains a local 7B–13B model for privacy and target adaptation. <strong>GANs:</strong> Long et al. jointly optimize generator/discriminator adversarially, using a prompt-modifier LLM to rewrite their prompts.</p>
+
+    <h3 class="zh">5.3 元提示設計 Metaprompt Design</h3><h3 class="en">5.3 Metaprompt Design</h3>
+    <p class="zh">PE2 指出先前研究低估了元提示搜尋空間。OPRO 的元提示把「優化問題的自然語言描述 + 先前解與分數」一起餵給 LLM 做改寫；DAPO 用精心設計的元指令引導 LLM 產生結構化初始提示（任務型別、輸出格式、推理流程、專業提示），再做句級迭代優化。</p>
+    <p class="en">PE2 argues prior work under-explored the metaprompt search space. OPRO's metaprompt feeds the LLM a natural-language description of the optimization problem plus prior solutions and scores; DAPO uses a carefully designed meta-instruction to generate structured initial prompts (task type, output format, reasoning process, professional tips) then optimizes at the sentence level.</p>
+
+    <h3 class="zh">5.4 覆蓋式 Coverage-based</h3><h3 class="en">5.4 Coverage-based</h3>
+    <p class="zh">力求「覆蓋」整個問題空間。<strong>單一提示擴張：</strong>AMPO 把所有失敗案例用 if-then-else 列進元指令（模式辨識／分支調整／分支剪枝）；UniPrompt 確保任務各語意面向都被表達。<strong>專家混合（MoE）：</strong>MOP 先 K-means 分群示範，再用區域聯合搜尋為每群生成專家提示，推論時挑離 instance 最近的群心。<strong>集成：</strong>PromptBoosting、PREFER 等用多提示投票合併輸出 ŷ = y₀ + Σβᵢyᵢ。</p>
+    <p class="en">Aim to "cover" the whole problem space. <strong>Single-prompt expansion:</strong> AMPO enumerates all failure cases into the meta-instruction in if-then-else form (Pattern Recognition / Branch Adjustment / Branch Pruning); UniPrompt ensures every semantic facet of the task is represented. <strong>Mixture of Experts:</strong> MOP K-means-clusters demonstrations then uses region-based joint search to generate an expert prompt per cluster, invoking the nearest-centroid expert at inference. <strong>Ensembles:</strong> PromptBoosting, PREFER, etc. combine multiple prompts by voting, ŷ = y₀ + Σβᵢyᵢ.</p>
+
+    <h3 class="zh">5.5 程式合成 Program Synthesis</h3><h3 class="en">5.5 Program Synthesis</h3>
+    <p class="zh">把 LLM pipeline 變成結構化、可被系統優化的模組。DSP 的三段式（Demonstrate／Search／Predict）；<span class="hl">DSPy</span> 把 pipeline 變成文字轉換圖，附帶可學習參數與編譯器；DLN 視鏈式 LLM 呼叫為堆疊深度語言網路做變分推論；MIPRO 自動優化多階段程式的指令與示範；SAMMO 把提示表示成 DAG，用節點突變規則搜尋最佳圖再轉回提示。</p>
+    <p class="en">Turn LLM pipelines into structured, optimizable modules. DSP's three stages (Demonstrate/Search/Predict); <span class="hl">DSPy</span> casts a pipeline as a text-transformation graph with learnable parameters and a compiler; DLN treats chained LLM calls as stacked deep language networks doing variational inference; MIPRO auto-optimizes instructions and demonstrations across multi-stage programs; SAMMO represents prompts as DAGs and mutation-searches for the optimal graph, then converts it back to a prompt.</p>
+
+    <div class="callout warn">
+      <p class="zh"><strong>觀察：</strong>「文字梯度（textual gradient）」是貫穿多篇的關鍵 trick —— ProTeGi、TextGrad 把離散提示優化做成類似梯度下降的方向修正，但梯度是一段自然語言的改進方向，可一次衍生多個候選。</p>
+      <p class="en"><strong>Observation:</strong> the "textual gradient" is a key recurring trick — ProTeGi and TextGrad cast discrete prompt optimization as gradient-descent-style directional refinement, except the "gradient" is a natural-language direction of improvement that can spawn multiple candidates at once.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 05 FILTER -->
+<section id="filter">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2><span class="zh">篩選與迭代 — 留下哪些、跑幾輪（§6–§7）</span><span class="en">Filter &amp; Iterate — What to Keep, How Long (§6–§7)</span></h2>
+    <p class="lead zh">候選生出來後，要在固定運算預算下挑出最有希望的繼續優化，並決定何時停止。</p>
+    <p class="lead en">Once candidates exist, the system must pick the most promising ones under a fixed compute budget and decide when to stop.</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4 class="zh">TopK 貪婪搜尋（§6.1）</h4><h4 class="en">TopK Greedy Search (§6.1)</h4>
+        <p class="zh">每輪在 mini-batch 上保留 top-K 最佳候選（ProTeGi、AELP）。與 beam search 不同 —— 後者依整條編輯軌跡的 reward 評斷。</p>
+        <p class="en">Each round keeps the top-K candidates on a mini-batch (ProTeGi, AELP). Unlike beam search, which judges the reward of the entire edit trajectory.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4 class="zh">UCB 與變體（§6.2）</h4><h4 class="en">UCB and Variants (§6.2)</h4>
+        <p class="zh">把提示挑選變成 bandit 問題，用 Upper Confidence Bound 平衡探索與利用，每輪抽不同評估子集。PromptAgent 用 UCT（樹版 UCB）；AELP 用 Linear UCB，結合 reward 軌跡與提示嵌入 φ(s)。</p>
+        <p class="en">Cast prompt selection as a bandit problem; UCB balances exploration vs. exploitation, sampling a different eval subset each round. PromptAgent uses UCT (tree UCB); AELP uses Linear UCB combining reward trajectories with prompt embeddings φ(s).</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4 class="zh">區域聯合搜尋（§6.3）</h4><h4 class="en">Region-based Joint Search (§6.3)</h4>
+        <p class="zh">MOP 為每個示範群獨立優化專家提示：先抽群內與群外樣本，再用 APE 歸納並優化各專家指令以覆蓋盲點。</p>
+        <p class="en">MOP optimizes an expert prompt per demonstration cluster: it samples in- and out-of-cluster examples, then uses APE to induce and optimize each expert instruction to cover blind spots.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4 class="zh">元啟發式集成（§6.4）</h4><h4 class="en">Metaheuristic Ensemble (§6.4)</h4>
+        <p class="zh">PLUM 提供爬山、模擬退火、基因演算法、Tabu Search、Harmony Search 等多種搜尋演算法的集成。</p>
+        <p class="en">PLUM offers an ensemble of search algorithms — hill climbing, simulated annealing, genetic algorithms, Tabu search, harmony search.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4 class="zh">迭代深度（§7）</h4><h4 class="en">Iteration Depth (§7)</h4>
+        <p class="zh">多數方法跑<strong>固定步數 N</strong>。GRIPS 在連續負增益超過 patience 時停；PromptAgent 以 rₜ ≤ ε_min 或 rₜ ≥ ε_max 為<strong>變動步數</strong>早停條件。</p>
+        <p class="en">Most methods run a <strong>fixed N steps</strong>. GRIPS stops when consecutive negative gains breach a patience parameter; PromptAgent uses rₜ ≤ ε_min or rₜ ≥ ε_max as a <strong>variable-step</strong> early-stop condition.</p>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 06 COMPARISON -->
+<section id="compare">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2><span class="zh">方法比較 — 同一框架下的代表性系統</span><span class="en">Comparison — Representative Systems Under One Framework</span></h2>
+    <p class="lead zh">下表把六個代表性 APO 系統攤在五階段框架的同一座標上，一眼看出它們在每個決策點的選擇差異（論文 Table 1；完整對照在附錄 Table 2/3/4）。</p>
+    <p class="lead en">The table below lays six representative APO systems on the same five-stage coordinates, exposing where they differ at each decision point (paper Table 1; full comparison in Appendix Tables 2/3/4).</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Comparison of representative APO techniques under the 5-part framework</caption>
+        <thead><tr>
+          <th>System</th>
+          <th><span class="zh">種子指令</span><span class="en">Seed</span></th>
+          <th><span class="zh">迭代深度</span><span class="en">Iteration</span></th>
+          <th><span class="zh">推論評估</span><span class="en">Evaluation</span></th>
+          <th><span class="zh">候選生成</span><span class="en">Generation</span></th>
+          <th><span class="zh">搜尋＋篩選</span><span class="en">Search + Filter</span></th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>ProTeGi</strong> <span style="color:#5b6675">(2023)</span></td>
+            <td><span class="zh">人工撰寫</span><span class="en">Manual</span></td>
+            <td><span class="zh">固定</span><span class="en">Fixed</span></td>
+            <td><span class="zh">LLM 回饋 + 準確率</span><span class="en">LLM feedback + accuracy</span></td>
+            <td><span class="zh">LLM 改寫</span><span class="en">LLM rewriter</span></td>
+            <td><span class="zh">樹狀 UCB</span><span class="en">UCB for trees</span></td>
+          </tr>
+          <tr>
+            <td><strong>APE</strong> <span style="color:#5b6675">(2022)</span></td>
+            <td><span class="zh">指令歸納</span><span class="en">Instruction induction</span></td>
+            <td><span class="zh">固定</span><span class="en">Fixed</span></td>
+            <td><span class="zh">任務準確率</span><span class="en">Task accuracy</span></td>
+            <td>N/A</td>
+            <td>UCB</td>
+          </tr>
+          <tr>
+            <td><strong>CRISPO</strong> <span style="color:#5b6675">(2025)</span></td>
+            <td><span class="zh">人工撰寫</span><span class="en">Manual</span></td>
+            <td><span class="zh">固定</span><span class="en">Fixed</span></td>
+            <td><span class="zh">LLM 回饋 + 準確率</span><span class="en">LLM feedback + accuracy</span></td>
+            <td><span class="zh">LLM 改寫</span><span class="en">LLM rewriter</span></td>
+            <td><span class="zh">TopK 選取</span><span class="en">TopK selection</span></td>
+          </tr>
+          <tr>
+            <td><strong>MOP</strong> <span style="color:#5b6675">(2025)</span></td>
+            <td><span class="zh">指令歸納</span><span class="en">Instruction induction</span></td>
+            <td><span class="zh">固定</span><span class="en">Fixed</span></td>
+            <td><span class="zh">任務準確率</span><span class="en">Task accuracy</span></td>
+            <td><span class="zh">專家混合</span><span class="en">Mixture of experts</span></td>
+            <td><span class="zh">區域聯合搜尋</span><span class="en">Region-based joint search</span></td>
+          </tr>
+          <tr>
+            <td><strong>DSPy</strong> <span style="color:#5b6675">(2024)</span></td>
+            <td><span class="zh">人工 + 指令歸納</span><span class="en">Manual + induction</span></td>
+            <td><span class="zh">變動</span><span class="en">Variable</span></td>
+            <td><span class="zh">LLM 回饋 + 準確率</span><span class="en">LLM feedback + accuracy</span></td>
+            <td><span class="zh">程式合成</span><span class="en">Program synthesis</span></td>
+            <td><span class="zh">TopK 選取</span><span class="en">TopK selection</span></td>
+          </tr>
+          <tr>
+            <td><strong>OPRO</strong> <span style="color:#5b6675">(2024)</span></td>
+            <td><span class="zh">人工撰寫</span><span class="en">Manual</span></td>
+            <td><span class="zh">變動</span><span class="en">Variable</span></td>
+            <td><span class="zh">LLM 回饋 + 準確率</span><span class="en">LLM feedback + accuracy</span></td>
+            <td><span class="zh">元提示設計</span><span class="en">Metaprompt design</span></td>
+            <td><span class="zh">TopK 選取</span><span class="en">TopK selection</span></td>
+          </tr>
+          <tr class="best">
+            <td><strong>GATE</strong> <span style="color:#5b6675">(2024)</span></td>
+            <td><span class="zh">人工撰寫</span><span class="en">Manual</span></td>
+            <td><span class="zh">變動</span><span class="en">Variable</span></td>
+            <td class="ours"><span class="zh">人類回饋</span><span class="en">Human feedback</span></td>
+            <td><span class="zh">LLM 改寫</span><span class="en">LLM rewriter</span></td>
+            <td>N/A</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="zh" style="font-size:14px;color:var(--muted)">高亮列（GATE）凸顯唯一以<strong>人類回饋</strong>為評估訊號的系統 —— 框架的價值正在於讓這種橫向比較變得一目了然。</p>
+    <p class="en" style="font-size:14px;color:var(--muted)">The highlighted row (GATE) marks the only system driven by <strong>human feedback</strong> as its evaluation signal — exactly the kind of cross-cutting comparison the framework makes legible.</p>
+  </div>
+</section>
+
+<!-- 07 THEORY -->
+<section id="theory">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2><span class="zh">理論視角 — APO 的天花板在哪</span><span class="en">Theoretical Perspectives — Where the Ceiling Is</span></h2>
+    <p class="lead zh">這一節雖短，卻點出領域稀缺的理論基礎。</p>
+    <p class="lead en">A short section, but it flags the field's scarce theoretical footing.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4 class="zh">改進的上界</h4><h4 class="en">Upper Bound of Gains</h4>
+        <p class="zh">AlignPro 為離散提示優化在給定優化器下能取得的增益建立<strong>上界</strong>，並給出相對 RLHF 最優策略 π* 的次優差距；<strong>下界仍未探討</strong>。</p>
+        <p class="en">AlignPro establishes an <strong>upper bound</strong> on gains achievable from discrete prompt optimization under a given optimizer, plus a suboptimality gap vs. the RLHF-optimal policy π*; a <strong>lower bound remains open</strong>.</p>
+      </div>
+      <div class="card">
+        <h4 class="zh">其他相關視角</h4><h4 class="en">Other Perspectives</h4>
+        <p class="zh">Bhargava et al. 用控制論框架，以自注意力權重矩陣的奇異值界定可達輸出集合；Liu et al. 證明存在能逼近任意 Lipschitz 序列函數的強 transformer，也存在深度受限模型背不起來的「困難」資料集。</p>
+        <p class="en">Bhargava et al. use control theory to bound the set of reachable outputs via singular values of self-attention weight matrices; Liu et al. prove a strong transformer can approximate any Lipschitz sequence-to-sequence function, and that "difficult" datasets exist which depth-limited transformers cannot memorize.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 08 FUTURE -->
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2><span class="zh">挑戰與未來方向</span><span class="en">Challenges &amp; Future Directions</span></h2>
+    <p class="lead zh">作者點名四個尚未解決、值得投入的方向。</p>
+    <p class="lead en">The authors call out four unresolved, high-value directions.</p>
+
+    <div class="callout hot">
+      <p class="zh"><strong>1 · 任務無關 APO：</strong>所有方法都假設任務型別事先已知，離線方法還需要評估集 D_val —— 這在真實生產環境往往不存在。推論時對「多個未知任務」做優化幾乎沒人碰，需要結合已見／未見任務的更強健評估。</p>
+      <p class="en"><strong>1 · Task-agnostic APO:</strong> every method assumes the task type is known in advance, and offline methods also need an eval set D_val — often unavailable in production. Inference-time optimization over multiple unknown tasks is barely explored; more robust evaluations mixing seen and unseen tasks are needed.</p>
+    </div>
+    <div class="callout hot">
+      <p class="zh"><strong>2 · 機制不明：</strong>提示存在「邪惡雙胞胎（evil twins）」—— 無法解讀卻能恢復黃金提示的部分效能；罕見的亂碼字串可當競爭力十足的分隔符；LLM 的自我反思可能錯誤辨識錯誤、帶有先驗偏誤。提示優化「為何有效」仍是黑盒。</p>
+      <p class="en"><strong>2 · Unclear mechanisms:</strong> prompts have "evil twins" — uninterpretable yet recovering much of a gold prompt's performance; rare gibberish strings make competitive delimiters; LLM self-reflection can misidentify errors and carry prior biases. <em>Why</em> prompt optimization works remains a black box.</p>
+    </div>
+    <div class="callout hot">
+      <p class="zh"><strong>3 · 系統提示與 Agent 的 APO：</strong>SPRIG 雖優化過 chat 系統提示，但需預定義語料且耗時近 60 小時，而 ProTeGi 每任務僅約 10 分鐘 —— 可擴展性是瓶頸。在 agentic 系統中並行優化多個元件的提示是誘人的方向。</p>
+      <p class="en"><strong>3 · APO for system prompts / agents:</strong> SPRIG optimized chat system prompts but needed a predefined corpus and ~60 hours, vs. ProTeGi's ~10 minutes per task — scalability is the bottleneck. Concurrently optimizing prompts across many components of an agentic system is an exciting open direction.</p>
+    </div>
+    <div class="callout hot">
+      <p class="zh"><strong>4 · 多模態 APO：</strong>提示優化已擴展到 text-to-image / video / audio 與 CLIP 類對齊模型，甚至優化影像本身。但模態間的交互作用仍未充分探索 —— 未來可聯合優化多模態提示（如去除音訊背景雜訊、為影片加視覺標記）。</p>
+      <p class="en"><strong>4 · Multimodal APO:</strong> prompt optimization now spans text-to-image / video / audio and CLIP-style alignment, even optimizing images themselves. But cross-modal interplay is under-explored — future work could jointly optimize multimodal prompts (e.g. denoise audio, add visual markers to video).</p>
+    </div>
+
+    <h3 class="zh">作者自陳的限制</h3><h3 class="en">Authors' Stated Limitations</h3>
+    <p class="zh">可能漏掉部分相關論文；把多元研究硬塞進單一框架，可能對某些論文過度概括或略過特徵（例如 Tempera 同時含 RL 與字詞編輯，作者依「最顯著特徵」歸類）；受限於 8 頁篇幅，最嚴謹的全論文對照表（Table 2/3/4）只能放進附錄。</p>
+    <p class="en">Some relevant papers may have been missed; fitting diverse work into one framework risks over-broad categorization or skipped traits (e.g. Tempera mixes RL and word-edit techniques — categorized by its most salient feature); and the 8-page limit forced the rigorous full comparison (Tables 2/3/4) into the appendix.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p class="zh">Ramnath et al. (2025) · A Systematic Survey of Automatic Prompt Optimization Techniques · Amazon Web Services</p>
+    <p class="en">Ramnath et al. (2025) · A Systematic Survey of Automatic Prompt Optimization Techniques · Amazon Web Services</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2502.16923">arXiv:2502.16923</a></p>
+    <p style="margin-top:18px;color:#5b6675" class="zh">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值與分類以原論文為準。</p>
+    <p style="margin-top:18px;color:#5b6675" class="en">This page is a reading-summary; figures are redrawn from the paper. Categorizations and details defer to the original.</p>
+  </div>
+</footer>
+
+<script>
+function setLang(l){
+  document.body.dataset.lang = l;
+  document.getElementById('btn-zh').classList.toggle('active', l==='zh');
+  document.getElementById('btn-en').classList.toggle('active', l==='en');
+  document.documentElement.lang = (l==='zh') ? 'zh-Hant' : 'en';
+}
+</script>
+</body>
+</html>
+
