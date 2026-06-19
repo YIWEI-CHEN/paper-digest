@@ -1,0 +1,1350 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coding Interview Practice · Python 解題筆記</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --panel-2: #1f2631;
+  --ink: #e6edf3;
+  --muted: #95a3b8;
+  --line: #2d3746;
+  --accent: #ffb000;
+  --accent-2: #58d5c9;
+  --accent-3: #c56cff;
+  --danger: #ff5470;
+  --success: #3ddc97;
+  --code: #0a0f16;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(88, 213, 201, 0.10), transparent 35%),
+    radial-gradient(circle at 92% 10%, rgba(197, 108, 255, 0.10), transparent 34%),
+    var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+  line-height: 1.75;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+header.hero {
+  padding: 78px 0 52px;
+  border-bottom: 1px solid var(--line);
+}
+.kicker {
+  color: var(--accent-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(36px, 6vw, 68px);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+.subtitle {
+  max-width: 850px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(31, 38, 49, 0.78);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+}
+.pill.easy { color: var(--success); border-color: rgba(61, 220, 151, 0.55); }
+.pill.hot { color: var(--accent); border-color: rgba(255, 176, 0, 0.55); }
+.pill.purple { color: var(--accent-3); border-color: rgba(197, 108, 255, 0.55); }
+nav.toc {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(13, 17, 23, 0.88);
+  backdrop-filter: blur(12px);
+}
+nav.toc .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+nav.toc a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+nav.toc a:hover { color: #fff; background: var(--panel-2); }
+section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+h3 {
+  margin: 24px 0 10px;
+  color: var(--accent-2);
+  font-size: 19px;
+}
+p { margin: 12px 0; }
+a { color: var(--accent-2); }
+.note {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 176, 0, 0.35);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(255, 176, 0, 0.08);
+  color: #f7dd9a;
+}
+.grid { display: grid; gap: 18px; }
+.overview-grid { grid-template-columns: repeat(3, 1fr); }
+.card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(31, 38, 49, 0.94), rgba(21, 27, 35, 0.94));
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 22px;
+}
+.card strong { color: #fff; }
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+table { width: 100%; border-collapse: collapse; min-width: 1040px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th {
+  color: var(--accent-2);
+  background: var(--panel-2);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+td { color: var(--muted); font-size: 14px; }
+td.problem { color: var(--ink); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+.problem-card {
+  margin-top: 26px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(21, 27, 35, 0.92);
+  box-shadow: 0 18px 44px var(--shadow);
+}
+.problem-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.problem-head h2 { font-size: clamp(24px, 3vw, 34px); }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.badge.easy { color: var(--success); }
+.badge.medium { color: var(--accent); }
+.badge.hard { color: var(--danger); }
+.summary-list {
+  margin: 10px 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+.summary-list li { margin: 6px 0; }
+pre {
+  margin: 18px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--code);
+  color: #d6deeb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
+}
+.py-keyword { color: #c792ea; }
+.py-builtin { color: #82aaff; }
+.py-type { color: #ffcb6b; }
+.py-function { color: #58d5c9; }
+.py-string { color: #ecc48d; }
+.py-number { color: #f78c6c; }
+.py-comment { color: #697989; font-style: italic; }
+.py-operator { color: #89ddff; }
+:not(pre) > code {
+  color: var(--accent-2);
+  background: var(--panel-2);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+.complexity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.complexity div {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--panel-2);
+  color: var(--muted);
+}
+.complexity b { color: #fff; }
+footer {
+  padding: 44px 0 70px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .overview-grid, .complexity { grid-template-columns: 1fr; }
+  .problem-card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Anthropic、OpenAI、SpaceX、Palantir、Snowflake · Coding Interview Practice</div>
+    <h1>21 題 Python 解題筆記</h1>
+    <p class="subtitle">每題包含題目摘要、Python 解法、繁體中文說明，以及 Time / Space Complexity。</p>
+    <div class="meta">
+      <span class="pill easy">4 Easy</span>
+      <span class="pill hot">12 Medium</span>
+      <span class="pill purple">5 Hard</span>
+      <span class="pill">Graph · DP · Trie · Heap · Stack · Sliding Window · Design</span>
+      <span class="pill">Updated 2026-06-18</span>
+    </div>
+    <div class="note">題目描述是根據公開題名與常見面試版本重新整理的原創摘要。</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#overview">總覽</a>
+    <a href="#web-crawler">Web Crawler</a>
+    <a href="#encode-decode-strings">Encode/Decode</a>
+    <a href="#excel-sum-formula">Excel Sum</a>
+    <a href="#flood-fill">Flood Fill</a>
+    <a href="#minimum-path-sum">Min Path Sum</a>
+    <a href="#string-compression">Compression</a>
+    <a href="#merge-k-lists">Merge K Lists</a>
+    <a href="#accounts-merge">Accounts</a>
+    <a href="#shortest-word-distance-ii">Word Distance</a>
+    <a href="#single-number">Single Number</a>
+    <a href="#range-sum-query">Range Sum</a>
+    <a href="#minimum-window-substring">Min Window</a>
+    <a href="#copy-random-pointer">Random Pointer</a>
+    <a href="#course-schedule-ii">Course II</a>
+    <a href="#remove-subfolders">Sub-Folders</a>
+    <a href="#in-memory-file-system">File System</a>
+    <a href="#merge-two-lists">Merge Two</a>
+    <a href="#min-stack">Min Stack</a>
+    <a href="#task-scheduler">Scheduler</a>
+    <a href="#regex-matching">Regex</a>
+    <a href="#simplify-path">Simplify Path</a>
+  </div>
+</nav>
+
+<main>
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>解題總覽</h2>
+      </div>
+      <div class="grid overview-grid">
+        <div class="card"><strong>常見模式</strong><p>這組題目橫跨 graph traversal、union-find、heap merge、prefix sum、stack/path parsing、sliding window、topological sort、Trie-like design 與 dynamic programming。</p></div>
+        <div class="card"><strong>面試重點</strong><p>要能說清楚狀態定義、資料結構 invariants、邊界條件、為什麼 greedy 或二分/雙指針正確，以及設計題 API 的一致性。</p></div>
+        <div class="card"><strong>建議順序</strong><p>先做 Easy / Medium 的陣列字串題，再練 graph 與 linked list，最後處理 Excel、File System、Regular Expression Matching 等設計與 DP hard 題。</p></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:24px">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Problem</th>
+              <th>Source</th>
+              <th>Pattern</th>
+              <th>Difficulty</th>
+              <th>核心想法</th>
+              <th>Time</th>
+              <th>Space</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td class="problem">Web Crawler</td><td>Anthropic</td><td>BFS / URL Parsing</td><td>Medium</td><td>從 startUrl 出發，只爬同 hostname 且未訪問過的 URL。</td><td>O(V + E)</td><td>O(V)</td></tr>
+            <tr><td>2</td><td class="problem">Encode and Decode Strings</td><td>OpenAI</td><td>String / Design</td><td>Medium</td><td>用長度前綴避免 delimiter 與內容衝突。</td><td>O(total chars)</td><td>O(total chars)</td></tr>
+            <tr><td>3</td><td class="problem">Design Excel Sum Formula</td><td>OpenAI</td><td>Design / Graph</td><td>Hard</td><td>每個 cell 可存值或公式；公式以 referenced cells 的 counter 表示並遞迴求值。</td><td>O(R) per get</td><td>O(cells + refs)</td></tr>
+            <tr><td>4</td><td class="problem">Flood Fill</td><td>OpenAI</td><td>DFS / BFS</td><td>Easy</td><td>從起點往四方向擴展，只替換原本顏色相同的格子。</td><td>O(mn)</td><td>O(mn)</td></tr>
+            <tr><td>5</td><td class="problem">Minimum Path Sum</td><td>SpaceX</td><td>Dynamic Programming</td><td>Medium</td><td>每格最小成本來自上方或左方較小者。</td><td>O(mn)</td><td>O(1)</td></tr>
+            <tr><td>6</td><td class="problem">String Compression</td><td>Palantir</td><td>Two Pointers</td><td>Medium</td><td>讀指針找連續 group，寫指針原地輸出字元與次數。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>7</td><td class="problem">Merge K Sorted Lists</td><td>Palantir / Snowflake</td><td>Heap / Linked List</td><td>Hard</td><td>heap 每次取目前最小節點，再放入它的 next。</td><td>O(N log k)</td><td>O(k)</td></tr>
+            <tr><td>8</td><td class="problem">Accounts Merge</td><td>Palantir</td><td>Union-Find</td><td>Medium</td><td>同帳號內 email union，最後依 root 收集並排序。</td><td>O(E α(E) + E log E)</td><td>O(E)</td></tr>
+            <tr><td>9</td><td class="problem">Shortest Word Distance II</td><td>Palantir</td><td>Hash Map / Two Pointers</td><td>Medium</td><td>預處理每個 word 的 index list，查詢時雙指針掃兩個 sorted lists。</td><td>O(n) init, O(a+b) query</td><td>O(n)</td></tr>
+            <tr><td>10</td><td class="problem">Single Number</td><td>Palantir</td><td>Bit Manipulation</td><td>Easy</td><td>成對數字 XOR 後抵消，只剩出現一次的值。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>11</td><td class="problem">Range Sum Query - Immutable</td><td>Palantir</td><td>Prefix Sum</td><td>Easy</td><td>prefix[i] 存前 i 個元素總和，區間和用兩個 prefix 相減。</td><td>O(n) init, O(1) query</td><td>O(n)</td></tr>
+            <tr><td>12</td><td class="problem">Minimum Window Substring</td><td>Snowflake</td><td>Sliding Window</td><td>Hard</td><td>右指針擴張滿足需求，左指針收縮找最短窗口。</td><td>O(|s| + |t|)</td><td>O(|alphabet|)</td></tr>
+            <tr><td>13</td><td class="problem">Copy List With Random Pointer</td><td>Snowflake</td><td>Hash Map / Linked List</td><td>Medium</td><td>先建立 old-to-new map，再補 next/random 指針。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>14</td><td class="problem">Course Schedule II</td><td>Snowflake</td><td>Topological Sort</td><td>Medium</td><td>入度為 0 的課先上；若輸出數量不足代表有 cycle。</td><td>O(V + E)</td><td>O(V + E)</td></tr>
+            <tr><td>15</td><td class="problem">Remove Sub-Folders from the Filesystem</td><td>Snowflake</td><td>Sort / String</td><td>Medium</td><td>排序後 parent 會出現在 subfolder 前面，用 prefix 判斷是否保留。</td><td>O(n log n)</td><td>O(output)</td></tr>
+            <tr><td>16</td><td class="problem">Design In-Memory File System</td><td>Snowflake</td><td>Trie / Design</td><td>Hard</td><td>路徑節點形成 Trie，目錄靠 children，檔案靠 content。</td><td>O(path + output)</td><td>O(total nodes + content)</td></tr>
+            <tr><td>17</td><td class="problem">Merge Two Sorted Lists</td><td>Snowflake</td><td>Linked List</td><td>Easy</td><td>dummy head 串接較小節點，最後接上剩餘串列。</td><td>O(m+n)</td><td>O(1)</td></tr>
+            <tr><td>18</td><td class="problem">Min Stack</td><td>Snowflake</td><td>Stack / Design</td><td>Medium</td><td>每個 stack entry 同時保存當下最小值。</td><td>O(1)</td><td>O(n)</td></tr>
+            <tr><td>19</td><td class="problem">Task Scheduler</td><td>Snowflake</td><td>Greedy / Counting</td><td>Medium</td><td>最高頻任務決定冷卻框架，其他任務填空。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>20</td><td class="problem">Regular Expression Matching</td><td>Snowflake</td><td>Dynamic Programming</td><td>Hard</td><td>dp[i][j] 表示 s[i:] 是否能被 p[j:] 匹配，特別處理 * 的跳過或重複。</td><td>O(mn)</td><td>O(mn)</td></tr>
+            <tr><td>21</td><td class="problem">Simplify Path</td><td>Snowflake</td><td>Stack / String</td><td>Medium</td><td>以 / 切段，忽略空段與 .，遇到 .. 就 pop。</td><td>O(n)</td><td>O(n)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="web-crawler">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>1. Web Crawler</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">BFS</span><span class="badge">URL Parsing</span><span class="badge">Anthropic</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個 <code>startUrl</code> 與 <code>HtmlParser.getUrls(url)</code> API，從起始頁開始爬取所有可達 URL，但只能保留與 <code>startUrl</code> 相同 hostname 的頁面。</p>
+        <h3>解法說明</h3>
+        <p>先解析出起始 hostname，然後用 BFS/DFS 掃描。每次從 queue 取 URL，呼叫 parser 拿到下一層 URL；若 hostname 相同且未看過，就加入 visited 與 queue。visited 同時避免重複爬取與 cycle。</p>
+<pre><code class="language-python">from collections import deque
+from typing import List
+from urllib.parse import urlparse
+
+
+class Solution:
+    def crawl(self, startUrl: str, htmlParser: "HtmlParser") -&gt; List[str]:
+        host = urlparse(startUrl).netloc
+        queue = deque([startUrl])
+        seen = {startUrl}
+
+        while queue:
+            url = queue.popleft()
+            for next_url in htmlParser.getUrls(url):
+                if urlparse(next_url).netloc == host and next_url not in seen:
+                    seen.add(next_url)
+                    queue.append(next_url)
+
+        return list(seen)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(V + E)，V 是同 hostname 可達 URL 數，E 是掃到的 link 數。</div>
+          <div><b>Space Complexity:</b> O(V)，visited 與 queue 最多保存所有可達 URL。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="encode-decode-strings">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>2. Encode and Decode Strings</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">String</span><span class="badge">Design</span><span class="badge">OpenAI</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計一組 <code>encode(strs)</code> 與 <code>decode(s)</code>，能把字串陣列轉成單一字串並還原。字串內容可能包含任何字元，所以不能單純用固定 delimiter 分隔。</p>
+        <h3>解法說明</h3>
+        <p>使用「長度 + 分隔符 + 內容」格式，例如 <code>5#hello</code>。decode 時先讀到 <code>#</code> 取得長度，再切出固定長度內容；因為長度明確，內容即使包含 <code>#</code> 也不會混淆。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Codec:
+    def encode(self, strs: List[str]) -&gt; str:
+        parts = []
+        for text in strs:
+            parts.append(f"{len(text)}#{text}")
+        return "".join(parts)
+
+    def decode(self, s: str) -&gt; List[str]:
+        result = []
+        i = 0
+
+        while i &lt; len(s):
+            j = i
+            while s[j] != "#":
+                j += 1
+            length = int(s[i:j])
+            start = j + 1
+            result.append(s[start:start + length])
+            i = start + length
+
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(total chars)，encode/decode 都只線性掃過所有內容。</div>
+          <div><b>Space Complexity:</b> O(total chars)，輸出字串與還原陣列需要保存所有字元。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="excel-sum-formula">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>3. Design Excel Sum Formula</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Design</span><span class="badge">Graph</span><span class="badge">OpenAI</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計簡化版 Excel，支援 <code>set(row, col, val)</code>、<code>get(row, col)</code> 與 <code>sum(row, col, numbers)</code>。<code>numbers</code> 可包含單一 cell 或 range，例如 <code>A1</code>、<code>A1:B2</code>；sum cell 要能隨引用 cell 的值更新。</p>
+        <h3>解法說明</h3>
+        <p>每個 cell 要嘛存直接值，要嘛存公式。公式用 <code>Counter</code> 記錄引用 cell 與出現次數；<code>get</code> 遇到公式就遞迴求每個引用 cell 的值。<code>set</code> 會清掉該 cell 的公式，代表它改回固定值。</p>
+<pre><code class="language-python">from collections import Counter
+from typing import List, Tuple
+
+
+class Excel:
+    def __init__(self, height: int, width: str):
+        self.values = {}
+        self.formulas = {}
+
+    def set(self, row: int, column: str, val: int) -&gt; None:
+        cell = (row, column)
+        self.values[cell] = val
+        self.formulas.pop(cell, None)
+
+    def get(self, row: int, column: str) -&gt; int:
+        cell = (row, column)
+        if cell not in self.formulas:
+            return self.values.get(cell, 0)
+
+        total = 0
+        for ref, count in self.formulas[cell].items():
+            total += self.get(ref[0], ref[1]) * count
+        return total
+
+    def sum(self, row: int, column: str, numbers: List[str]) -&gt; int:
+        cell = (row, column)
+        self.formulas[cell] = self._parse(numbers)
+        self.values.pop(cell, None)
+        return self.get(row, column)
+
+    def _parse(self, numbers: List[str]) -&gt; Counter:
+        refs = Counter()
+        for token in numbers:
+            if ":" not in token:
+                refs[self._cell(token)] += 1
+                continue
+
+            start, end = token.split(":")
+            r1, c1 = self._cell(start)
+            r2, c2 = self._cell(end)
+            for row in range(r1, r2 + 1):
+                for code in range(ord(c1), ord(c2) + 1):
+                    refs[(row, chr(code))] += 1
+        return refs
+
+    def _cell(self, name: str) -&gt; Tuple[int, str]:
+        return int(name[1:]), name[0]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> <code>set</code> O(1)；<code>sum</code> O(R + G)，R 是公式展開引用數，G 是遞迴 get 觸及的公式引用總數。</div>
+          <div><b>Space Complexity:</b> O(cells + refs)，保存直接值與公式 reference counters。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="flood-fill">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>4. Flood Fill</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">DFS</span><span class="badge">Grid</span><span class="badge">OpenAI</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一張 image matrix、起點 <code>(sr, sc)</code> 與新顏色 <code>color</code>，將起點所在的連通區域全部換成新顏色；連通只看上下左右，且只能走原本顏色相同的格子。</p>
+        <h3>解法說明</h3>
+        <p>先記住起點原色。若原色已等於新色，直接回傳避免無限遞迴。否則 DFS/BFS 往四方向擴展，遇到同原色格子就改色並繼續。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -&gt; List[List[int]]:
+        original = image[sr][sc]
+        if original == color:
+            return image
+
+        rows, cols = len(image), len(image[0])
+
+        def dfs(r: int, c: int) -&gt; None:
+            if r &lt; 0 or r == rows or c &lt; 0 or c == cols or image[r][c] != original:
+                return
+            image[r][c] = color
+            dfs(r + 1, c)
+            dfs(r - 1, c)
+            dfs(r, c + 1)
+            dfs(r, c - 1)
+
+        dfs(sr, sc)
+        return image</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(mn)，最壞情況整張圖都被填色。</div>
+          <div><b>Space Complexity:</b> O(mn)，DFS recursion stack 最壞可達所有格子。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="minimum-path-sum">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>5. Minimum Path Sum</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Dynamic Programming</span><span class="badge">Grid</span><span class="badge">SpaceX</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個非負整數 grid，從左上角走到右下角，每次只能往右或往下，請回傳路徑上數字總和的最小值。</p>
+        <h3>解法說明</h3>
+        <p>對每個格子，最佳路徑只可能從上方或左方來，因此 <code>dp[r][c] = grid[r][c] + min(dp[r-1][c], dp[r][c-1])</code>。可以直接把 grid 原地改成到該格的最小成本。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def minPathSum(self, grid: List[List[int]]) -&gt; int:
+        rows, cols = len(grid), len(grid[0])
+
+        for r in range(rows):
+            for c in range(cols):
+                if r == 0 and c == 0:
+                    continue
+                if r == 0:
+                    grid[r][c] += grid[r][c - 1]
+                elif c == 0:
+                    grid[r][c] += grid[r - 1][c]
+                else:
+                    grid[r][c] += min(grid[r - 1][c], grid[r][c - 1])
+
+        return grid[-1][-1]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(mn)，每個格子處理一次。</div>
+          <div><b>Space Complexity:</b> O(1)，直接修改輸入 grid；若不能修改輸入可用一維 DP O(n)。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="string-compression">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>6. String Compression</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Two Pointers</span><span class="badge">In-place</span><span class="badge">Palantir</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個字元陣列 <code>chars</code>，將連續相同字元壓縮成字元加次數；若次數為 1 不寫數字。必須原地修改並回傳壓縮後長度。</p>
+        <h3>解法說明</h3>
+        <p>用 <code>read</code> 找每個連續 group 的結尾，用 <code>write</code> 寫入 group 字元與 count 的每一位數字。因為壓縮結果不會比原資料更晚需要讀取的部分長，所以可以安全原地寫。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def compress(self, chars: List[str]) -&gt; int:
+        write = 0
+        read = 0
+
+        while read &lt; len(chars):
+            char = chars[read]
+            start = read
+            while read &lt; len(chars) and chars[read] == char:
+                read += 1
+
+            chars[write] = char
+            write += 1
+
+            count = read - start
+            if count &gt; 1:
+                for digit in str(count):
+                    chars[write] = digit
+                    write += 1
+
+        return write</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每個字元被讀一次，count digits 的總量也受壓縮結果長度限制。</div>
+          <div><b>Space Complexity:</b> O(1)，除了幾個指針外不使用額外陣列。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="merge-k-lists">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>7. Merge K Sorted Lists</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Heap</span><span class="badge">Linked List</span><span class="badge">Palantir</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給 <code>k</code> 個已排序 linked lists，將它們合併成一條排序後的 linked list 並回傳 head。</p>
+        <h3>解法說明</h3>
+        <p>維護一個 min-heap，初始放入每條 list 的 head。每次 pop 最小節點接到答案後面，再把該節點的 next 放入 heap。Python heap 若 value 相同會比較節點物件，所以加一個遞增序號當 tie-breaker。</p>
+<pre><code class="language-python">from heapq import heappop, heappush
+from typing import List, Optional
+
+
+class Solution:
+    def mergeKLists(self, lists: List[Optional[ListNode]]) -&gt; Optional[ListNode]:
+        heap = []
+        order = 0
+
+        for node in lists:
+            if node:
+                heappush(heap, (node.val, order, node))
+                order += 1
+
+        dummy = ListNode(0)
+        tail = dummy
+
+        while heap:
+            _, _, node = heappop(heap)
+            tail.next = node
+            tail = tail.next
+
+            if node.next:
+                heappush(heap, (node.next.val, order, node.next))
+                order += 1
+
+        return dummy.next</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(N log k)，N 是總節點數，每個節點進出 heap 一次。</div>
+          <div><b>Space Complexity:</b> O(k)，heap 最多保存 k 個候選節點。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="accounts-merge">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>8. Accounts Merge</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Union-Find</span><span class="badge">Hash Map</span><span class="badge">Palantir</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>每個 account 格式為 <code>[name, email1, email2, ...]</code>。如果兩個 account 共享任一 email，代表同一個人，請合併所有 emails 並排序；輸出格式為 <code>[name, sorted emails...]</code>。</p>
+        <h3>解法說明</h3>
+        <p>把 email 視為節點，同一 account 內所有 email union 起來。最後對每個 email 找 root 並分組，使用 root 對應的 name，輸出每組排序後的 emails。</p>
+<pre><code class="language-python">from collections import defaultdict
+from typing import List
+
+
+class DSU:
+    def __init__(self):
+        self.parent = {}
+
+    def find(self, x: str) -&gt; str:
+        if x not in self.parent:
+            self.parent[x] = x
+        if self.parent[x] != x:
+            self.parent[x] = self.find(self.parent[x])
+        return self.parent[x]
+
+    def union(self, a: str, b: str) -&gt; None:
+        root_a = self.find(a)
+        root_b = self.find(b)
+        if root_a != root_b:
+            self.parent[root_b] = root_a
+
+
+class Solution:
+    def accountsMerge(self, accounts: List[List[str]]) -&gt; List[List[str]]:
+        dsu = DSU()
+        email_to_name = {}
+
+        for account in accounts:
+            name = account[0]
+            first = account[1]
+            for email in account[1:]:
+                email_to_name[email] = name
+                dsu.union(first, email)
+
+        groups = defaultdict(list)
+        for email in email_to_name:
+            groups[dsu.find(email)].append(email)
+
+        result = []
+        for root, emails in groups.items():
+            result.append([email_to_name[root]] + sorted(emails))
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(E α(E) + E log E)，E 是 email 數；排序 dominates 每組輸出。</div>
+          <div><b>Space Complexity:</b> O(E)，parent、name map 與 groups。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="shortest-word-distance-ii">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>9. Shortest Word Distance II</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Map</span><span class="badge">Two Pointers</span><span class="badge">Palantir</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計 <code>WordDistance</code>，初始化時給一串 words；多次查詢 <code>shortest(word1, word2)</code>，回傳兩個單字在原陣列中任意出現位置的最小距離。</p>
+        <h3>解法說明</h3>
+        <p>初始化時把每個 word 的所有 index 存成遞增 list。查詢兩個 words 時，用雙指針在線性時間掃兩個 sorted lists，每次更新距離並移動 index 較小的指針。</p>
+<pre><code class="language-python">from collections import defaultdict
+from typing import List
+
+
+class WordDistance:
+    def __init__(self, wordsDict: List[str]):
+        self.positions = defaultdict(list)
+        for index, word in enumerate(wordsDict):
+            self.positions[word].append(index)
+
+    def shortest(self, word1: str, word2: str) -&gt; int:
+        a = self.positions[word1]
+        b = self.positions[word2]
+        i = j = 0
+        best = float("inf")
+
+        while i &lt; len(a) and j &lt; len(b):
+            best = min(best, abs(a[i] - b[j]))
+            if a[i] &lt; b[j]:
+                i += 1
+            else:
+                j += 1
+
+        return best</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> 初始化 O(n)；每次查詢 O(a + b)，a/b 是兩個 word 的出現次數。</div>
+          <div><b>Space Complexity:</b> O(n)，保存所有 words 的 index。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="single-number">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>10. Single Number</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Bit Manipulation</span><span class="badge">Palantir</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個整數陣列，除了某個元素只出現一次，其餘元素都出現兩次。請用線性時間與常數額外空間找出只出現一次的元素。</p>
+        <h3>解法說明</h3>
+        <p>XOR 有三個關鍵性質：<code>a ^ a = 0</code>、<code>a ^ 0 = a</code>、交換律/結合律。因此所有成對數字會互相抵消，最後剩下 single number。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def singleNumber(self, nums: List[int]) -&gt; int:
+        answer = 0
+        for num in nums:
+            answer ^= num
+        return answer</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，掃過 nums 一次。</div>
+          <div><b>Space Complexity:</b> O(1)，只保留 XOR 累積值。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="range-sum-query">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>11. Range Sum Query - Immutable</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Prefix Sum</span><span class="badge">Palantir</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計 <code>NumArray</code>，初始化後多次查詢 <code>sumRange(left, right)</code>，回傳閉區間 <code>[left, right]</code> 的元素總和。陣列不會被更新。</p>
+        <h3>解法說明</h3>
+        <p>建立 <code>prefix</code>，其中 <code>prefix[i]</code> 是前 i 個元素總和，並讓 <code>prefix[0] = 0</code>。區間和就是 <code>prefix[right + 1] - prefix[left]</code>。</p>
+<pre><code class="language-python">from typing import List
+
+
+class NumArray:
+    def __init__(self, nums: List[int]):
+        self.prefix = [0]
+        for num in nums:
+            self.prefix.append(self.prefix[-1] + num)
+
+    def sumRange(self, left: int, right: int) -&gt; int:
+        return self.prefix[right + 1] - self.prefix[left]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> 初始化 O(n)；每次查詢 O(1)。</div>
+          <div><b>Space Complexity:</b> O(n)，保存 prefix sums。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="minimum-window-substring">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>12. Minimum Window Substring</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Sliding Window</span><span class="badge">Hash Map</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串 <code>s</code> 與 <code>t</code>，找出 <code>s</code> 中最短的 substring，使它包含 <code>t</code> 中每個字元及其所需次數；若不存在回傳空字串。</p>
+        <h3>解法說明</h3>
+        <p>用 sliding window。右指針加入字元並更新窗口計數，當某字元達到需求時增加 <code>formed</code>。當 <code>formed == required</code>，代表窗口有效，此時移動左指針盡量縮短並更新答案。</p>
+<pre><code class="language-python">from collections import Counter, defaultdict
+
+
+class Solution:
+    def minWindow(self, s: str, t: str) -&gt; str:
+        if not t or not s:
+            return ""
+
+        need = Counter(t)
+        window = defaultdict(int)
+        required = len(need)
+        formed = 0
+        left = 0
+        best_len = float("inf")
+        best_start = 0
+
+        for right, char in enumerate(s):
+            window[char] += 1
+            if char in need and window[char] == need[char]:
+                formed += 1
+
+            while formed == required:
+                if right - left + 1 &lt; best_len:
+                    best_len = right - left + 1
+                    best_start = left
+
+                left_char = s[left]
+                window[left_char] -= 1
+                if left_char in need and window[left_char] &lt; need[left_char]:
+                    formed -= 1
+                left += 1
+
+        if best_len == float("inf"):
+            return ""
+        return s[best_start:best_start + best_len]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(|s| + |t|)，每個指針最多走過 s 一次。</div>
+          <div><b>Space Complexity:</b> O(|alphabet|)，need/window 保存字元計數。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="copy-random-pointer">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>13. Copy List With Random Pointer</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Linked List</span><span class="badge">Hash Map</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一條 linked list，每個節點除了 <code>next</code>，還有可能指向任意節點或 null 的 <code>random</code>。請 deep copy 整條 list，回傳新 head。</p>
+        <h3>解法說明</h3>
+        <p>先走一遍原 list，為每個舊節點建立新節點並存入 <code>old_to_new</code>。第二遍再設定每個新節點的 <code>next</code> 與 <code>random</code>，都透過 map 找到對應的新節點。</p>
+<pre><code class="language-python">class Solution:
+    def copyRandomList(self, head: "Optional[Node]") -&gt; "Optional[Node]":
+        if not head:
+            return None
+
+        old_to_new = {}
+        node = head
+        while node:
+            old_to_new[node] = Node(node.val)
+            node = node.next
+
+        node = head
+        while node:
+            clone = old_to_new[node]
+            clone.next = old_to_new.get(node.next)
+            clone.random = old_to_new.get(node.random)
+            node = node.next
+
+        return old_to_new[head]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，兩次線性掃描。</div>
+          <div><b>Space Complexity:</b> O(n)，hash map 保存舊節點到新節點的對應。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="course-schedule-ii">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>14. Course Schedule II</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Topological Sort</span><span class="badge">Graph</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>有 <code>numCourses</code> 門課，prerequisites 中 <code>[a, b]</code> 表示要先修 <code>b</code> 才能修 <code>a</code>。請回傳一個可行修課順序；若因 cycle 無法完成所有課，回傳空陣列。</p>
+        <h3>解法說明</h3>
+        <p>這是 topological sort。建立 graph <code>b -> a</code> 與每門課的 indegree。先把 indegree 為 0 的課放入 queue；每取出一門課，就降低後續課的 indegree。若最後輸出數量等於課數，順序有效；否則有 cycle。</p>
+<pre><code class="language-python">from collections import deque
+from typing import List
+
+
+class Solution:
+    def findOrder(self, numCourses: int, prerequisites: List[List[int]]) -&gt; List[int]:
+        graph = [[] for _ in range(numCourses)]
+        indegree = [0] * numCourses
+
+        for course, prereq in prerequisites:
+            graph[prereq].append(course)
+            indegree[course] += 1
+
+        queue = deque([course for course in range(numCourses) if indegree[course] == 0])
+        order = []
+
+        while queue:
+            course = queue.popleft()
+            order.append(course)
+
+            for next_course in graph[course]:
+                indegree[next_course] -= 1
+                if indegree[next_course] == 0:
+                    queue.append(next_course)
+
+        return order if len(order) == numCourses else []</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(V + E)，每門課與 prerequisite 邊各處理一次。</div>
+          <div><b>Space Complexity:</b> O(V + E)，graph、indegree、queue 與 order。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="remove-subfolders">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>15. Remove Sub-Folders from the Filesystem</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sort</span><span class="badge">String</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一組 folder paths，若某 path 是另一個已存在 folder 的子資料夾，就要移除。請回傳移除所有 sub-folders 後的頂層 folders。</p>
+        <h3>解法說明</h3>
+        <p>字典序排序後，parent folder 會排在它的 subfolders 前面。只要維護目前保留的最後一個 parent，若新 path 以 <code>parent + "/"</code> 開頭，就代表它是 subfolder，跳過；否則保留並更新 parent。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def removeSubfolders(self, folder: List[str]) -&gt; List[str]:
+        folder.sort()
+        result = []
+
+        for path in folder:
+            if result and path.startswith(result[-1] + "/"):
+                continue
+            result.append(path)
+
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n log n + total chars)，排序後每個 path 做 prefix 檢查。</div>
+          <div><b>Space Complexity:</b> O(output)，不計排序額外空間時只保存結果。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="in-memory-file-system">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>16. Design In-Memory File System</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Trie</span><span class="badge">Design</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計記憶體檔案系統，支援 <code>ls(path)</code>、<code>mkdir(path)</code>、<code>addContentToFile(filePath, content)</code>、<code>readContentFromFile(filePath)</code>。目錄列表需依字典序回傳；若 <code>ls</code> 指到檔案，回傳該檔名。</p>
+        <h3>解法說明</h3>
+        <p>用 Trie 表示路徑。每個節點有 <code>children</code> 與 <code>content</code>；content 為 <code>None</code> 表示目錄，否則表示檔案。走路徑時依 <code>/</code> 分段，<code>mkdir</code> 與寫檔需要自動建立不存在的節點。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Node:
+    def __init__(self):
+        self.children = {}
+        self.content = None
+
+
+class FileSystem:
+    def __init__(self):
+        self.root = Node()
+
+    def ls(self, path: str) -&gt; List[str]:
+        node = self._walk(path)
+        if node.content is not None:
+            return [path.split("/")[-1]]
+        return sorted(node.children.keys())
+
+    def mkdir(self, path: str) -&gt; None:
+        self._walk(path, create=True)
+
+    def addContentToFile(self, filePath: str, content: str) -&gt; None:
+        node = self._walk(filePath, create=True)
+        if node.content is None:
+            node.content = ""
+        node.content += content
+
+    def readContentFromFile(self, filePath: str) -&gt; str:
+        return self._walk(filePath).content
+
+    def _walk(self, path: str, create: bool = False) -&gt; Node:
+        node = self.root
+        if path == "/":
+            return node
+
+        for part in path.split("/")[1:]:
+            if create and part not in node.children:
+                node.children[part] = Node()
+            node = node.children[part]
+        return node</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(path parts + output log output) for <code>ls</code> directory；其他操作主要是 O(path parts + content length)。</div>
+          <div><b>Space Complexity:</b> O(total path nodes + file content)，Trie 節點與檔案內容都保存在記憶體。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="merge-two-lists">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>17. Merge Two Sorted Lists</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Linked List</span><span class="badge">Two Pointers</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給兩條已排序 linked lists，合併成一條排序後的 linked list，並回傳新 head。</p>
+        <h3>解法說明</h3>
+        <p>用 dummy head 簡化串接。兩個指針分別指向兩條 list 的目前節點，每次接上較小者並前進；其中一條耗盡後，直接接上另一條剩餘部分。</p>
+<pre><code class="language-python">from typing import Optional
+
+
+class Solution:
+    def mergeTwoLists(self, list1: Optional[ListNode], list2: Optional[ListNode]) -&gt; Optional[ListNode]:
+        dummy = ListNode(0)
+        tail = dummy
+
+        while list1 and list2:
+            if list1.val &lt;= list2.val:
+                tail.next = list1
+                list1 = list1.next
+            else:
+                tail.next = list2
+                list2 = list2.next
+            tail = tail.next
+
+        tail.next = list1 or list2
+        return dummy.next</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(m + n)，每個節點處理一次。</div>
+          <div><b>Space Complexity:</b> O(1)，原地重接節點，不額外建立新節點。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="min-stack">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>18. Min Stack</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Stack</span><span class="badge">Design</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>設計 stack，支援 <code>push</code>、<code>pop</code>、<code>top</code>、<code>getMin</code>，且每個操作都要 O(1)。</p>
+        <h3>解法說明</h3>
+        <p>stack 每個元素不只存 value，也存「push 完這個元素後的目前最小值」。因此 <code>getMin</code> 只要看 stack top 的第二欄，不需要額外掃描。</p>
+<pre><code class="language-python">class MinStack:
+    def __init__(self):
+        self.stack = []
+
+    def push(self, val: int) -&gt; None:
+        current_min = val if not self.stack else min(val, self.stack[-1][1])
+        self.stack.append((val, current_min))
+
+    def pop(self) -&gt; None:
+        self.stack.pop()
+
+    def top(self) -&gt; int:
+        return self.stack[-1][0]
+
+    def getMin(self) -&gt; int:
+        return self.stack[-1][1]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(1) for all operations。</div>
+          <div><b>Space Complexity:</b> O(n)，每個元素額外保存當下最小值。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="task-scheduler">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>19. Task Scheduler</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Greedy</span><span class="badge">Counting</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一串任務字元 <code>tasks</code> 與冷卻時間 <code>n</code>，同一種任務兩次執行之間至少間隔 n 個時間單位。每個時間單位可執行一個任務或 idle，請回傳完成全部任務的最短時間。</p>
+        <h3>解法說明</h3>
+        <p>最高頻任務決定最少需要多少冷卻框架。若最高頻為 <code>f</code>，先形成 <code>f - 1</code> 個區塊，每塊長度 <code>n + 1</code>，最後再放所有同最高頻的任務。答案是這個框架長度與任務總數的最大值，因為其他任務可能足夠填滿 idle。</p>
+<pre><code class="language-python">from collections import Counter
+from typing import List
+
+
+class Solution:
+    def leastInterval(self, tasks: List[str], n: int) -&gt; int:
+        counts = Counter(tasks)
+        max_freq = max(counts.values())
+        max_count = sum(1 for count in counts.values() if count == max_freq)
+
+        frame = (max_freq - 1) * (n + 1) + max_count
+        return max(len(tasks), frame)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(T)，T 是 tasks 長度；任務種類通常固定為 26。</div>
+          <div><b>Space Complexity:</b> O(1)，若任務字母種類固定；一般可視為 O(unique tasks)。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="regex-matching">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>20. Regular Expression Matching</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Dynamic Programming</span><span class="badge">String</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>實作簡化 regex matching：<code>.</code> 可匹配任一單字元，<code>*</code> 表示前一個元素可出現零次或多次。必須判斷整個字串 <code>s</code> 是否能被 pattern <code>p</code> 完整匹配。</p>
+        <h3>解法說明</h3>
+        <p>定義 <code>dp(i, j)</code> 表示 <code>s[i:]</code> 是否能被 <code>p[j:]</code> 匹配。若下一個 pattern 字元是 <code>*</code>，有兩種選擇：跳過這組 <code>x*</code>，或在目前字元匹配時消耗一個 <code>s[i]</code> 並留在同一個 pattern 位置。</p>
+<pre><code class="language-python">from functools import lru_cache
+
+
+class Solution:
+    def isMatch(self, s: str, p: str) -&gt; bool:
+        @lru_cache(None)
+        def dp(i: int, j: int) -&gt; bool:
+            if j == len(p):
+                return i == len(s)
+
+            first_match = i &lt; len(s) and (p[j] == s[i] or p[j] == ".")
+
+            if j + 1 &lt; len(p) and p[j + 1] == "*":
+                return dp(i, j + 2) or (first_match and dp(i + 1, j))
+
+            return first_match and dp(i + 1, j + 1)
+
+        return dp(0, 0)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(mn)，每個 <code>(i, j)</code> 狀態最多計算一次。</div>
+          <div><b>Space Complexity:</b> O(mn)，memoization cache 與遞迴 stack。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="simplify-path">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>21. Simplify Path</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Stack</span><span class="badge">String Parsing</span><span class="badge">Snowflake</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個 Unix-style absolute path，將它簡化成 canonical path。多個 slash 視為一個，<code>.</code> 代表目前目錄，<code>..</code> 代表上一層；結果必須以單一 <code>/</code> 開頭且不能以 slash 結尾（root 除外）。</p>
+        <h3>解法說明</h3>
+        <p>以 <code>/</code> 切分 path，空字串與 <code>.</code> 忽略；遇到 <code>..</code> 就 pop stack（若 stack 非空）；其他名稱 push。最後用 <code>"/" + "/".join(stack)</code> 組回 canonical path。</p>
+<pre><code class="language-python">class Solution:
+    def simplifyPath(self, path: str) -&gt; str:
+        stack = []
+
+        for part in path.split("/"):
+            if part == "" or part == ".":
+                continue
+            if part == "..":
+                if stack:
+                    stack.pop()
+            else:
+                stack.append(part)
+
+        return "/" + "/".join(stack)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每個 path 字元被處理一次。</div>
+          <div><b>Space Complexity:</b> O(n)，stack 最壞保存所有 path components。</div>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Built for coding interview practice · Python solutions with Traditional Chinese explanations.
+</footer>
+<script>
+(() => {
+  const keywords = new Set([
+    "and", "as", "assert", "break", "class", "continue", "def", "del", "elif",
+    "else", "except", "False", "finally", "for", "from", "if", "import", "in",
+    "is", "lambda", "None", "nonlocal", "not", "or", "pass", "raise", "return",
+    "True", "try", "while", "with", "yield",
+  ]);
+  const builtins = new Set([
+    "abs", "chr", "dict", "enumerate", "float", "int", "len", "list", "max",
+    "min", "ord", "range", "set", "sorted", "str", "sum", "tuple",
+  ]);
+  const types = new Set([
+    "Counter", "DSU", "Excel", "FileSystem", "List", "ListNode", "MinStack",
+    "Node", "NumArray", "Optional", "Solution", "Tuple", "WordDistance",
+    "defaultdict", "deque",
+  ]);
+  const escapeHtml = (text) => text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const span = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  function readString(code, start) {
+    const prefixMatch = code.slice(start).match(/^([rRuUbBfF]{0,2})(?:"""|'''|"|')/);
+    if (!prefixMatch) return null;
+
+    const prefix = prefixMatch[1];
+    const quoteStart = start + prefix.length;
+    const quote = code.startsWith('"""', quoteStart) || code.startsWith("'''", quoteStart)
+      ? code.slice(quoteStart, quoteStart + 3)
+      : code[quoteStart];
+    let i = quoteStart + quote.length;
+
+    while (i < code.length) {
+      if (code.startsWith(quote, i)) {
+        i += quote.length;
+        break;
+      }
+      if (quote.length === 1 && code[i] === "\\") {
+        i += 2;
+      } else {
+        i += 1;
+      }
+    }
+
+    return i;
+  }
+
+  function highlightPython(code) {
+    let html = "";
+    let i = 0;
+
+    while (i < code.length) {
+      const ch = code[i];
+
+      if (ch === "#") {
+        const end = code.indexOf("\n", i);
+        const stop = end === -1 ? code.length : end;
+        html += span("py-comment", code.slice(i, stop));
+        i = stop;
+        continue;
+      }
+
+      const stringEnd = readString(code, i);
+      if (stringEnd !== null) {
+        html += span("py-string", code.slice(i, stringEnd));
+        i = stringEnd;
+        continue;
+      }
+
+      if (/\d/.test(ch)) {
+        const match = code.slice(i).match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?)/);
+        html += span("py-number", match[0]);
+        i += match[0].length;
+        continue;
+      }
+
+      if (/[A-Za-z_]/.test(ch)) {
+        const match = code.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+        const word = match[0];
+        const after = code.slice(i + word.length).match(/^\s*\(/);
+        let className = "";
+        if (keywords.has(word)) className = "py-keyword";
+        else if (builtins.has(word)) className = "py-builtin";
+        else if (types.has(word) || /^[A-Z]/.test(word)) className = "py-type";
+        else if (after) className = "py-function";
+
+        html += className ? span(className, word) : escapeHtml(word);
+        i += word.length;
+        continue;
+      }
+
+      if (/[-+*/%=!<>|&~^:,.()[\]{}]/.test(ch)) {
+        html += span("py-operator", ch);
+      } else {
+        html += escapeHtml(ch);
+      }
+      i += 1;
+    }
+
+    return html;
+  }
+
+  document.querySelectorAll("pre code.language-python").forEach((block) => {
+    block.innerHTML = highlightPython(block.textContent);
+  });
+})();
+</script>
+</body>
+</html>
