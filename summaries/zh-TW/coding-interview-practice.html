@@ -574,6 +574,31 @@ class Solution:
           <div><b>Time Complexity:</b> O(mn)，每個格子處理一次。</div>
           <div><b>Space Complexity:</b> O(1)，直接修改輸入 grid；若不能修改輸入可用一維 DP O(n)。</div>
         </div>
+        <h3>另一種解法：1-D Array DP / Memoization</h3>
+        <p><b>Why is 1-D enough?</b> A 2D DP only ever looks at the current row and the row directly above, so a single 1D array suffices -- before updating <code>dp[c]</code>, it still holds the value from the previous row (upper cell), and <code>dp[c-1]</code> already holds the updated value from the current row (left cell).<br>中文：每格只需要上方和左方的值，<code>dp[c]</code> 更新前天然保留上一行的結果，<code>dp[c-1]</code> 則已是同行左方的結果，一維陣列剛好同時滿足兩者。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def minPathSum(self, grid: List[List[int]]) -&gt; int:
+        rows, cols = len(grid), len(grid[0])
+        dp = grid[0][:]  # Copy the first row.
+
+        # Initialize the first row; each cell can only come from the left.
+        for c in range(1, cols):
+            dp[c] += dp[c - 1]
+
+        for r in range(1, rows):
+            dp[0] += grid[r][0]  # The first column can only come from above.
+            for c in range(1, cols):
+                # dp[c] is the upper cell; dp[c - 1] is the updated left cell.
+                dp[c] = grid[r][c] + min(dp[c], dp[c - 1])
+
+        return dp[-1]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(mn)，每個格子仍然只處理一次。</div>
+          <div><b>Space Complexity:</b> O(n)，只保留目前列需要的 <code>cols</code> 個 DP 狀態。</div>
+        </div>
       </article>
     </div>
   </section>
