@@ -504,7 +504,7 @@ class Excel:
       <article class="problem-card">
         <div class="problem-head">
           <h2>4. Flood Fill</h2>
-          <div class="badges"><span class="badge easy">Easy</span><span class="badge">DFS</span><span class="badge">Grid</span><span class="badge">OpenAI</span></div>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">DFS</span><span class="badge">BFS</span><span class="badge">Grid</span><span class="badge">OpenAI</span></div>
         </div>
         <h3>題目整理</h3>
         <p>給一張 image matrix、起點 <code>(sr, sc)</code> 與新顏色 <code>color</code>，將起點所在的連通區域全部換成新顏色；連通只看上下左右，且只能走原本顏色相同的格子。</p>
@@ -535,6 +535,36 @@ class Solution:
         <div class="complexity">
           <div><b>Time Complexity:</b> O(mn)，最壞情況整張圖都被填色。</div>
           <div><b>Space Complexity:</b> O(mn)，DFS recursion stack 最壞可達所有格子。</div>
+        </div>
+        <h3>另一種解法：BFS / Queue</h3>
+        <p>BFS 版本用 queue 逐層擴展連通區域。關鍵是「入隊時就改色」，這樣同一個格子不會被不同鄰居重複加入 queue。</p>
+<pre><code class="language-python">from collections import deque
+from typing import List
+
+
+class Solution:
+    def floodFill(self, image: List[List[int]], sr: int, sc: int, color: int) -&gt; List[List[int]]:
+        original = image[sr][sc]
+        if original == color:
+            return image
+
+        rows, cols = len(image), len(image[0])
+        queue = deque([(sr, sc)])
+        image[sr][sc] = color  # Recolor on enqueue to avoid duplicate visits.
+
+        while queue:
+            r, c = queue.popleft()
+
+            for dr, dc in [(1, 0), (-1, 0), (0, 1), (0, -1)]:
+                nr, nc = r + dr, c + dc
+                if 0 &lt;= nr &lt; rows and 0 &lt;= nc &lt; cols and image[nr][nc] == original:
+                    image[nr][nc] = color
+                    queue.append((nr, nc))
+
+        return image</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(mn)，每個格子最多入隊並處理一次。</div>
+          <div><b>Space Complexity:</b> O(mn)，queue 最壞可能保存大量同色連通格子。</div>
         </div>
       </article>
     </div>
