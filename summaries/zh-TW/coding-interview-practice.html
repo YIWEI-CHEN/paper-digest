@@ -492,8 +492,9 @@ class Excel:
     def _cell(self, name: str) -&gt; Tuple[int, str]:
         return int(name[1:]), name[0]</code></pre>
         <div class="complexity">
-          <div><b>Time Complexity:</b> <code>set</code> O(1)；<code>sum</code> O(R + G)，R 是公式展開引用數，G 是遞迴 get 觸及的公式引用總數。</div>
-          <div><b>Space Complexity:</b> O(cells + refs)，保存直接值與公式 reference counters。</div>
+          <div><b><code>set</code>:</b> Time O(1) / Space O(1)。Dictionary insert and delete, no traversal.<br>中文：dict 寫入與刪除，無遍歷。</div>
+          <div><b><code>get</code>:</b> Time O(R) / Space O(D)。Recursively expands all referenced cells until reaching direct values; R is the total number of cells touched, D is the deepest formula chain (call stack depth).<br>中文：遞迴展開所有引用直到直接值，R 是觸及的 cell 總數，D 是公式鏈最深的遞迴深度。</div>
+          <div><b><code>sum</code>:</b> Time O(P + R) / Space O(P)。<code>_parse</code> expands all ranges into P cell references, then <code>get</code> recursively evaluates them in O(R).<br>中文：<code>_parse</code> 展開所有 range 產生 P 個引用，再呼叫 <code>get</code> 遞迴計算當前值。</div>
         </div>
       </article>
     </div>
@@ -733,6 +734,7 @@ class Solution:
         <p>每個 account 格式為 <code>[name, email1, email2, ...]</code>。如果兩個 account 共享任一 email，代表同一個人，請合併所有 emails 並排序；輸出格式為 <code>[name, sorted emails...]</code>。</p>
         <h3>解法說明</h3>
         <p>把 email 視為節點，同一 account 內所有 email union 起來。最後對每個 email 找 root 並分組，使用 root 對應的 name，輸出每組排序後的 emails。</p>
+        <p><b>What is Disjoint Set Union (DSU)?</b> Disjoint Set Union (DSU) tracks which nodes belong to the same group. <code>find</code> returns a node's root (group ID), and <code>union</code> merges two groups by connecting one root to the other.<br>中文：DSU 追蹤哪些節點屬於同一組，<code>find</code> 回傳節點的 root（組別 ID），<code>union</code> 把兩個 root 相連，將兩組合併成一組。</p>
 <pre><code class="language-python">from collections import defaultdict
 from typing import List
 
