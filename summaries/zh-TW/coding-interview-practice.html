@@ -132,6 +132,36 @@ a { color: var(--accent-2); }
   background: rgba(255, 176, 0, 0.08);
   color: #f7dd9a;
 }
+.concept-callout {
+  margin-top: 16px;
+  padding: 18px 20px;
+  border: 1px solid rgba(88, 213, 201, 0.32);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 12px;
+  background: rgba(88, 213, 201, 0.08);
+  color: var(--muted);
+}
+.concept-callout strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #fff;
+  font-size: 17px;
+}
+.alpha-examples {
+  display: grid;
+  gap: 8px;
+  margin: 12px 0;
+}
+.alpha-example {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(31, 38, 49, 0.7);
+}
+.alpha-example span:last-child { color: #fff; }
 .grid { display: grid; gap: 18px; }
 .overview-grid { grid-template-columns: repeat(3, 1fr); }
 .card {
@@ -778,8 +808,26 @@ class Solution:
             result.append([email_to_name[root]] + sorted(emails))
         return result</code></pre>
         <div class="complexity">
-          <div><b>Time Complexity:</b> O(E α(E) + E log E)，E 是 email 數；排序 dominates 每組輸出。</div>
+          <div>
+            <b>Time Complexity:</b> O(E α(E) + E log E)，E 是 email 數。
+            <ul class="summary-list">
+              <li><b>DSU operations:</b> With path compression, each <code>find</code> costs amortized O(α(E)); <code>union</code> is also effectively O(α(E)).</li>
+              <li><b>Sorting:</b> Sorting grouped emails contributes O(E log E).</li>
+              <li><b>Interview phrasing:</b> <i>"With path compression, each find is effectively O(1) since α(E) is practically constant for any realistic input."</i></li>
+              <li><b>中文：</b>α(E) 成長極度緩慢，實務上視為常數，所以 DSU 的 <code>find</code> 和 <code>union</code> 幾乎是 O(1)；最後還需要排序每組 emails，因此有 O(E log E)。</li>
+            </ul>
+          </div>
           <div><b>Space Complexity:</b> O(E)，parent、name map 與 groups。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>Inverse Ackermann <code>α(n)</code></strong>
+          <p><code>α(n)</code> 是 Ackermann function 的反函式，成長極度緩慢：</p>
+          <div class="alpha-examples">
+            <div class="alpha-example"><span><code>α(1)</code></span><span>1</span></div>
+            <div class="alpha-example"><span><code>α(65536)</code></span><span>4</span></div>
+            <div class="alpha-example"><span><code>α(2^65536)</code></span><span>5 ← 宇宙中所有原子的數量也到不了這裡</span></div>
+          </div>
+          <p>實務上輸入再大，<code>α(n)</code> 幾乎永遠 ≤ 5。</p>
         </div>
       </article>
     </div>
