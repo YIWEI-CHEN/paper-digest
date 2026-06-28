@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenRLHF — Paper Summary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#141b25;--panel2:#1b2430;--ink:#e8edf4;--muted:#93a1b3;
+  --line:#26313f;--acc:#5ad1c0;--acc2:#f4a259;--acc3:#8c7bff;--hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;--disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.8;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:700px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)}.str{color:var(--acc2)}.cmt{color:#5b6675}.fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">EMNLP · System Demo · Paper Summary</div>
+    <h1 class="title">Open<span class="sql">RLHF</span></h1>
+    <p class="subtitle">An easy-to-use, scalable, high-performance open-source RLHF / RLVR framework built on Ray + vLLM + DeepSpeed — delivering 1.22×–1.68× training speedups with far fewer lines of code.</p>
+    <div class="meta-row">
+      <span class="tag lit">RLHF / RLVR</span>
+      <span class="tag lit">Ray distributed</span>
+      <span class="tag lit">vLLM inference</span>
+      <span class="tag">DeepSpeed ZeRO</span>
+      <span class="tag">Ring Attention</span>
+      <span class="tag">Async dataflow</span>
+    </div>
+    <p class="authors">Jian Hu, Xibin Wu, Wei Shen, Jason Klein Liu, Zilin Zhu et al. · OpenRLHF Team · <a href="https://github.com/OpenRLHF/OpenRLHF">github.com/OpenRLHF/OpenRLHF</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#contrib">02 Contributions</a>
+    <a href="#arch">03 Architecture</a>
+    <a href="#system">04 System Design</a>
+    <a href="#ppo">05 PPO Workflow</a>
+    <a href="#exp">06 Experiments</a>
+    <a href="#limit">07 Limitations</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — Why Another RLHF Framework?</h2>
+    <p class="lead">RLHF and RLVR markedly improve human-AI alignment and raise the ceiling on long chain-of-thought (long-CoT) reasoning. But existing frameworks are either hard to use or not fast enough — rarely both.</p>
+
+    <p>LLMs fine-tuned via <strong>Reinforcement Learning from Human Feedback (RLHF)</strong> and <strong>Reinforcement Learning with Verifiable Rewards (RLVR)</strong> better conform to human intent and values while reasoning more capably — GPT-4, DeepSeek-R1, and Claude all rely on step-by-step <span class="hl">Chain-of-Thought (CoT)</span> outputs.</p>
+
+    <p>The catch is performance: in PPO-based RLHF/RLVR, <strong>the inference (generation) phase often accounts for over 90% of total runtime</strong>, since each step must generate thousands of tokens. Hence the demand for frameworks that cut inference overhead and simplify distributed training workflows.</p>
+
+    <div class="callout warn">
+      <p><strong>The accessibility–performance trade-off:</strong> Open-source tools like DeepSpeed-Chat, TRL, and ColossalChat are <span class="hl2">accessible but lack sophisticated orchestration and inference optimization</span>; industrial frameworks like Nemo-aligner, ChatLearn, and Verl offer <span class="hl2">strong optimizations but are tightly coupled with steep learning curves</span>. Users are forced to choose between high performance and ease of use.</p>
+    </div>
+
+    <p>OpenRLHF aims to balance <span class="hl">high performance, scalability, and ease of use</span> — simple enough for newcomers, yet adaptable to diverse, evolving workloads.</p>
+  </div>
+</section>
+
+<section id="contrib">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Core Contributions — Four Key Innovations</h2>
+    <p class="lead">Built on Ray, vLLM, DeepSpeed, and HuggingFace Transformers, OpenRLHF introduces four design innovations that run through the whole system.</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>① First Ray-based open-source architecture</h4>
+        <p>Ray's flexible distributed primitives streamline orchestration and resource management for RLHF/RLVR workflows, boosting usability and deployment flexibility.</p>
+      </div>
+      <div class="card">
+        <h4>② 3D parallelism (ZeRO + Ring Attention)</h4>
+        <p>Integrates DeepSpeed-ZeRO Auto Tensor Parallelism (AutoTP) and ring-attention sequence parallelism, combining tensor / data / sequence parallelism without complex configuration.</p>
+      </div>
+      <div class="card">
+        <h4>③ First vLLM-accelerated CoT inference</h4>
+        <p>Adopts the vLLM engine — token-level parallel decoding, PagedAttention caching, and dynamic batching — directly targeting the long-CoT inference bottleneck.</p>
+      </div>
+      <div class="card">
+        <h4>④ Async dataflow & remote engines</h4>
+        <p>Rollout, actor, and remote engines run independently and communicate via message passing, processing data as soon as it's ready — extensible to agent RL training.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Adoption:</strong> Used by CMU, MIT, Microsoft, and HKUST, and the foundation for specialized frameworks like LMM-R1, MARTI, and MM-EUREKA. Later frameworks — Verl, Alibaba ROLL, SLIME, Open-Reasoner-Zero — acknowledge its architectural design in their documentation.</p>
+    </div>
+  </div>
+</section>
+
+<section id="arch">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Architecture — Ray-based RLHF</h2>
+    <p class="lead">OpenRLHF is the first open-source, Ray-based RLHF architecture: it assigns a batch of GPUs to distinct roles and manages both data flow and workflow among them via Ray's scheduling.</p>
+
+    <p>It defines two primary roles: the <span class="hl">Rollout Engine</span> (generates responses to prompts, implemented with vLLM for minimal GPU memory usage) and the <span class="hl">ZeRO / Actor Engine</span> (computes logprobs and reference policy logprobs, and handles model training via DeepSpeed 3D parallelism).</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+        <rect x="270" y="20" width="220" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="380" y="45" fill="#93a1b3" font-size="13" text-anchor="middle">User Input · Configs</text>
+
+        <rect x="40" y="120" width="300" height="120" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="190" y="148" fill="#5ad1c0" font-size="14" text-anchor="middle" font-weight="700">Rollout Engine (vLLM)</text>
+        <text x="190" y="172" fill="#93a1b3" font-size="11" text-anchor="middle">AutoTP / PP / EP</text>
+        <text x="190" y="194" fill="#93a1b3" font-size="11" text-anchor="middle">PagedAttention · continuous batching</text>
+        <text x="190" y="216" fill="#93a1b3" font-size="11" text-anchor="middle">low-memory response generation</text>
+
+        <rect x="420" y="120" width="300" height="120" rx="10" fill="#141b25" stroke="#f4a259"/>
+        <text x="570" y="148" fill="#f4a259" font-size="14" text-anchor="middle" font-weight="700">ZeRO / Actor Engine (DeepSpeed)</text>
+        <text x="570" y="172" fill="#93a1b3" font-size="11" text-anchor="middle">ZeRO-3 / AutoTP / RingAttn</text>
+        <text x="570" y="194" fill="#93a1b3" font-size="11" text-anchor="middle">Actor + Critic training</text>
+        <text x="570" y="216" fill="#93a1b3" font-size="11" text-anchor="middle">logprobs / param updates</text>
+
+        <rect x="270" y="290" width="220" height="36" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="380" y="313" fill="#8c7bff" font-size="13" text-anchor="middle">Ray — distributed scheduler</text>
+
+        <line x1="380" y1="60" x2="190" y2="118" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="380" y1="60" x2="570" y2="118" stroke="#f4a259" marker-end="url(#arr2)"/>
+        <line x1="340" y1="180" x2="418" y2="180" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="418" y1="200" x2="340" y2="200" stroke="#f4a259" marker-end="url(#arr2)"/>
+        <text x="380" y="175" fill="#5b6675" font-size="9" text-anchor="middle">weight slices</text>
+        <line x1="190" y1="240" x2="320" y2="290" stroke="#8c7bff" marker-end="url(#arr)"/>
+        <line x1="570" y1="240" x2="440" y2="290" stroke="#8c7bff" marker-end="url(#arr)"/>
+      </svg>
+      <div class="figcap">Figure 1 · Overall OpenRLHF architecture: Rollout + Actor roles scheduled by Ray (redrawn from paper Figure 1)</div>
+    </div>
+
+    <h3>The core reason for ease of use: model slicing, seamless integration, flexible scheduling</h3>
+    <p>Weight exchange between rollout and training engines is enabled by a flexible slicing/partitioning pipeline. HuggingFace Transformer models are instantiated and trained with DeepSpeed ZeRO, AutoTP, and Ring-Attention, then transferred to vLLM via <span class="hl">AutoTP and AutoPP</span>, which dynamically partition models into sub-modules. Ray's scheduling enables seamless switching between parallelism modes (hybrid engine, async training).</p>
+
+    <div class="callout">
+      <p><strong>Versus mainstream frameworks:</strong> compared to DeepSpeed-Chat or TRL, OpenRLHF adds <span class="hl">asynchronous dataflow and remote engine interactions</span>, significantly improving the overall efficiency of both training and agent workflows.</p>
+    </div>
+  </div>
+</section>
+
+<section id="system">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>System Design — Three Performance Pillars</h2>
+    <p class="lead">The distributed design revolves around three things: scaling large models (3D parallelism), fast generation (vLLM), and keeping hardware busy (async).</p>
+
+    <h3>① 3D Parallelism: DeepSpeed-ZeRO + Ring Attention</h3>
+    <p>Many industrial architectures require users to manually specify an injection policy per transformer (identifying linear layers and attention outputs needing cross-rank communication). OpenRLHF instead uses DeepSpeed-ZeRO's <span class="hl">automatic tensor parallelism</span>: when kernel injection is off and no policy is given, DeepSpeed determines and applies the necessary policy at runtime — greatly simplifying the experience and broadening model support.</p>
+    <p>It also implements sequence parallelism via <span class="hl">ring attention</span>: a ring-based communication topology distributes long-sequence attention across GPUs while minimizing memory and communication overhead — critical for modern long-CoT RLHF/RLVR workloads.</p>
+
+    <h3>② vLLM-Accelerated CoT Inference</h3>
+    <p>For models like OpenAI-o1 and DeepSeek-R1, CoT generation can dominate training time. vLLM's core innovation is managing attention key/value memory with <span class="hl">PagedAttention</span>:</p>
+    <div class="grid g3">
+      <div class="card"><h4>Memory waste</h4><p class="big">&lt;4%</p><p>PagedAttention slashes waste, batching more sequences and raising GPU utilization</p></div>
+      <div class="card"><h4>Sampling memory</h4><p class="big">↓55%</p><p>Efficient memory sharing for parallel sampling / beam search</p></div>
+      <div class="card"><h4>Other wins</h4><p>Continuous batching, CUDA Graph, FlashAttention/FlashInfer kernels, speculative decoding, chunked prefill</p></div>
+    </div>
+
+    <h3>③ Asynchronous Dataflow & Remote Engines</h3>
+    <p>In the CoT era, inference length and cost vary wildly. In synchronous frameworks, <span class="hl2">the slowest CoT generation bottlenecks the whole pipeline and wastes resources</span>. OpenRLHF lets each engine run at its own pace, keeping hardware utilized even for long or variable CoT tasks, and naturally extending to dynamic agent RL workflows.</p>
+
+    <div class="callout warn">
+      <p><strong>In one line:</strong> AutoTP + data parallelism + ring-attention sequence parallelism = large-scale, efficient, and highly usable RLHF training on flexible GPU clusters.</p>
+    </div>
+  </div>
+</section>
+
+<section id="ppo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>PPO Workflow — Four Iterative Stages</h2>
+    <p class="lead">OpenRLHF's PPO workflow orchestrates multiple specialized engines, iterating four stages until convergence (from paper Appendix B / Figure 3).</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Rollout Generation</h4>
+        <p>A batch of prompts {x₁…x_B} is sampled; the Rollout Engine (vLLM) generates responses {y₁…y_B} under the current policy π_θ, recording action log-probabilities and attention masks. Continuous batching, KV-cache, and PagedAttention maximize throughput.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Reward Computation</h4>
+        <p>The trained reward model R_φ scores each (x, y) pair; the frozen reference policy π_ref computes log π_ref(yᵢ|xᵢ) for KL regularization; the critic V_ψ estimates state values for advantage computation.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Advantage Estimation (GAE)</h4>
+        <p>Temporal-difference residuals δₜ are computed, then aggregated via GAE into advantages Aₜ and discounted returns Rₜ. A KL penalty is folded into the reward to keep the policy near the reference.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Policy Optimization</h4>
+        <p>The ZeRO Engine updates the policy with PPO's clipped objective, combined with value loss and an entropy bonus; gradients and parameter updates run on DeepSpeed ZeRO.</p>
+      </div></div>
+    </div>
+
+    <h3>Key Formulas</h3>
+    <div class="formula">δ<sub>t</sub> = r<sub>t</sub> + γV<sub>ψ</sub>(s<sub>t+1</sub>) − V<sub>ψ</sub>(s<sub>t</sub>)　　A<sub>t</sub> = Σ<sub>l≥0</sub> (γλ)<sup>l</sup> δ<sub>t+l</sub>　　R<sub>t</sub> = A<sub>t</sub> + V<sub>ψ</sub>(s<sub>t</sub>)<br><span style="color:var(--muted)">GAE: TD residual → advantage → discounted return</span></div>
+    <div class="formula">L<sup>CLIP</sup>(θ) = E[ min( r<sub>t</sub>(θ)A<sub>t</sub>,　clip(r<sub>t</sub>(θ), 1−ε, 1+ε) A<sub>t</sub> ) ]<br><span style="color:var(--muted)">r<sub>t</sub>(θ) = π<sub>θ</sub>(a<sub>t</sub>|s<sub>t</sub>) / π<sub>θold</sub>(a<sub>t</sub>|s<sub>t</sub>) is the probability ratio</span></div>
+    <div class="formula">L<sub>total</sub> = L<sup>CLIP</sup> + c<sub>1</sub>L<sup>V</sup> + c<sub>2</sub>S[π<sub>θ</sub>](s<sub>t</sub>)<br><span style="color:var(--muted)">policy + value loss + entropy bonus; r′<sub>t</sub> = r<sub>t</sub> − βKL[π<sub>θ</sub>‖π<sub>ref</sub>]</span></div>
+
+    <div class="callout">
+      <p><strong>Async overlap:</strong> The Rollout Engine and ZeRO Engine can run on separately-optimized GPU clusters (inference-optimized vs training-optimized). Ray handles data transfer, synchronization, and fault tolerance automatically, overlapping compute stages to significantly improve training throughput.</p>
+    </div>
+  </div>
+</section>
+
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Experiments — Fast and Lean</h2>
+    <p class="lead">On 8× NVIDIA H200 140GB GPUs, PyTorch 2.7, ZeRO-3/FSDP, OpenRLHF wins across long-CoT, RLVR, and RLHF settings.</p>
+
+    <h3>Long CoT: vs Verl (SOTA)</h3>
+    <p>Using DeepSeek-distilled Qwen models, the DAPO algorithm, and identical hyperparameters, the table reports per-step average training time (seconds) across model sizes and generation lengths. Speedup = geometric mean of Verl/OpenRLHF time across sequence lengths.</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Avg per-step training time (sec) — OpenRLHF vs Verl (v0.8.5 vs v0.4.0)</caption>
+        <thead><tr><th>Model</th><th>1K O/V</th><th>2K O/V</th><th>4K O/V</th><th>8K O/V</th><th>Avg Speedup</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">1.5B</td><td class="num">14.9 / 16.2</td><td class="num">26.5 / 33.1</td><td class="num">61.6 / 65.5</td><td class="num">113.0 / 134.8</td><td class="num">1.22×</td></tr>
+          <tr class="best"><td class="ours">7B</td><td class="num">16.0 / 17.3</td><td class="num">30.3 / 47.3</td><td class="num">90.3 / 101.3</td><td class="num">226.4 / 232.4</td><td class="num">1.42×</td></tr>
+          <tr class="best"><td class="ours">14B</td><td class="num">25.5 / 28.5</td><td class="num">51.0 / 74.3</td><td class="num">136.3 / 202.8</td><td class="num">328.6 / 511.1</td><td class="num">1.68×</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>The speedup advantage grows as <strong>models get larger and context grows longer</strong>: the 14B model reaches 1.68× overall; the 14B-8K setting shows 1.56× (328.6s vs 511.1s). The paper attributes this to the DAPO optimization mitigating memory overhead and compute bottlenecks under long context.</p>
+
+    <h3>General RLVR (GRPO / GSM8K) and General RLHF (PPO)</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>RLVR vs TRL — single epoch, GSM8K</h4>
+        <p class="big">3.1×</p>
+        <p>OpenRLHF <span class="hl">1,657s</span> vs TRL 5,189s (GRPO algorithm, same hardware & hyperparameters)</p>
+      </div>
+      <div class="card">
+        <h4>RLHF vs DeepSpeed-Chat — 1,024 prompts PPO</h4>
+        <p class="big">3.6×</p>
+        <p>OpenRLHF <span class="hl">236.8s</span> vs DSChat 855.09s; driven by vLLM generation + Ray distributed execution</p>
+      </div>
+    </div>
+
+    <h3>Usability: Core Lines of Code</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="20" x2="70" y2="240" stroke="#26313f"/>
+        <line x1="70" y1="240" x2="670" y2="240" stroke="#26313f"/>
+        <text x="62" y="44" fill="#5b6675" font-size="10" text-anchor="end">32k</text>
+        <text x="62" y="142" fill="#5b6675" font-size="10" text-anchor="end">16k</text>
+        <text x="62" y="240" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <line x1="70" y1="44" x2="670" y2="44" stroke="#1b2430"/>
+        <line x1="70" y1="142" x2="670" y2="142" stroke="#1b2430"/>
+
+        <rect x="110" y="187" width="90" height="53" rx="4" fill="#5ad1c0"/>
+        <text x="155" y="180" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">8,523</text>
+        <text x="155" y="258" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">OpenRLHF ★</text>
+
+        <rect x="270" y="42" width="90" height="198" rx="4" fill="#4a7d8c"/>
+        <text x="315" y="35" fill="#93a1b3" font-size="12" text-anchor="middle">32,325</text>
+        <text x="315" y="258" fill="#93a1b3" font-size="11" text-anchor="middle">Verl</text>
+
+        <rect x="430" y="123" width="90" height="117" rx="4" fill="#3a4658"/>
+        <text x="475" y="116" fill="#93a1b3" font-size="12" text-anchor="middle">19,071</text>
+        <text x="475" y="258" fill="#93a1b3" font-size="11" text-anchor="middle">TRL</text>
+
+        <rect x="590" y="225" width="90" height="15" rx="4" fill="#3a4658"/>
+        <text x="635" y="218" fill="#93a1b3" font-size="12" text-anchor="middle">2,378</text>
+        <text x="635" y="258" fill="#93a1b3" font-size="11" text-anchor="middle">DSChat</text>
+      </svg>
+      <div class="figcap">Figure 2 · Core code complexity (lines of code; lower = simpler) (redrawn from paper Figure 2)</div>
+    </div>
+    <p>OpenRLHF uses just <strong>8,523 lines</strong>, far fewer than TRL (19,071) and Verl (32,325), yet shows a clear performance edge on standard RLHF benchmarks. It also supports SFT, DPO, RM, and PRM fine-tuning paradigms with a modular, well-documented architecture, lowering the barrier to entry for both research and production.</p>
+  </div>
+</section>
+
+<section id="limit">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Limitations & Impact</h2>
+    <p class="lead">The authors explicitly state the framework's boundaries — these are self-acknowledged weaknesses, not speculation.</p>
+
+    <div class="callout hot">
+      <p><strong>Limitation 1:</strong> As a community-driven open-source project without dedicated economic support, OpenRLHF may not match the peak performance of highly specialized industrial frameworks with dedicated engineering teams, and may lag in integrating cutting-edge features.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 2:</strong> It currently focuses on language models and <span class="hl2">does not support Vision-Language Models or other multimodal architectures</span>, limiting its applicability to multimodal AI alignment research.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 3:</strong> The modular design introduces dependencies on external systems (Ray, vLLM, DeepSpeed); upstream updates may require maintenance or introduce compatibility issues.</p>
+    </div>
+
+    <h3>Conclusion & Broad Impact</h3>
+    <p>By integrating Ray's distributed computing, vLLM's inference optimization, DeepSpeed ZeRO's memory efficiency, and ring attention's sequence parallelism, OpenRLHF delivers four key innovations (Ray-based architecture, 3D parallelism, accelerated CoT inference, async dataflow). It has been widely adopted by Google, ByteDance, Baidu, NVIDIA, Tencent, UC Berkeley's Starling Team, and HKUST, integrated into CMU's Advanced NLP Spring 2025 course, and invited to PyTorch Expert Exchange 2025 — a significant contribution to democratizing RLHF research.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Jian Hu, Xibin Wu, Wei Shen, Jason Klein Liu, Zilin Zhu et al. · OpenRLHF Team · EMNLP System Demonstration</p>
+    <p style="margin-top:8px"><a href="https://github.com/OpenRLHF/OpenRLHF">Code: github.com/OpenRLHF/OpenRLHF</a> · <a href="https://openrlhf.readthedocs.io/">Docs</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a paper-summary digest; figures are redrawn / reorganized from the paper. Refer to the original paper for authoritative numbers.</p>
+  </div>
+</footer>
+
+</body>
+</html>

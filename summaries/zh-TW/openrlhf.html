@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenRLHF 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#141b25;--panel2:#1b2430;--ink:#e8edf4;--muted:#93a1b3;
+  --line:#26313f;--acc:#5ad1c0;--acc2:#f4a259;--acc3:#8c7bff;--hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;--disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)}.str{color:var(--acc2)}.cmt{color:#5b6675}.fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">EMNLP · System Demo · 論文導讀</div>
+    <h1 class="title">Open<span class="sql">RLHF</span></h1>
+    <p class="subtitle">一個建立在 Ray + vLLM + DeepSpeed 之上、好上手、可擴展且高效能的開源 RLHF / RLVR 框架——用更少的程式碼，換取 1.22×～1.68× 的訓練加速。</p>
+    <div class="meta-row">
+      <span class="tag lit">RLHF / RLVR</span>
+      <span class="tag lit">Ray 分散式架構</span>
+      <span class="tag lit">vLLM 推論加速</span>
+      <span class="tag">DeepSpeed ZeRO</span>
+      <span class="tag">Ring Attention</span>
+      <span class="tag">非同步 Dataflow</span>
+    </div>
+    <p class="authors">Jian Hu, Xibin Wu, Wei Shen, Jason Klein Liu, Zilin Zhu 等 · OpenRLHF Team · <a href="https://github.com/OpenRLHF/OpenRLHF">github.com/OpenRLHF/OpenRLHF</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#contrib">02 核心貢獻</a>
+    <a href="#arch">03 架構設計</a>
+    <a href="#system">04 系統優化</a>
+    <a href="#ppo">05 PPO 流程</a>
+    <a href="#exp">06 實驗結果</a>
+    <a href="#limit">07 限制與影響</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 為什麼還需要一個 RLHF 框架</h2>
+    <p class="lead">RLHF 與 RLVR 大幅提升了人類與 AI 的價值對齊，也推高了模型在長鏈推理（long-CoT）任務上的能力上限。但現有框架要嘛「難用」，要嘛「不夠快」，兩者難以兼得。</p>
+
+    <p>透過 <strong>人類回饋強化學習（RLHF）</strong> 與 <strong>可驗證獎勵強化學習（RLVR）</strong> 微調的大型語言模型，能更貼合人類意圖與價值，同時在複雜推理上表現更佳——例如 GPT-4、DeepSeek-R1、Claude 都仰賴一步步的 <span class="hl">Chain-of-Thought（CoT）</span> 推理。</p>
+
+    <p>但問題出在效能：以 PPO 為主的 RLHF/RLVR 訓練，<strong>推論（生成）階段往往佔掉整體執行時間 90% 以上</strong>，因為每一步都得生成數千個 token。因此業界亟需能降低推論開銷、又能簡化分散式訓練流程的框架。</p>
+
+    <div class="callout warn">
+      <p><strong>現有方案的兩難：</strong>像 DeepSpeed-Chat、TRL、ColossalChat 這類開源方案<span class="hl2">易上手但缺乏成熟的調度與推論優化</span>；而 Nemo-aligner、ChatLearn、Verl 等工業級框架<span class="hl2">優化很強，卻架構高度耦合、學習曲線陡峭</span>，對新手與學術研究者形成門檻。使用者被迫在「高效能」與「易用性」之間二選一。</p>
+    </div>
+
+    <p>OpenRLHF 的目標，就是同時兼顧 <span class="hl">高效能、可擴展、易上手</span>——簡單到讓初學者能入門，又能適應多變的工作負載。</p>
+  </div>
+</section>
+
+<section id="contrib">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>核心貢獻 — 四項關鍵創新</h2>
+    <p class="lead">OpenRLHF 建立在 Ray、vLLM、DeepSpeed 與 HuggingFace Transformers 之上，提出四項貫穿始終的設計創新。</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>① 首個 Ray-based 開源架構</h4>
+        <p>利用 Ray 的彈性分散式運算原語，把 RLHF/RLVR 工作流的編排與資源管理大幅簡化，提升可用性與部署彈性。</p>
+      </div>
+      <div class="card">
+        <h4>② 3D 平行（ZeRO + Ring Attention）</h4>
+        <p>整合 DeepSpeed-ZeRO 的自動張量平行（AutoTP）與基於 ring attention 的序列平行，組合出張量／資料／序列三維平行，無需複雜工程配置。</p>
+      </div>
+      <div class="card">
+        <h4>③ 首個 vLLM 加速 CoT 推論</h4>
+        <p>導入 vLLM 推論引擎，透過 token 級平行解碼、PagedAttention 快取與動態批次，直擊長 CoT 工作負載的推論瓶頸。</p>
+      </div>
+      <div class="card">
+        <h4>④ 非同步 Dataflow 與遠端引擎</h4>
+        <p>rollout、actor、remote 引擎各自獨立、以訊息傳遞溝通，資料一就緒即可處理，降低閒置、提升管線效率，並可延伸到 agent RL 訓練。</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>採用情況：</strong>OpenRLHF 已被 CMU、MIT、Microsoft、HKUST 等領先機構採用，並衍生出 LMM-R1、MARTI、MM-EUREKA 等專門框架；Verl、Alibaba ROLL、SLIME、Open-Reasoner-Zero 等後續框架也在文件中致謝其架構設計。</p>
+    </div>
+  </div>
+</section>
+
+<section id="arch">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>架構設計 — Ray-based RLHF</h2>
+    <p class="lead">OpenRLHF 是首個以 Ray 為基礎的開源 RLHF 架構：將一批 GPU 指派到不同角色，並用 Ray 的調度能力管理角色間的資料流與工作流。</p>
+
+    <p>系統定義兩個主要角色：<span class="hl">Rollout Engine</span>（負責對提示生成回應，由 vLLM 實作，GPU 記憶體占用極低）與 <span class="hl">ZeRO / Actor Engine</span>（計算 logprobs、reference policy logprobs，並負責模型訓練，由 DeepSpeed 實作 3D 平行）。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+        <rect x="270" y="20" width="220" height="40" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="380" y="45" fill="#93a1b3" font-size="13" text-anchor="middle">User Input · Configs</text>
+
+        <rect x="40" y="120" width="300" height="120" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="190" y="148" fill="#5ad1c0" font-size="14" text-anchor="middle" font-weight="700">Rollout Engine (vLLM)</text>
+        <text x="190" y="172" fill="#93a1b3" font-size="11" text-anchor="middle">AutoTP / PP / EP</text>
+        <text x="190" y="194" fill="#93a1b3" font-size="11" text-anchor="middle">PagedAttention · 連續批次</text>
+        <text x="190" y="216" fill="#93a1b3" font-size="11" text-anchor="middle">低 GPU 記憶體生成回應</text>
+
+        <rect x="420" y="120" width="300" height="120" rx="10" fill="#141b25" stroke="#f4a259"/>
+        <text x="570" y="148" fill="#f4a259" font-size="14" text-anchor="middle" font-weight="700">ZeRO / Actor Engine (DeepSpeed)</text>
+        <text x="570" y="172" fill="#93a1b3" font-size="11" text-anchor="middle">ZeRO-3 / AutoTP / RingAttn</text>
+        <text x="570" y="194" fill="#93a1b3" font-size="11" text-anchor="middle">Actor + Critic 模型訓練</text>
+        <text x="570" y="216" fill="#93a1b3" font-size="11" text-anchor="middle">計算 logprobs / 參數更新</text>
+
+        <rect x="270" y="290" width="220" height="36" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="380" y="313" fill="#8c7bff" font-size="13" text-anchor="middle">Ray — 分散式調度與控制</text>
+
+        <line x1="380" y1="60" x2="190" y2="118" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="380" y1="60" x2="570" y2="118" stroke="#f4a259" marker-end="url(#arr2)"/>
+        <line x1="340" y1="180" x2="418" y2="180" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="418" y1="200" x2="340" y2="200" stroke="#f4a259" marker-end="url(#arr2)"/>
+        <text x="380" y="175" fill="#5b6675" font-size="9" text-anchor="middle">權重切片</text>
+        <line x1="190" y1="240" x2="320" y2="290" stroke="#8c7bff" marker-end="url(#arr)"/>
+        <line x1="570" y1="240" x2="440" y2="290" stroke="#8c7bff" marker-end="url(#arr)"/>
+      </svg>
+      <div class="figcap">圖 1 · OpenRLHF 整體架構：Rollout 與 Actor 雙角色，由 Ray 調度（依論文 Figure 1 重繪）</div>
+    </div>
+
+    <h3>易用性的核心：模型切片、無縫整合、彈性調度</h3>
+    <p>Rollout engine 與 training engine 之間的權重交換，透過彈性切片與分割管線完成。HuggingFace Transformer 模型以 DeepSpeed ZeRO、AutoTP、Ring-Attention 進行實例化與訓練，再透過 <span class="hl">AutoTP 與 AutoPP</span> 動態切分成子模組，高效傳輸到 vLLM。Ray 的調度機制讓系統能在不同平行模式（hybrid engine、非同步訓練）間無縫切換。</p>
+
+    <div class="callout">
+      <p><strong>相較主流框架：</strong>對比 DeepSpeed-Chat、TRL 等，OpenRLHF 額外支援<span class="hl">非同步 dataflow 與遠端引擎互動</span>，明顯提升訓練流程與 agent workflow 的整體效率。</p>
+    </div>
+  </div>
+</section>
+
+<section id="system">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>系統優化 — 三大效能支柱</h2>
+    <p class="lead">分散式設計圍繞三件事：把大模型切得開（3D 平行）、把生成跑得快（vLLM）、把硬體閒不下來（非同步）。</p>
+
+    <h3>① 3D 平行：DeepSpeed-ZeRO + Ring Attention</h3>
+    <p>許多工業級架構要求使用者手動為每個 transformer 指定 injection policy（標出需要跨 data-parallel rank 通訊的線性層與 attention 輸出）。OpenRLHF 改用 DeepSpeed-ZeRO 的<span class="hl">自動張量平行</span>：當未啟用 kernel injection 也未提供 policy 時，DeepSpeed 在執行期自動判斷並套用必要策略，大幅簡化體驗並擴大可支援的模型範圍。</p>
+    <p>另以 <span class="hl">ring attention</span> 實作序列平行：採環狀通訊拓樸，把長序列的 attention 計算分散到多張 GPU，同時壓低記憶體與通訊開銷——這對涉及長 CoT 推理的現代 RLHF/RLVR 負載尤其關鍵。</p>
+
+    <h3>② vLLM 加速 CoT 推論</h3>
+    <p>對 OpenAI-o1、DeepSeek-R1 這類模型，CoT 生成可能主宰整個訓練時間。vLLM 的核心創新是用 <span class="hl">PagedAttention</span> 管理 attention 的 key/value 記憶體：</p>
+    <div class="grid g3">
+      <div class="card"><h4>記憶體浪費</h4><p class="big">&lt;4%</p><p>PagedAttention 大幅降低浪費，可批次更多序列、提升 GPU 利用率</p></div>
+      <div class="card"><h4>取樣記憶體節省</h4><p class="big">↓55%</p><p>平行取樣 / beam search 的高效記憶體共享</p></div>
+      <div class="card"><h4>其他優化</h4><p>連續批次、CUDA Graph、FlashAttention/FlashInfer kernel、推測解碼、chunked prefill</p></div>
+    </div>
+
+    <h3>③ 非同步 Dataflow 與遠端引擎</h3>
+    <p>在 CoT 時代，推論長度與成本差異極大。同步框架下，<span class="hl2">最慢的一條 CoT 生成會卡住整條管線、浪費資源</span>。OpenRLHF 讓每個引擎各自以自己的步調運作，即使面對長或變動的 CoT 任務也能維持硬體利用率，並可自然延伸到動態 agent RL 工作流。</p>
+
+    <div class="callout warn">
+      <p><strong>一句話總結：</strong>AutoTP + 資料平行 + ring-attention 序列平行 = 可在彈性 GPU 叢集上做大規模、高效、又好用的 RLHF 訓練。</p>
+    </div>
+  </div>
+</section>
+
+<section id="ppo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>PPO 訓練流程 — 四階段迭代</h2>
+    <p class="lead">OpenRLHF 的 PPO 工作流由多個專用引擎協作，反覆執行四個階段直到收斂（依論文 Appendix B / Figure 3）。</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Rollout Generation — 生成</h4>
+        <p>從資料集取一批提示 {x₁…x_B}，Rollout Engine（vLLM）用當前策略 π_θ 生成回應 {y₁…y_B}，並記錄動作 log 機率與 attention mask。連續批次、KV-cache、PagedAttention 在此最大化吞吐。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Reward Computation — 獎勵計算</h4>
+        <p>已訓練的 reward model R_φ 對每組 (x, y) 給出純量獎勵 rᵢ；凍結的 reference policy π_ref 計算 log π_ref(yᵢ|xᵢ) 供 KL 正則化；critic V_ψ 估計狀態值供 advantage 計算。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Advantage Estimation — 優勢估計（GAE）</h4>
+        <p>先算 TD 殘差 δₜ，再用 GAE 累加成 advantage Aₜ 與折扣回報 Rₜ，並把 KL penalty 併入獎勵以防策略偏離 reference 太遠。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Policy Optimization — 策略更新</h4>
+        <p>ZeRO Engine 用 PPO clipped 目標更新策略，結合 value loss 與 entropy bonus；以 DeepSpeed ZeRO 做梯度計算與參數更新。</p>
+      </div></div>
+    </div>
+
+    <h3>關鍵公式</h3>
+    <div class="formula">δ<sub>t</sub> = r<sub>t</sub> + γV<sub>ψ</sub>(s<sub>t+1</sub>) − V<sub>ψ</sub>(s<sub>t</sub>)　　A<sub>t</sub> = Σ<sub>l≥0</sub> (γλ)<sup>l</sup> δ<sub>t+l</sub>　　R<sub>t</sub> = A<sub>t</sub> + V<sub>ψ</sub>(s<sub>t</sub>)<br><span style="color:var(--muted)">GAE：時序差分殘差 → 優勢 → 折扣回報</span></div>
+    <div class="formula">L<sup>CLIP</sup>(θ) = E[ min( r<sub>t</sub>(θ)A<sub>t</sub>,　clip(r<sub>t</sub>(θ), 1−ε, 1+ε) A<sub>t</sub> ) ]<br><span style="color:var(--muted)">r<sub>t</sub>(θ) = π<sub>θ</sub>(a<sub>t</sub>|s<sub>t</sub>) / π<sub>θold</sub>(a<sub>t</sub>|s<sub>t</sub>) 為機率比</span></div>
+    <div class="formula">L<sub>total</sub> = L<sup>CLIP</sup> + c<sub>1</sub>L<sup>V</sup> + c<sub>2</sub>S[π<sub>θ</sub>](s<sub>t</sub>)<br><span style="color:var(--muted)">策略損失 + 價值損失 + 熵獎勵（鼓勵探索）；r′<sub>t</sub> = r<sub>t</sub> − βKL[π<sub>θ</sub>‖π<sub>ref</sub>]</span></div>
+
+    <div class="callout">
+      <p><strong>非同步重疊：</strong>Rollout Engine 與 ZeRO Engine 可跑在各自最佳化的 GPU 叢集上（推論優化 vs 訓練優化）。Ray 自動處理資料傳輸、同步與容錯，讓計算階段彼此重疊，顯著提升整體訓練吞吐。</p>
+    </div>
+  </div>
+</section>
+
+<section id="exp">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>實驗結果 — 又快又精簡</h2>
+    <p class="lead">在 8× NVIDIA H200 140GB、PyTorch 2.7、ZeRO-3/FSDP 環境下，OpenRLHF 在 long-CoT、RLVR、RLHF 三類設定下全面勝出。</p>
+
+    <h3>Long CoT：對比 Verl（SOTA）</h3>
+    <p>採 DeepSeek 蒸餾 Qwen 系列、DAPO 演算法、相同超參數，量測各模型大小與生成長度下的每步平均訓練時間（秒）。加速比為各序列長度下 Verl/OpenRLHF 時間的幾何平均。</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · 每步平均訓練時間（秒）— OpenRLHF vs Verl（v0.8.5 vs v0.4.0）</caption>
+        <thead><tr><th>模型</th><th>1K O/V</th><th>2K O/V</th><th>4K O/V</th><th>8K O/V</th><th>平均加速</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">1.5B</td><td class="num">14.9 / 16.2</td><td class="num">26.5 / 33.1</td><td class="num">61.6 / 65.5</td><td class="num">113.0 / 134.8</td><td class="num">1.22×</td></tr>
+          <tr class="best"><td class="ours">7B</td><td class="num">16.0 / 17.3</td><td class="num">30.3 / 47.3</td><td class="num">90.3 / 101.3</td><td class="num">226.4 / 232.4</td><td class="num">1.42×</td></tr>
+          <tr class="best"><td class="ours">14B</td><td class="num">25.5 / 28.5</td><td class="num">51.0 / 74.3</td><td class="num">136.3 / 202.8</td><td class="num">328.6 / 511.1</td><td class="num">1.68×</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>加速優勢隨<strong>模型變大、context 變長而更明顯</strong>：14B 模型整體達 1.68× 加速；14B-8K 設定為 1.56×（328.6s vs 511.1s）。論文歸因於 DAPO 優化策略對長 context 記憶體開銷與計算瓶頸的緩解。</p>
+
+    <h3>General RLVR（GRPO / GSM8K）與 General RLHF（PPO）</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>RLVR vs TRL — 單 epoch GSM8K</h4>
+        <p class="big">3.1×</p>
+        <p>OpenRLHF <span class="hl">1,657s</span> vs TRL 5,189s（GRPO 演算法，相同硬體與超參數）</p>
+      </div>
+      <div class="card">
+        <h4>RLHF vs DeepSpeed-Chat — 1,024 prompts PPO</h4>
+        <p class="big">3.6×</p>
+        <p>OpenRLHF <span class="hl">236.8s</span> vs DSChat 855.09s；主要得益於 vLLM 生成加速與 Ray 分散式執行</p>
+      </div>
+    </div>
+
+    <h3>易用性：核心程式碼行數</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="20" x2="70" y2="240" stroke="#26313f"/>
+        <line x1="70" y1="240" x2="670" y2="240" stroke="#26313f"/>
+        <text x="62" y="44" fill="#5b6675" font-size="10" text-anchor="end">32k</text>
+        <text x="62" y="142" fill="#5b6675" font-size="10" text-anchor="end">16k</text>
+        <text x="62" y="240" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <line x1="70" y1="44" x2="670" y2="44" stroke="#1b2430"/>
+        <line x1="70" y1="142" x2="670" y2="142" stroke="#1b2430"/>
+
+        <rect x="110" y="187" width="90" height="53" rx="4" fill="#5ad1c0"/>
+        <text x="155" y="180" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">8,523</text>
+        <text x="155" y="258" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">OpenRLHF ★</text>
+
+        <rect x="270" y="42" width="90" height="198" rx="4" fill="#4a7d8c"/>
+        <text x="315" y="35" fill="#93a1b3" font-size="12" text-anchor="middle">32,325</text>
+        <text x="315" y="258" fill="#93a1b3" font-size="11" text-anchor="middle">Verl</text>
+
+        <rect x="430" y="123" width="90" height="117" rx="4" fill="#3a4658"/>
+        <text x="475" y="116" fill="#93a1b3" font-size="12" text-anchor="middle">19,071</text>
+        <text x="475" y="258" fill="#93a1b3" font-size="11" text-anchor="middle">TRL</text>
+
+        <rect x="590" y="225" width="90" height="15" rx="4" fill="#3a4658"/>
+        <text x="635" y="218" fill="#93a1b3" font-size="12" text-anchor="middle">2,378</text>
+        <text x="635" y="258" fill="#93a1b3" font-size="11" text-anchor="middle">DSChat</text>
+      </svg>
+      <div class="figcap">圖 2 · 核心程式碼複雜度比較（行數，越低越精簡）（依論文 Figure 2 重繪）</div>
+    </div>
+    <p>OpenRLHF 僅 <strong>8,523 行</strong>，遠少於 TRL（19,071）與 Verl（32,325），卻在標準 RLHF 基準上展現明顯效能優勢。它同時支援 SFT、DPO、RM、PRM 等多種微調範式，模組化且文件完善，大幅降低研究與生產的進入門檻。</p>
+  </div>
+</section>
+
+<section id="limit">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>限制與影響</h2>
+    <p class="lead">作者明確列出框架的邊界——這些是 OpenRLHF 自己承認的弱點，不是推測。</p>
+
+    <div class="callout hot">
+      <p><strong>限制 1：</strong>作為社群驅動、無專屬經濟支援的開源專案，OpenRLHF 可能無法達到擁有專職工程團隊的高度專業化工業框架的「峰值效能」，且整合前沿功能可能有延遲。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>限制 2：</strong>目前主要聚焦語言模型，<span class="hl2">尚未支援 Vision-Language Models 或其他多模態架構</span>，限制了在多模態 AI 對齊研究上的應用。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>限制 3：</strong>模組化設計引入對 Ray、vLLM、DeepSpeed 等外部系統的依賴；上游更新可能需要維護工作或帶來相容性問題。</p>
+    </div>
+
+    <h3>結論與廣泛影響</h3>
+    <p>OpenRLHF 以 Ray 分散式運算、vLLM 推論優化、DeepSpeed ZeRO 記憶體效率、ring attention 序列平行四者整合，交付四項關鍵創新（Ray 架構、3D 平行、加速 CoT 推論、非同步 dataflow）。它已被 Google、ByteDance、Baidu、NVIDIA、Tencent、UC Berkeley Starling、HKUST 等廣泛採用，並被 CMU 2025 春季進階 NLP 課程納為教學框架，受邀於 PyTorch Expert Exchange 2025 分享，對 RLHF 研究的民主化貢獻顯著。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Jian Hu, Xibin Wu, Wei Shen, Jason Klein Liu, Zilin Zhu 等 · OpenRLHF Team · EMNLP System Demonstration</p>
+    <p style="margin-top:8px"><a href="https://github.com/OpenRLHF/OpenRLHF">程式碼 github.com/OpenRLHF/OpenRLHF</a> · <a href="https://openrlhf.readthedocs.io/">文件</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>
