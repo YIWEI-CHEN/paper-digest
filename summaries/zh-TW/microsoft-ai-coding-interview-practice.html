@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft AI Coding Interview Practice · Python 解題筆記</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --panel-2: #1f2631;
+  --ink: #e6edf3;
+  --muted: #95a3b8;
+  --line: #2d3746;
+  --accent: #ffb000;
+  --accent-2: #58d5c9;
+  --accent-3: #c56cff;
+  --danger: #ff5470;
+  --success: #3ddc97;
+  --code: #0a0f16;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(88, 213, 201, 0.10), transparent 35%),
+    radial-gradient(circle at 92% 10%, rgba(197, 108, 255, 0.10), transparent 34%),
+    var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+  line-height: 1.75;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+header.hero { padding: 78px 0 52px; border-bottom: 1px solid var(--line); }
+.kicker {
+  color: var(--accent-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(36px, 6vw, 68px);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+.subtitle { max-width: 860px; margin: 20px 0 0; color: var(--muted); font-size: 18px; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(31, 38, 49, 0.78);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+}
+.pill.easy { color: var(--success); border-color: rgba(61, 220, 151, 0.55); }
+.pill.hot { color: var(--accent); border-color: rgba(255, 176, 0, 0.55); }
+.pill.purple { color: var(--accent-3); border-color: rgba(197, 108, 255, 0.55); }
+nav.toc {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(13, 17, 23, 0.88);
+  backdrop-filter: blur(12px);
+}
+nav.toc .wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+nav.toc a:hover { color: #fff; background: var(--panel-2); }
+section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+h2 { margin: 0; color: #fff; font-size: clamp(26px, 4vw, 42px); line-height: 1.15; letter-spacing: -0.03em; }
+h3 { margin: 24px 0 10px; color: var(--accent-2); font-size: 19px; }
+p { margin: 12px 0; }
+a { color: var(--accent-2); }
+.note {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 176, 0, 0.35);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(255, 176, 0, 0.08);
+  color: #f7dd9a;
+}
+.grid { display: grid; gap: 18px; }
+.overview-grid { grid-template-columns: repeat(3, 1fr); }
+.card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(31, 38, 49, 0.94), rgba(21, 27, 35, 0.94));
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 22px;
+}
+.card strong { color: #fff; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+table { width: 100%; border-collapse: collapse; min-width: 1040px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { color: var(--accent-2); background: var(--panel-2); font-size: 13px; letter-spacing: 0.04em; }
+td { color: var(--muted); font-size: 14px; }
+td.problem { color: var(--ink); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+.problem-card {
+  margin-top: 26px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(21, 27, 35, 0.92);
+  box-shadow: 0 18px 44px var(--shadow);
+}
+.problem-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.problem-head h2 { font-size: clamp(24px, 3vw, 34px); }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.badge.easy { color: var(--success); }
+.badge.medium { color: var(--accent); }
+.badge.hard { color: var(--danger); }
+.summary-list { margin: 10px 0 0; padding-left: 1.2rem; color: var(--muted); }
+.summary-list li { margin: 6px 0; }
+pre {
+  margin: 18px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--code);
+  color: #d6deeb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre code { color: inherit; background: transparent; padding: 0; }
+.py-keyword { color: #c792ea; }
+.py-builtin { color: #82aaff; }
+.py-type { color: #ffcb6b; }
+.py-function { color: #58d5c9; }
+.py-string { color: #ecc48d; }
+.py-number { color: #f78c6c; }
+.py-comment { color: #697989; font-style: italic; }
+.py-operator { color: #89ddff; }
+:not(pre) > code { color: var(--accent-2); background: var(--panel-2); border-radius: 5px; padding: 2px 6px; }
+.complexity { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.complexity div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--panel-2); color: var(--muted); }
+.complexity b { color: #fff; }
+.interview-flow {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid rgba(88, 213, 201, 0.32);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 14px;
+  background: rgba(88, 213, 201, 0.08);
+  color: var(--muted);
+}
+.interview-flow h4 { margin: 18px 0 8px; color: #fff; font-size: 15px; }
+.interview-flow h4:first-child { margin-top: 0; }
+.interview-flow p { margin: 8px 0; }
+.interview-flow .summary-list { margin-top: 8px; }
+.interview-flow pre { margin: 12px 0; background: rgba(10, 15, 22, 0.78); }
+footer { padding: 44px 0 70px; color: var(--muted); text-align: center; font-size: 13px; }
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .overview-grid, .complexity { grid-template-columns: 1fr; }
+  .problem-card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Microsoft AI · Coding Interview Practice</div>
+    <h1>16 題 Python 解題筆記</h1>
+    <p class="subtitle">根據提供的 LeetCode / NeetCode 題單整理；每題包含題目摘要、Python 解法、繁體中文說明、Time / Space Complexity，以及 Interview Explanation Flow。</p>
+    <div class="meta">
+      <span class="pill easy">4 Easy</span>
+      <span class="pill hot">11 Medium</span>
+      <span class="pill purple">1 Hard</span>
+      <span class="pill">String · Hash Table · Sliding Window · Heap · DFS · Intervals · Parsing</span>
+      <span class="pill">Updated 2026-06-27</span>
+    </div>
+    <div class="note">題目描述是根據公開題名與常見面試版本重新整理的原創摘要；重點放在面試時需要理解的輸入輸出、限制與解題策略。</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#overview">總覽</a>
+    <a href="#valid-anagram">Valid Anagram</a>
+    <a href="#find-anagram-mappings">Anagram Mappings</a>
+    <a href="#group-anagrams">Group Anagrams</a>
+    <a href="#find-all-anagrams">Find All Anagrams</a>
+    <a href="#at-most-two-distinct">At Most Two</a>
+    <a href="#at-most-k-distinct">At Most K</a>
+    <a href="#without-repeating">No Repeating</a>
+    <a href="#vowels-even">Even Vowels</a>
+    <a href="#top-k-frequent">Top K</a>
+    <a href="#word-pattern">Word Pattern</a>
+    <a href="#word-pattern-ii">Word Pattern II</a>
+    <a href="#inform-employees">Inform Employees</a>
+    <a href="#minimum-interval">Minimum Interval</a>
+    <a href="#roman-to-integer">Roman</a>
+    <a href="#merge-intervals">Merge Intervals</a>
+    <a href="#atoi">atoi</a>
+  </div>
+</nav>
+
+<main>
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-title"><h2>解題總覽</h2></div>
+      <div class="grid overview-grid">
+        <div class="card"><strong>常見模式</strong><p>這份題單集中在 String / Hash Table / Sliding Window，也包含 Heap、DFS tree、interval sorting、backtracking 與 parsing。</p></div>
+        <div class="card"><strong>面試重點</strong><p>每題都要能說出資料結構選擇、核心 invariant、如何處理 edge cases，以及為什麼時間複雜度能維持線性或近線性。</p></div>
+        <div class="card"><strong>建議順序</strong><p>先練 anagram / pattern 題，再練 sliding window，最後處理 Minimum Interval、Word Pattern II 與 atoi 的細節。</p></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:24px">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Problem</th>
+              <th>Pattern</th>
+              <th>Difficulty</th>
+              <th>核心想法</th>
+              <th>Time</th>
+              <th>Space</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td class="problem">Valid Anagram</td><td>Hash Table / Counting</td><td>Easy</td><td>比較兩個字串的字元頻率是否一致。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>2</td><td class="problem">Find Anagram Mappings</td><td>Hash Map</td><td>Easy</td><td>建立值到 index list 的映射，再逐一取出對應位置。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>3</td><td class="problem">Group Anagrams</td><td>Hash Table / Counting</td><td>Medium</td><td>用排序字串或 26-count tuple 作為 group key。</td><td>O(total chars)</td><td>O(total chars)</td></tr>
+            <tr><td>4</td><td class="problem">Find All Anagrams in a String</td><td>Sliding Window</td><td>Medium</td><td>固定長度窗口維護字元頻率，匹配時記錄左端點。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>5</td><td class="problem">Longest Substring with At Most Two Distinct Characters</td><td>Sliding Window</td><td>Medium</td><td>窗口最多保留兩種字元，超過就從左收縮。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>6</td><td class="problem">Longest Substring with At Most K Distinct Characters</td><td>Sliding Window</td><td>Medium</td><td>將上一題一般化成最多 K 種字元。</td><td>O(n)</td><td>O(k)</td></tr>
+            <tr><td>7</td><td class="problem">Longest Substring Without Repeating Characters</td><td>Sliding Window</td><td>Medium</td><td>用 last seen index 跳過重複字元。</td><td>O(n)</td><td>O(k)</td></tr>
+            <tr><td>8</td><td class="problem">Find the Longest Substring Containing Vowels in Even Counts</td><td>Bitmask / Prefix</td><td>Medium</td><td>用 5-bit mask 表示 vowels parity，相同 mask 代表區間內 vowel 都是偶數。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>9</td><td class="problem">Top K Frequent Elements</td><td>Hash Map / Bucket Sort</td><td>Medium</td><td>先統計頻率，再依頻率 bucket 由高到低取 k 個。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>10</td><td class="problem">Word Pattern</td><td>Hash Map / Bijection</td><td>Easy</td><td>pattern char 與 word 必須一對一映射。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>11</td><td class="problem">Word Pattern II</td><td>Backtracking</td><td>Medium</td><td>嘗試將 pattern char 映射到不同 substring，並維持雙向唯一。</td><td>Exponential</td><td>O(p+s)</td></tr>
+            <tr><td>12</td><td class="problem">Time Needed to Inform All Employees</td><td>Tree / DFS</td><td>Medium</td><td>公司管理關係形成樹，答案是 head 到最深員工的傳遞時間。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>13</td><td class="problem">Minimum Interval to Include Each Query</td><td>Sort / Heap</td><td>Hard</td><td>按 query 遞增處理，heap 保存目前可覆蓋 query 的最短 interval。</td><td>O((n+q) log n)</td><td>O(n+q)</td></tr>
+            <tr><td>14</td><td class="problem">Roman to Integer</td><td>Parsing</td><td>Easy</td><td>從右往左掃，遇到比右側小的值就減，否則加。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>15</td><td class="problem">Merge Intervals</td><td>Sort / Intervals</td><td>Medium</td><td>依 start 排序後，和最後一段重疊就延伸 end。</td><td>O(n log n)</td><td>O(output)</td></tr>
+            <tr><td>16</td><td class="problem">String to Integer (atoi)</td><td>Parsing / Simulation</td><td>Medium</td><td>依序處理空白、符號、數字，最後 clamp 到 32-bit 範圍。</td><td>O(n)</td><td>O(1)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="valid-anagram">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>1. Valid Anagram</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Hash Table</span><span class="badge">Counting</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給兩個字串 <code>s</code> 與 <code>t</code>，判斷它們是否由完全相同的字元與次數組成。若長度不同，必定不是 anagram。</p>
+        <h3>解法說明</h3>
+        <p>先檢查長度，再用 26 個計數器統計 <code>s</code> 加一、<code>t</code> 減一。最後所有計數都為 0，代表兩者字元頻率完全相同。</p>
+<pre><code class="language-python">class Solution:
+    def isAnagram(self, s: str, t: str) -&gt; bool:
+        if len(s) != len(t):
+            return False
+
+        counts = [0] * 26
+        base = ord("a")
+
+        for a, b in zip(s, t):
+            counts[ord(a) - base] += 1
+            counts[ord(b) - base] -= 1
+
+        return all(count == 0 for count in counts)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，掃過兩個字串一次。</div>
+          <div><b>Space Complexity:</b> O(1)，固定 26 個小寫字母計數。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: State the invariant</h4>
+          <p>"Two strings are anagrams if and only if every character appears the same number of times in both strings."</p>
+          <h4>Step 2: Handle length mismatch</h4>
+          <p>"If the lengths differ, they cannot be anagrams, so I return false immediately."</p>
+          <h4>Step 3: Walk through counting</h4>
+          <p>"I increment counts for characters in <code>s</code> and decrement counts for characters in <code>t</code>. If all counts return to zero, the frequencies match."</p>
+<pre><code>Example:
+s = "anagram"
+t = "nagaram"
+
+after adding s and subtracting t:
+all character counts become 0
+
+answer = True</code></pre>
+          <h4>Step 4: Complexity</h4>
+          <p>"Time is <code>O(n)</code>, and space is <code>O(1)</code> for lowercase English letters."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>What if input is Unicode?</b> "Use a hash map or Counter instead of a fixed 26-length array."</li>
+          </ul>
+          <p><b>中文：</b>面試時強調 anagram 的本質就是字元頻率完全一致。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="find-anagram-mappings">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>2. Find Anagram Mappings</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Hash Map</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給兩個互為 anagram 的整數陣列 <code>nums1</code> 與 <code>nums2</code>，回傳一個 mapping，使得 <code>nums1[i] == nums2[mapping[i]]</code>。若有重複值，任一合法 mapping 都可以。</p>
+        <h3>解法說明</h3>
+        <p>先把 <code>nums2</code> 中每個值對應到它所有出現的位置。接著掃 <code>nums1</code>，對每個值從 map 中取出一個 index。用 list 作為 stack 可以自然支援 duplicate values。</p>
+<pre><code class="language-python">from collections import defaultdict
+from typing import List
+
+
+class Solution:
+    def anagramMappings(self, nums1: List[int], nums2: List[int]) -&gt; List[int]:
+        positions = defaultdict(list)
+        for index, value in enumerate(nums2):
+            positions[value].append(index)
+
+        result = []
+        for value in nums1:
+            result.append(positions[value].pop())
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，建立 map 與查詢各一次。</div>
+          <div><b>Space Complexity:</b> O(n)，保存 <code>nums2</code> 的所有 index。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Reframe as value-to-index lookup</h4>
+          <p>"For every value in <code>nums1</code>, I need to know where the same value appears in <code>nums2</code>."</p>
+          <h4>Step 2: Build an index map</h4>
+          <p>"I store each value in <code>nums2</code> with a list of all its indices, so duplicates are handled correctly."</p>
+          <h4>Step 3: Walk through an example</h4>
+<pre><code>nums1 = [12, 28, 46, 32, 50]
+nums2 = [50, 12, 32, 46, 28]
+
+positions:
+50 -> [0]
+12 -> [1]
+32 -> [2]
+46 -> [3]
+28 -> [4]
+
+result = [1, 4, 3, 2, 0]</code></pre>
+          <h4>Step 4: Complexity</h4>
+          <p>"Both time and extra space are <code>O(n)</code>."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why store lists instead of one index?</b> "Lists make the solution correct even if values are duplicated."</li>
+          </ul>
+          <p><b>中文：</b>重點是把第二個陣列做成 value 到 index 的查表。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="group-anagrams">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>3. Group Anagrams</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Table</span><span class="badge">Counting</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一組字串，將互為 anagram 的字串分到同一組。輸出順序通常不限。</p>
+        <h3>解法說明</h3>
+        <p>anagram 的 key 可以是排序後的字串，也可以是 26 個字母頻率。為了避免排序成本，這裡使用 <code>tuple(counts)</code> 當 hash key。</p>
+<pre><code class="language-python">from collections import defaultdict
+from typing import List
+
+
+class Solution:
+    def groupAnagrams(self, strs: List[str]) -&gt; List[List[str]]:
+        groups = defaultdict(list)
+
+        for word in strs:
+            counts = [0] * 26
+            for ch in word:
+                counts[ord(ch) - ord("a")] += 1
+            groups[tuple(counts)].append(word)
+
+        return list(groups.values())</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(total chars)，每個字元被計數一次。</div>
+          <div><b>Space Complexity:</b> O(total chars)，輸出 groups 與 hash map。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define the grouping key</h4>
+          <p>"Words are anagrams when their character counts are identical, so I use the 26-count tuple as the hash key."</p>
+          <h4>Step 2: Group by key</h4>
+          <p>"For each word, I compute its frequency tuple and append the word to the corresponding group."</p>
+<pre><code>Example:
+["eat", "tea", "tan", "ate", "nat", "bat"]
+
+key(eat) = key(tea) = key(ate)
+key(tan) = key(nat)
+
+groups:
+[["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Counting gives <code>O(total chars)</code>. If I used sorting as the key, it would be <code>O(n * k log k)</code>."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why not sorted string?</b> "Sorted string is simpler, but count tuple avoids per-word sorting."</li>
+          </ul>
+          <p><b>中文：</b>面試時先說清楚 anagram group 的 key 是字母頻率。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="find-all-anagrams">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>4. Find All Anagrams in a String</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sliding Window</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串 <code>s</code> 與 <code>p</code>，找出 <code>s</code> 中所有長度等於 <code>p</code> 且字元頻率與 <code>p</code> 相同的 substring 起始位置。</p>
+        <h3>解法說明</h3>
+        <p>窗口長度固定為 <code>len(p)</code>。先建立 <code>p</code> 的字母計數，再滑動 <code>s</code> 的窗口，加入右端字元、移除左端字元，若計數相同就記錄左端點。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def findAnagrams(self, s: str, p: str) -&gt; List[int]:
+        if len(p) &gt; len(s):
+            return []
+
+        base = ord("a")
+        need = [0] * 26
+        window = [0] * 26
+
+        for i, ch in enumerate(p):
+            need[ord(ch) - base] += 1
+            window[ord(s[i]) - base] += 1
+
+        result = []
+        if window == need:
+            result.append(0)
+
+        for right in range(len(p), len(s)):
+            left = right - len(p)
+            window[ord(s[right]) - base] += 1
+            window[ord(s[left]) - base] -= 1
+            if window == need:
+                result.append(left + 1)
+
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每次比較 26 個字母可視為常數。</div>
+          <div><b>Space Complexity:</b> O(1)，固定 26 個計數。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Use fixed-length sliding window</h4>
+          <p>"Every anagram of <code>p</code> has length <code>len(p)</code>, so I slide a fixed-size window across <code>s</code>."</p>
+          <h4>Step 2: Compare frequencies</h4>
+          <p>"A window is valid if its character frequency exactly matches <code>p</code>'s frequency."</p>
+<pre><code>Example:
+s = "cbaebabacd", p = "abc"
+window size = 3
+
+"cba" -> anagram, index 0
+"bae" -> no
+"aeb" -> no
+...
+"bac" -> anagram, index 6
+
+answer = [0, 6]</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Time is <code>O(n)</code> and space is <code>O(1)</code>."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why not sort each window?</b> "Sorting would cost more; counts update in constant time."</li>
+          </ul>
+          <p><b>中文：</b>固定長度窗口加上字母頻率比較，是這題的核心。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="at-most-two-distinct">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>5. Longest Substring with At Most Two Distinct Characters</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sliding Window</span><span class="badge">Hash Map</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個字串，找出最多包含兩種不同字元的最長 substring 長度。</p>
+        <h3>解法說明</h3>
+        <p>維護一個 sliding window 與字元計數 map。右指針擴張窗口；若不同字元數超過 2，就移動左指針並降低計數，直到窗口重新合法。</p>
+<pre><code class="language-python">from collections import defaultdict
+
+
+class Solution:
+    def lengthOfLongestSubstringTwoDistinct(self, s: str) -&gt; int:
+        counts = defaultdict(int)
+        left = 0
+        best = 0
+
+        for right, ch in enumerate(s):
+            counts[ch] += 1
+
+            while len(counts) &gt; 2:
+                left_char = s[left]
+                counts[left_char] -= 1
+                if counts[left_char] == 0:
+                    del counts[left_char]
+                left += 1
+
+            best = max(best, right - left + 1)
+
+        return best</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，左右指針各走一次。</div>
+          <div><b>Space Complexity:</b> O(1)，map 最多保留 3 種字元後立刻收縮。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define the valid window</h4>
+          <p>"A valid window can contain at most two distinct characters."</p>
+          <h4>Step 2: Expand and shrink</h4>
+          <p>"I expand with the right pointer. If the window becomes invalid, I shrink from the left until it has at most two distinct characters again."</p>
+<pre><code>Example:
+s = "eceba"
+
+"e"   valid, best = 1
+"ec"  valid, best = 2
+"ece" valid, best = 3
+"eceb" has 3 distinct -> shrink to "eb"
+"eba" has 3 distinct -> shrink to "ba"
+
+answer = 3 ("ece")</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Time is <code>O(n)</code> because each character enters and leaves once."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why sliding window?</b> "Validity is monotonic: after too many distinct characters, moving left can restore validity."</li>
+          </ul>
+          <p><b>中文：</b>窗口維持最多兩種字元，超過就從左邊收縮。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="at-most-k-distinct">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>6. Longest Substring with At Most K Distinct Characters</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sliding Window</span><span class="badge">Hash Map</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串 <code>s</code> 與整數 <code>k</code>，找出最多包含 <code>k</code> 種不同字元的最長 substring 長度。</p>
+        <h3>解法說明</h3>
+        <p>這是上一題的泛化。用 hash map 記錄窗口內字元次數，當不同字元數超過 <code>k</code> 時，從左側移除直到合法。</p>
+<pre><code class="language-python">from collections import defaultdict
+
+
+class Solution:
+    def lengthOfLongestSubstringKDistinct(self, s: str, k: int) -&gt; int:
+        if k == 0:
+            return 0
+
+        counts = defaultdict(int)
+        left = 0
+        best = 0
+
+        for right, ch in enumerate(s):
+            counts[ch] += 1
+
+            while len(counts) &gt; k:
+                left_char = s[left]
+                counts[left_char] -= 1
+                if counts[left_char] == 0:
+                    del counts[left_char]
+                left += 1
+
+            best = max(best, right - left + 1)
+
+        return best</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每個字元最多進出窗口一次。</div>
+          <div><b>Space Complexity:</b> O(k)，窗口內最多保留 k 種字元。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Generalize the window rule</h4>
+          <p>"The valid window condition is now at most <code>k</code> distinct characters."</p>
+          <h4>Step 2: Maintain counts</h4>
+          <p>"I use a hash map to know how many distinct characters are currently in the window."</p>
+<pre><code>Example:
+s = "aaabbcc", k = 2
+
+"aaa"   valid
+"aaabb" valid, best = 5
+"aaabbc" has 3 distinct -> shrink until only "bbc"
+
+answer = 5 ("aaabb")</code></pre>
+          <h4>Step 3: Edge case</h4>
+          <p>"If <code>k == 0</code>, no non-empty substring is valid, so the answer is 0."</p>
+          <h4>Step 4: Complexity</h4>
+          <p>"Time is <code>O(n)</code>, space is <code>O(k)</code>."</p>
+          <p><b>中文：</b>把合法條件改成最多 k 種字元，其餘就是標準 sliding window。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="without-repeating">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>7. Longest Substring Without Repeating Characters</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sliding Window</span><span class="badge">Hash Map</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串 <code>s</code>，找出不含重複字元的最長 substring 長度。</p>
+        <h3>解法說明</h3>
+        <p>用 <code>last_seen</code> 記錄字元上次出現位置。當右指針遇到已在窗口內出現過的字元，就把左指針跳到該字元上次位置的下一格。</p>
+<pre><code class="language-python">class Solution:
+    def lengthOfLongestSubstring(self, s: str) -&gt; int:
+        last_seen = {}
+        left = 0
+        best = 0
+
+        for right, ch in enumerate(s):
+            if ch in last_seen and last_seen[ch] &gt;= left:
+                left = last_seen[ch] + 1
+
+            last_seen[ch] = right
+            best = max(best, right - left + 1)
+
+        return best</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每個字元處理一次。</div>
+          <div><b>Space Complexity:</b> O(k)，k 是字元種類數。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define the invariant</h4>
+          <p>"The current window should always contain no duplicate characters."</p>
+          <h4>Step 2: Jump the left pointer</h4>
+          <p>"When I see a repeated character inside the current window, I move <code>left</code> to one position after its previous occurrence."</p>
+<pre><code>Example:
+s = "abcabcbb"
+
+abc -> best = 3
+next a repeats at index 0, move left to 1
+next b repeats, move left to 2
+...
+
+answer = 3</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Time is <code>O(n)</code> because left never moves backward."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why use <code>max(left, last_seen[ch] + 1)</code> logic?</b> "A duplicate before the current window should not move left backward."</li>
+          </ul>
+          <p><b>中文：</b>核心是維持窗口內沒有重複字元，遇到重複就直接跳過上次位置。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="vowels-even">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>8. Find the Longest Substring Containing Vowels in Even Counts</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Bitmask</span><span class="badge">Prefix State</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串 <code>s</code>，找出最長 substring，使其中每個 vowel（a/e/i/o/u）的出現次數都是偶數。</p>
+        <h3>解法說明</h3>
+        <p>用 5-bit mask 表示五個 vowel 的奇偶狀態。遇到某個 vowel 就 toggle 對應 bit。若同一個 mask 曾經在位置 <code>j</code> 出現，代表 <code>j+1..i</code> 之間所有 vowel parity 都回到偶數。</p>
+<pre><code class="language-python">class Solution:
+    def findTheLongestSubstring(self, s: str) -&gt; int:
+        bit = {"a": 0, "e": 1, "i": 2, "o": 3, "u": 4}
+        first_seen = {0: -1}
+        mask = 0
+        best = 0
+
+        for i, ch in enumerate(s):
+            if ch in bit:
+                mask ^= 1 &lt;&lt; bit[ch]
+
+            if mask in first_seen:
+                best = max(best, i - first_seen[mask])
+            else:
+                first_seen[mask] = i
+
+        return best</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，掃過字串一次。</div>
+          <div><b>Space Complexity:</b> O(1)，mask 只有 32 種狀態。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Convert counts to parity</h4>
+          <p>"We only care whether each vowel count is odd or even, not the exact count."</p>
+          <h4>Step 2: Use a bitmask state</h4>
+          <p>"Each vowel gets one bit. Toggling a bit changes that vowel from even to odd or odd to even."</p>
+<pre><code>Example:
+s = "eleetminicoworoep"
+
+mask 0 means all vowel counts are even.
+When the same mask appears again, the substring between
+the two positions has even counts for all vowels.
+
+known answer = 13</code></pre>
+          <h4>Step 3: Store earliest occurrence</h4>
+          <p>"To maximize length, I only store the first time each mask appears."</p>
+          <h4>Step 4: Complexity</h4>
+          <p>"Time is <code>O(n)</code>, space is <code>O(1)</code> because there are only 32 masks."</p>
+          <p><b>中文：</b>用 bitmask 表示 vowel 奇偶狀態，相同狀態之間的區間就是合法 substring。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="top-k-frequent">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>9. Top K Frequent Elements</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Map</span><span class="badge">Bucket Sort</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給整數陣列 <code>nums</code> 與整數 <code>k</code>，回傳出現頻率最高的 k 個元素。答案順序通常不限。</p>
+        <h3>解法說明</h3>
+        <p>先用 hash map 統計頻率。因為頻率最多是 <code>n</code>，可以建立 <code>n+1</code> 個 buckets，將元素放到對應頻率的 bucket，最後從高頻到低頻收集 k 個元素。</p>
+<pre><code class="language-python">from collections import Counter
+from typing import List
+
+
+class Solution:
+    def topKFrequent(self, nums: List[int], k: int) -&gt; List[int]:
+        freq = Counter(nums)
+        buckets = [[] for _ in range(len(nums) + 1)]
+
+        for num, count in freq.items():
+            buckets[count].append(num)
+
+        result = []
+        for count in range(len(buckets) - 1, 0, -1):
+            for num in buckets[count]:
+                result.append(num)
+                if len(result) == k:
+                    return result
+
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，統計與 bucket 掃描都是線性。</div>
+          <div><b>Space Complexity:</b> O(n)，frequency map 與 buckets。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Count frequencies</h4>
+          <p>"The core information is how many times each number appears."</p>
+          <h4>Step 2: Use frequency buckets</h4>
+          <p>"Since a frequency can only range from 1 to n, I can bucket elements by frequency and scan from high to low."</p>
+<pre><code>Example:
+nums = [1,1,1,2,2,3], k = 2
+
+freq:
+1 -> 3
+2 -> 2
+3 -> 1
+
+buckets[3] = [1]
+buckets[2] = [2]
+
+answer = [1, 2]</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Bucket sort gives <code>O(n)</code> time, better than sorting all unique elements by frequency."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Alternative?</b> "A min-heap of size k gives O(n log k), useful when k is small or streaming."</li>
+          </ul>
+          <p><b>中文：</b>先統計頻率，再用 bucket 從高頻往低頻取出 k 個元素。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="word-pattern">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>10. Word Pattern</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Hash Map</span><span class="badge">Bijection</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給 pattern 字串與一個由空白分隔的句子，判斷 pattern 的每個字元是否能與句中的 word 建立一對一對應。</p>
+        <h3>解法說明</h3>
+        <p>需要雙向唯一：同一個 pattern char 只能對應同一個 word，同一個 word 也只能對應同一個 pattern char。用兩個 hash map 維護雙向映射。</p>
+<pre><code class="language-python">class Solution:
+    def wordPattern(self, pattern: str, s: str) -&gt; bool:
+        words = s.split()
+        if len(pattern) != len(words):
+            return False
+
+        char_to_word = {}
+        word_to_char = {}
+
+        for ch, word in zip(pattern, words):
+            if ch in char_to_word and char_to_word[ch] != word:
+                return False
+            if word in word_to_char and word_to_char[word] != ch:
+                return False
+
+            char_to_word[ch] = word
+            word_to_char[word] = ch
+
+        return True</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，n 是 words 數與 pattern 長度。</div>
+          <div><b>Space Complexity:</b> O(n)，兩個 map。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define bijection</h4>
+          <p>"This is not just one-way mapping; it must be a bijection between pattern characters and words."</p>
+          <h4>Step 2: Check both directions</h4>
+          <p>"I keep one map from char to word and another from word to char. Any conflict means the pattern fails."</p>
+<pre><code>Example:
+pattern = "abba"
+s = "dog cat cat dog"
+
+a -> dog
+b -> cat
+b -> cat
+a -> dog
+
+answer = True</code></pre>
+          <h4>Step 3: Edge case</h4>
+          <p>"If the number of pattern characters and words differs, return false immediately."</p>
+          <h4>Step 4: Complexity</h4>
+          <p>"Time and space are both <code>O(n)</code>."</p>
+          <p><b>中文：</b>關鍵是雙向一對一映射，而不是只檢查 char 到 word。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="word-pattern-ii">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>11. Word Pattern II</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Backtracking</span><span class="badge">Hash Map</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給 pattern 與字串 <code>s</code>，判斷 pattern 中每個字元是否能對應到一個非空 substring，並且整個 pattern 展開後剛好等於 <code>s</code>。不同 pattern 字元不能對應到相同 substring。</p>
+        <h3>解法說明</h3>
+        <p>用 backtracking 逐一處理 pattern 字元。若字元已有映射，就檢查目前字串位置是否以該 substring 開頭；若沒有映射，就嘗試所有可能的非空 substring，並用 set 確保 substring 沒被其他字元使用。</p>
+<pre><code class="language-python">class Solution:
+    def wordPatternMatch(self, pattern: str, s: str) -&gt; bool:
+        mapping = {}
+        used = set()
+
+        def backtrack(pi: int, si: int) -&gt; bool:
+            if pi == len(pattern) and si == len(s):
+                return True
+            if pi == len(pattern) or si == len(s):
+                return False
+
+            ch = pattern[pi]
+            if ch in mapping:
+                word = mapping[ch]
+                if not s.startswith(word, si):
+                    return False
+                return backtrack(pi + 1, si + len(word))
+
+            for end in range(si + 1, len(s) + 1):
+                candidate = s[si:end]
+                if candidate in used:
+                    continue
+
+                mapping[ch] = candidate
+                used.add(candidate)
+                if backtrack(pi + 1, end):
+                    return True
+                used.remove(candidate)
+                del mapping[ch]
+
+            return False
+
+        return backtrack(0, 0)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> Exponential，最壞情況需要嘗試多種切分。</div>
+          <div><b>Space Complexity:</b> O(p + s)，遞迴深度與 mapping / used。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame as backtracking</h4>
+          <p>"Unlike Word Pattern I, the words are not pre-split. I need to decide where each substring starts and ends, so this becomes backtracking."</p>
+          <h4>Step 2: Maintain bijection</h4>
+          <p>"I maintain a char-to-substring map and a used set so two pattern characters cannot share the same substring."</p>
+<pre><code>Example:
+pattern = "abab"
+s = "redblueredblue"
+
+try:
+a -> "red"
+b -> "blue"
+a -> "red"
+b -> "blue"
+
+entire string consumed -> True</code></pre>
+          <h4>Step 3: Backtrack on failure</h4>
+          <p>"If a candidate substring does not lead to a full match, I remove it and try the next candidate."</p>
+          <h4>Step 4: Complexity</h4>
+          <p>"The worst-case time is exponential because each unmapped pattern character can try many substring lengths."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Can we prune?</b> "Yes, we can stop early if the remaining string is too short for remaining unmatched pattern characters."</li>
+          </ul>
+          <p><b>中文：</b>這題核心是 backtracking 嘗試 substring 映射，同時維持雙向唯一。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="inform-employees">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>12. Time Needed to Inform All Employees</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Tree</span><span class="badge">DFS</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>公司有 <code>n</code> 位員工，每個員工有一位 manager，head 會開始通知直屬下屬，每位 manager 通知所有直屬下屬需要 <code>informTime[i]</code> 分鐘。請回傳通知到所有員工所需的最長時間。</p>
+        <h3>解法說明</h3>
+        <p>manager 關係形成一棵以 head 為 root 的樹。通知時間就是 root 到最深 leaf 的 path sum。先建立 manager 到 subordinates 的 adjacency list，再 DFS 計算最大傳遞時間。</p>
+<pre><code class="language-python">from collections import defaultdict
+from typing import List
+
+
+class Solution:
+    def numOfMinutes(self, n: int, headID: int, manager: List[int], informTime: List[int]) -&gt; int:
+        graph = defaultdict(list)
+        for employee, boss in enumerate(manager):
+            if boss != -1:
+                graph[boss].append(employee)
+
+        def dfs(employee: int) -&gt; int:
+            longest = 0
+            for subordinate in graph[employee]:
+                longest = max(longest, dfs(subordinate))
+            return informTime[employee] + longest
+
+        return dfs(headID)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每位員工處理一次。</div>
+          <div><b>Space Complexity:</b> O(n)，graph 與 DFS stack。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Interpret as a tree</h4>
+          <p>"The manager array defines a rooted tree where the head is the root."</p>
+          <h4>Step 2: Need the longest path</h4>
+          <p>"Employees are informed in parallel by different managers, so the total time is the longest root-to-leaf notification path."</p>
+<pre><code>Example:
+n = 6, headID = 2
+manager = [2,2,-1,2,2,2]
+informTime = [0,0,1,0,0,0]
+
+head 2 informs everyone directly in 1 minute
+answer = 1</code></pre>
+          <h4>Step 3: DFS recurrence</h4>
+          <p>"For each employee, the time needed below them is their own inform time plus the maximum time among their subordinates."</p>
+          <h4>Step 4: Complexity</h4>
+          <p>"Time and space are both <code>O(n)</code>."</p>
+          <p><b>中文：</b>把管理關係看成樹，答案是從 head 到最慢收到通知員工的最長路徑時間。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="minimum-interval">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>13. Minimum Interval to Include Each Query</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Sort</span><span class="badge">Heap</span><span class="badge">Intervals</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給多個 intervals 與 queries。對每個 query，找出包含該 query 的最短 interval 長度；若沒有 interval 包含它，回傳 <code>-1</code>。</p>
+        <h3>解法說明</h3>
+        <p>將 intervals 依 start 排序，queries 也依值排序但保留原 index。對每個 query，把所有 start ≤ query 的 intervals 放入 min-heap，heap key 是 interval length；再移除 end &lt; query 的過期 intervals。heap top 就是目前包含 query 的最短 interval。</p>
+<pre><code class="language-python">from heapq import heappop, heappush
+from typing import List
+
+
+class Solution:
+    def minInterval(self, intervals: List[List[int]], queries: List[int]) -&gt; List[int]:
+        intervals.sort()
+        indexed_queries = sorted((query, i) for i, query in enumerate(queries))
+        answer = [-1] * len(queries)
+        heap = []
+        i = 0
+
+        for query, original_index in indexed_queries:
+            while i &lt; len(intervals) and intervals[i][0] &lt;= query:
+                start, end = intervals[i]
+                heappush(heap, (end - start + 1, end))
+                i += 1
+
+            while heap and heap[0][1] &lt; query:
+                heappop(heap)
+
+            if heap:
+                answer[original_index] = heap[0][0]
+
+        return answer</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O((n + q) log n)，intervals 進出 heap 各一次。</div>
+          <div><b>Space Complexity:</b> O(n + q)，heap 與答案。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Sort queries offline</h4>
+          <p>"Queries are independent, so I can sort them and process from small to large while preserving original indices."</p>
+          <h4>Step 2: Add candidate intervals</h4>
+          <p>"For a query <code>x</code>, any interval with start ≤ x could be a candidate, so I push those into a min-heap by interval length."</p>
+          <h4>Step 3: Remove invalid intervals</h4>
+          <p>"If the heap top has end &lt; x, it cannot cover the query anymore, so I pop it."</p>
+<pre><code>Example:
+intervals = [[1,4],[2,4],[3,6],[4,4]]
+queries = [2,3,4,5]
+
+query 2 -> candidates [1,4], [2,4] -> shortest length 3
+query 3 -> candidates include [3,6] -> shortest length 3
+query 4 -> [4,4] length 1
+query 5 -> [3,6] length 4
+
+answer = [3, 3, 1, 4]</code></pre>
+          <h4>Step 4: Complexity</h4>
+          <p>"Sorting plus heap operations gives <code>O((n + q) log n)</code>."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why heap?</b> "Among all currently valid intervals, we need the smallest length quickly."</li>
+          </ul>
+          <p><b>中文：</b>排序 query 後用 heap 維護目前能覆蓋 query 的最短 interval。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="roman-to-integer">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>14. Roman to Integer</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Parsing</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一個 Roman numeral 字串，將它轉成整數。若較小符號出現在較大符號左邊，代表要相減，例如 <code>IV = 4</code>、<code>IX = 9</code>。</p>
+        <h3>解法說明</h3>
+        <p>從右往左掃最直覺：如果目前值小於右側已看過的最大值，表示它是 subtractive case，要減掉；否則加上並更新最大值。</p>
+<pre><code class="language-python">class Solution:
+    def romanToInt(self, s: str) -&gt; int:
+        values = {
+            "I": 1, "V": 5, "X": 10, "L": 50,
+            "C": 100, "D": 500, "M": 1000,
+        }
+
+        total = 0
+        max_seen = 0
+
+        for ch in reversed(s):
+            value = values[ch]
+            if value &lt; max_seen:
+                total -= value
+            else:
+                total += value
+                max_seen = value
+
+        return total</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，掃描字串一次。</div>
+          <div><b>Space Complexity:</b> O(1)，固定 Roman symbol map。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Explain subtractive notation</h4>
+          <p>"Most symbols are added, but a smaller symbol before a larger one should be subtracted."</p>
+          <h4>Step 2: Scan right to left</h4>
+          <p>"By scanning from right to left, I always know whether there is a larger symbol to the right."</p>
+<pre><code>Example:
+s = "MCMXCIV"
+
+from right:
+V = +5
+I before V = -1
+C = +100
+X before C = -10
+M = +1000
+C before M = -100
+M = +1000
+
+answer = 1994</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Time is <code>O(n)</code>, space is <code>O(1)</code>."</p>
+          <p><b>中文：</b>從右往左掃，遇到比右側最大值小的符號就減掉。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="merge-intervals">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>15. Merge Intervals</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sort</span><span class="badge">Intervals</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一組 intervals，合併所有重疊區間，回傳不重疊的區間列表。</p>
+        <h3>解法說明</h3>
+        <p>先依 start 排序。逐一掃描 intervals，若目前區間 start 小於等於結果最後一段的 end，代表重疊，更新 end；否則新增一段。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def merge(self, intervals: List[List[int]]) -&gt; List[List[int]]:
+        intervals.sort(key=lambda interval: interval[0])
+        merged = []
+
+        for start, end in intervals:
+            if not merged or start &gt; merged[-1][1]:
+                merged.append([start, end])
+            else:
+                merged[-1][1] = max(merged[-1][1], end)
+
+        return merged</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n log n)，排序 dominates。</div>
+          <div><b>Space Complexity:</b> O(output)，不計排序額外空間。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Sort by start</h4>
+          <p>"Sorting by start makes overlapping intervals appear next to each other."</p>
+          <h4>Step 2: Compare with last merged interval</h4>
+          <p>"For each interval, I only need to compare it with the last interval in the result."</p>
+<pre><code>Example:
+intervals = [[1,3],[2,6],[8,10],[15,18]]
+
+[1,3] and [2,6] overlap -> [1,6]
+[8,10] no overlap -> append
+[15,18] no overlap -> append
+
+answer = [[1,6],[8,10],[15,18]]</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Time is <code>O(n log n)</code> due to sorting."</p>
+          <p><b>中文：</b>排序後只要和最後合併區間比較，就能線性完成 merge。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="atoi">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>16. String to Integer (atoi)</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Parsing</span><span class="badge">Simulation</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>將字串轉成 32-bit signed integer。流程包含忽略前導空白、讀取可選正負號、讀取連續數字、遇到非數字停止，最後將結果限制在 <code>[-2^31, 2^31 - 1]</code>。</p>
+        <h3>解法說明</h3>
+        <p>依照規則分階段 parsing：先跳過空白，再處理符號，接著累積數字。累積完成後套用正負號並 clamp 到 32-bit 範圍。</p>
+<pre><code class="language-python">class Solution:
+    def myAtoi(self, s: str) -&gt; int:
+        i = 0
+        n = len(s)
+        int_min = -(2 ** 31)
+        int_max = 2 ** 31 - 1
+
+        while i &lt; n and s[i] == " ":
+            i += 1
+
+        sign = 1
+        if i &lt; n and s[i] in "+-":
+            sign = -1 if s[i] == "-" else 1
+            i += 1
+
+        value = 0
+        while i &lt; n and s[i].isdigit():
+            value = value * 10 + int(s[i])
+            i += 1
+
+        value *= sign
+        if value &lt; int_min:
+            return int_min
+        if value &gt; int_max:
+            return int_max
+        return value</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，最多掃過字串一次。</div>
+          <div><b>Space Complexity:</b> O(1)，只使用固定變數。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Treat it as rule-based parsing</h4>
+          <p>"This is not a math problem first; it is a parsing problem with a strict order of rules."</p>
+          <h4>Step 2: Process in phases</h4>
+          <p>"I first skip leading spaces, then read an optional sign, then read digits until the first non-digit character."</p>
+<pre><code>Example:
+s = "   -42"
+
+skip spaces -> "-42"
+sign = -1
+digits = 42
+answer = -42</code></pre>
+<pre><code>Example:
+s = "4193 with words"
+
+digits = 4193
+stop at space before "with"
+answer = 4193</code></pre>
+          <h4>Step 3: Clamp overflow</h4>
+          <p>"After applying the sign, I clamp the result into the 32-bit signed integer range."</p>
+<pre><code>Example:
+s = "-91283472332"
+
+parsed value is less than -2^31
+answer = -2147483648</code></pre>
+          <h4>Step 4: Complexity</h4>
+          <p>"Time is <code>O(n)</code>, and space is <code>O(1)</code>."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>What if the string starts with letters?</b> "No digits are parsed, so the answer is 0."</li>
+            <li><b>What if there are multiple signs?</b> "Only the first optional sign is valid; the next non-digit stops parsing."</li>
+          </ul>
+          <p><b>中文：</b>面試時照規則分階段解析：空白、符號、數字、停止、最後 clamp。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Built for Microsoft AI coding interview practice · Python solutions with Traditional Chinese explanations.
+</footer>
+<script>
+(() => {
+  const keywords = new Set([
+    "and", "as", "assert", "break", "class", "continue", "def", "del", "elif",
+    "else", "except", "False", "finally", "for", "from", "if", "import", "in",
+    "is", "lambda", "None", "nonlocal", "not", "or", "pass", "raise", "return",
+    "True", "try", "while", "with", "yield",
+  ]);
+  const builtins = new Set([
+    "abs", "all", "any", "bool", "dict", "enumerate", "int", "len", "list",
+    "max", "min", "ord", "range", "reversed", "set", "sorted", "str", "sum",
+    "tuple", "zip",
+  ]);
+  const types = new Set(["Counter", "List", "Solution", "defaultdict"]);
+  const escapeHtml = (text) => text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const span = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  function readString(code, start) {
+    const prefixMatch = code.slice(start).match(/^([rRuUbBfF]{0,2})(?:"""|'''|"|')/);
+    if (!prefixMatch) return null;
+
+    const prefix = prefixMatch[1];
+    const quoteStart = start + prefix.length;
+    const quote = code.startsWith('"""', quoteStart) || code.startsWith("'''", quoteStart)
+      ? code.slice(quoteStart, quoteStart + 3)
+      : code[quoteStart];
+    let i = quoteStart + quote.length;
+
+    while (i < code.length) {
+      if (code.startsWith(quote, i)) {
+        i += quote.length;
+        break;
+      }
+      if (quote.length === 1 && code[i] === "\\") {
+        i += 2;
+      } else {
+        i += 1;
+      }
+    }
+
+    return i;
+  }
+
+  function highlightPython(code) {
+    let html = "";
+    let i = 0;
+
+    while (i < code.length) {
+      const ch = code[i];
+
+      if (ch === "#") {
+        const end = code.indexOf("\n", i);
+        const stop = end === -1 ? code.length : end;
+        html += span("py-comment", code.slice(i, stop));
+        i = stop;
+        continue;
+      }
+
+      const stringEnd = readString(code, i);
+      if (stringEnd !== null) {
+        html += span("py-string", code.slice(i, stringEnd));
+        i = stringEnd;
+        continue;
+      }
+
+      if (/\d/.test(ch)) {
+        const match = code.slice(i).match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?)/);
+        html += span("py-number", match[0]);
+        i += match[0].length;
+        continue;
+      }
+
+      if (/[A-Za-z_]/.test(ch)) {
+        const match = code.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+        const word = match[0];
+        const after = code.slice(i + word.length).match(/^\s*\(/);
+        let className = "";
+        if (keywords.has(word)) className = "py-keyword";
+        else if (builtins.has(word)) className = "py-builtin";
+        else if (types.has(word) || /^[A-Z]/.test(word)) className = "py-type";
+        else if (after) className = "py-function";
+
+        html += className ? span(className, word) : escapeHtml(word);
+        i += word.length;
+        continue;
+      }
+
+      if (/[-+*/%=!<>|&~^:,.()[\]{}]/.test(ch)) {
+        html += span("py-operator", ch);
+      } else {
+        html += escapeHtml(ch);
+      }
+      i += 1;
+    }
+
+    return html;
+  }
+
+  document.querySelectorAll("pre code.language-python").forEach((block) => {
+    block.innerHTML = highlightPython(block.textContent);
+  });
+})();
+</script>
+</body>
+</html>
