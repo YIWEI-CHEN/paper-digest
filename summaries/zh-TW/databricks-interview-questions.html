@@ -192,6 +192,27 @@ tr:last-child td { border-bottom: none; }
   color: var(--muted);
 }
 .summary-list li { margin: 6px 0; }
+.interview-flow {
+  margin-top: 18px;
+  padding: 18px 20px;
+  border: 1px solid rgba(88, 213, 201, 0.32);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 14px;
+  background: rgba(88, 213, 201, 0.08);
+  color: var(--muted);
+}
+.interview-flow h4 {
+  margin: 18px 0 8px;
+  color: #fff;
+  font-size: 15px;
+}
+.interview-flow h4:first-child { margin-top: 0; }
+.interview-flow p { margin: 8px 0; }
+.interview-flow .summary-list { margin-top: 8px; }
+.interview-flow pre {
+  margin: 12px 0;
+  background: rgba(10, 15, 22, 0.78);
+}
 pre {
   margin: 18px 0;
   padding: 18px 20px;
@@ -256,12 +277,12 @@ footer {
   <div class="wrap">
     <div class="kicker">Databricks · Coding Interview Practice</div>
     <h1>11 題 Python 解題筆記</h1>
-    <p class="subtitle">每題包含題目摘要、Python 解法、繁體中文解釋，以及 Time / Space Complexity。</p>
+    <p class="subtitle">每題包含題目摘要、Python 解法、繁體中文解釋、Time / Space Complexity，以及 Interview Explanation Flow。</p>
     <div class="meta">
       <span class="pill hot">9 Medium</span>
       <span class="pill purple">1 Hard</span>
       <span class="pill">Array · DP · BFS · Design · Greedy · Sliding Window</span>
-      <span class="pill">Updated 2026-06-09</span>
+      <span class="pill">Updated 2026-06-25</span>
     </div>
     <div class="note">題目描述是根據公開題名與常見面試版本重新整理的原創摘要；重點放在面試時需要理解的輸入輸出、限制與解題策略。</div>
   </div>
@@ -364,6 +385,41 @@ class Solution:
           <div><b>Time Complexity:</b> O(n)，兩次線性掃描。</div>
           <div><b>Space Complexity:</b> O(1)，只保留兩個 DP 變數；切片若嚴格計入會是 O(n)，可改傳 index 避免。</div>
         </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Point out the circular constraint</h4>
+          <p>"This is similar to the regular House Robber problem, but the first and last houses are adjacent, so they cannot both be robbed."</p>
+
+          <h4>Step 2: Split into two linear cases</h4>
+          <p>"To remove the circular dependency, I split the problem into two normal linear robber problems: rob houses from index <code>0</code> to <code>n - 2</code>, or rob houses from index <code>1</code> to <code>n - 1</code>."</p>
+<pre><code>case 1: exclude the last house  -> nums[0:n-1]
+case 2: exclude the first house -> nums[1:n]</code></pre>
+<pre><code>Example:
+nums = [2, 3, 2]
+
+exclude last  -> [2, 3] -> 3
+exclude first -> [3, 2] -> 3
+
+answer = max(3, 3) = 3</code></pre>
+
+          <h4>Step 3: Reuse the linear DP helper</h4>
+          <p>"For each linear case, I use the standard recurrence: at each house, either skip it and keep the previous best, or rob it and add its value to the best from two houses ago."</p>
+<pre><code>new_best = max(previous_best, two_back + current_money)</code></pre>
+
+          <h4>Step 4: Discuss edge cases</h4>
+          <p>"If there is only one house, I return its value directly because the split would otherwise create an empty case."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time complexity is <code>O(n)</code> because we run two linear scans. Space complexity is <code>O(1)</code> if we avoid counting slicing and only keep two DP variables."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why two cases?</b> "Every valid answer must exclude either the first house or the last house, so these two cases cover all possibilities."</li>
+            <li><b>Why not use a full DP array?</b> "The recurrence only depends on the previous two states, so two variables are enough."</li>
+          </ul>
+
+          <p><b>中文：</b>面試時先說清楚環狀限制，再拆成兩個線性 House Robber 問題。</p>
+        </div>
       </article>
     </div>
   </section>
@@ -406,6 +462,45 @@ class HitCounter:
         <div class="complexity">
           <div><b>Time Complexity:</b> <code>hit</code> O(1)；<code>getHits</code> amortized O(k)，k 是這次被清掉的過期 bucket 數。</div>
           <div><b>Space Complexity:</b> O(300) timestamp bucket；若 timestamp 粒度固定為秒且查詢會清理過期資料，窗口最多約 300 個秒級 bucket。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame it as a sliding time window</h4>
+          <p>"The counter only needs hits in the last 300 seconds, so I maintain a sliding window of valid timestamp buckets."</p>
+
+          <h4>Step 2: Explain the bucket optimization</h4>
+          <p>"Instead of storing every hit individually, I group hits with the same timestamp into one bucket <code>[timestamp, count]</code>. This saves space when many hits happen in the same second."</p>
+
+          <h4>Step 3: Walk through <code>hit</code></h4>
+          <p>"When a new hit arrives, if the last bucket has the same timestamp, I increment that bucket. Otherwise I append a new bucket. I also maintain a running <code>total</code>."</p>
+
+          <h4>Step 4: Walk through <code>getHits</code></h4>
+          <p>"For a query at time <code>t</code>, I remove buckets from the front while their timestamp is <code>&lt;= t - 300</code>, subtract their counts from <code>total</code>, and then return <code>total</code>."</p>
+<pre><code>Example:
+hit(1)
+hit(1)
+hit(300)
+
+getHits(300):
+valid timestamps are > 0
+bucket [1, 2] and bucket [300, 1] are valid
+answer = 3
+
+getHits(301):
+valid timestamps are > 1
+bucket [1, 2] expires
+answer = 1</code></pre>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"<code>hit</code> is <code>O(1)</code>. <code>getHits</code> is amortized efficient because each bucket is inserted once and removed once. Space is bounded by the number of active timestamp buckets."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why use a deque?</b> "Expired timestamps always leave from the oldest side, so deque gives O(1) pops from the front."</li>
+            <li><b>Why remove <code>&lt;= t - 300</code>?</b> "The valid window is timestamps strictly greater than <code>t - 300</code>."</li>
+          </ul>
+
+          <p><b>中文：</b>重點是把題目說成 300 秒 sliding window，並用 timestamp bucket 壓縮空間。</p>
         </div>
       </article>
     </div>
@@ -462,6 +557,70 @@ class Solution:
         <div class="complexity">
           <div><b>Time Complexity:</b> O(B)，B 是輸出的 CIDR block 數；IPv4 位元數固定，因此實務上是常數上界。</div>
           <div><b>Space Complexity:</b> O(B)，用來存輸出 blocks。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define the goal</h4>
+          <p>"Given a starting IP and a count <code>n</code>, we need to cover exactly <code>n</code> consecutive IPs using the minimum number of CIDR blocks -- no more, no less."</p>
+
+          <h4>Step 2: Explain the two CIDR constraints</h4>
+          <p>"A CIDR block has two hard constraints. First, its size must be a power of two -- <code>/30</code> means 4 IPs, <code>/29</code> means 8 IPs, and so on. Second, the starting address must be aligned to its size, meaning the start must be a multiple of the block size."</p>
+<pre><code>size = 4 -> start must be 0, 4, 8, 12, ...
+size = 8 -> start must be 0, 8, 16, 24, ...
+
+192.168.1.4:
+  4 / 4 = 1    valid for size 4
+  4 / 8 = 0.5  invalid for size 8</code></pre>
+
+          <h4>Step 3: Explain the greedy strategy</h4>
+          <p>"At each step, we want the largest valid block we can place at the current start. This is greedy -- taking the largest block now always leads to the fewest total blocks, because choosing a smaller block never helps us cover the remaining interval with fewer blocks later."</p>
+
+          <h4>Step 4: Explain <code>start &amp; -start</code></h4>
+          <p>"To find the largest valid block size efficiently, we use the bit trick <code>start &amp; -start</code>. In two's complement, negating a number flips all bits and adds one, which preserves only the lowest set bit and zeros everything else. So <code>start &amp; -start</code> gives the largest power-of-two that <code>start</code> is divisible by -- exactly the alignment constraint we need."</p>
+<pre><code>start = 192.168.1.4 = ...00000100
+-start              = ...11111100
+AND                 = ...00000100 = 4
+
+largest aligned size = 4</code></pre>
+
+          <h4>Step 5: Explain shrinking by remaining count</h4>
+          <p>"We also cannot exceed the remaining count <code>n</code>. So if the aligned block size is larger than <code>n</code>, we keep halving it until it fits."</p>
+<pre><code>start = 192.168.1.8, n = 2
+
+start &amp; -start = 8
+8 &gt; 2 -> shrink
+4 &gt; 2 -> shrink
+2 &lt;= 2 -> stop, use size 2</code></pre>
+
+          <h4>Step 6: Convert block size to CIDR prefix</h4>
+          <p>"Once we have the block size, the CIDR prefix is 32 minus the exponent. Since the block size is always a power of two, <code>bit_length() - 1</code> gives the exponent directly."</p>
+<pre><code>size = 4 = 2^2
+bit_length() = 3 -> exponent = 2
+prefix = 32 - 2 = 30 -> /30</code></pre>
+
+          <h4>Step 7: Walk through a complete example</h4>
+          <p>"Let me walk through a concrete example. Start is <code>192.168.1.4</code>, and <code>n = 6</code>."</p>
+<pre><code>Round 1:
+  start &amp; -start = 4, 4 &lt;= 6 -> size = 4
+  prefix = 30 -> "192.168.1.4/30"
+  covers .4, .5, .6, .7
+  start = 192.168.1.8, n = 2
+
+Round 2:
+  start &amp; -start = 8, 8 &gt; 2 -> shrink to 2
+  prefix = 31 -> "192.168.1.8/31"
+  covers .8, .9
+  start = 192.168.1.10, n = 0
+
+result = ["192.168.1.4/30", "192.168.1.8/31"]</code></pre>
+
+          <h4>Step 8: Discuss edge case</h4>
+          <p>"One edge case is when <code>start</code> is 0. Since <code>0 &amp; -0</code> is 0, we special-case it to <code>1 &lt;&lt; 32</code>, representing the entire IPv4 space."</p>
+
+          <h4>Step 9: Complexity</h4>
+          <p>"Time and space are both <code>O(B)</code>, where <code>B</code> is the number of output blocks. Since IPv4 is only 32 bits, <code>B</code> is at most 32 -- practically constant."</p>
+
+          <p><b>中文：</b>面試時先講 CIDR 的 size 與 alignment 限制，再用 <code>start &amp; -start</code> 找最大對齊 block，必要時縮小到不超過剩餘數量。</p>
         </div>
       </article>
     </div>
@@ -524,6 +683,42 @@ class Solution:
           <div><b>Time Complexity:</b> O(|s1| + |s2|)，每個字元進出窗口一次。</div>
           <div><b>Space Complexity:</b> O(1)，固定 26 個小寫英文字母計數。</div>
         </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Identify the fixed-size window</h4>
+          <p>"A permutation of <code>s1</code> must have exactly the same length as <code>s1</code>, so I only need to check fixed-size windows in <code>s2</code>."</p>
+
+          <h4>Step 2: Compare character frequencies</h4>
+          <p>"Order does not matter for a permutation, so each window is valid if its 26 lowercase letter counts match the counts of <code>s1</code>."</p>
+
+          <h4>Step 3: Explain the <code>matches</code> optimization</h4>
+          <p>"Instead of comparing all 26 counts after every slide, I keep a <code>matches</code> counter that tells how many letters currently have equal frequencies in both arrays."</p>
+
+          <h4>Step 4: Slide the window</h4>
+          <p>"For each step, I add the new right character, remove the old left character, and update <code>matches</code> before and after each count change. If <code>matches == 26</code>, the current window is a permutation."</p>
+<pre><code>Example:
+s1 = "ab"
+s2 = "eidbaooo"
+window size = 2
+
+"ei" -> not match
+"id" -> not match
+"db" -> not match
+"ba" -> matches counts of "ab"
+
+return True</code></pre>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time complexity is <code>O(|s1| + |s2|)</code> because each character enters and leaves the window once. Space complexity is <code>O(1)</code> because the arrays always have size 26."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why not sort every window?</b> "Sorting each window would be more expensive; frequency counts let us update in constant time."</li>
+            <li><b>What if <code>s1</code> is longer than <code>s2</code>?</b> "Then no valid window can exist, so return false immediately."</li>
+          </ul>
+
+          <p><b>中文：</b>關鍵是固定窗口長度，並用字母頻率判斷是否為排列。</p>
+        </div>
       </article>
     </div>
   </section>
@@ -554,6 +749,43 @@ class Solution:
         <div class="complexity">
           <div><b>Time Complexity:</b> O(n)，掃過所有房子一次。</div>
           <div><b>Space Complexity:</b> O(1)，只保留兩個狀態。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame the problem</h4>
+          <p>"This is a dynamic programming problem because the best answer up to the current house depends on previous choices."</p>
+
+          <h4>Step 2: Explain the two choices</h4>
+          <p>"At each house, I either skip it and keep the previous best, or rob it and add its money to the best from two houses ago."</p>
+<pre><code>skip current: dp[i - 1]
+rob current:  dp[i - 2] + nums[i]</code></pre>
+
+          <h4>Step 3: Derive the recurrence</h4>
+          <p>"So the recurrence is <code>dp[i] = max(dp[i - 1], dp[i - 2] + nums[i])</code>."</p>
+<pre><code>Example:
+nums = [2, 7, 9, 3, 1]
+
+house 0: max(0, 0 + 2)  = 2
+house 1: max(2, 0 + 7)  = 7
+house 2: max(7, 2 + 9)  = 11
+house 3: max(11, 7 + 3) = 11
+house 4: max(11, 11 + 1) = 12
+
+answer = 12</code></pre>
+
+          <h4>Step 4: Explain space optimization</h4>
+          <p>"The recurrence only needs two previous states, so I keep <code>two_back</code> for <code>dp[i - 2]</code> and <code>one_back</code> for <code>dp[i - 1]</code>."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time complexity is <code>O(n)</code> because we scan the houses once. Space complexity is <code>O(1)</code> because we only keep two variables."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why is this DP?</b> "The optimal answer for the current prefix is built from optimal answers to smaller prefixes."</li>
+            <li><b>How is this different from House Robber II?</b> "House Robber II adds circular adjacency, so we split it into two linear cases."</li>
+          </ul>
+
+          <p><b>中文：</b>面試時重點是先說偷與不偷兩種選擇，再推出只需前兩個狀態。</p>
         </div>
       </article>
     </div>
@@ -596,6 +828,43 @@ class TimeMap:
         <div class="complexity">
           <div><b>Time Complexity:</b> <code>set</code> O(1)；<code>get</code> O(log m)，m 是該 key 的版本數。</div>
           <div><b>Space Complexity:</b> O(total sets)，每次 set 都需要保留一個版本。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define the data model</h4>
+          <p>"For each key, I store two parallel arrays: one for timestamps and one for values. The timestamps are sorted because the problem guarantees increasing timestamps for each key."</p>
+
+          <h4>Step 2: Explain <code>set</code></h4>
+          <p>"For <code>set</code>, I simply append the timestamp and value to the arrays for that key. This is O(1)."</p>
+
+          <h4>Step 3: Explain <code>get</code> with binary search</h4>
+          <p>"For <code>get</code>, I need the latest timestamp that is less than or equal to the query timestamp. Since timestamps are sorted, I use <code>bisect_right</code> to find the insertion position after all valid timestamps, then subtract one."</p>
+<pre><code>index = bisect_right(times, timestamp) - 1</code></pre>
+<pre><code>Example:
+set("foo", "bar", 1)
+set("foo", "bar2", 4)
+
+times  = [1, 4]
+values = ["bar", "bar2"]
+
+get("foo", 3):
+bisect_right([1, 4], 3) -> 1
+index = 1 - 1 = 0
+answer = "bar"</code></pre>
+
+          <h4>Step 4: Discuss missing cases</h4>
+          <p>"If the key does not exist, or if the insertion position is 0, then there is no valid value at or before that timestamp, so I return an empty string."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"<code>set</code> is <code>O(1)</code>. <code>get</code> is <code>O(log m)</code>, where <code>m</code> is the number of versions for that key. Space is <code>O(total sets)</code>."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why binary search?</b> "We need the predecessor timestamp in a sorted list."</li>
+            <li><b>Why two arrays?</b> "It keeps timestamp search simple and lets us retrieve the value by the same index."</li>
+          </ul>
+
+          <p><b>中文：</b>重點是每個 key 維護遞增 timestamps，查詢時用 binary search 找最後一個不超過目標時間的版本。</p>
         </div>
       </article>
     </div>
@@ -649,6 +918,41 @@ class Solution:
           <div><b>Time Complexity:</b> O(mn)，每個格子最多進 queue 一次。</div>
           <div><b>Space Complexity:</b> O(mn)，queue 最壞可能裝下大部分格子。</div>
         </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Recognize multi-source BFS</h4>
+          <p>"This is a multi-source BFS problem because all rotten oranges start spreading at the same time."</p>
+
+          <h4>Step 2: Initialize the queue and fresh count</h4>
+          <p>"I scan the grid once, push all initially rotten oranges into the queue, and count how many fresh oranges exist."</p>
+
+          <h4>Step 3: Explain minute-by-minute expansion</h4>
+          <p>"Each BFS level represents one minute. During that minute, every rotten orange in the current queue infects adjacent fresh oranges."</p>
+<pre><code>Example:
+2 1 1
+1 1 0
+0 1 1
+
+minute 0: rotten starts at (0,0)
+minute 1: infect (0,1), (1,0)
+minute 2: infect next adjacent fresh oranges
+...
+answer = number of BFS layers needed until fresh count becomes 0</code></pre>
+
+          <h4>Step 4: Track completion</h4>
+          <p>"Whenever a fresh orange becomes rotten, I decrement the fresh count. If all fresh oranges are infected, I return the number of minutes; if the queue is exhausted but fresh remains, I return <code>-1</code>."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time complexity is <code>O(mn)</code> because each cell is processed at most once. Space complexity is <code>O(mn)</code> for the queue in the worst case."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why BFS instead of DFS?</b> "BFS naturally models simultaneous spreading by minutes."</li>
+            <li><b>What if there are no fresh oranges?</b> "The answer is 0 because nothing needs to rot."</li>
+          </ul>
+
+          <p><b>中文：</b>把每一層 BFS 對應成一分鐘，就能清楚解釋腐爛同時擴散的過程。</p>
+        </div>
       </article>
     </div>
   </section>
@@ -697,6 +1001,41 @@ class Solution:
         <div class="complexity">
           <div><b>Time Complexity:</b> O(n²)，每個格子最多被處理一次。</div>
           <div><b>Space Complexity:</b> O(n²)，queue 最壞情況可能包含許多格子。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame it as shortest path in an unweighted grid</h4>
+          <p>"Every valid move has the same cost, so BFS is the right algorithm to find the shortest path."</p>
+
+          <h4>Step 2: Handle blocked endpoints</h4>
+          <p>"If either the start or the destination is blocked, there is no valid path, so I return <code>-1</code> immediately."</p>
+
+          <h4>Step 3: Explain BFS state</h4>
+          <p>"Each queue entry stores <code>(row, col, distance)</code>. From each cell, I explore all 8 possible directions."</p>
+<pre><code>Example:
+grid = [
+  [0, 1],
+  [1, 0]
+]
+
+start = (0,0), distance = 1
+move diagonally to (1,1), distance = 2
+
+answer = 2</code></pre>
+
+          <h4>Step 4: Mark visited when enqueuing</h4>
+          <p>"I mark a cell as visited as soon as it is added to the queue, so it will not be enqueued multiple times by different neighbors."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time complexity is <code>O(n²)</code> because each cell is visited at most once. Space complexity is <code>O(n²)</code> for the queue."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why return when reaching the target?</b> "BFS explores in increasing distance order, so the first time we reach the target is shortest."</li>
+            <li><b>Can we avoid modifying the grid?</b> "Yes, we can use a separate visited set, but modifying the grid saves extra bookkeeping."</li>
+          </ul>
+
+          <p><b>中文：</b>面試時強調 BFS 適合無權重最短路徑，第一次到終點就是最短距離。</p>
         </div>
       </article>
     </div>
@@ -749,6 +1088,38 @@ class Solution:
           <div><b>Time Complexity:</b> O((|x| + 5)(|y| + 5))，BFS 搜尋被限制在目標附近的矩形。</div>
           <div><b>Space Complexity:</b> O((|x| + 5)(|y| + 5))，visited 與 queue 的大小。</div>
         </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Use symmetry</h4>
+          <p>"The knight moves symmetrically across both axes, so I can convert the target to <code>(abs(x), abs(y))</code> and only reason about the first quadrant."</p>
+
+          <h4>Step 2: Use BFS for minimum moves</h4>
+          <p>"Each knight move has equal cost, so BFS gives the minimum number of moves. The state is the current coordinate and distance."</p>
+<pre><code>Example:
+target = (2, 1)
+
+start at (0, 0)
+one knight move can reach (2, 1)
+
+answer = 1</code></pre>
+
+          <h4>Step 3: Bound the search area</h4>
+          <p>"Even though the board is infinite, shortest paths only need a small margin around the target. I allow coordinates from <code>-2</code> to <code>target + 2</code> to preserve near-origin detours and small overshoots."</p>
+
+          <h4>Step 4: Track visited coordinates</h4>
+          <p>"I keep a <code>seen</code> set so each coordinate is processed once. When BFS reaches the target, I return the distance immediately."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time and space are proportional to the bounded search rectangle, roughly <code>O((|x| + 5)(|y| + 5))</code>."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why keep negative coordinates down to <code>-2</code>?</b> "Some shortest paths near the origin briefly move into negative coordinates."</li>
+            <li><b>Why allow <code>target + 2</code>?</b> "A shortest path may overshoot by at most one knight step before coming back."</li>
+          </ul>
+
+          <p><b>中文：</b>重點是先用對稱性縮小問題，再用有界 BFS 找最短步數。</p>
+        </div>
       </article>
     </div>
   </section>
@@ -795,6 +1166,38 @@ class Solution:
         <div class="complexity">
           <div><b>Time Complexity:</b> O(1) per move，只更新固定數量的 counter。</div>
           <div><b>Space Complexity:</b> O(n)，rows 與 cols 各一個長度 n 的陣列。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Avoid scanning the board</h4>
+          <p>"A naive solution scans rows, columns, and diagonals after every move. Instead, I maintain counters so each move can be checked in O(1)."</p>
+
+          <h4>Step 2: Encode players as signs</h4>
+          <p>"I represent player 1 as <code>+1</code> and player 2 as <code>-1</code>. If one player fills an entire row, column, or diagonal, the absolute counter value becomes <code>n</code>."</p>
+
+          <h4>Step 3: Update only affected lines</h4>
+          <p>"For each move, I update exactly one row and one column. If the cell is on the main diagonal or anti-diagonal, I update those counters too."</p>
+<pre><code>Example with n = 3:
+
+player 1 moves at (0,0): rows[0] = 1, cols[0] = 1, diagonal = 1
+player 1 moves at (1,1): rows[1] = 1, cols[1] = 1, diagonal = 2
+player 1 moves at (2,2): rows[2] = 1, cols[2] = 1, diagonal = 3
+
+abs(diagonal) == n, so player 1 wins</code></pre>
+
+          <h4>Step 4: Check for a winner</h4>
+          <p>"After updating counters, if any affected counter has absolute value <code>n</code>, the current player wins; otherwise return 0."</p>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Each move is <code>O(1)</code> time because only fixed counters are updated. Space is <code>O(n)</code> for row and column counters."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why does sign encoding work?</b> "A winning line must contain only one player's marks, so the signed sum reaches <code>n</code> or <code>-n</code>."</li>
+            <li><b>Do we need to store the whole board?</b> "No, the problem assumes moves are valid, so counters are enough."</li>
+          </ul>
+
+          <p><b>中文：</b>面試時強調用正負分數維護 row、col、diagonal，讓每步都能 O(1) 判斷勝負。</p>
         </div>
       </article>
     </div>
@@ -854,6 +1257,64 @@ class Solution:
         <div class="complexity">
           <div><b>Time Complexity:</b> O(total chars)，每個單字被分配到某一行並輸出一次；輸出本身也需要相同量級時間。</div>
           <div><b>Space Complexity:</b> O(output)，回傳結果需要儲存所有行；額外暫存一行內容最多 O(maxWidth)。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Split the problem into two parts</h4>
+          <p>"This problem has two distinct parts: first, greedily pack as many words as possible into each line; second, distribute spaces according to the text justification rules."</p>
+
+          <h4>Step 2: Explain greedy packing</h4>
+          <p>"For each line, I keep adding words as long as the current line length plus one required space and the next word does not exceed <code>maxWidth</code>."</p>
+<pre><code>Example: greedy packing
+maxWidth = 16
+words = ["What", "must", "be", "acknowledgment"]
+
+line_len = 4 ("What")
++ 1 + 4 = 9   ("must") &lt;= 16
++ 1 + 2 = 12  ("be")   &lt;= 16
++ 1 + 14 = 27 ("acknowledgment") &gt; 16 stop
+
+line_words = ["What", "must", "be"]</code></pre>
+
+          <h4>Step 3: Explain space distribution</h4>
+          <p>"After deciding the words in the line, I compute how many spaces are needed, how many gaps exist between words, and then use <code>divmod</code> to distribute spaces evenly."</p>
+<pre><code>Example: even space distribution
+words_len = 4 + 4 + 2 = 10
+spaces = 16 - 10 = 6
+gaps = 2
+
+divmod(6, 2) -> base_spaces = 3, extra = 0
+
+"What" + "   " + "must" + "   " + "be"</code></pre>
+
+          <p>"When the remainder is not zero, the first <code>extra</code> gaps receive one additional space from left to right."</p>
+<pre><code>Example: uneven space distribution
+words = ["Science", "is", "what"]
+words_len = 7 + 2 + 4 = 13
+spaces = 16 - 13 = 3
+gaps = 2
+
+divmod(3, 2) -> base_spaces = 1, extra = 1
+
+"Science" + "  " + "is" + " " + "what"
+             left-side gap gets one extra space</code></pre>
+
+          <h4>Step 4: Discuss edge cases</h4>
+          <p>"There are two special cases: the last line and a line with only one word. Both should be left-justified by joining words with a single space and padding the remaining spaces on the right."</p>
+<pre><code>j == len(words) -> last line
+gaps == 0       -> only one word, avoid divmod(spaces, 0)</code></pre>
+
+          <h4>Step 5: Complexity</h4>
+          <p>"Time complexity is <code>O(total characters)</code> because each word is processed once and each output line is built once. Space complexity is <code>O(maxWidth)</code> extra space for building one line, excluding the output."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why use <code>divmod</code>?</b> "It gives both the base spaces per gap and the remainder in one call."</li>
+            <li><b>Why do extra spaces go to the left?</b> "The problem requires left gaps to receive more spaces when spaces cannot be evenly distributed."</li>
+            <li><b>Why track <code>line_len</code>?</b> "It keeps the fit check O(1) instead of recomputing the current line length repeatedly."</li>
+          </ul>
+
+          <p><b>中文：</b>面試時先拆成 greedy packing 與 space distribution，再用整除與不整除例子展示細節。</p>
         </div>
       </article>
     </div>
