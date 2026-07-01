@@ -513,6 +513,128 @@ answer = [0, 6]</code></pre>
           </ul>
           <p><b>中文：</b>固定長度窗口加上字母頻率比較，是這題的核心。</p>
         </div>
+        <h3>另一種解法：Matches Counter Optimization</h3>
+        <p>第一種解法每次滑動後直接比較兩個長度 26 的 frequency arrays；雖然仍是常數時間，但可以再用 <code>matches</code> 記錄目前有多少個字母的頻率相等。當 <code>matches == 26</code>，代表目前窗口就是 anagram。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def findAnagrams(self, s: str, p: str) -&gt; List[int]:
+        if len(p) &gt; len(s):
+            return []
+
+        base = ord("a")
+        need = [0] * 26
+        window = [0] * 26
+
+        for i, ch in enumerate(p):
+            need[ord(ch) - base] += 1
+            window[ord(s[i]) - base] += 1
+
+        matches = sum(1 for i in range(26) if need[i] == window[i])
+
+        result = []
+        if matches == 26:
+            result.append(0)
+
+        for right in range(len(p), len(s)):
+            left = right - len(p)
+
+            add = ord(s[right]) - base
+            if window[add] == need[add]:
+                matches -= 1
+            window[add] += 1
+            if window[add] == need[add]:
+                matches += 1
+
+            remove = ord(s[left]) - base
+            if window[remove] == need[remove]:
+                matches -= 1
+            window[remove] -= 1
+            if window[remove] == need[remove]:
+                matches += 1
+
+            if matches == 26:
+                result.append(left + 1)
+
+        return result</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，每個字元最多被加入與移出窗口一次；<code>matches</code> 讓每次更新維持 O(1)。</div>
+          <div><b>Space Complexity:</b> O(1)，只使用兩個固定長度 26 的 frequency arrays。</div>
+        </div>
+        <h3>Interview Explanation Flow — Matches Counter</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Point out the key observation</h4>
+          <p>"An anagram has the same character frequencies as the original string, just in different order. So instead of generating all permutations, we just need to find windows in <code>s</code> of length <code>len(p)</code> that have identical character frequencies."</p>
+
+          <h4>Step 2: Explain why sliding window fits</h4>
+          <p>"Since we're looking for substrings of a fixed length, this is a natural fit for a fixed-size sliding window. We slide one character at a time -- adding the new right character and removing the old left character."</p>
+<pre><code>s = "cbaebacd", p = "abc"
+window size = 3
+
+[c b a] e b a c d  -> match
+ [b a e] b a c d
+  [a e b] a c d
+   [e b a] c d
+    [b a c] d      -> match
+     [a c d]</code></pre>
+
+          <h4>Step 3: Explain the <code>matches</code> counter</h4>
+          <p>"Naively comparing two 26-element frequency arrays at every step costs O(26) per slide. Instead, we maintain a <code>matches</code> counter -- how many of the 26 characters currently have equal frequency in both arrays. When <code>matches</code> hits 26, we found an anagram."</p>
+<pre><code>need   = {a:1, b:1, c:1, others:0}
+window = {a:1, b:1, c:1, others:0}
+
+matches = 26 -> anagram</code></pre>
+
+          <h4>Step 4: Explain how to update <code>matches</code></h4>
+          <p>"The key is updating <code>matches</code> correctly. Before changing <code>window</code>, check if it currently equals <code>need</code>; if so, decrement <code>matches</code> because we're about to break that equality. After changing, check again; if they're equal now, increment <code>matches</code>."</p>
+<pre><code># Add the right character.
+if window[add] == need[add]:  matches -= 1
+window[add] += 1
+if window[add] == need[add]:  matches += 1
+
+# Remove the left character; same logic.
+if window[remove] == need[remove]:  matches -= 1
+window[remove] -= 1
+if window[remove] == need[remove]:  matches += 1</code></pre>
+
+          <h4>Step 5: Walk through a complete example</h4>
+<pre><code>s = "cbaebacd", p = "abc"
+
+need = {a:1, b:1, c:1, others:0}
+initial window = {c:1, b:1, a:1}
+matches = 26 -> result = [0]
+
+right=3, left=0: add e, remove c
+  add e: 0 -> 1, need[e] = 0, no longer equal -> matches = 25
+  remove c: 1 -> 0, need[c] = 1, no longer equal -> matches = 24
+
+right=4, left=1: add b, remove b
+  add b: 1 -> 2, need[b] = 1, breaks equality -> matches = 23
+  remove b: 2 -> 1, need[b] = 1, equal again -> matches = 24
+
+right=5, left=2: add a, remove a
+  add a: 1 -> 2, need[a] = 1, breaks equality -> matches = 23
+  remove a: 2 -> 1, need[a] = 1, equal again -> matches = 24
+
+right=6, left=3: add c, remove e
+  add c: 0 -> 1, need[c] = 1, equal again -> matches = 25
+  remove e: 1 -> 0, need[e] = 0, equal again -> matches = 26
+  result = [0, 4]
+
+return [0, 4]</code></pre>
+
+          <h4>Step 6: Complexity</h4>
+          <p>"Time is O(n) because each character is added and removed exactly once, and each window update is O(1) thanks to the <code>matches</code> counter. Space is O(1) because we only use two fixed-size arrays of 26."</p>
+
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why use an array of size 26 instead of a Counter?</b> "Both work, but a fixed array gives O(1) index access and makes the <code>matches</code> optimization more natural."</li>
+            <li><b>What if the string contains characters outside lowercase letters?</b> "We would switch to a hash map and track how many required characters are fully satisfied instead of assuming exactly 26 buckets."</li>
+          </ul>
+
+          <p><b>中文：</b>開場點出 anagram 等於頻率相同，說明 fixed-size sliding window，重點解釋 <code>matches</code> counter 的更新邏輯，並走完整例子展示每步變化。</p>
+        </div>
       </article>
     </div>
   </section>
