@@ -1037,6 +1037,7 @@ class Solution:
         <p>有 <code>numCourses</code> 門課，prerequisites 中 <code>[a, b]</code> 表示要先修 <code>b</code> 才能修 <code>a</code>。請回傳一個可行修課順序；若因 cycle 無法完成所有課，回傳空陣列。</p>
         <h3>解法說明</h3>
         <p>這是 topological sort。建立 graph <code>b -> a</code> 與每門課的 indegree。先把 indegree 為 0 的課放入 queue；每取出一門課，就降低後續課的 indegree。若最後輸出數量等於課數，順序有效；否則有 cycle。</p>
+        <p><b>What is Kahn's Algorithm?</b> Kahn's Algorithm finds a topological order by repeatedly removing nodes with indegree 0, reducing neighbors' indegrees, and adding newly freed nodes to the queue. If all nodes are removed, the graph is acyclic; otherwise a cycle exists.<br>中文：反覆取出 indegree 為 0 的節點加入結果，並降低鄰居的 indegree，若最終所有節點都被取出代表無 cycle，否則有 cycle。</p>
 <pre><code class="language-python">from collections import deque
 from typing import List
 
