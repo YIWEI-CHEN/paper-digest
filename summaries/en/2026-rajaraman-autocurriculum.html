@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Autocurriculum · Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--panel:#141b25;--panel2:#1b2430;--ink:#e8edf4;--muted:#93a1b3;
+  --line:#26313f;--acc:#5ad1c0;--acc2:#f4a259;--acc3:#8c7bff;--hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;--mono:'JetBrains Mono',monospace;--disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:720px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:16px 0 16px 22px;color:var(--ink)}li{margin:8px 0}
+.grid{display:grid;gap:18px;margin:26px 0}.g2{grid-template-columns:1fr 1fr}.g3{grid-template-columns:repeat(3,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:30px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}.callout.hot{border-color:var(--hot)}.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+.formula .muted{color:var(--muted)}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)}.str{color:var(--acc2)}.cmt{color:#5b6675}.fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">COLT 2026 · Paper Digest</div>
+    <h1 class="title">Provable Benefits of <span class="sql">Autocurriculum</span></h1>
+    <p class="subtitle">A learning-theory account of why letting a reasoning model pick <em>which</em> prompts to train on — using nothing but a verifier's pass/fail signal — cuts the cost of both SFT and RL, sometimes <em>exponentially</em>.</p>
+    <div class="meta-row">
+      <span class="tag lit">Autocurriculum</span>
+      <span class="tag lit">Boosting-by-filtering</span>
+      <span class="tag">Chain-of-Thought</span>
+      <span class="tag">SFT / distillation</span>
+      <span class="tag">RLVR</span>
+      <span class="tag">Sample complexity</span>
+    </div>
+    <p class="authors">Nived Rajaraman, Audrey Huang, Miro Dudík, Robert Schapire, Dylan J. Foster, Akshay Krishnamurthy · Microsoft Research &amp; UIUC · <a href="https://arxiv.org/abs/2603.18325">arXiv:2603.18325</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#setup">02 Setup</a>
+    <a href="#headline">03 Headline</a>
+    <a href="#autotune">04 AutoTune (SFT)</a>
+    <a href="#general">05 General models</a>
+    <a href="#rl">06 RLVR</a>
+    <a href="#limits">07 Limitations</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — reasoning is expensive, can we make it cheaper?</h2>
+    <p class="lead">Chain-of-thought reasoning models are trained two ways, and both are costly. This paper asks whether those costs are <em>fundamental</em>, or an artifact of not being adaptive about which problems you train on.</p>
+
+    <p>Modern reasoning models (o1, R1, Phi-reasoning, …) get their power from <strong>chain-of-thought (CoT)</strong>: spending extra tokens before answering. Producing them relies on two expensive pipelines:</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>SFT / Distillation</h4>
+        <p>Collect long, high-quality reasoning traces from a strong teacher (human or frontier model) and fit the student on them. <strong>Statistically</strong> expensive — every teacher demonstration is precious.</p>
+      </div>
+      <div class="card">
+        <h4>RL with Verifiable Rewards (RLVR)</h4>
+        <p>No teacher traces, but you must roll out a huge number of reasoning attempts from the model under training and score them with a verifier. <strong>Computationally</strong> expensive — generation dominates the bill.</p>
+      </div>
+    </div>
+
+    <p>The standard recipe treats every prompt equally: query the teacher on <em>all</em> prompts, or roll out on <em>all</em> prompts. But many prompts are already easy for the current model — spending expensive supervision on them is waste. The central question:</p>
+    <div class="callout">
+      <p><strong>How should a reasoning model design its own curriculum, and what are the statistical &amp; computational benefits of doing so?</strong></p>
+    </div>
+
+    <p>The paper's answer: <span class="hl">autocurriculum</span> — using a cheap <strong>outcome verifier</strong> (a unit test, an answer checker) to decide which prompts the model currently struggles on, and focusing expensive supervision there. Crucially, this needs <strong>no assumptions on prompt distribution or difficulty</strong>; the curriculum emerges purely from the model's own training dynamics. The machinery is classical: <em>boosting</em> (Freund &amp; Schapire, 1997) and <em>learning from counterexamples</em> (Angluin, 1987).</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 860 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/></marker>
+        </defs>
+        <rect x="20" y="80" width="150" height="90" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="95" y="115" fill="#93a1b3" font-size="13" text-anchor="middle">Prompt dataset</text>
+        <text x="95" y="140" fill="#5b6675" font-size="11" text-anchor="middle">Q1  Q2  Q3 …</text>
+
+        <rect x="230" y="60" width="180" height="130" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="320" y="90" fill="#5ad1c0" font-size="13" text-anchor="middle">Current model</text>
+        <text x="320" y="118" fill="#ff6b6b" font-size="13" text-anchor="middle">Q1 ✗   Q3 ✗</text>
+        <text x="320" y="142" fill="#5ad1c0" font-size="13" text-anchor="middle">Q2 ✓</text>
+        <text x="320" y="170" fill="#5b6675" font-size="10.5" text-anchor="middle">verifier routes prompts</text>
+
+        <rect x="470" y="40" width="160" height="55" rx="10" fill="#1b2430" stroke="#f4a259"/>
+        <text x="550" y="65" fill="#f4a259" font-size="13" text-anchor="middle">Teacher</text>
+        <text x="550" y="83" fill="#5b6675" font-size="10.5" text-anchor="middle">generates CoT*</text>
+
+        <rect x="470" y="130" width="360" height="70" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="650" y="158" fill="#93a1b3" font-size="12" text-anchor="middle">Add to training set — only the failed prompts</text>
+        <text x="650" y="180" fill="#f4a259" font-size="12" text-anchor="middle">+ Q1 → CoT*[Q1]   + Q3 → CoT*[Q3]</text>
+
+        <line x1="170" y1="125" x2="224" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="410" y1="100" x2="466" y2="70" stroke="#ff6b6b" marker-end="url(#arr)"/>
+        <line x1="630" y1="70" x2="700" y2="126" stroke="#f4a259" marker-end="url(#arr)"/>
+        <path d="M470,175 C400,230 320,225 320,196" fill="none" stroke="#5ad1c0" stroke-dasharray="4 3" marker-end="url(#arr)"/>
+        <text x="405" y="228" fill="#5b6675" font-size="10.5" text-anchor="middle">improve model, repeat</text>
+      </svg>
+      <div class="figcap">Fig 1 · Autocurriculum for SFT: the verifier flags failed prompts, the teacher is only queried on those, the model is retrained, repeat (redrawn from paper Figure 1).</div>
+    </div>
+  </div>
+</section>
+
+<section id="setup">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Setup — models, verifiers, and two learning settings</h2>
+    <p class="lead">Everything is phrased in a clean autoregressive learning-theory framework, so that "cost" has a precise meaning.</p>
+
+    <h3>Language models &amp; chain-of-thought</h3>
+    <p>A prompt space <code>X ⊆ Σ*</code> carries a target distribution <code>ρ</code>. A model <code>π : Σ* → Δ<sub>Σ</sub></code> is a next-token predictor, shared across positions (parameter-sharing regime). Autoregressive decoding for <code>T</code> steps induces the <strong>CoT distribution</strong> <code>π<sub>1:T</sub>(·|x)</code> over length-<code>T</code> sequences; the <em>last</em> token is the "answer".</p>
+
+    <h3>Accuracy via an outcome verifier</h3>
+    <p>An <strong>outcome verifier</strong> <code>V : X × Σ → {0,1}</code> returns 1 iff a final answer is correct for a prompt — think unit test or math answer checker. Model accuracy is:</p>
+    <div class="formula">Acc<sub>ρ</sub>(π) = E<sub>x∼ρ</sub> E<sub>y∼π<sub>1:T</sub>(·|x)</sub> [ V(x, y<sub>T</sub>) ]
+      <br><span class="muted">avg over prompts of the probability the final token is a correct answer</span></div>
+    <p>The learner works in the <strong>realizable</strong> setting (Assumption 2.1): the model class <code>Π</code> contains a <code>π*</code> with <code>Acc<sub>ρ</sub>(π*) = 1</code>. The complexity of <code>Π</code> is its <strong>Natarajan dimension</strong> <code>d = Ndim(Π) ≤ log₂|Π|</code>.</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>SFT setting</h4>
+        <p>A CoT oracle <code>CoT(x)</code> returns a perfect teacher trace <code>y ∼ π*<sub>1:T</sub>(·|x)</code>. Cost = <strong>n<sub>CoT</sub></strong>, the number of teacher traces queried. This is what you want to minimize (traces are expensive).</p>
+      </div>
+      <div class="card">
+        <h4>RLVR setting</h4>
+        <p>No teacher. Instead a <strong>reference model</strong> <code>π<sub>ref</sub></code> you can sample. Cost = <strong>n<sub>comp</sub></strong>, the total number of length-<code>T</code> rollouts generated during training (from <code>π<sub>ref</sub></code> or any learner model).</p>
+      </div>
+    </div>
+    <p>In both settings the learner also has free query access to the verifier <code>V</code>. That cheap pass/fail signal — separate from the expensive supervision — is what makes autocurriculum possible.</p>
+  </div>
+</section>
+
+<section id="headline">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>The headline — what autocurriculum buys you</h2>
+    <p class="lead">One table summarizes the entire paper. Read the "No curriculum" column as the standard recipe, the "Autocurriculum" column as this paper.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Complexity, up to polylog(1/ε, 1/δ, d, C<sub>seq</sub>) factors. Π = class of next-token models; d = Ndim(Π); C<sub>seq</sub> = sequence-level coverage of the reference model; target: learn π̂ with Acc<sub>ρ</sub>(π̂) ≥ 1−ε. Π assumed finite &amp; deterministic.</caption>
+        <thead><tr><th>Setting</th><th>No curriculum (prior recipe)</th><th>Autocurriculum (this paper)</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>SFT</strong><br><span style="font-size:12px">cost = teacher CoTs</span></td>
+            <td class="num" style="text-align:left">n<sub>prompt</sub> = n<sub>CoT</sub> ∼ log|Π| / ε</td>
+            <td class="num" style="text-align:left">n<sub>prompt</sub> ∼ log|Π|/ε , &nbsp; <span class="ours">n<sub>CoT</sub> ∼ log|Π| · log(1/ε)</span></td>
+          </tr>
+          <tr class="best">
+            <td><strong>RLVR</strong><br><span style="font-size:12px">cost = rollouts</span></td>
+            <td class="num" style="text-align:left">n<sub>comp</sub> ∼ C<sub>seq</sub> · log|Π| / ε</td>
+            <td class="num" style="text-align:left"><span class="ours">n<sub>comp</sub> ∼ C<sub>seq</sub>·log|Π|·log(1/ε) + log|Π|/ε</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>SFT — the 1/ε vanishes from CoT cost</h4>
+        <p class="big">Θ̃(d/ε) → Õ(d)</p>
+        <p>The number of <em>teacher demonstrations</em> drops from scaling with target accuracy to being <strong>nearly independent</strong> of it. An <em>exponential</em> improvement in 1/ε. You still see many prompts (cheap), but only ask the teacher on <code>Õ(d)</code> of them.</p>
+      </div>
+      <div class="card">
+        <h4>RLVR — coverage decouples from accuracy</h4>
+        <p class="big">Õ(dC<sub>seq</sub>/ε) → Õ(dC<sub>seq</sub> + d/ε)</p>
+        <p>The coverage cost <code>C<sub>seq</sub></code> becomes a one-time <strong>burn-in</strong> that no longer multiplies <code>1/ε</code>. Beyond burn-in, improving accuracy costs as if coverage were perfect.</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The one-sentence intuition:</strong> the verifier is a cheap oracle that tells you where you're wrong; boosting turns "fix a constant fraction of your current mistakes" into geometric convergence, so you only need <code>O(log(1/ε))</code> rounds of expensive supervision instead of <code>O(1/ε)</code> worth.</p>
+    </div>
+  </div>
+</section>
+
+<section id="autotune">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>AutoTune — boosting your way through SFT</h2>
+    <p class="lead">The core algorithm. It's classical boosting-by-filtering, with the outcome verifier playing the role of the reweighting oracle.</p>
+
+    <h3>The baseline it beats</h3>
+    <p>Prior work (Joshi et al., 2025; Foster et al., 2024) collects a CoT on <em>every</em> prompt and does next-token prediction (NTP). For deterministic classes under 0-1 loss this needs (their Prop. 3.1):</p>
+    <div class="formula">n<sub>prompt</sub> = n<sub>CoT</sub> ≲ [ d·log(dT|Σ|)·log(1/ε) + log(1/δ) ] / ε &nbsp;<span class="muted">, d = Ndim(Π)</span></div>
+    <p>The <code>1/ε</code> out front is the enemy: to reach 99.9% accuracy you pay for a thousand times more teacher traces than to reach 90%. Autocurriculum kills it.</p>
+
+    <h3>The idea: a verifier-guided ensemble of weak learners</h3>
+    <p><strong>AutoTune</strong> (Algorithm 1) runs <code>k = O(log(1/ε))</code> phases. In each phase it trains a new model to merely <em>constant</em> accuracy (a <strong>weak learner</strong>, error <code>err★ = ¼</code>) — but on a <em>reweighted</em> prompt distribution that up-weights where the current ensemble errs. The verifier decides which prompts count as errors; the teacher is queried only on those. The final model <code>f̂</code> is <strong>improper</strong>: a plurality vote over the ensemble.</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Split &amp; loop over phases</h4>
+        <p>Split the prompt dataset into <code>k</code> parts; run phase <code>j = 0 … k−1</code>, growing an ensemble <code>Π<sub>j</sub></code>.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Sample where the ensemble is wrong (Algorithm 2)</h4>
+        <p>A rejection-sampling subroutine <code>Sample(·)</code> reweights prompts toward those the current ensemble mislabels — using only verifier calls. Weight <code>w<sub>j</sub>(x) = α<sup>j,k</sup><sub>rank<sub>j</sub>(x)</sub></code>, where <code>rank<sub>j</sub>(x)</code> counts how many ensemble members already answer <code>x</code> correctly; the boosting weights <code>α</code> come from Freund's boosting-by-filtering.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Train a weak learner on the hard slice</h4>
+        <p>Query the teacher for CoTs <em>only</em> on the sampled (hard) prompts and fit a new model <code>π̂<sup>j</sup></code> to constant accuracy via the base NTP learner.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Aggregate by plurality vote</h4>
+        <p>Return <code>Plu({π̂ : π̂ ∈ Π<sub>k</sub>})</code> — the outcome-level model that takes the ensemble's most-voted answer.</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why boosting works here (Fig 2 intuition):</strong> each new weak learner is trained to fix a constant fraction of the ensemble's remaining errors on a larger measure of prompts than it breaks. So error shrinks <em>geometrically</em> — the ensemble's accuracy approaches 1 at rate <code>~(3/4)<sup>k</sup></code>, hence only <code>k = O(log(1/ε))</code> rounds are needed.</p>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 780 220" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- panel a -->
+        <rect x="20" y="20" width="220" height="170" rx="8" fill="#0a0e14" stroke="#26313f"/>
+        <circle cx="130" cy="105" r="70" fill="rgba(90,209,192,.14)" stroke="#5ad1c0"/>
+        <text x="130" y="110" fill="#5ad1c0" font-size="13" text-anchor="middle">π̂₁ ≥ ¾</text>
+        <text x="130" y="205" fill="#93a1b3" font-size="11" text-anchor="middle">(a) first weak learner</text>
+        <!-- panel b -->
+        <rect x="280" y="20" width="220" height="170" rx="8" fill="#0a0e14" stroke="#26313f"/>
+        <circle cx="360" cy="105" r="62" fill="none" stroke="#5ad1c0"/>
+        <circle cx="425" cy="105" r="62" fill="rgba(90,209,192,.10)" stroke="#5ad1c0"/>
+        <text x="345" y="60" fill="#93a1b3" font-size="12">π̂₂</text>
+        <text x="440" y="60" fill="#93a1b3" font-size="12">π̂₁</text>
+        <text x="390" y="205" fill="#93a1b3" font-size="11" text-anchor="middle">(b) π̂₂ fixes some errors</text>
+        <!-- panel c -->
+        <rect x="540" y="20" width="220" height="170" rx="8" fill="#0a0e14" stroke="#26313f"/>
+        <circle cx="610" cy="90" r="52" fill="none" stroke="#5ad1c0"/>
+        <circle cx="665" cy="90" r="52" fill="none" stroke="#5ad1c0"/>
+        <circle cx="637" cy="135" r="52" fill="none" stroke="#5ad1c0"/>
+        <text x="637" y="108" fill="#5ad1c0" font-size="15" text-anchor="middle">✓</text>
+        <text x="705" y="70" fill="#ff6b6b" font-size="15" text-anchor="middle">✗</text>
+        <text x="650" y="205" fill="#93a1b3" font-size="11" text-anchor="middle">(c) vote → error ↓ geometrically</text>
+      </svg>
+      <div class="figcap">Fig 2 · Each weak learner corrects a plurality region of prior errors (✓) while introducing few new ones (✗); under the right reweighting, ensemble accuracy climbs toward 1 geometrically (redrawn from paper Figure 2).</div>
+    </div>
+
+    <h3>Main result — Theorem 3.3 (exponential improvement)</h3>
+    <p>For deterministic <code>Π</code>, a <strong>sparse verifier</strong> (Assumption 3.1: each prompt has a unique correct answer), and realizable <code>π*</code>: if the prompt dataset has size <code>n ≥ (d/ε)·polylog(ε⁻¹, δ⁻¹, T, |Σ|)</code>, then AutoTune returns an outcome-level <code>f̂</code> with <code>Acc<sub>ρ</sub>(f̂) ≥ 1−ε</code> w.p. <code>1−δ</code>, and the number of teacher CoT queries is only</p>
+    <div class="formula">n<sub>CoT</sub> ≤ d · polylog(ε⁻¹, δ⁻¹, T, |Σ|)
+      <br><span class="muted">— nearly independent of the target accuracy 1−ε</span></div>
+
+    <div class="callout warn">
+      <p><strong>Not just active learning.</strong> Classical active learning also gets <code>log(1/ε)</code> label complexity — but only under structural assumptions (bounded disagreement coefficient / star number). AutoTune needs <em>none</em> of those, on any <code>Π</code>. The trick: the learner extracts information about <code>π*</code> by querying the <em>verifier</em>, a cheaper feedback channel that sidesteps active-learning lower bounds. Problem 3.2 is genuinely not a special case of active learning.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>The outcome-level caveat (Remark 3.5):</strong> the <code>Õ(d)</code> CoT bound only holds when accuracy is measured on the <em>final answer</em>. If you demand correctness on the <em>entire</em> CoT sequence, it degrades back to <code>Ω̃(d/ε)</code> — the verifier gives no signal about intermediate tokens.</p>
+    </div>
+  </div>
+</section>
+
+<section id="general">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>General (stochastic) models — the realistic case</h2>
+    <p class="lead">Real language models aren't deterministic. Section 3.4 extends the result to stochastic Π, at the price of relaxing "high accuracy" to "moderate accuracy on most prompts."</p>
+
+    <p><strong>AutoTune<sub>stoch</sub></strong> (Algorithm 3) replaces the 0-1 loss with a thresholded loss <code>ℓ<sub>x</sub>(π) = 𝟙[Acc<sub>x</sub>(π) ≥ 4/5]</code> and uses smaller weak-learner error (<code>err★ = 1/400</code>). <strong>Theorem 3.6</strong>: with <code>n ≥ (log|Π|/ε)·polylog</code> prompts, it queries the CoT oracle at most</p>
+    <div class="formula">n<sub>CoT</sub> ≤ log|Π| · polylog(ε⁻¹, δ⁻¹, T)
+      <br><span class="muted">and returns f̂ with &nbsp; Pr<sub>x∼ρ</sub>[ Acc<sub>x</sub>(f̂) ≥ 3/5 ] ≥ 1−ε</span></div>
+    <p>This is a bound on the model's <strong>pass@k rate</strong> (Chen, 2021): on a <code>1−ε</code> mass of prompts, a decent fraction of independent attempts succeed. It's implementable with <code>O(log(1/ε))</code> calls to a log-loss ERM oracle for <code>Π</code>.</p>
+
+    <div class="callout">
+      <p><strong>Sharpening to high accuracy (Remark 3.7).</strong> If answers are unique, <em>consensus voting</em> upgrades the guarantee: sample <code>N = Ω(log(1/ε))</code> answers from <code>f̂</code> and return the plurality. The resulting <code>f̂<sub>cons</sub></code> satisfies <code>Acc<sub>ρ</sub>(f̂<sub>cons</sub>) ≥ 1 − O(ε)</code> — moderate-accuracy pass@k is sharpened into high accuracy at inference time.</p>
+    </div>
+  </div>
+</section>
+
+<section id="rl">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>RLVR — decoupling coverage from accuracy</h2>
+    <p class="lead">The second setting: no teacher, only a pretrained reference model. Here autocurriculum reduces <em>compute</em> rather than teacher labels.</p>
+
+    <h3>Coverage — the RL analogue of realizability</h3>
+    <p>You start from a reference <code>π<sub>ref</sub></code> and must guide it to high accuracy using only the verifier. The key quantity is <strong>sequence-level coverage</strong> (Definition 4.2): <code>π<sub>ref</sub></code> covers with parameter <code>C<sub>seq</sub></code> if it places at least <code>C<sub>seq</sub><sup>−1</sup></code> probability on the correct CoT for every prompt.</p>
+    <div class="formula">π<sub>ref</sub>(y*<sub>x</sub> | x) ≥ C<sub>seq</sub><sup>−1</sup> &nbsp;<span class="muted">for every prompt x &nbsp;(smaller C<sub>seq</sub> = better coverage)</span></div>
+
+    <h3>Baseline — filtered SFT via rejection sampling</h3>
+    <p><strong>RLFineTune</strong> (Algorithm 4): for each prompt draw <code>m = O(C<sub>seq</sub>)</code> candidate CoTs from <code>π<sub>ref</sub></code>, keep only those the verifier accepts (and that have decent probability), then fit a model to the survivors. Proposition 4.3 shows this is tractable, but its compute scales as</p>
+    <div class="formula">n<sub>comp</sub> ∼ Õ( d · C<sub>seq</sub> / ε )
+      <br><span class="muted">— coverage cost C<sub>seq</sub> multiplies the accuracy cost 1/ε. Painful.</span></div>
+    <p>You must generate <code>~Õ(C<sub>seq</sub>)</code> traces per prompt just to see a single correct CoT, and you pay that for every level of accuracy.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 860 210" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs><marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/></marker></defs>
+        <rect x="20" y="65" width="150" height="80" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="95" y="100" fill="#93a1b3" font-size="12" text-anchor="middle">Prompt dataset</text>
+        <text x="95" y="122" fill="#5b6675" font-size="11" text-anchor="middle">Q1  Q2  Q3</text>
+
+        <rect x="240" y="55" width="180" height="100" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="330" y="85" fill="#5ad1c0" font-size="13" text-anchor="middle">Current model</text>
+        <text x="330" y="110" fill="#ff6b6b" font-size="12" text-anchor="middle">Q1 ✗   Q3 ✗</text>
+        <text x="330" y="132" fill="#5ad1c0" font-size="12" text-anchor="middle">Q2 ✓</text>
+
+        <rect x="500" y="45" width="200" height="120" rx="10" fill="#1b2430" stroke="#f4a259"/>
+        <text x="600" y="72" fill="#f4a259" font-size="12" text-anchor="middle">Reweight batch</text>
+        <text x="600" y="98" fill="#5ad1c0" font-size="12" text-anchor="middle">Q1 ↑   Q3 ↑</text>
+        <text x="600" y="120" fill="#93a1b3" font-size="12" text-anchor="middle">Q2 ↓</text>
+        <text x="600" y="146" fill="#5b6675" font-size="10.5" text-anchor="middle">RL update on hard prompts</text>
+
+        <line x1="170" y1="105" x2="234" y2="105" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+        <line x1="420" y1="105" x2="494" y2="105" stroke="#f4a259" marker-end="url(#arr2)"/>
+        <path d="M600,165 C520,205 330,205 330,158" fill="none" stroke="#5ad1c0" stroke-dasharray="4 3" marker-end="url(#arr2)"/>
+        <text x="465" y="200" fill="#5b6675" font-size="10.5" text-anchor="middle">improve model, repeat</text>
+      </svg>
+      <div class="figcap">Fig 3 · Autocurriculum for RL: the verifier up-weights failed prompts in each batch; the model is improved with an RL update on those (redrawn from paper Figure 3).</div>
+    </div>
+
+    <h3>Main result — Theorem 4.5 (autocurriculum decouples coverage from accuracy)</h3>
+    <p><strong>AutoTune.RL</strong> (Algorithm 5) wraps the same boosting outer loop around <code>RLFineTune</code> as the base learner. With <code>n ≥ (d/ε)·polylog(C<sub>seq</sub>, ε⁻¹, δ⁻¹, T)</code>, it returns <code>f̂</code> with <code>Acc<sub>ρ</sub>(f̂) ≥ 1−ε</code>, and (up to polylog):</p>
+    <div class="formula">n<sub>comp</sub> ≤ Õ( d·C<sub>seq</sub> + d/ε )   <span class="muted">vs. baseline Õ(d·C<sub>seq</sub>/ε)</span>
+      <br>verifier calls ≤ Õ( d·C<sub>seq</sub> + d/ε )</div>
+
+    <div class="callout">
+      <p><strong>Why it works.</strong> Each weak learner trains on only <code>Õ(d)</code> prompts, so the per-prompt generation cost <code>Õ(C<sub>seq</sub>)</code> no longer multiplies <code>1/ε</code> — it becomes a one-time <em>burn-in</em> <code>Õ(dC<sub>seq</sub>)</code> that grows only logarithmically with <code>1/ε</code>. The remaining <code>Õ(d/ε)</code> — routing prompts through the ensemble — is nearly independent of coverage and matches the cost of a reference model with <em>perfect</em> coverage. Beyond the burn-in you pay as if coverage were <code>O(1)</code>.</p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>These aren't new heuristics.</strong> The paper positions well-known systems as instances of its theory: <strong>DAPO</strong>'s filtering of all-correct/all-incorrect rollouts and <strong>PCL</strong>'s value-model prompt selection are heuristic versions of the verifier-guided filtering in AutoTune; <strong>ReST</strong> and the distillation stage of <strong>DeepSeek-R1</strong> are essentially the rejection-sampling of RLFineTune. The contribution is quantifying <em>when</em> wrapping these in an outer autocurriculum provably reduces total compute.</p>
+    </div>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Limitations &amp; open directions</h2>
+    <p class="lead">The framework buys its clean bounds with simplifying assumptions; the authors are explicit about which, and Part II is teased for the biggest one.</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>Fixed reference / no self-play</h4>
+        <p>The RLVR results assume a <em>fixed</em> <code>π<sub>ref</sub></code> with given coverage <code>C<sub>seq</sub></code>. Practical methods (ReST, expert iteration) use the <em>current</em> model as reference, improving coverage over rounds. Whether the <code>Õ(dC<sub>seq</sub>)</code> burn-in shrinks under self-play is open.</p>
+      </div>
+      <div class="card">
+        <h4>Batch, not online</h4>
+        <p>Algorithms are batch: train on a fixed set, re-evaluate. Modern pipelines use online policy gradients (PPO, GRPO) where the model updates continuously. Extending autocurriculum to co-evolving prompt distribution + model is future work.</p>
+      </div>
+      <div class="card">
+        <h4>Beyond coverage — the big one</h4>
+        <p>RLVR requires <code>π<sub>ref</sub></code> to cover the optimal CoT on <em>every</em> prompt. When coverage fails (prompts far beyond current ability), filtering just gives up. Whether autocurriculum enables <strong>coverage expansion</strong> — training on easy problems to build coverage on hard ones — is deferred to the forthcoming <strong>Part II</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>Perfect verification</h4>
+        <p>The theory assumes a <em>perfect</em> outcome verifier — natural for math/code, but extending to noisy or learned reward models is an important open problem.</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Bottom line.</strong> The paper's message is a clean separation of concerns: a cheap verifier tells you <em>where</em> you're wrong; boosting turns that into geometric convergence; so expensive supervision (teacher CoTs, or coverage-limited rollouts) is spent <code>O(log(1/ε))</code> times instead of <code>O(1/ε)</code> times. The improvements are purely from adaptive data selection — no assumption on prompt distribution or difficulty required.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Rajaraman, Huang, Dudík, Schapire, Foster &amp; Krishnamurthy (2026) · "Learning to Reason with Curriculum I: Provable Benefits of Autocurriculum" · COLT 2026</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2603.18325">arXiv:2603.18325</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a reader's digest of the paper. Figures are redrawn/reorganized from the paper's content; all formulas and complexity bounds follow the original — refer to the paper for exact statements.</p>
+  </div>
+</footer>
+
+</body>
+</html>
