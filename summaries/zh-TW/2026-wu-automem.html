@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoMem 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430;
+  --ink:#e8edf4; --muted:#93a1b3; --line:#26313f;
+  --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2026 · Stanford · 論文導讀</div>
+    <h1 class="title">Auto<span class="sql">Mem</span></h1>
+    <p class="subtitle">把「記憶管理」當成一種可訓練的認知技能（metamemory）：讓模型自己用檔案系統決定要記什麼、何時查、怎麼組織，再用兩個 meta-LLM 外迴圈自動優化，讓 32B 開源模型追平 Claude Opus 4.5。</p>
+    <div class="meta-row">
+      <span class="tag lit">Metamemory</span>
+      <span class="tag lit">Memory as File System</span>
+      <span class="tag lit">Long-Horizon Agent</span>
+      <span class="tag">Meta-LLM 外迴圈</span>
+      <span class="tag">LoRA Memory Specialist</span>
+      <span class="tag">BALROG · Crafter · NetHack</span>
+    </div>
+    <p class="authors">Shengguang Wu, Hao Zhu, Yuhui Zhang, Xiaohan Wang, Serena Yeung-Levy · Stanford University · <a href="https://arxiv.org/abs/2607.01224">arXiv:2607.01224</a> · <a href="https://autolearnmem.github.io/">專案頁</a> · <a href="https://github.com/autoLearnMem/AutoMem">github.com/autoLearnMem/AutoMem</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#method">02 方法總覽</a>
+    <a href="#loops">03 兩個外迴圈</a>
+    <a href="#dataset">04 環境與指標</a>
+    <a href="#results">05 實驗結果</a>
+    <a href="#limits">06 限制與未來工作</a>
+  </div>
+</nav>
+
+<!-- ====================== 01 ====================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 記憶不是模組，而是技能</h2>
+    <p class="lead">認知科學把「決定什麼值得記、何時取回、如何組織」這種能力稱為 <strong>metamemory（後設記憶）</strong>，而且它是<span class="hl">練出來的技能</span>。本文把這個視角搬到 LLM：與其把記憶設計成一個固定架構模組，不如讓模型自己主動管理記憶，並把這件事當成可以被觀察、評估、優化的技能。</p>
+
+    <h3>1.1 LLM 的瓶頸：context window 就是 working memory</h3>
+    <p>LLM 的 context window 扮演「工作記憶」的角色 — 一個固定大小、限制模型一次能注意多少內容的緩衝區。長時程（long-horizon）任務動輒跑上萬步，遠遠超過這個容量。過去的外部記憶做法（RAG 檢索庫、向量庫、scratchpad、summary buffer，如 MemGPT、Generative Agents、A-MEM、MemoryBank）幾乎都把記憶當成一個<strong>被設計進系統的固定機制</strong>。</p>
+
+    <h3>1.2 本文的不同視角</h3>
+    <p>本文把 <span class="hl2">read / write / search / append / create</span> 這些檔案系統操作，提升為模型 action space 裡的<strong>第一級記憶動作</strong>，和它作用於世界的任務動作平起平坐。同一次 forward pass 既能選任務動作，也能選記憶操作（例如 <code>&lt;|APPEND|&gt;</code> 或 <code>&lt;|SEARCH|&gt;</code>）。這個極簡設計把記憶的完整控制權交給模型，同時保持行為可觀察 — 每個記憶決策都是軌跡裡一個可追溯的動作。</p>
+
+    <div class="callout warn">
+      <p><strong>兩個難以手動優化的軸：</strong>記憶技能沿兩軸提升 —（1）支撐它的 <span class="hl2">結構（structure）</span>：prompt、file schema、驗證邏輯、動作詞彙；（2）模型行使技能的 <span class="hl2">熟練度（proficiency）</span>。但一個 episode 可長達 10<sup>5</sup> 步，一個記憶錯誤可能在第 50 步犯下、卻到第 800 步才浮現後果 —<strong>人工檢視完整軌跡幾乎不可行</strong>。</p>
+    </div>
+
+    <h3>1.3 關鍵洞察：讓 meta-LLM 當「程式碼審查者」</h3>
+    <p>核心觀察是：一個夠強的 LLM（作為 <span class="hl">meta-LLM</span>）能通讀 agent 完整的 episode（數千步），像 code reviewer 讀完整執行 log 一樣，找出記憶決策哪裡出錯。這讓「自動化記憶改進的兩個軸」變得可行。</p>
+
+    <h3>1.4 貢獻</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>① 記憶＝可學習技能</h4>
+        <p>用檔案系統操作把記憶管理放進與任務動作相同的 action space，模型對「記什麼、何時取、怎麼組織」有完整且可觀察的控制。</p>
+      </div>
+      <div class="card">
+        <h4>② AutoMem 框架</h4>
+        <p>沿兩互補軸自動優化：scaffold 修訂（迭代記憶結構）＋針對性訓練（強化模型記憶熟練度）。兩個迴圈都由分析完整軌跡的 meta-LLM 驅動。</p>
+      </div>
+      <div class="card">
+        <h4>③ 大幅拉近與前沿差距</h4>
+        <p>三個程序生成長時程遊戲上，只優化記憶就帶來 ~2×–4× 進度提升，讓 32B 開源模型顯著逼近前沿閉源系統。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ====================== -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>方法總覽 — 一個內迴圈 + 兩個外迴圈</h2>
+    <p class="lead">AutoMem 由兩個<strong>依序執行的外迴圈</strong>組成，共同作用在一個以檔案系統為記憶的<strong>內迴圈 agent</strong> 上。外迴圈 #1 把 agent scaffold 推到「程式碼修訂能達到的極限」；外迴圈 #2 再訓練模型的記憶能力，突破任何固定 scaffold 的天花板。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 860 430" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arrO" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <!-- Inner loop (center, shaded) -->
+        <rect x="250" y="150" width="360" height="130" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="430" y="175" fill="#93a1b3" font-size="12" text-anchor="middle">Inner-loop agent（一個 episode）</text>
+        <rect x="272" y="192" width="150" height="34" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="347" y="214" fill="#5ad1c0" font-size="12" text-anchor="middle">LOG（要記什麼？）</text>
+        <rect x="440" y="192" width="150" height="34" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="515" y="214" fill="#5ad1c0" font-size="12" text-anchor="middle">PLAN（要回想什麼？）</text>
+        <rect x="330" y="238" width="200" height="30" rx="8" fill="#141b25" stroke="#8c7bff"/>
+        <text x="430" y="258" fill="#c8b6ff" font-size="11.5" text-anchor="middle">📁 檔案系統記憶（read/write/search…）</text>
+
+        <!-- Outer loop 1 (top) -->
+        <rect x="60" y="30" width="740" height="86" rx="12" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="80" y="55" fill="#5ad1c0" font-size="13" font-weight="700">Outer-loop #1 · 優化記憶 scaffold（結構）</text>
+        <rect x="80" y="66" width="200" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="180" y="88" fill="#e8edf4" font-size="11.5" text-anchor="middle">meta-LLM 讀完整軌跡</text>
+        <rect x="320" y="66" width="220" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="430" y="88" fill="#e8edf4" font-size="11.5" text-anchor="middle">診斷記憶失敗 → 改寫 code/prompt/schema</text>
+        <rect x="580" y="66" width="200" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="680" y="88" fill="#e8edf4" font-size="11.5" text-anchor="middle">同 seed 重跑，進步才保留</text>
+
+        <!-- Outer loop 2 (bottom) -->
+        <rect x="60" y="316" width="740" height="90" rx="12" fill="#141b25" stroke="#f4a259"/>
+        <text x="80" y="341" fill="#f4a259" font-size="13" font-weight="700">Outer-loop #2 · 訓練記憶熟練度（proficiency）</text>
+        <rect x="80" y="352" width="215" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="187" y="374" fill="#e8edf4" font-size="11.5" text-anchor="middle">meta-LLM 篩選好的記憶決策</text>
+        <rect x="335" y="352" width="205" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="437" y="374" fill="#e8edf4" font-size="11.5" text-anchor="middle">當成監督資料（模型自己的輸出）</text>
+        <rect x="580" y="352" width="200" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="680" y="374" fill="#e8edf4" font-size="11.5" text-anchor="middle">LoRA 訓練 memory specialist</text>
+
+        <!-- arrows -->
+        <line x1="430" y1="116" x2="430" y2="148" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="430" y1="282" x2="430" y2="314" stroke="#f4a259" marker-end="url(#arrO)"/>
+      </svg>
+      <div class="figcap">圖 1 · AutoMem 總覽（依論文 Figure 3 重繪）：兩個自動外迴圈優化共享的內迴圈 agent</div>
+    </div>
+
+    <h3>2.1 內迴圈 agent：記憶就是檔案系統</h3>
+    <p>內迴圈是一個 LLM agent 執行一個 episode，配一個磁碟上的資料夾當外部記憶。每一步跑兩個 routine：</p>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>LOG — 「剛剛發生的事，有什麼值得記？」</h4>
+        <p>agent 決定要不要、以及怎麼記錄環境對上一個動作的回應：append 到既有檔、開新檔、或改寫既有條目。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>PLAN — 「現在要行動，我需要回想什麼？」</h4>
+        <p>agent 跨檔 search、讀特定條目或其尾端，然後提交下一個世界動作。</p>
+      </div></div>
+    </div>
+    <div class="callout">
+      <p><strong>為什麼共享 action space 很關鍵：</strong>因為記憶操作和任務動作都在同一個軌跡裡、都是可追溯的動作，外迴圈才能「觀察、評估、優化」它。實驗也印證：<span class="hl">優化記憶結構本身也會改善任務行為</span>（例如遊戲操作）— 更好的記憶組織減少了冗餘探索與漫無目的的動作，即使優化器針對的是記憶而非任務策略。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 03 ====================== -->
+<section id="loops">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>兩個外迴圈 — 一個目標</h2>
+    <p class="lead">兩個迴圈都對應機器學習的熟悉結構：各有要優化的 <span class="hl">參數 θ</span> 和 <span class="hl">更新訊號 ∇L</span>，都由 meta-LLM 的軌跡分析驅動。scaffold 設定「哪些記憶操作可能」的結構天花板，proficiency 訓練再把模型推向這個天花板。</p>
+
+    <div class="formula">
+      Loop #1：θ = agent scaffold（code / prompt / schema）　　∇L = 一次程式碼修訂<br>
+      Loop #2：θ = 專屬記憶模型權重　　∇L = 一次「配好 LoRA 設定」的監督訓練步<br>
+      <span style="color:var(--muted)">共同原則：長時程改進 = 軌跡級審查（trajectory-level review）＋ 針對性修訂（targeted revision）</span>
+    </div>
+
+    <h3>3.1 外迴圈 #1：優化記憶 scaffold（結構）</h3>
+    <p>優化訊號必須是<strong>軌跡級</strong>的，因為記憶決策的後果在長時程任務裡常被延遲：第 50 步沒記下地圖座標、或寫了重複條目把有用資訊埋掉，可能到第 800 步 agent 迷路、浪費時間重探時才浮現。只看最終 return 指標會丟掉「哪裡出錯」的軌跡結構。</p>
+    <p>因此 meta-LLM 拿到<strong>完整 episode 軌跡</strong>（逐步 log、產生的記憶資料夾、agent 程式碼本身），像個手握完整執行 log 的 code reviewer，而非一個純量獎勵訊號。例如審查 NetHack 軌跡時，它發現一個無界地圖檔累積了數千筆重複座標、把有用資訊埋掉，於是導入一個乾淨的、以座標為 key 的地圖去重格式。每次迭代都<span class="hl">以實測進步為門檻</span>：改寫後的 agent 跑同一組固定 seed，只有平均進度提升才保留該修訂，通常 2–5 次迭代收斂。</p>
+
+    <h3>3.2 外迴圈 #2：訓練記憶熟練度（proficiency）</h3>
+    <p>scaffold 優化後，剩下的差距在於模型「做出好記憶決策」的參數能力。這個迴圈用 meta-LLM 當 <span class="hl2">training engine</span>（訓練引擎）更新模型權重。它讀 agent 程式碼＋大量 episode 軌跡，推導篩選準則，產出監督訓練資料。</p>
+    <div class="callout">
+      <p><strong>meta-LLM 是「篩選器」而非「老師」：</strong>訓練集裡每個範例都是內迴圈模型<span class="hl">自己在 episode 中產生的原文</span>，meta-LLM 只負責挑哪些回應值得強化 — 它過濾模型自己的行為，而不是生成新回應。此外它把<strong>資料選取邏輯、資料組成、LoRA 訓練設定</strong>當成一個聯合決策，跨多次試驗一起調校，好讓 finetune 是乾淨的能力提升而非干擾。</p>
+    </div>
+
+    <h3>3.3 記憶專才 vs 遊戲模型：乾淨拆分</h3>
+    <p>因為記憶是可分離的技能，本文<strong>只 finetune 一個專屬記憶模型（memory specialist）</strong>，而提交世界動作的模型保持不動。部署時內迴圈跑兩個共享同一段對話歷史的模型實例：</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Memory specialist（LoRA 微調）</h4>
+        <p>處理 LOG routine，以及 PLAN routine 裡「查詢記憶」的部分。是 base model 的 LoRA 微調副本。</p>
+      </div>
+      <div class="card">
+        <h4>Gameplay model（凍結不動）</h4>
+        <p>未修改的 base model，負責提交世界動作。在 specialist 最後一次記憶操作後，透過簡短交棒把對話交給它。</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <p><strong>兩個好處：</strong>（1）<span class="hl2">訓練訊號聚焦</span> — 監督 loss 只針對記憶操作行為，不被動作格式範例稀釋；（2）<span class="hl2">base model 產生正確世界動作的能力完整保留</span>，因為 gameplay model 權重從未被 finetune 動過。結果是記憶熟練度的提升會<strong>乾淨地疊加</strong>在 scaffold 增益之上（額外 ~9–18% 相對提升），而非彼此抵銷。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 04 ====================== -->
+<section id="dataset">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>環境與指標 — 為什麼選程序生成的遊戲</h2>
+    <p class="lead">程序生成的長時程遊戲很適合研究記憶技能：episode 夠長，光靠 context window 管理撐不住；世界每個 episode 重新生成，pretraining 知識難以轉移；而成功需要人類自然會做的那種紀錄 — 地圖、物品欄、遭遇 log、策略筆記。三個環境都來自 <strong>BALROG</strong> benchmark。</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>Crafter</h4>
+        <p>2D 開放世界生存遊戲。17 個動作、22 個成就（探索/製作/戰鬥）。episode 最長 ~10<sup>3</sup> 步。</p>
+        <p class="big">10<sup>3</sup></p>
+        <p>步/episode</p>
+      </div>
+      <div class="card">
+        <h4>MiniHack</h4>
+        <p>建在 NetHack 引擎上的 8 個任務套件（迷宮、走廊、Boxoban 推箱、任務）。33 個動作、~10<sup>2</sup> 步/任務。</p>
+        <p class="big">8</p>
+        <p>任務變體</p>
+      </div>
+      <div class="card">
+        <h4>NetHack</h4>
+        <p>完整 NetHack Learning Environment（NLE）。200+ 動作，10<sup>4</sup>–10<sup>5</sup> 步/episode，地城/怪物/物品每個 seed 重生。人類玩家通常要數年才精通。</p>
+        <p class="big">10<sup>5</sup></p>
+        <p>最長步數</p>
+      </div>
+    </div>
+
+    <h3>4.1 指標與設定</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>指標：progression rate（0–100）</h4>
+        <p>Crafter＝22 成就取得比例；MiniHack＝8 任務完成比例（每任務二元）；NetHack＝BALROG 的地城深度＋經驗等級進度指標。報告 10 個固定 seed [42..51] 的 mean ± 標準誤。</p>
+      </div>
+      <div class="card">
+        <h4>模型與 meta-LLM</h4>
+        <p>內迴圈 base＝<code>Qwen2.5-32B-Instruct</code>（vLLM 本地服務）。scaffold 優化器用 <strong>Claude Opus 4.6</strong>、訓練引擎用 <strong>Claude Opus 4.7</strong> 當 meta-LLM。memory specialist 以 LoRA 訓練，gameplay model 為未修改 base。</p>
+      </div>
+    </div>
+    <p>Baseline 分兩組：(i) BALROG 排行榜 — 前沿閉源（Gemini-3-Pro、Gemini-3.1-Pro-Thinking、Claude-Opus-4.5、Gemini-2.5-Pro）、前沿開源推理（DeepSeek-R1 671B）、同族開源兩種規模（72B、7B）；(ii) 同一個 32B 在 BALROG harness 下用基本 context 管理：16 步 sliding window（含/不含 chain-of-thought）。</p>
+  </div>
+</section>
+
+<!-- ====================== 05 ====================== -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>實驗結果 — 只調記憶就追平前沿</h2>
+    <p class="lead">整個 scaffold 優化過程<strong>模型權重都沒動</strong> — 只改 agent 程式碼、prompt、file schema — 進度卻在每個環境上大約翻倍或超過三倍。再疊上 memory training，把 32B 開源模型帶到 Claude-Opus-4.5 的水準。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · BALROG 長時程遊戲表現（progression rate %，mean ± 標準誤）。AutoMem 建於 Qwen2.5-32B-Instruct。</caption>
+        <thead><tr><th>Agent</th><th>Crafter</th><th>MiniHack</th><th>NetHack</th></tr></thead>
+        <tbody>
+          <tr><td colspan="4" style="color:var(--acc);font-family:var(--mono);font-size:12px">前沿閉源（BALROG 排行榜）</td></tr>
+          <tr><td>Gemini-3-Pro</td><td class="num">57.3 ± 4.4</td><td class="num">40.0 ± 7.7</td><td class="num">6.8 ± 3.2</td></tr>
+          <tr><td>Gemini-3.1-Pro-Thinking</td><td class="num">55.0 ± 6.4</td><td class="num">27.5 ± 7.1</td><td class="num">2.6 ± 0.3</td></tr>
+          <tr><td>Claude-Opus-4.5</td><td class="num">49.5 ± 3.1</td><td class="num">27.5 ± 7.1</td><td class="num">2.0 ± 0.5</td></tr>
+          <tr><td>Gemini-2.5-Pro</td><td class="num">55.0 ± 6.0</td><td class="num">17.5 ± 6.0</td><td class="num">1.7 ± 0.2</td></tr>
+          <tr><td colspan="4" style="color:var(--acc);font-family:var(--mono);font-size:12px">開源（BALROG 排行榜）</td></tr>
+          <tr><td>DeepSeek-R1 (671B)</td><td class="num">36.4 ± 3.8</td><td class="num">25.0 ± 6.8</td><td class="num">1.4 ± 0.5</td></tr>
+          <tr><td>Qwen2.5-72B-Instruct</td><td class="num">27.3 ± 3.6</td><td class="num">5.0 ± 3.4</td><td class="num">0.3 ± 0.3</td></tr>
+          <tr><td>Qwen2.5-7B-Instruct</td><td class="num">16.4 ± 3.0</td><td class="num">0.0 ± 0.0</td><td class="num">0.0 ± 0.0</td></tr>
+          <tr><td colspan="4" style="color:var(--acc);font-family:var(--mono);font-size:12px">Qwen2.5-32B-Instruct · 基本 context 管理 baseline</td></tr>
+          <tr><td>sliding window</td><td class="num">19.55 ± 3.46</td><td class="num">2.50 ± 2.47</td><td class="num">0.00 ± 0.00</td></tr>
+          <tr><td>+ chain-of-thought</td><td class="num">17.27 ± 2.71</td><td class="num">10.00 ± 4.74</td><td class="num">0.00 ± 0.00</td></tr>
+          <tr><td colspan="4" style="color:var(--acc2);font-family:var(--mono);font-size:12px">Qwen2.5-32B-Instruct · AutoMem（本文）</td></tr>
+          <tr><td class="ours">memory-as-file-system, v0</td><td class="num">25.00 ± 5.50</td><td class="num">7.50 ± 4.16</td><td class="num">0.42 ± 0.37</td></tr>
+          <tr><td class="ours">+ scaffold opt.（loop #1）</td><td class="num">47.27 ± 2.05</td><td class="num">27.50 ± 7.06</td><td class="num">1.57 ± 0.35</td></tr>
+          <tr class="best"><td class="ours">+ memory training（loop #2）</td><td class="num">51.36 ± 3.81</td><td class="num">30.00 ± 7.25</td><td class="num">1.85 ± 0.44</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.1 記憶本身就是高槓桿的一軸</h3>
+    <p>scaffold 優化（權重未動）就讓進度翻倍或三倍以上：Crafter 25.0→47.27（×1.89）、MiniHack 7.5→27.5（×3.67）、NetHack 0.42→1.57（×3.74）。scaffold 後的 32B agent 大幅贏過 Qwen2.5-72B-Instruct，也遠勝同 base 的 sliding-window 策略 — 說明在長時程任務上，<span class="hl">結構良好的外部記憶管理比模型規模或 context 管理更高槓桿</span>。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="60" y1="20" x2="60" y2="240" stroke="#26313f"/>
+        <line x1="60" y1="240" x2="700" y2="240" stroke="#26313f"/>
+        <!-- gridlines/labels -->
+        <text x="50" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <line x1="60" y1="150" x2="700" y2="150" stroke="#26313f" stroke-dasharray="2 4"/>
+        <text x="50" y="154" fill="#5b6675" font-size="10" text-anchor="end">30</text>
+        <line x1="60" y1="60" x2="700" y2="60" stroke="#26313f" stroke-dasharray="2 4"/>
+        <text x="50" y="64" fill="#5b6675" font-size="10" text-anchor="end">60</text>
+        <!-- Crafter series: v0=25, scaffold=47.27, +train=51.36; ref Opus4.5=49.5 -->
+        <!-- scale: y = 240 - value*3 -->
+        <rect x="95" y="165" width="70" height="75" rx="4" fill="#3a4658"/>
+        <text x="130" y="258" fill="#93a1b3" font-size="10" text-anchor="middle">v0</text>
+        <text x="130" y="158" fill="#93a1b3" font-size="10" text-anchor="middle">25.0</text>
+        <rect x="185" y="98" width="70" height="142" rx="4" fill="#4a7d8c"/>
+        <text x="220" y="258" fill="#93a1b3" font-size="10" text-anchor="middle">+scaffold</text>
+        <text x="220" y="91" fill="#93a1b3" font-size="10" text-anchor="middle">47.3</text>
+        <rect x="275" y="86" width="70" height="154" rx="4" fill="#5ad1c0"/>
+        <text x="310" y="258" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">+train ★</text>
+        <text x="310" y="79" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">51.4</text>
+        <!-- reference: Opus 4.5 line -->
+        <line x1="90" y1="91.5" x2="350" y2="91.5" stroke="#f4a259" stroke-dasharray="4 3"/>
+        <text x="355" y="95" fill="#f4a259" font-size="10">Opus-4.5 = 49.5</text>
+        <!-- Qwen 72B ref -->
+        <line x1="90" y1="158" x2="350" y2="158" stroke="#8c7bff" stroke-dasharray="4 3"/>
+        <text x="355" y="176" fill="#8c7bff" font-size="10">Qwen-72B = 27.3</text>
+        <text x="220" y="288" fill="#93a1b3" font-size="12" text-anchor="middle" font-weight="700">Crafter progression rate（%）— 只優化記憶的三個階段</text>
+      </svg>
+      <div class="figcap">圖 2 · Crafter 上三階段進度（依論文 Table 1 / Figure 1 之數值）：v0 → scaffold → +train，追平 Claude-Opus-4.5</div>
+    </div>
+
+    <h3>5.2 訓練記憶專才在 scaffold 之上再疊加增益</h3>
+    <p>在優化後的 scaffold（Crafter v5 / MiniHack v4 / NetHack v2）之上，memory-proficiency 訓練把進度再提升到 Crafter 51.36%（+4.09）、MiniHack 30.0%（+2.5）、NetHack 1.85%（+0.28），幅度相當於一到兩次 scaffold 迭代。兩軸協同：結構修訂推高 prompt/schema 天花板，熟練度訓練補足模型能力差距 — 一起把 32B 帶到 Claude-Opus-4.5（49.5/27.5/2.0）水準，並在幾分之內逼近 Gemini-3.1-Pro-Thinking（55.0/27.5/2.6）。</p>
+
+    <h3>5.3 任務動作與記憶操作在共享空間裡同步改善</h3>
+    <div class="grid g4">
+      <div class="card"><h4>不生產性動作率</h4><p class="big">−32~65%</p><p>卡住或來回振盪的步數比例（三環境）。</p></div>
+      <div class="card"><h4>冗餘記憶寫入</h4><p class="big">−68~83%</p><p>重複寫入大幅下降。</p></div>
+      <div class="card"><h4>空搜尋率</h4><p class="big">−13~50%</p><p>SEARCH 卻回傳空的比例下降 → 檢索更精準。</p></div>
+      <div class="card"><h4>每步輸入 context</h4><p class="big">−3~30%</p><p>Crafter/NetHack 達 −25~30%，更精簡的記憶壓縮了模型要注意的內容。</p></div>
+    </div>
+
+    <h3>5.4 記憶檔案 schema 的演化（NetHack 範例）</h3>
+    <p>下面是外迴圈 #1 對 NetHack 記憶 schema 的具體改寫（依論文 Figure 5）：把無界 append-only 的地圖檔，換成以座標為 key 的去重格式，並自動同步物品欄與狀態、預載策略參考。結果讓記憶每步的成長從 <strong>138 字元降到 6 字元，減少 95%</strong>。</p>
+    <pre><code><span class="cmt"># v0：無界、只 append，累積重複座標，把有用資訊埋掉</span>
+dungeon_map.txt:
+  (3,4) corridor
+  (3,4) corridor      <span class="cmt"># 重複：同一格重走時又記一次</span>
+  (3,5) wall
+  (3,4) corridor      <span class="cmt"># 又重複…檔案無限成長</span>
+
+<span class="cmt"># 優化後：座標為 key 的去重 + 自動同步檔 + 策略參考</span>
+<span class="kw">&lt;|UPSERT_MAP|&gt;</span> (3,4) corridor   <span class="cmt"># 新觀測 overwrite 舊條目，不再 append</span>
+inventory.txt   <span class="cmt"># 由 scaffold 從 observation 自動同步，模型免手動 READ 對帳</span>
+status.txt      <span class="cmt"># 同上，自動維護</span>
+strategy.txt    <span class="cmt"># 預載主要目標（找樓梯、下降），省掉早期重新發現目標的操作</span></code></pre>
+
+    <h3>5.5 訓練把「先查再寫」的記憶紀律內化</h3>
+    <p>訓練後的 memory specialist 出現一致的行為轉變：<span class="hl">動筆改記憶前先查詢記憶</span>。LOG 階段的 <code>writes</code>/<code>SEARCH</code> 比在每個環境都下降 — specialist 在 append 新內容前，會先 search 既有檔，而非盲寫。</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · 演化後 scaffold 上，LOG 階段每次 SEARCH 對應的 writes（越低＝寫入前檢索越多）</caption>
+        <thead><tr><th>環境</th><th>Base</th><th>+ Trained</th></tr></thead>
+        <tbody>
+          <tr><td>Crafter</td><td class="num">0.84</td><td class="num">0.39 <span style="color:var(--muted)">(−54%)</span></td></tr>
+          <tr><td>MiniHack</td><td class="num">2.89</td><td class="num">0.82 <span style="color:var(--muted)">(−72%)</span></td></tr>
+          <tr class="best"><td>NetHack</td><td class="num">4.66</td><td class="num">1.31 <span style="color:var(--muted)">(−72%)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>質性軌跡（Figure 6）：</strong>Crafter 進度 9 → 55 → 59%（base 只砍木頭；scaffold 造石器、蓋熔爐、挖鐵；trained 同層級還會餵飽自己）；MiniHack Corridor-R3 為 0 → 0 → 100%（唯 trained specialist 走出分支走廊到達樓梯）；NetHack 0 → 1.85 → 2.42%（base 在經驗等級 1 幾百步內死掉；scaffold 撐數千步達等級 2；trained 存活更久、爬到等級 4）。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 06 ====================== -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>限制與未來工作</h2>
+    <p class="lead">作者明確點出三個限制，每個都指向一個延伸方向。</p>
+    <div class="grid g3">
+      <div class="card">
+        <h4>① 只研究「情節式」記憶</h4>
+        <p>檔案系統在每個 episode 開頭都清空重來。自然的延伸是 <span class="hl">persistent memory</span>：跨 episode 攜帶知識。</p>
+      </div>
+      <div class="card">
+        <h4>② 只在遊戲環境驗證</h4>
+        <p>遊戲很適合研究記憶（長時程、程序生成、豐富的資訊管理需求），但方法也應能套用到真實世界、記憶密集的任務。</p>
+      </div>
+      <div class="card">
+        <h4>③ 每個環境各訓一套</h4>
+        <p>三個遊戲結構與目標不同，因此各優化一套 scaffold 與 memory specialist。能否共用單一 scaffold 或 specialist，尚待探索。</p>
+      </div>
+    </div>
+
+    <h3>結論</h3>
+    <p>本文證明記憶管理是 LLM agent 一個<strong>可獨立學習、高槓桿</strong>的技能。AutoMem 把它拆成 structure 與 proficiency 兩軸，用 meta-LLM 外迴圈自動優化；只調記憶（不動 gameplay 權重）就在三個長時程遊戲上帶來 ~2×–4× 提升，逼近前沿閉源系統。更廣的發現是：<span class="hl">長時程任務改進可分解成「軌跡級審查 + 針對性修訂」</span>，這種工作流程能被 meta-LLM 自動執行 — 而人工檢視完整軌跡不可行。把這個分解套用到記憶以外的其他 agent 能力，是有潛力的方向。</p>
+
+    <div class="callout hot">
+      <p><strong>Broader Impacts：</strong>把記憶管理當成獨立能力來自動優化與針對訓練，能<span class="hl2">降低長時程 agent 變得實用所需的模型規模門檻</span>，對開源部署是可近用性的提升。相同技術可延伸到遊戲以外任務。作者提醒：釋出的產物未經進一步安全審查，不宜直接用於高風險部署。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Shengguang Wu, Hao Zhu, Yuhui Zhang, Xiaohan Wang, Serena Yeung-Levy (2026) · Stanford University</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2607.01224">arXiv:2607.01224</a> · <a href="https://autolearnmem.github.io/">autolearnmem.github.io</a> · <a href="https://github.com/autoLearnMem/AutoMem">github.com/autoLearnMem/AutoMem</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文為準。</p>
+  </div>
+</footer>
+</body>
+</html>

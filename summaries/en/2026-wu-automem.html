@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoMem — Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430;
+  --ink:#e8edf4; --muted:#93a1b3; --line:#26313f;
+  --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2026 · Stanford · Paper Digest</div>
+    <h1 class="title">Auto<span class="sql">Mem</span></h1>
+    <p class="subtitle">Treat memory management as a trainable cognitive skill (metamemory): let the model itself use a file system to decide what to encode, when to retrieve, and how to organize — then automate optimization with two meta-LLM outer loops, bringing a 32B open-weight model level with Claude Opus 4.5.</p>
+    <div class="meta-row">
+      <span class="tag lit">Metamemory</span>
+      <span class="tag lit">Memory as File System</span>
+      <span class="tag lit">Long-Horizon Agent</span>
+      <span class="tag">Meta-LLM Outer Loops</span>
+      <span class="tag">LoRA Memory Specialist</span>
+      <span class="tag">BALROG · Crafter · NetHack</span>
+    </div>
+    <p class="authors">Shengguang Wu, Hao Zhu, Yuhui Zhang, Xiaohan Wang, Serena Yeung-Levy · Stanford University · <a href="https://arxiv.org/abs/2607.01224">arXiv:2607.01224</a> · <a href="https://autolearnmem.github.io/">Project page</a> · <a href="https://github.com/autoLearnMem/AutoMem">github.com/autoLearnMem/AutoMem</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#method">02 Method Overview</a>
+    <a href="#loops">03 Two Outer Loops</a>
+    <a href="#dataset">04 Environments &amp; Metric</a>
+    <a href="#results">05 Experiments</a>
+    <a href="#limits">06 Limitations &amp; Future Work</a>
+  </div>
+</nav>
+
+<!-- ====================== 01 ====================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — Memory is a skill, not a module</h2>
+    <p class="lead">Cognitive science calls the ability to decide "what is worth remembering, when to retrieve it, and how to organize what is known" <strong>metamemory</strong> — and it is a <span class="hl">learned skill</span>. This paper brings that view to LLMs: rather than designing memory as a fixed architectural module, let the model actively manage memory and treat that as a skill that can be observed, evaluated, and optimized.</p>
+
+    <h3>1.1 The LLM bottleneck: the context window is working memory</h3>
+    <p>An LLM's context window plays the role of working memory — a fixed-size buffer bounding what it can attend to at once. Long-horizon tasks routinely run tens of thousands of steps, far exceeding this. Prior external-memory designs (retrieval databases, vector stores, scratchpads, summary buffers — MemGPT, Generative Agents, A-MEM, MemoryBank) almost all treat memory as a <strong>fixed mechanism designed into the system</strong>.</p>
+
+    <h3>1.2 A different view</h3>
+    <p>AutoMem promotes file-system operations — <span class="hl2">read / write / search / append / create</span> — to <strong>first-class memory actions</strong> in the model's action space, on equal footing with the actions it uses to act on the world. The same forward pass that picks a task action can also select a memory operation (e.g. <code>&lt;|APPEND|&gt;</code> or <code>&lt;|SEARCH|&gt;</code>). This minimal design gives the model full control over external memory while keeping behavior cleanly observable — every memory decision is a traceable action in the trajectory.</p>
+
+    <div class="callout warn">
+      <p><strong>Two axes that resist manual optimization:</strong> a memory skill improves along (1) the <span class="hl2">structure</span> that supports it (prompts, file schema, validation logic, action vocabulary), and (2) the model's <span class="hl2">proficiency</span> at exercising it. But an episode can span 10<sup>5</sup> steps, and a mistake made at step 50 — failing to log a coordinate, or writing a duplicate that buries useful info — may not surface until step 800. <strong>Human review of full trajectories is impractical.</strong></p>
+    </div>
+
+    <h3>1.3 Key insight: let a meta-LLM be the "code reviewer"</h3>
+    <p>The core observation: a sufficiently capable LLM (acting as a <span class="hl">meta-LLM</span>) can read an agent's complete episode (thousands of steps) and identify where memory decisions went wrong — much as a code reviewer reads a full execution log. This makes automating both axes of memory improvement feasible.</p>
+
+    <h3>1.4 Contributions</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>① Memory as a learnable skill</h4>
+        <p>Instantiated via file-system operations in the same action space as task actions, giving the model full, observable control over what to encode, when to retrieve, and how to organize.</p>
+      </div>
+      <div class="card">
+        <h4>② The AutoMem framework</h4>
+        <p>Automates improvement along two complementary axes: scaffold revision (iterating the memory structure) + targeted training (sharpening memory proficiency). Both loops are driven by meta-LLMs analyzing complete traces.</p>
+      </div>
+      <div class="card">
+        <h4>③ Closing the frontier gap</h4>
+        <p>Across three procedurally generated long-horizon games, targeting memory alone yields ~2×–4× progression gains, significantly closing the gap between a 32B open-weight model and frontier proprietary systems.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ====================== -->
+<section id="method">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Method Overview — one inner loop + two outer loops</h2>
+    <p class="lead">AutoMem consists of two <strong>sequential outer loops</strong> operating on a shared <strong>inner-loop agent</strong> that uses a file system as its memory. Outer-loop #1 pushes the agent scaffold as far as code revision can go; outer-loop #2 then trains the model's memory ability beyond the ceiling of any fixed scaffold.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 860 430" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arrO" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <!-- Inner loop (center, shaded) -->
+        <rect x="250" y="150" width="360" height="130" rx="14" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="430" y="175" fill="#93a1b3" font-size="12" text-anchor="middle">Inner-loop agent (one episode)</text>
+        <rect x="272" y="192" width="150" height="34" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="347" y="214" fill="#5ad1c0" font-size="12" text-anchor="middle">LOG (what to record?)</text>
+        <rect x="440" y="192" width="150" height="34" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="515" y="214" fill="#5ad1c0" font-size="12" text-anchor="middle">PLAN (what to recall?)</text>
+        <rect x="330" y="238" width="200" height="30" rx="8" fill="#141b25" stroke="#8c7bff"/>
+        <text x="430" y="258" fill="#c8b6ff" font-size="11.5" text-anchor="middle">📁 File-system memory (read/write/search…)</text>
+
+        <!-- Outer loop 1 (top) -->
+        <rect x="60" y="30" width="740" height="86" rx="12" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="80" y="55" fill="#5ad1c0" font-size="13" font-weight="700">Outer-loop #1 · optimize memory scaffold (structure)</text>
+        <rect x="80" y="66" width="200" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="180" y="88" fill="#e8edf4" font-size="11.5" text-anchor="middle">meta-LLM reads full trace</text>
+        <rect x="320" y="66" width="220" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="430" y="88" fill="#e8edf4" font-size="11" text-anchor="middle">diagnose failures → revise code/prompt/schema</text>
+        <rect x="580" y="66" width="200" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="680" y="88" fill="#e8edf4" font-size="11" text-anchor="middle">re-run same seeds; keep if better</text>
+
+        <!-- Outer loop 2 (bottom) -->
+        <rect x="60" y="316" width="740" height="90" rx="12" fill="#141b25" stroke="#f4a259"/>
+        <text x="80" y="341" fill="#f4a259" font-size="13" font-weight="700">Outer-loop #2 · train memory proficiency</text>
+        <rect x="80" y="352" width="215" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="187" y="374" fill="#e8edf4" font-size="11" text-anchor="middle">meta-LLM filters good memory decisions</text>
+        <rect x="335" y="352" width="205" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="437" y="374" fill="#e8edf4" font-size="11" text-anchor="middle">as supervised data (model's own output)</text>
+        <rect x="580" y="352" width="200" height="34" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="680" y="374" fill="#e8edf4" font-size="11" text-anchor="middle">LoRA-train memory specialist</text>
+
+        <!-- arrows -->
+        <line x1="430" y1="116" x2="430" y2="148" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="430" y1="282" x2="430" y2="314" stroke="#f4a259" marker-end="url(#arrO)"/>
+      </svg>
+      <div class="figcap">Fig. 1 · AutoMem overview (redrawn from paper Figure 3): two automated outer loops optimize a shared inner-loop agent</div>
+    </div>
+
+    <h3>2.1 Inner-loop agent: memory as a file system</h3>
+    <p>The inner loop is a single LLM agent executing one episode, equipped with a directory of files on disk as external memory. Each step runs two routines:</p>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>LOG — "what is worth recording about what just happened?"</h4>
+        <p>The agent decides whether and how to record the environment's response to the previous action: append to an existing file, create a new one, or rewrite an entry.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>PLAN — "what do I need to recall to act now?"</h4>
+        <p>The agent searches across files, reads specific entries or their tails, and commits the next world action.</p>
+      </div></div>
+    </div>
+    <div class="callout">
+      <p><strong>Why the shared action space matters:</strong> because memory operations and task actions live in the same trajectory as traceable actions, the outer loops can observe, evaluate, and optimize them. Experiments confirm: <span class="hl">optimizing the memory structure also improves task behavior</span> (e.g. gameplay) — better-organized memory reduces redundant exploration and directionless action, even though the optimizer targets the scaffold rather than the task strategy.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 03 ====================== -->
+<section id="loops">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Two loops, one objective</h2>
+    <p class="lead">Both loops mirror the familiar structure of machine learning: each has <span class="hl">parameters θ</span> to optimize and an <span class="hl">update signal ∇L</span>, both derived from a meta-LLM's trajectory analysis. The scaffold sets the structural ceiling for what memory operations are possible; proficiency training pushes the model toward that ceiling.</p>
+
+    <div class="formula">
+      Loop #1: θ = agent scaffold (code / prompt / schema)　　∇L = a code revision<br>
+      Loop #2: θ = dedicated memory-model weights　　∇L = a properly-configured supervised training step<br>
+      <span style="color:var(--muted)">Shared principle: long-horizon improvement = trajectory-level review + targeted revision</span>
+    </div>
+
+    <h3>3.1 Outer-loop #1: optimizing the memory scaffold (structure)</h3>
+    <p>The optimization signal must be <strong>trajectory-level</strong> because memory consequences are delayed in long-horizon tasks: failing to log a coordinate or writing a duplicate at step 50 may not surface until step 800, when the agent gets lost or re-explores. Final-return metrics alone discard the structure that reveals <em>where</em> memory went wrong.</p>
+    <p>So the meta-LLM is given the <strong>full episode trace</strong> (per-step logs, the resulting memory directories, and the agent code itself) — functioning as a code reviewer with a complete execution log, not a scalar reward. Reviewing NetHack traces, it found an unbounded map file accumulating thousands of duplicate coordinate entries and introduced a clean coordinate-keyed deduplication format. Each iteration is <span class="hl">gated on measured improvement</span>: the rewritten agent replays the same fixed seeds, and a revision is kept only if average progression improves — converging in ~2–5 iterations.</p>
+
+    <h3>3.2 Outer-loop #2: training memory proficiency</h3>
+    <p>Once the scaffold is optimized, the remaining gap is the model's parametric ability to make good memory decisions. This loop uses the meta-LLM as a <span class="hl2">training engine</span> to update weights. It reads the agent code plus a pool of episode traces, derives selection criteria, and produces supervised training data.</p>
+    <div class="callout">
+      <p><strong>The meta-LLM is a filter, not a teacher:</strong> every training example is verbatim text the inner-loop model <span class="hl">itself produced</span> during an episode; the meta-LLM only selects which responses to reinforce — filtering the model's own behavior rather than generating new responses. It also orchestrates <strong>data-selection logic, data composition, and the LoRA training configuration as a joint decision</strong>, refined across iterative trials so finetuning delivers a clean lift rather than disruption.</p>
+    </div>
+
+    <h3>3.3 Memory specialist vs gameplay model: a clean split</h3>
+    <p>Because memory is a separable skill, the paper <strong>finetunes only a dedicated memory model (memory specialist)</strong> while the model that commits world actions stays unmodified. At inference the inner loop runs two model instances sharing one conversation history:</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Memory specialist (LoRA-finetuned)</h4>
+        <p>Handles the LOG routine and the memory-consultation part of PLAN. It is a LoRA-finetuned copy of the base model.</p>
+      </div>
+      <div class="card">
+        <h4>Gameplay model (frozen)</h4>
+        <p>The unmodified base model, which commits the world action. After the specialist's last memory operation, a short handoff passes the conversation to it.</p>
+      </div>
+    </div>
+    <div class="callout warn">
+      <p><strong>Two benefits:</strong> (1) <span class="hl2">the training signal stays focused</span> — the supervised loss targets memory-operation behavior without being diluted by action-format examples; (2) <span class="hl2">the base model's competence at well-formatted world actions is fully preserved</span>, since gameplay weights are never touched. As a result the memory-proficiency gain <strong>stacks cleanly</strong> on top of the scaffold gain (a further ~9–18% relative gain) rather than trading off against it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 04 ====================== -->
+<section id="dataset">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Environments &amp; Metric — why procedurally generated games</h2>
+    <p class="lead">Procedurally generated long-horizon games are well suited to studying memory: episodes are long enough that context-window management alone can't sustain performance; worlds regenerate each episode so pretraining knowledge transfers poorly; and success demands the records humans naturally keep — maps, inventories, encounter logs, strategy notes. All three come from the <strong>BALROG</strong> benchmark.</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>Crafter</h4>
+        <p>2D open-world survival. 17 actions, 22 achievements (exploration/crafting/combat). Episodes up to ~10<sup>3</sup> steps.</p>
+        <p class="big">10<sup>3</sup></p>
+        <p>steps/episode</p>
+      </div>
+      <div class="card">
+        <h4>MiniHack</h4>
+        <p>An 8-task suite (mazes, corridors, Boxoban puzzles, quests) built on the NetHack engine. 33 actions, ~10<sup>2</sup> steps/task.</p>
+        <p class="big">8</p>
+        <p>task variants</p>
+      </div>
+      <div class="card">
+        <h4>NetHack</h4>
+        <p>The full NetHack Learning Environment (NLE). 200+ actions, 10<sup>4</sup>–10<sup>5</sup> steps/episode, dungeon/monsters/items regenerated per seed. Humans take years to master.</p>
+        <p class="big">10<sup>5</sup></p>
+        <p>max steps</p>
+      </div>
+    </div>
+
+    <h3>4.1 Metric &amp; setup</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Metric: progression rate (0–100)</h4>
+        <p>Crafter = fraction of 22 achievements; MiniHack = fraction of 8 tasks completed (binary per task); NetHack = BALROG's dungeon-and-experience-level progression. Reported as mean ± standard error over 10 fixed seeds [42..51].</p>
+      </div>
+      <div class="card">
+        <h4>Model &amp; meta-LLM</h4>
+        <p>Inner-loop base = <code>Qwen2.5-32B-Instruct</code> (served locally with vLLM). Scaffold optimizer uses <strong>Claude Opus 4.6</strong>, training engine uses <strong>Claude Opus 4.7</strong> as the meta-LLM. The memory specialist is LoRA-trained; the gameplay model is the unmodified base.</p>
+      </div>
+    </div>
+    <p>Baselines fall in two groups: (i) BALROG leaderboard — frontier proprietary (Gemini-3-Pro, Gemini-3.1-Pro-Thinking, Claude-Opus-4.5, Gemini-2.5-Pro), frontier open-weight reasoning (DeepSeek-R1, 671B), and same-family open weights at two scales (72B, 7B); (ii) the same 32B under the BALROG harness with basic context management: a 16-step sliding window, with/without chain-of-thought.</p>
+  </div>
+</section>
+
+<!-- ====================== 05 ====================== -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Experiments — targeting memory alone reaches the frontier</h2>
+    <p class="lead">Throughout scaffold optimization the <strong>model weights are untouched</strong> — only the agent code, prompts, and file schema change — yet progression roughly doubles or more than triples on every environment. Adding memory training on top brings the 32B open-weight model level with Claude-Opus-4.5.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Performance on BALROG long-horizon games (progression rate %, mean ± standard error). AutoMem is built on Qwen2.5-32B-Instruct.</caption>
+        <thead><tr><th>Agent</th><th>Crafter</th><th>MiniHack</th><th>NetHack</th></tr></thead>
+        <tbody>
+          <tr><td colspan="4" style="color:var(--acc);font-family:var(--mono);font-size:12px">Frontier proprietary (BALROG leaderboard)</td></tr>
+          <tr><td>Gemini-3-Pro</td><td class="num">57.3 ± 4.4</td><td class="num">40.0 ± 7.7</td><td class="num">6.8 ± 3.2</td></tr>
+          <tr><td>Gemini-3.1-Pro-Thinking</td><td class="num">55.0 ± 6.4</td><td class="num">27.5 ± 7.1</td><td class="num">2.6 ± 0.3</td></tr>
+          <tr><td>Claude-Opus-4.5</td><td class="num">49.5 ± 3.1</td><td class="num">27.5 ± 7.1</td><td class="num">2.0 ± 0.5</td></tr>
+          <tr><td>Gemini-2.5-Pro</td><td class="num">55.0 ± 6.0</td><td class="num">17.5 ± 6.0</td><td class="num">1.7 ± 0.2</td></tr>
+          <tr><td colspan="4" style="color:var(--acc);font-family:var(--mono);font-size:12px">Open-weight (BALROG leaderboard)</td></tr>
+          <tr><td>DeepSeek-R1 (671B)</td><td class="num">36.4 ± 3.8</td><td class="num">25.0 ± 6.8</td><td class="num">1.4 ± 0.5</td></tr>
+          <tr><td>Qwen2.5-72B-Instruct</td><td class="num">27.3 ± 3.6</td><td class="num">5.0 ± 3.4</td><td class="num">0.3 ± 0.3</td></tr>
+          <tr><td>Qwen2.5-7B-Instruct</td><td class="num">16.4 ± 3.0</td><td class="num">0.0 ± 0.0</td><td class="num">0.0 ± 0.0</td></tr>
+          <tr><td colspan="4" style="color:var(--acc);font-family:var(--mono);font-size:12px">Qwen2.5-32B-Instruct · basic context-management baselines</td></tr>
+          <tr><td>sliding window</td><td class="num">19.55 ± 3.46</td><td class="num">2.50 ± 2.47</td><td class="num">0.00 ± 0.00</td></tr>
+          <tr><td>+ chain-of-thought</td><td class="num">17.27 ± 2.71</td><td class="num">10.00 ± 4.74</td><td class="num">0.00 ± 0.00</td></tr>
+          <tr><td colspan="4" style="color:var(--acc2);font-family:var(--mono);font-size:12px">Qwen2.5-32B-Instruct · AutoMem (ours)</td></tr>
+          <tr><td class="ours">memory-as-file-system, v0</td><td class="num">25.00 ± 5.50</td><td class="num">7.50 ± 4.16</td><td class="num">0.42 ± 0.37</td></tr>
+          <tr><td class="ours">+ scaffold opt. (loop #1)</td><td class="num">47.27 ± 2.05</td><td class="num">27.50 ± 7.06</td><td class="num">1.57 ± 0.35</td></tr>
+          <tr class="best"><td class="ours">+ memory training (loop #2)</td><td class="num">51.36 ± 3.81</td><td class="num">30.00 ± 7.25</td><td class="num">1.85 ± 0.44</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>5.1 Memory is a high-leverage axis on its own</h3>
+    <p>Scaffold optimization (weights untouched) doubles or more than triples progression: Crafter 25.0→47.27 (×1.89), MiniHack 7.5→27.5 (×3.67), NetHack 0.42→1.57 (×3.74). The scaffolded 32B agent beats Qwen2.5-72B-Instruct by a wide margin and the same base under sliding-window by an even wider one — indicating that on long-horizon tasks, <span class="hl">well-structured external memory management is higher-leverage than model scale or context management</span>.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="60" y1="20" x2="60" y2="240" stroke="#26313f"/>
+        <line x1="60" y1="240" x2="700" y2="240" stroke="#26313f"/>
+        <text x="50" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <line x1="60" y1="150" x2="700" y2="150" stroke="#26313f" stroke-dasharray="2 4"/>
+        <text x="50" y="154" fill="#5b6675" font-size="10" text-anchor="end">30</text>
+        <line x1="60" y1="60" x2="700" y2="60" stroke="#26313f" stroke-dasharray="2 4"/>
+        <text x="50" y="64" fill="#5b6675" font-size="10" text-anchor="end">60</text>
+        <rect x="95" y="165" width="70" height="75" rx="4" fill="#3a4658"/>
+        <text x="130" y="258" fill="#93a1b3" font-size="10" text-anchor="middle">v0</text>
+        <text x="130" y="158" fill="#93a1b3" font-size="10" text-anchor="middle">25.0</text>
+        <rect x="185" y="98" width="70" height="142" rx="4" fill="#4a7d8c"/>
+        <text x="220" y="258" fill="#93a1b3" font-size="10" text-anchor="middle">+scaffold</text>
+        <text x="220" y="91" fill="#93a1b3" font-size="10" text-anchor="middle">47.3</text>
+        <rect x="275" y="86" width="70" height="154" rx="4" fill="#5ad1c0"/>
+        <text x="310" y="258" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">+train ★</text>
+        <text x="310" y="79" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">51.4</text>
+        <line x1="90" y1="91.5" x2="350" y2="91.5" stroke="#f4a259" stroke-dasharray="4 3"/>
+        <text x="355" y="95" fill="#f4a259" font-size="10">Opus-4.5 = 49.5</text>
+        <line x1="90" y1="158" x2="350" y2="158" stroke="#8c7bff" stroke-dasharray="4 3"/>
+        <text x="355" y="176" fill="#8c7bff" font-size="10">Qwen-72B = 27.3</text>
+        <text x="220" y="288" fill="#93a1b3" font-size="12" text-anchor="middle" font-weight="700">Crafter progression rate (%) — three stages, memory only</text>
+      </svg>
+      <div class="figcap">Fig. 2 · Crafter progression across the three stages (values from paper Table 1 / Figure 1): v0 → scaffold → +train, matching Claude-Opus-4.5</div>
+    </div>
+
+    <h3>5.2 Training the specialist adds complementary lift on top of the scaffold</h3>
+    <p>On top of the optimized scaffold (Crafter v5 / MiniHack v4 / NetHack v2), memory-proficiency training lifts progression to Crafter 51.36% (+4.09), MiniHack 30.0% (+2.5), NetHack 1.85% (+0.28) — comparable to one or two scaffold iterations. The two axes work in sync: structure revision raises the prompt/schema ceiling, proficiency training addresses the remaining capacity gap — together bringing the 32B model to Claude-Opus-4.5's level (49.5/27.5/2.0) and within a few points of Gemini-3.1-Pro-Thinking (55.0/27.5/2.6).</p>
+
+    <h3>5.3 Task decisions and memory operations improve together in the shared space</h3>
+    <div class="grid g4">
+      <div class="card"><h4>Unproductive action rate</h4><p class="big">−32~65%</p><p>Fraction of steps stuck or oscillating (all three environments).</p></div>
+      <div class="card"><h4>Redundant memory writes</h4><p class="big">−68~83%</p><p>Duplicate writes drop sharply.</p></div>
+      <div class="card"><h4>Empty-search rate</h4><p class="big">−13~50%</p><p>SEARCHes returning nothing fall → retrieval is more precise.</p></div>
+      <div class="card"><h4>Per-step input context</h4><p class="big">−3~30%</p><p>Crafter/NetHack reach −25~30%; leaner memory compresses what the model must attend to.</p></div>
+    </div>
+
+    <h3>5.4 Memory file schema evolution (NetHack example)</h3>
+    <p>Below is a concrete schema revision outer-loop #1 produced for NetHack (from paper Figure 5): it replaces an unbounded append-only map file with a coordinate-keyed deduplication format, auto-syncs inventory/status, and pre-populates a strategy reference. This shrinks per-step memory growth from <strong>138 characters to 6 — a 95% reduction.</strong></p>
+    <pre><code><span class="cmt"># v0: unbounded, append-only, accumulates duplicate coordinates that bury useful info</span>
+dungeon_map.txt:
+  (3,4) corridor
+  (3,4) corridor      <span class="cmt"># duplicate: same tile logged again on revisit</span>
+  (3,5) wall
+  (3,4) corridor      <span class="cmt"># duplicate again... file grows without bound</span>
+
+<span class="cmt"># Optimized: coordinate-keyed dedup + auto-synced files + strategy reference</span>
+<span class="kw">&lt;|UPSERT_MAP|&gt;</span> (3,4) corridor   <span class="cmt"># new observation overwrites the old entry, no append</span>
+inventory.txt   <span class="cmt"># auto-synced by the scaffold from observation; no manual READ/reconcile</span>
+status.txt      <span class="cmt"># likewise maintained programmatically</span>
+strategy.txt    <span class="cmt"># pre-loaded primary objective (find stairs, descend); no rediscovering the goal</span></code></pre>
+
+    <h3>5.5 Training internalizes a "consult-before-write" discipline</h3>
+    <p>The trained memory specialist shows a consistent shift toward <span class="hl">consulting memory before modifying it</span>. In the LOG phase, the ratio of <code>writes</code> to <code>SEARCH</code>es falls in every environment — the specialist searches existing files before appending, rather than writing blindly.</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · LOG-phase writes per SEARCH on the evolved scaffold (lower = more retrieval before writing)</caption>
+        <thead><tr><th>Environment</th><th>Base</th><th>+ Trained</th></tr></thead>
+        <tbody>
+          <tr><td>Crafter</td><td class="num">0.84</td><td class="num">0.39 <span style="color:var(--muted)">(−54%)</span></td></tr>
+          <tr><td>MiniHack</td><td class="num">2.89</td><td class="num">0.82 <span style="color:var(--muted)">(−72%)</span></td></tr>
+          <tr class="best"><td>NetHack</td><td class="num">4.66</td><td class="num">1.31 <span style="color:var(--muted)">(−72%)</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Qualitative trajectories (Figure 6):</strong> Crafter progression 9 → 55 → 59% (base only gathers wood; scaffold crafts stone tools, builds a furnace, mines iron; trained reaches that tier while also feeding itself); MiniHack Corridor-R3 is 0 → 0 → 100% (only the trained specialist threads the branching corridors to the staircase); NetHack 0 → 1.85 → 2.42% (base dies at experience level 1 within hundreds of steps; scaffold survives thousands of steps to level 2; trained survives far longer and climbs to level 4).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 06 ====================== -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Limitations &amp; Future Work</h2>
+    <p class="lead">The authors explicitly call out three limitations, each pointing to an extension.</p>
+    <div class="grid g3">
+      <div class="card">
+        <h4>① Only episodic memory studied</h4>
+        <p>The file system starts fresh each episode. A natural extension is <span class="hl">persistent memory</span> that carries knowledge across episodes.</p>
+      </div>
+      <div class="card">
+        <h4>② Only validated on games</h4>
+        <p>Games are well-suited to studying memory (long horizons, procedural generation, rich information-management demands), but the approach could also apply to real-world, memory-intensive tasks.</p>
+      </div>
+      <div class="card">
+        <h4>③ One scaffold/specialist per environment</h4>
+        <p>The three games differ in structure and objectives, so a separate scaffold and specialist are optimized for each; whether a single shared one works is unexplored.</p>
+      </div>
+    </div>
+
+    <h3>Conclusion</h3>
+    <p>This work shows memory management is an <strong>independently learnable, high-leverage</strong> skill for LLM agents. AutoMem factors it into structure and proficiency and automates both via meta-LLM outer loops; targeting memory alone (without touching gameplay weights) improved performance ~2×–4× across three long-horizon games, approaching frontier proprietary systems. A broader finding: <span class="hl">long-horizon task improvement can decompose into trajectory-level review + targeted revision</span> — a workflow meta-LLMs can execute autonomously where human review of full traces is intractable. Applying this decomposition to agent capabilities beyond memory is a promising direction.</p>
+
+    <div class="callout hot">
+      <p><strong>Broader impacts:</strong> automating scaffold optimization and targeted training of memory management as a distinct capability <span class="hl2">lowers the model-scale threshold at which long-horizon agents become practical</span> — an accessibility gain for open-weight deployment — and the techniques could extend beyond games. The authors caution that the released artifacts are not directly applicable to high-stakes deployment without further safety review.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Shengguang Wu, Hao Zhu, Yuhui Zhang, Xiaohan Wang, Serena Yeung-Levy (2026) · Stanford University</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2607.01224">arXiv:2607.01224</a> · <a href="https://autolearnmem.github.io/">autolearnmem.github.io</a> · <a href="https://github.com/autoLearnMem/AutoMem">github.com/autoLearnMem/AutoMem</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a paper digest; figures/tables are redrawn or reorganized from the paper — refer to the original for authoritative values.</p>
+  </div>
+</footer>
+</body>
+</html>
