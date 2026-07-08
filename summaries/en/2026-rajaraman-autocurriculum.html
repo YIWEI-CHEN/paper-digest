@@ -340,6 +340,24 @@ footer a{color:var(--acc);text-decoration:none}
     <h2>RLVR — decoupling coverage from accuracy</h2>
     <p class="lead">The second setting: no teacher, only a pretrained reference model. Here autocurriculum reduces <em>compute</em> rather than teacher labels.</p>
 
+    <h3>Background — what is RLVR?</h3>
+    <p><strong>RLVR (Reinforcement Learning with Verifiable Rewards)</strong> is the dominant post-training recipe for reasoning models. Instead of a <em>learned</em> reward model (as in RLHF), the reward comes from a <strong>deterministic verifier</strong> that checks whether an output is <em>objectively</em> correct: run the unit tests, or compare the final answer to the known solution. The model generates attempts (rollouts), each gets a <strong>0/1 verifiable reward</strong>, and a policy-gradient method (PPO, GRPO, …) pushes it toward higher-reward behavior. This is exactly the <code>π<sub>ref</sub></code> + outcome-verifier <code>V</code> setup formalized in this paper.</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>Origin</h4>
+        <p>The idea of RL against auto-verifiable outcomes traces to <strong>DeepSeekMath</strong> (Shao et al., 2024, which also introduced <strong>GRPO</strong>). The <em>term</em> "RLVR" was coined &amp; popularized by AI2's <strong>Tülu&nbsp;3</strong> (Lambert et al., 2024) — the paper's citation for RLVR. <strong>DeepSeek-R1</strong> (2025) then made it famous.</p>
+      </div>
+      <div class="card">
+        <h4>Why it's popular</h4>
+        <p>No reward-model training (cheaper, less bias); <strong>hard to reward-hack</strong> since the signal is ground truth; scales automatically with no humans in the loop; and it targets exactly the verifiable domains — math &amp; code — where CoT reasoning pays off.</p>
+      </div>
+      <div class="card">
+        <h4>The catch</h4>
+        <p>Its cost is <strong>compute</strong>: on hard prompts you must roll out <em>many</em> attempts just to find a single correct one. That is precisely the <code>n<sub>comp</sub> ∼ Õ(dC<sub>seq</sub>/ε)</code> cost this paper attacks with an autocurriculum.</p>
+      </div>
+    </div>
+
     <h3>Coverage — the RL analogue of realizability</h3>
     <p>You start from a reference <code>π<sub>ref</sub></code> and must guide it to high accuracy using only the verifier. The key quantity is <strong>sequence-level coverage</strong> (Definition 4.2): <code>π<sub>ref</sub></code> covers with parameter <code>C<sub>seq</sub></code> if it places at least <code>C<sub>seq</sub><sup>−1</sup></code> probability on the correct CoT for every prompt.</p>
     <div class="formula">π<sub>ref</sub>(y*<sub>x</sub> | x) ≥ C<sub>seq</sub><sup>−1</sup> &nbsp;<span class="muted">for every prompt x &nbsp;(smaller C<sub>seq</sub> = better coverage)</span></div>
