@@ -778,7 +778,7 @@ answer = 5 ("aaabb")</code></pre>
         <h3>題目整理</h3>
         <p>給字串 <code>s</code>，找出不含重複字元的最長 substring 長度。</p>
         <h3>解法說明</h3>
-        <p>用 <code>last_seen</code> 記錄字元上次出現位置。當右指針遇到已在窗口內出現過的字元，就把左指針跳到該字元上次位置的下一格。</p>
+        <p>用 <code>last_seen</code> 記錄字元上次出現位置。左指針用 <code>max(left, last_seen[ch] + 1)</code> 更新，確保它只會前進不會後退，即使該字元的上次出現位置其實在目前窗口之前也沒關係。</p>
 <pre><code class="language-python">class Solution:
     def lengthOfLongestSubstring(self, s: str) -&gt; int:
         last_seen = {}
@@ -786,8 +786,8 @@ answer = 5 ("aaabb")</code></pre>
         best = 0
 
         for right, ch in enumerate(s):
-            if ch in last_seen and last_seen[ch] &gt;= left:
-                left = last_seen[ch] + 1
+            if ch in last_seen:
+                left = max(left, last_seen[ch] + 1)
 
             last_seen[ch] = right
             best = max(best, right - left + 1)
