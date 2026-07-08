@@ -354,6 +354,13 @@ footer a{color:var(--acc);text-decoration:none}
         <p>它的成本是<strong>計算</strong>:在難題上,你得 rollout <em>很多</em>次才能找到一條正確軌跡。這正是本文用自動課程要對付的 <code>n<sub>comp</sub> ∼ Õ(dC<sub>seq</sub>/ε)</code> 成本。</p>
       </div>
     </div>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)">RLVR 補充資料來源 ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://arxiv.org/abs/2411.15124">Tülu 3 (Lambert et al., 2024)</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://arxiv.org/abs/2402.03300">DeepSeekMath (Shao et al., 2024)</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://allenai.org/blog/tulu-3-technical">Ai2 Tülu 3 blog</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://ai-infrastructure.net/rlvr/">RLVR overview (AI Infra KB)</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://labelstud.io/blog/reinforcement-learning-from-verifiable-rewards/">RLVR (Label Studio)</a>
+    </p>
 
     <h3>覆蓋度 — RL 版的 realizability</h3>
     <p>你從參考模型 <code>π<sub>ref</sub></code> 出發,必須只靠 verifier 把它導向高準確率。關鍵量是 <strong>序列級覆蓋度(sequence-level coverage,Definition 4.2)</strong>:若 <code>π<sub>ref</sub></code> 對每道題都在正確 CoT 上放至少 <code>C<sub>seq</sub><sup>−1</sup></code> 的機率,就說它以參數 <code>C<sub>seq</sub></code> 覆蓋。</p>

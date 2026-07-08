@@ -357,6 +357,13 @@ footer a{color:var(--acc);text-decoration:none}
         <p>Its cost is <strong>compute</strong>: on hard prompts you must roll out <em>many</em> attempts just to find a single correct one. That is precisely the <code>n<sub>comp</sub> ∼ Õ(dC<sub>seq</sub>/ε)</code> cost this paper attacks with an autocurriculum.</p>
       </div>
     </div>
+    <p style="font-family:var(--mono);font-size:12.5px;color:var(--muted)">RLVR primer sources ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://arxiv.org/abs/2411.15124">Tülu 3 (Lambert et al., 2024)</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://arxiv.org/abs/2402.03300">DeepSeekMath (Shao et al., 2024)</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://allenai.org/blog/tulu-3-technical">Ai2 Tülu 3 blog</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://ai-infrastructure.net/rlvr/">RLVR overview (AI Infra KB)</a> ·
+      <a style="color:#5ad1c0;text-decoration:none" href="https://labelstud.io/blog/reinforcement-learning-from-verifiable-rewards/">RLVR (Label Studio)</a>
+    </p>
 
     <h3>Coverage — the RL analogue of realizability</h3>
     <p>You start from a reference <code>π<sub>ref</sub></code> and must guide it to high accuracy using only the verifier. The key quantity is <strong>sequence-level coverage</strong> (Definition 4.2): <code>π<sub>ref</sub></code> covers with parameter <code>C<sub>seq</sub></code> if it places at least <code>C<sub>seq</sub><sup>−1</sup></code> probability on the correct CoT for every prompt.</p>
