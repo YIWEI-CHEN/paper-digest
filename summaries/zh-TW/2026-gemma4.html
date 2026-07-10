@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemma 4 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430;
+  --ink:#e8edf4; --muted:#93a1b3; --line:#26313f;
+  --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:720px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Technical Report · 2026 · Google DeepMind · 論文導讀</div>
+    <h1 class="title">Gemma&nbsp;<span class="sql">4</span></h1>
+    <p class="subtitle">新一代開源權重、原生多模態模型家族 —— 涵蓋 dense（2.3B–31B）與一顆 26B-A4B 的 Mixture-of-Experts，主打運算效率與推理能力。等效 2.3B 的 E2B 在推理題上勝過去年的 Gemma 3 27B；31B dense 模型則登上 LMArena,成為當時領先的 dense 開源模型。</p>
+    <div class="meta-row">
+      <span class="tag lit">開源權重</span>
+      <span class="tag lit">原生多模態</span>
+      <span class="tag lit">MoE 26B-A4B</span>
+      <span class="tag">Thinking Mode</span>
+      <span class="tag">端側 QAT 量化</span>
+      <span class="tag">文字 · 影像 · 語音</span>
+    </div>
+    <p class="authors">Gemma Team, Google DeepMind · <a href="https://arxiv.org/abs/2607.02770">arXiv:2607.02770</a> · 17 頁技術報告,2026 年 7 月 2 日投稿</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#lineup">02 模型家族</a>
+    <a href="#arch">03 架構</a>
+    <a href="#train">04 訓練</a>
+    <a href="#results">05 實驗結果</a>
+    <a href="#deploy">06 效率與部署</a>
+    <a href="#limits">07 限制與安全</a>
+  </div>
+</nav>
+
+<!-- ====================== 01 ====================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 —— 開源、多模態、又要小巧</h2>
+    <p class="lead">前沿能力持續集中在封閉的巨型模型手上。Gemma 4 的主張是:你可以在「單一模型家族」裡同時做到開源權重、原生多模態、擅長推理,而且小到能塞進手機。</p>
+
+    <p>開源社群長期面對一個三難困境:模型不是(a)能力強但封閉,就是(b)開源但只支援文字,或者(c)開源且多模態但推理能力遠遠落後。Gemma 4 想把這個 trade-off 直接打破 —— 讓多模態成為<strong>原生設計</strong>(而非外掛),透過「thinking mode(思考模式)」推高推理能力,並在每一個尺寸都以「端側部署」為前提做量化感知訓練。</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>原生多模態</h4><p>每個尺寸都在同一個堆疊裡處理文字、影像、語音,而不是文字模型外掛 adapter。</p></div>
+      <div class="card"><h4>推理躍進</h4><p>回答前先產生推理軌跡,帶來大幅 STEM／coding 提升;31B 在 LMArena 上領先所有 dense 開源模型。</p></div>
+      <div class="card"><h4>到處都能跑</h4><p>E2B 量化後 <span class="hl">&lt;1&nbsp;GB</span>;整個家族從手機一路涵蓋到單卡伺服器。</p></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>核心宣稱:</strong>等效參數僅 <span class="hl2">2.3B 的 E2B</span> 在推理題(AIME 2026、LiveCodeBench)上勝過 <span class="hl">Gemma 3 27B</span> —— 即便等效參數約少了 10 倍;而 31B dense 模型在 LMArena 拿到 Elo 1451,是發布當時(2026 年 6 月)領先的 dense 開源模型。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ====================== -->
+<section id="lineup">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>模型家族</h2>
+    <p class="lead">五個 checkpoint 橫跨兩個數量級:兩個為端側而生的「等效」小模型、兩個中大型 dense 模型,以及一顆只啟用一小部分權重的稀疏 MoE。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Gemma 4 模型家族(參數、啟用量、編碼器)</caption>
+        <thead><tr><th>模型</th><th>等效</th><th>總參數</th><th>啟用參數</th><th>視覺編碼器</th><th>語音編碼器</th></tr></thead>
+        <tbody>
+          <tr><td class="ours">E2B</td><td class="num">2.3B</td><td class="num">5B</td><td class="num">2.3B</td><td class="num">150M</td><td class="num">305M</td></tr>
+          <tr><td class="ours">E4B</td><td class="num">4.5B</td><td class="num">8B</td><td class="num">4.5B</td><td class="num">150M</td><td class="num">305M</td></tr>
+          <tr><td class="ours">12B</td><td class="num">12B</td><td class="num">12B</td><td class="num">12B</td><td class="num">550M</td><td class="num">encoder-free</td></tr>
+          <tr class="best"><td class="ours">26B-A4B (MoE)</td><td class="num">—</td><td class="num">26B</td><td class="num">3.8B</td><td class="num">550M</td><td class="num">305M</td></tr>
+          <tr><td class="ours">31B</td><td class="num">31B</td><td class="num">31B</td><td class="num">31B</td><td class="num">550M</td><td class="num">305M</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>「等效」參數(E2B／E4B)</strong>沿用 Gemma 3n 的 MatFormer 巢狀模型概念:訓練一個較大的網路(總 5B／8B),但設計成可以「切」出一個較小的子網路(等效 2.3B／4.5B)供端側推理使用。<strong>26B-A4B MoE</strong> 則儲存 26B 總參數,但每個 token 只路由到總計 <span class="hl">3.8B 啟用參數</span>的專家 —— 用小模型的推理成本,換接近前沿的品質。</p>
+
+    <div class="callout warn">
+      <p><strong>兩欄數字要分清楚。</strong>「總參數」是你要存的量;「啟用參數」是每個 token 實際跑的量。MoE 的賣點是兩者落差大(存 26B、只跑 3.8B);E-系列的賣點則是相反的把戲 —— 同一個 checkpoint 能在推理時被<em>縮小</em>。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 03 ====================== -->
+<section id="arch">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>架構</h2>
+    <p class="lead">decoder-only Transformer,搭配如今標配的 Gemma 堆疊 —— RMSNorm、QK-norm、RoPE、MQA 式 KV 共享 —— 再加上 local／global 交錯注意力來壓小 KV cache,以及輕量的原生視覺／語音編碼器。</p>
+
+    <h3>注意力:以 local 為主的交錯設計</h3>
+    <p>Gemma 4 交錯堆疊 <strong>local 滑動視窗</strong>與 <strong>global</strong> 注意力層,比例為 <span class="hl">E2B 4:1</span>、<span class="hl">其他尺寸 5:1</span> —— 每一層 global 前面搭配四到五層便宜的 local。global 層採用 <strong>pp-RoPE(p=0.25)</strong>、base 頻率 <span class="hl">1M</span>;local 層則用標準 RoPE、頻率 <span class="hl">10k</span>。再配合跨層群組的 KV-cache 共享,把 global KV cache 縮小約 <span class="hl2">37.5%</span> —— 這是壓低長上下文記憶體佔用的主要槓桿。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="12" y="26" fill="#93a1b3" font-size="12">一個重複區塊(5:1 範例):</text>
+        <rect x="20" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="80" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <text x="80" y="82" fill="#5b6675" font-size="10" text-anchor="middle">RoPE 10k</text>
+        <rect x="150" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="210" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="280" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="340" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="410" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="470" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="540" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="600" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="670" y="45" width="70" height="46" rx="8" fill="#241b12" stroke="#f4a259"/>
+        <text x="705" y="63" fill="#f4a259" font-size="11" text-anchor="middle">Global</text>
+        <text x="705" y="80" fill="#5b6675" font-size="9" text-anchor="middle">pp-RoPE 1M</text>
+        <text x="12" y="140" fill="#93a1b3" font-size="12">local 群組共享 KV cache → global KV cache 縮小約 37.5%</text>
+        <line x1="20" y1="155" x2="660" y2="155" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="340" y="180" fill="#5ad1c0" font-size="11" text-anchor="middle">每個 global 層前,4(E2B)或 5 層 local 共享 KV</text>
+      </svg>
+      <div class="figcap">圖 1 · local／global 交錯注意力區塊(示意,依架構章節重繪)</div>
+    </div>
+
+    <h3>原生編碼器 —— 視覺與語音</h3>
+    <p>影像經過 <strong>SigLIP 式視覺編碼器</strong>(E2B／E4B 為 150M,12B／31B 為 550M),patch size 16,最高解析度輸出最多 <span class="hl">1120 個 token</span>(並提供 70／140／280／560／1120 的 token 分級,做成本／品質取捨)。語音採用 <strong>USM 式編碼器</strong>(2 層降採樣卷積 + 12 層 Conformer),縮小到 <span class="hl">305M</span> —— 比 Gemma 3n 的 680M 減少 55%。而 <strong>12B 是「encoder-free」</strong>:直接把 16 kHz 下的原始 40 ms 音訊片段(以及影像 patch)透過投影餵進模型,完全省掉獨立編碼器。</p>
+
+    <h3>Tokenizer</h3>
+    <p>採用 <strong>262k 詞條的 SentencePiece tokenizer</strong>(拆分數字、保留空白、byte-level fallback),與 Gemini 系列共用,確保多語言與程式碼的覆蓋度。</p>
+  </div>
+</section>
+
+<!-- ====================== 04 ====================== -->
+<section id="train">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>訓練配方</h2>
+    <p class="lead">在 TPU v5p／v6e 上進行大規模多模態預訓練,接著以類似 Gemma 3 的 post-training 加入「thinking mode」,再用量化感知訓練(QAT)讓釋出的權重能扛住激進的端側量化。</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>多模態預訓練</h4>
+        <p>由網頁文件、程式碼、影像、語音組成的大規模多樣化混合資料,<strong>知識截止於 2025 年 1 月</strong>。資料經過個資、不安全內容與重複項的過濾。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Post-training + thinking mode</h4>
+        <p>指令微調沿用與 Gemma 3 類似的做法。最關鍵的新增:模型能在<strong>回答前先輸出一段推理軌跡</strong>,由控制 token(例如 <code>&lt;|think|&gt;</code>)開關 —— 這正是大幅 STEM／coding 提升的來源。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>量化感知訓練(QAT)</h4>
+        <p>模型被訓練成能容忍量化:行動端用 <strong>int2／int4 權重搭配 int8 activation</strong>,桌面端用 <strong>Q4_0</strong> blockwise —— 這樣小型量化 checkpoint 的品質才不會崩掉。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>MTP drafter 做投機解碼</h4>
+        <p>一個 multi-token-prediction 的 drafter 透過 cross-attention 讀取主模型的 KV cache,不需另外的草稿模型即可加速投機解碼。</p>
+      </div></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · 訓練基礎設施(TPU 世代與晶片數)</caption>
+        <thead><tr><th>模型</th><th>TPU</th><th>晶片數</th><th>Data shards</th><th>Seq shards</th><th>Replicas</th></tr></thead>
+        <tbody>
+          <tr><td class="ours">E2B</td><td>v6e</td><td class="num">4,096</td><td class="num">16</td><td class="num">8</td><td class="num">32</td></tr>
+          <tr><td class="ours">E4B</td><td>v6e</td><td class="num">6,144</td><td class="num">16</td><td class="num">16</td><td class="num">24</td></tr>
+          <tr><td class="ours">12B</td><td>v5p</td><td class="num">12,288</td><td class="num">16</td><td class="num">16</td><td class="num">48</td></tr>
+          <tr><td class="ours">26B-A4B</td><td>v6e</td><td class="num">6,144</td><td class="num">16</td><td class="num">16</td><td class="num">24</td></tr>
+          <tr><td class="ours">31B</td><td>v6e</td><td class="num">10,240</td><td class="num">16</td><td class="num">16</td><td class="num">40</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p><strong>揭露不足之處:</strong>報告未公開各模型的總訓練 token 數,post-training 也未點名所用的 RL／RLHF 演算法 —— 只指回 Gemma 3 的配方,而非完整重新交代。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 05 ====================== -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>實驗結果</h2>
+    <p class="lead">以下數字皆為指令微調模型在 thinking mode 下的表現。故事很一致:每個 Gemma 4 尺寸都輾壓對應的 Gemma 3 級別,而推理密集的 benchmark(AIME、Codeforces、GPQA)提升幅度最大。</p>
+
+    <h3>文字與推理</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · 文字 benchmark —— Gemma 4(thinking)vs Gemma 3 27B</caption>
+        <thead><tr><th>Benchmark</th><th>31B</th><th>26B-A4B</th><th>12B</th><th>E4B</th><th>E2B</th><th>Gemma 3 27B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>MMLU-Pro</td><td class="num">85.2</td><td class="num">82.6</td><td class="num">77.2</td><td class="num">69.4</td><td class="num">60.0</td><td class="num">67.6</td></tr>
+          <tr class="best"><td>AIME 2026(無工具)</td><td class="num">89.2</td><td class="num">88.3</td><td class="num">77.5</td><td class="num">42.5</td><td class="num">37.5</td><td class="num">20.8</td></tr>
+          <tr class="best"><td>LiveCodeBench v6</td><td class="num">80.0</td><td class="num">77.1</td><td class="num">72.0</td><td class="num">52.0</td><td class="num">44.0</td><td class="num">29.1</td></tr>
+          <tr class="best"><td>Codeforces(Elo)</td><td class="num">2150</td><td class="num">1718</td><td class="num">1659</td><td class="num">940</td><td class="num">633</td><td class="num">110</td></tr>
+          <tr class="best"><td>GPQA Diamond</td><td class="num">84.3</td><td class="num">82.3</td><td class="num">78.8</td><td class="num">58.6</td><td class="num">43.4</td><td class="num">42.4</td></tr>
+          <tr class="best"><td>IFEval</td><td class="num">98.9</td><td class="num">98.5</td><td class="num">97.2</td><td class="num">96.7</td><td class="num">94.6</td><td class="num">90.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>E2B 的故事,講清楚一點:</strong>在 MMLU-Pro 上,2.3B 的 E2B(60.0)其實仍輸給 Gemma 3 27B(67.6)。但在<em>推理</em>上 —— AIME 37.5 對 20.8、LiveCodeBench 44.0 對 29.1、Codeforces 633 對 110 —— 這顆小模型壓倒性勝出。真正扛起提升的是 thinking mode,而不是參數規模。</p>
+    </div>
+
+    <h3>視覺</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · 視覺 benchmark(最高 1120 影像 token)</caption>
+        <thead><tr><th>Benchmark</th><th>31B</th><th>26B-A4B</th><th>12B</th><th>E4B</th><th>E2B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>MMMU-Pro</td><td class="num">76.9</td><td class="num">73.8</td><td class="num">69.1</td><td class="num">52.6</td><td class="num">44.2</td></tr>
+          <tr class="best"><td>MATH-Vision</td><td class="num">85.6</td><td class="num">82.4</td><td class="num">79.7</td><td class="num">59.5</td><td class="num">52.4</td></tr>
+          <tr class="best"><td>InfographicVQA</td><td class="num">92.0</td><td class="num">89.3</td><td class="num">88.4</td><td class="num">70.0</td><td class="num">63.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>語音</h3>
+    <div class="grid g3">
+      <div class="card"><h4>CoVoST(E4B)</h4><p class="big">38.2</p><p>平均 CorpusBLEU 翻譯 · 較 Gemma 3n +10%</p></div>
+      <div class="card"><h4>CoVoST(E2B)</h4><p class="big">35.4</p><p>平均 CorpusBLEU · 較 Gemma 3n +12%</p></div>
+      <div class="card"><h4>FLEURS ASR(E4B)</h4><p class="big">0.075</p><p>12 語言平均 WER · 越低越好(E2B 為 0.090)</p></div>
+    </div>
+    <p><strong>encoder-free 的 12B</strong> 把語音再往前推 —— CoVoST 約 <span class="hl">~43 CorpusBLEU</span>、FLEURS 約 <span class="hl">~0.061 WER</span> —— 顯示拿掉專屬語音編碼器並沒有犧牲準確度。</p>
+
+    <h3>長上下文</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 9 · 長上下文(不使用 thinking)</caption>
+        <thead><tr><th>Benchmark</th><th>上下文</th><th>31B</th><th>26B-A4B</th><th>12B</th><th>E4B</th></tr></thead>
+        <tbody>
+          <tr><td>RULER</td><td>32k</td><td class="num">96.8</td><td class="num">97.3</td><td class="num">96.4</td><td class="num">95.2</td></tr>
+          <tr><td>RULER</td><td>128k</td><td class="num">96.4</td><td class="num">89.8</td><td class="num">91.2</td><td class="num">86.6</td></tr>
+          <tr><td>LOFT 文字檢索</td><td>128k</td><td class="num">79.5</td><td class="num">66.3</td><td class="num">66.4</td><td class="num">58.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>RULER 在 32k 時各尺寸都接近滿分。到了 128k,dense 31B 撐得最好(96.4),較小與稀疏模型退化較明顯 —— 而 128k 的 LOFT 檢索正是尺寸差距拉最開的地方。</p>
+
+    <h3>人類偏好(LMArena)</h3>
+    <div class="grid g2">
+      <div class="card"><h4>Gemma 4 31B</h4><p class="big">1451</p><p>Elo ±8 · 排名 #43 · <span class="hl2">領先的 dense 開源模型</span>(2026 年 6 月)</p></div>
+      <div class="card"><h4>Gemma 4 26B-A4B</h4><p class="big">1438</p><p>Elo · 排名 #61 · 僅 3.8B 啟用參數就有前沿品質</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 06 ====================== -->
+<section id="deploy">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>效率與部署</h2>
+    <p class="lead">「為端側而共同設計」是貫穿全篇的主軸:QAT 量化後的 checkpoint 小到 E2B 能塞進 1 GB 以內,整個家族從手機一路擴展到單張加速卡。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · 記憶體佔用(GB)—— bf16 vs 量化,再加 KV cache</caption>
+        <thead><tr><th>模型</th><th>bf16</th><th>量化後</th><th>+ KV cache</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">E2B</td><td class="num">4.6</td><td class="num">0.8 †</td><td class="num">+0.05</td></tr>
+          <tr class="best"><td class="ours">E4B</td><td class="num">9.0</td><td class="num">2.3 †</td><td class="num">+0.14</td></tr>
+          <tr><td class="ours">12B</td><td class="num">24.0</td><td class="num">7.65 ‡</td><td class="num">+0.28</td></tr>
+          <tr><td class="ours">31B</td><td class="num">64.0</td><td class="num">19.2 ‡</td><td class="num">+1.10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:var(--mono);font-size:12px;color:var(--muted)">† 行動端量化(int2／int4 權重,int8 activation)&nbsp;&nbsp;‡ Q4_0 blockwise,32k 上下文</p>
+
+    <div class="callout">
+      <p><strong>端側的關鍵句:</strong>QAT 的 E2B checkpoint 是 <span class="hl">0.8&nbsp;GB</span> 權重 + <span class="hl">0.05&nbsp;GB</span> KV cache —— 一個具推理能力的多模態模型,能舒服地放進手機 RAM。而在頂端,31B 從 64 GB(bf16)量化到 <span class="hl">19.2&nbsp;GB</span>,落入單卡的記憶體範圍。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 07 ====================== -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>限制與安全</h2>
+    <p class="lead">報告對於「哪些沒揭露」相當坦白,並在釋出的同時附上號稱優於 Gemma 3 的安全評估。</p>
+
+    <div class="callout hot">
+      <p><strong>訓練細節不足:</strong>未公開各模型的總預訓練 token 數,post-training 也只指回 Gemma 3、未點名 RL 演算法或 thinking-mode 訓練流程 —— 因此僅憑報告本身無法精確重現。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>小模型的退化:</strong>thinking mode 在推理上的提升很戲劇化,但 E-系列在廣泛知識(MMLU-Pro)上仍落後,且在 128k 長上下文檢索(LOFT)相較 31B 掉得很快。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>知識截止:</strong>2025 年 1 月的知識截止,意味著模型對該日期之後的事件沒有原生知識。</p>
+    </div>
+
+    <h3>安全與責任</h3>
+    <p>團隊表示安全評估是在未加過濾器的情況下進行,針對移除 CSAM、危險／露骨內容、仇恨言論與騷擾,並過濾個資與敏感資料。他們的主打結論:<strong>Gemma 4 在安全指標上顯著優於 Gemma 3／3n</strong>,定位為在開放性與可預見風險之間取得平衡。模型以開源權重形式、依 Gemma 使用條款釋出。</p>
+
+    <div class="callout">
+      <p><strong>為什麼重要:</strong>Gemma 4 是「開源三難困境正在鬆動」的一個數據點 —— 手機尺寸的模型如今能推理,單卡的 dense 模型能在開源人類偏好榜上領先。它打開的有趣前沿是「<em>小模型的 thinking mode</em>」:這裡的大部分提升來自推理軌跡,而非單純把規模堆大。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Gemma Team, Google DeepMind (2026) · Gemma 4 Technical Report · 17 頁</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2607.02770">arXiv:2607.02770</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要,圖表為依論文內容重繪／整理,示意圖為概念性繪製;數值以原論文為準。</p>
+  </div>
+</footer>
+</body>
+</html>

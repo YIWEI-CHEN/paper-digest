@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gemma 4 — Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430;
+  --ink:#e8edf4; --muted:#93a1b3; --line:#26313f;
+  --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:720px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Technical Report · 2026 · Google DeepMind · Paper Digest</div>
+    <h1 class="title">Gemma&nbsp;<span class="sql">4</span></h1>
+    <p class="subtitle">A new generation of open-weight, natively multimodal models — dense (2.3B–31B) plus a 26B-A4B Mixture-of-Experts — engineered for compute efficiency and reasoning. The 2.3B-effective E2B out-reasons last year's Gemma 3 27B, and the 31B dense model becomes the leading dense open model on the LMArena leaderboard.</p>
+    <div class="meta-row">
+      <span class="tag lit">Open Weights</span>
+      <span class="tag lit">Natively Multimodal</span>
+      <span class="tag lit">MoE 26B-A4B</span>
+      <span class="tag">Thinking Mode</span>
+      <span class="tag">On-Device QAT</span>
+      <span class="tag">Text · Vision · Audio</span>
+    </div>
+    <p class="authors">Gemma Team, Google DeepMind · <a href="https://arxiv.org/abs/2607.02770">arXiv:2607.02770</a> · 17-page technical report, submitted July 2, 2026</p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#lineup">02 Model Lineup</a>
+    <a href="#arch">03 Architecture</a>
+    <a href="#train">04 Training</a>
+    <a href="#results">05 Benchmarks</a>
+    <a href="#deploy">06 Efficiency &amp; Deployment</a>
+    <a href="#limits">07 Limitations &amp; Safety</a>
+  </div>
+</nav>
+
+<!-- ====================== 01 ====================== -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — Open, Multimodal, and Efficient at Once</h2>
+    <p class="lead">Frontier capability keeps concentrating in closed, enormous models. Gemma 4's thesis is that you can ship open weights that are natively multimodal, strong at reasoning, and small enough to run on a phone — all in one family.</p>
+
+    <p>The open-weight community has faced a persistent trilemma: models are either (a) capable but closed, (b) open but text-only, or (c) open and multimodal but far behind on reasoning. Gemma 4 aims to collapse that trade-off by treating multimodality as native (not bolted-on), pushing reasoning through a "thinking mode," and co-designing every size for on-device deployment via quantization-aware training.</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>Native Multimodal</h4><p>Text, vision, and audio in a single stack across every size — not a text model with adapters.</p></div>
+      <div class="card"><h4>Reasoning Leap</h4><p>Thinking traces before answers drive large STEM/coding gains; 31B tops open dense models on LMArena.</p></div>
+      <div class="card"><h4>Runs Anywhere</h4><p>E2B fits in <span class="hl">&lt;1&nbsp;GB</span> quantized; the family spans phone to single-GPU server.</p></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Headline claim:</strong> The <span class="hl2">2.3B-effective E2B</span> beats <span class="hl">Gemma 3 27B</span> on reasoning benchmarks (AIME 2026, LiveCodeBench) despite roughly 10× fewer effective parameters — and the 31B dense model reaches Elo 1451 on LMArena, the leading dense open model at release (June 2026).</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 02 ====================== -->
+<section id="lineup">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>The Model Lineup</h2>
+    <p class="lead">Five checkpoints span two orders of magnitude: two "effective" small models built for on-device use, two mid/large dense models, and one sparse MoE that activates only a fraction of its weights.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Gemma 4 model family (params, activation, encoders)</caption>
+        <thead><tr><th>Model</th><th>Effective</th><th>Total params</th><th>Activated</th><th>Vision enc.</th><th>Audio enc.</th></tr></thead>
+        <tbody>
+          <tr><td class="ours">E2B</td><td class="num">2.3B</td><td class="num">5B</td><td class="num">2.3B</td><td class="num">150M</td><td class="num">305M</td></tr>
+          <tr><td class="ours">E4B</td><td class="num">4.5B</td><td class="num">8B</td><td class="num">4.5B</td><td class="num">150M</td><td class="num">305M</td></tr>
+          <tr><td class="ours">12B</td><td class="num">12B</td><td class="num">12B</td><td class="num">12B</td><td class="num">550M</td><td class="num">encoder-free</td></tr>
+          <tr class="best"><td class="ours">26B-A4B (MoE)</td><td class="num">—</td><td class="num">26B</td><td class="num">3.8B</td><td class="num">550M</td><td class="num">305M</td></tr>
+          <tr><td class="ours">31B</td><td class="num">31B</td><td class="num">31B</td><td class="num">31B</td><td class="num">550M</td><td class="num">305M</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>"Effective" params (E2B/E4B)</strong> follow the Gemma 3n idea of a MatFormer-style nested model: a larger network (5B / 8B total) trained so that a smaller sub-network (2.3B / 4.5B "effective") can be sliced out for on-device inference. The <strong>26B-A4B MoE</strong> holds 26B total parameters but routes each token through experts totaling only <span class="hl">3.8B activated</span> — frontier-ish quality at small-model inference cost.</p>
+
+    <div class="callout warn">
+      <p><strong>Read the two number columns carefully.</strong> "Total" is what you store; "Activated" is what runs per token. The MoE's appeal is a big gap between them (26B stored, 3.8B active); the E-models' appeal is the opposite trick — one checkpoint that can be <em>shrunk</em> at inference time.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 03 ====================== -->
+<section id="arch">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Architecture</h2>
+    <p class="lead">A decoder-only Transformer with the now-standard Gemma stack — RMSNorm, QK-norm, RoPE, MQA-style KV sharing — plus interleaved local/global attention to keep the KV cache small, and lightweight native vision/audio encoders.</p>
+
+    <h3>Attention: local-heavy interleaving</h3>
+    <p>Gemma 4 interleaves <strong>local sliding-window</strong> and <strong>global</strong> attention layers at a ratio of <span class="hl">4:1 for E2B</span> and <span class="hl">5:1 for the others</span> — for every one global layer there are four or five cheap local ones. Global layers use <strong>pp-RoPE (p=0.25)</strong> with a base frequency of <span class="hl">1M</span>; local layers use standard RoPE at <span class="hl">10k</span>. Combined with KV-cache sharing across layer groups, the design cuts global KV-cache size by about <span class="hl2">37.5%</span> — the main lever for long-context memory footprint.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="12" y="26" fill="#93a1b3" font-size="12">One repeating block (5:1 example):</text>
+        <rect x="20" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="80" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <text x="80" y="82" fill="#5b6675" font-size="10" text-anchor="middle">RoPE 10k</text>
+        <rect x="150" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="210" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="280" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="340" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="410" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="470" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="540" y="45" width="120" height="46" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="600" y="66" fill="#5ad1c0" font-size="12" text-anchor="middle">Local</text>
+        <rect x="670" y="45" width="70" height="46" rx="8" fill="#241b12" stroke="#f4a259"/>
+        <text x="705" y="63" fill="#f4a259" font-size="11" text-anchor="middle">Global</text>
+        <text x="705" y="80" fill="#5b6675" font-size="9" text-anchor="middle">pp-RoPE 1M</text>
+        <text x="12" y="140" fill="#93a1b3" font-size="12">KV-cache sharing across the local group → ~37.5% smaller global KV cache</text>
+        <line x1="20" y1="155" x2="660" y2="155" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="340" y="180" fill="#5ad1c0" font-size="11" text-anchor="middle">4 (E2B) or 5 local layers share KV before each global layer</text>
+      </svg>
+      <div class="figcap">Fig 1 · Interleaved local/global attention block (schematic, per §Architecture)</div>
+    </div>
+
+    <h3>Native encoders — vision &amp; audio</h3>
+    <p>Images pass through a <strong>SigLIP-style vision encoder</strong> (150M for E2B/E4B, 550M for 12B/31B) with patch size 16, emitting up to <span class="hl">1120 tokens</span> at max resolution (with 70/140/280/560/1120 token tiers for cost/quality trade-offs). Audio uses a <strong>USM-based encoder</strong> (2 downsampling conv layers + 12 Conformer layers), shrunk to <span class="hl">305M</span> — a 55% reduction from Gemma 3n's 680M. The <strong>12B is "encoder-free"</strong>: it ingests raw 40 ms audio chunks at 16 kHz (and image patches) directly through a projection, dropping the separate encoder entirely.</p>
+
+    <h3>Tokenizer</h3>
+    <p>A <strong>SentencePiece tokenizer with 262k entries</strong> — split digits, preserved whitespace, byte-level fallback — shared with the Gemini models, which keeps multilingual and code coverage strong.</p>
+  </div>
+</section>
+
+<!-- ====================== 04 ====================== -->
+<section id="train">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Training Recipe</h2>
+    <p class="lead">Large-scale multimodal pre-training on TPU v5p/v6e, followed by a Gemma-3-style post-training pass that adds a "thinking mode," plus quantization-aware training so the released weights survive aggressive on-device quantization.</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Multimodal pre-training</h4>
+        <p>A large, diverse mixture of web documents, code, images and audio, with a <strong>January 2025 data cutoff</strong>. Data is filtered for personal information, unsafe content, and duplicates.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Post-training + thinking mode</h4>
+        <p>Instruction tuning follows a similar approach to Gemma 3. The distinctive addition: models can emit a <strong>reasoning trace before answering</strong>, gated by control tokens (e.g. <code>&lt;|think|&gt;</code>) — the source of the large STEM/coding gains.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Quantization-Aware Training (QAT)</h4>
+        <p>Models are trained to tolerate quantization: <strong>int2/int4 weights with int8 activations</strong> for mobile, and <strong>Q4_0</strong> blockwise for desktop — so the small quantized checkpoints don't collapse in quality.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>MTP drafter for speculative decoding</h4>
+        <p>A multi-token-prediction drafter cross-attends to the main model's KV cache, accelerating inference via speculative decoding without a separate draft model.</p>
+      </div></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Training infrastructure (TPU generation &amp; chip count)</caption>
+        <thead><tr><th>Model</th><th>TPU</th><th>Chips</th><th>Data shards</th><th>Seq shards</th><th>Replicas</th></tr></thead>
+        <tbody>
+          <tr><td class="ours">E2B</td><td>v6e</td><td class="num">4,096</td><td class="num">16</td><td class="num">8</td><td class="num">32</td></tr>
+          <tr><td class="ours">E4B</td><td>v6e</td><td class="num">6,144</td><td class="num">16</td><td class="num">16</td><td class="num">24</td></tr>
+          <tr><td class="ours">12B</td><td>v5p</td><td class="num">12,288</td><td class="num">16</td><td class="num">16</td><td class="num">48</td></tr>
+          <tr><td class="ours">26B-A4B</td><td>v6e</td><td class="num">6,144</td><td class="num">16</td><td class="num">16</td><td class="num">24</td></tr>
+          <tr><td class="ours">31B</td><td>v6e</td><td class="num">10,240</td><td class="num">16</td><td class="num">16</td><td class="num">40</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p><strong>Reporting gap:</strong> the report does not disclose total training tokens per model, nor a named RL/RLHF algorithm for post-training — it points back to the Gemma 3 recipe rather than fully re-specifying it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 05 ====================== -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Benchmarks</h2>
+    <p class="lead">Numbers below are instruction-tuned models in thinking mode. The story is consistent: each Gemma 4 size dominates the comparable Gemma 3 tier, and the reasoning-heavy benchmarks (AIME, Codeforces, GPQA) show the biggest jumps.</p>
+
+    <h3>Text &amp; reasoning</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Text benchmarks — Gemma 4 (thinking) vs Gemma 3 27B</caption>
+        <thead><tr><th>Benchmark</th><th>31B</th><th>26B-A4B</th><th>12B</th><th>E4B</th><th>E2B</th><th>Gemma 3 27B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>MMLU-Pro</td><td class="num">85.2</td><td class="num">82.6</td><td class="num">77.2</td><td class="num">69.4</td><td class="num">60.0</td><td class="num">67.6</td></tr>
+          <tr class="best"><td>AIME 2026 (no tools)</td><td class="num">89.2</td><td class="num">88.3</td><td class="num">77.5</td><td class="num">42.5</td><td class="num">37.5</td><td class="num">20.8</td></tr>
+          <tr class="best"><td>LiveCodeBench v6</td><td class="num">80.0</td><td class="num">77.1</td><td class="num">72.0</td><td class="num">52.0</td><td class="num">44.0</td><td class="num">29.1</td></tr>
+          <tr class="best"><td>Codeforces (Elo)</td><td class="num">2150</td><td class="num">1718</td><td class="num">1659</td><td class="num">940</td><td class="num">633</td><td class="num">110</td></tr>
+          <tr class="best"><td>GPQA Diamond</td><td class="num">84.3</td><td class="num">82.3</td><td class="num">78.8</td><td class="num">58.6</td><td class="num">43.4</td><td class="num">42.4</td></tr>
+          <tr class="best"><td>IFEval</td><td class="num">98.9</td><td class="num">98.5</td><td class="num">97.2</td><td class="num">96.7</td><td class="num">94.6</td><td class="num">90.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>The E2B story, precisely:</strong> On MMLU-Pro the 2.3B E2B (60.0) still trails Gemma 3 27B (67.6). But on <em>reasoning</em> — AIME 37.5 vs 20.8, LiveCodeBench 44.0 vs 29.1, Codeforces 633 vs 110 — the tiny model wins decisively. Thinking mode, not scale, is doing the heavy lifting.</p>
+    </div>
+
+    <h3>Vision</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · Vision benchmarks (max 1120 image tokens)</caption>
+        <thead><tr><th>Benchmark</th><th>31B</th><th>26B-A4B</th><th>12B</th><th>E4B</th><th>E2B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>MMMU-Pro</td><td class="num">76.9</td><td class="num">73.8</td><td class="num">69.1</td><td class="num">52.6</td><td class="num">44.2</td></tr>
+          <tr class="best"><td>MATH-Vision</td><td class="num">85.6</td><td class="num">82.4</td><td class="num">79.7</td><td class="num">59.5</td><td class="num">52.4</td></tr>
+          <tr class="best"><td>InfographicVQA</td><td class="num">92.0</td><td class="num">89.3</td><td class="num">88.4</td><td class="num">70.0</td><td class="num">63.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Audio</h3>
+    <div class="grid g3">
+      <div class="card"><h4>CoVoST (E4B)</h4><p class="big">38.2</p><p>avg CorpusBLEU translation · +10% vs Gemma 3n</p></div>
+      <div class="card"><h4>CoVoST (E2B)</h4><p class="big">35.4</p><p>avg CorpusBLEU · +12% vs Gemma 3n</p></div>
+      <div class="card"><h4>FLEURS ASR (E4B)</h4><p class="big">0.075</p><p>avg WER, 12 languages · lower is better (E2B 0.090)</p></div>
+    </div>
+    <p>The <strong>encoder-free 12B</strong> pushes audio further still — roughly <span class="hl">~43 CorpusBLEU</span> on CoVoST and <span class="hl">~0.061 WER</span> on FLEURS — showing that dropping the dedicated audio encoder didn't cost accuracy.</p>
+
+    <h3>Long context</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 9 · Long-context (without thinking)</caption>
+        <thead><tr><th>Benchmark</th><th>Context</th><th>31B</th><th>26B-A4B</th><th>12B</th><th>E4B</th></tr></thead>
+        <tbody>
+          <tr><td>RULER</td><td>32k</td><td class="num">96.8</td><td class="num">97.3</td><td class="num">96.4</td><td class="num">95.2</td></tr>
+          <tr><td>RULER</td><td>128k</td><td class="num">96.4</td><td class="num">89.8</td><td class="num">91.2</td><td class="num">86.6</td></tr>
+          <tr><td>LOFT Text Retrieval</td><td>128k</td><td class="num">79.5</td><td class="num">66.3</td><td class="num">66.4</td><td class="num">58.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>RULER stays near-perfect at 32k across all sizes. At 128k the dense 31B holds up best (96.4), while smaller and sparse models degrade more — and LOFT retrieval at 128k is where the size gap is widest.</p>
+
+    <h3>Human preference (LMArena)</h3>
+    <div class="grid g2">
+      <div class="card"><h4>Gemma 4 31B</h4><p class="big">1451</p><p>Elo ±8 · rank #43 · <span class="hl2">leading dense open model</span> (June 2026)</p></div>
+      <div class="card"><h4>Gemma 4 26B-A4B</h4><p class="big">1438</p><p>Elo · rank #61 · frontier quality at 3.8B activated params</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 06 ====================== -->
+<section id="deploy">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Efficiency &amp; Deployment</h2>
+    <p class="lead">Co-design for on-device use is the throughline: QAT-quantized checkpoints are small enough that E2B fits under a gigabyte, and the whole family scales from a phone to a single accelerator.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · Memory footprint (GB) — bf16 vs quantized, + KV cache</caption>
+        <thead><tr><th>Model</th><th>bf16</th><th>Quantized</th><th>+ KV cache</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">E2B</td><td class="num">4.6</td><td class="num">0.8 †</td><td class="num">+0.05</td></tr>
+          <tr class="best"><td class="ours">E4B</td><td class="num">9.0</td><td class="num">2.3 †</td><td class="num">+0.14</td></tr>
+          <tr><td class="ours">12B</td><td class="num">24.0</td><td class="num">7.65 ‡</td><td class="num">+0.28</td></tr>
+          <tr><td class="ours">31B</td><td class="num">64.0</td><td class="num">19.2 ‡</td><td class="num">+1.10</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-family:var(--mono);font-size:12px;color:var(--muted)">† mobile quantization (int2/int4 weights, int8 activations)&nbsp;&nbsp;‡ Q4_0 blockwise, 32k context</p>
+
+    <div class="callout">
+      <p><strong>The on-device punchline:</strong> a QAT E2B checkpoint is <span class="hl">0.8&nbsp;GB</span> of weights plus a <span class="hl">0.05&nbsp;GB</span> KV cache — a reasoning-capable multimodal model that fits comfortably in phone RAM. At the top end, 31B quantizes from 64 GB (bf16) down to <span class="hl">19.2&nbsp;GB</span>, a single-GPU footprint.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ====================== 07 ====================== -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Limitations &amp; Safety</h2>
+    <p class="lead">The report is candid about what it doesn't disclose, and pairs the release with safety evaluations claimed to improve on Gemma 3.</p>
+
+    <div class="callout hot">
+      <p><strong>Under-specified training details:</strong> total pre-training tokens are not stated, and post-training points back to Gemma 3 without naming the RL algorithm or thinking-mode training procedure — so exact reproduction from the report alone isn't possible.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Smaller-model degradation:</strong> gains from thinking mode are dramatic on reasoning, but the E-models still trail on broad knowledge (MMLU-Pro) and drop off sharply on 128k long-context retrieval (LOFT) versus the 31B.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Data cutoff:</strong> the January 2025 knowledge cutoff means the model has no native knowledge of events after that date.</p>
+    </div>
+
+    <h3>Safety &amp; responsibility</h3>
+    <p>The team reports safety evaluations run without filters, targeting removal of CSAM, dangerous/explicit content, hate speech and harassment, plus filtering of personal and sensitive data. Their headline: <strong>Gemma 4 significantly outperforms Gemma 3 / 3n on safety metrics</strong>, framed as balancing openness against foreseeable risks. Models are released as open weights under Gemma's usage terms.</p>
+
+    <div class="callout">
+      <p><strong>Why it matters:</strong> Gemma 4 is a data point that the open trilemma is softening — a phone-sized model can now reason, and a single-GPU dense model can lead a human-preference leaderboard among open releases. The interesting frontier it opens is <em>thinking-mode-for-small-models</em>: reasoning traces, not raw scale, produced most of the gains here.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Gemma Team, Google DeepMind (2026) · Gemma 4 Technical Report · 17 pages</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2607.02770">arXiv:2607.02770</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a reader's digest of the paper; tables are reproduced/redrawn from the report and figures are schematic. Refer to the original for authoritative numbers.</p>
+  </div>
+</footer>
+</body>
+</html>
