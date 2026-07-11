@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIN-SQL 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:700px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px;color:var(--ink)}
+  li{margin:7px 0}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">NeurIPS 2023 · 論文導讀</div>
+    <h1 class="title">DIN-<span class="sql">SQL</span></h1>
+    <p class="subtitle">Decomposed In-Context Learning of Text-to-SQL with Self-Correction — 把「難題」拆解成 schema linking、分類、生成、自我修正四步,單靠 prompting 就打敗了 fine-tune 的最強模型。</p>
+    <div class="meta-row">
+      <span class="tag lit">任務拆解</span>
+      <span class="tag lit">In-Context Learning</span>
+      <span class="tag">自我修正</span>
+      <span class="tag">NatSQL</span>
+      <span class="tag">Spider</span>
+      <span class="tag">BIRD</span>
+    </div>
+    <p class="authors">Mohammadreza Pourreza, Davood Rafiei · University of Alberta · <a href="https://arxiv.org/abs/2304.11015">arXiv:2304.11015</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#overview">02 流程總覽</a>
+    <a href="#modules">03 四大模組</a>
+    <a href="#data">04 資料集與指標</a>
+    <a href="#results">05 實驗結果</a>
+    <a href="#ablation">06 消融分析</a>
+    <a href="#limits">07 限制與未來</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義</h2>
+    <p class="lead">把自然語言問題翻成可執行的 SQL,對人來說直觀,對機器要「完全正確」卻很難。DIN-SQL 問世時,Spider 排行榜的頂端全被 <em>fine-tune</em> 過的模型佔據,LLM 的 in-context prompting 落後一大截。</p>
+
+    <p>作者 Pourreza 與 Rafiei 提出一個簡單的疑問:這個差距是「prompting 本質上不行」,還是「大家 <strong>prompt 的方式太糟</strong>」?先前的 prompting 做法是一步到位——把問題與 schema 一次丟給模型、直接吐 SQL。對單表查詢還算堪用,但一遇到需要多表 JOIN 或巢狀子查詢的題目就崩潰:模型必須同時完成 schema linking、JOIN 推理、子查詢規劃、以及語法正確的程式碼輸出。</p>
+
+    <div class="callout">
+      <p><strong>核心主張:</strong>把單一的生成任務拆成一條由小子問題組成的 pipeline,每個子問題都配上精心設計的 few-shot prompt,並依題目難度調整 prompt。這種「難度感知的拆解」不只追平 fine-tune,還進一步超車。</p>
+    </div>
+
+    <h3>四項貢獻</h3>
+    <ol>
+      <li><strong>任務拆解</strong>——把生成拆成 schema linking → 分類 → 生成 → 自我修正 四個子模組。</li>
+      <li><strong>自適應 prompting</strong>——生成 prompt 依預測出的複雜度類別(easy / non-nested / nested)量身訂做。</li>
+      <li>把 <strong>schema linking 當成獨立的 prompted 步驟</strong>,而非丟給模型隱式處理。</li>
+      <li><strong>LLM 自我修正</strong>——最後讓模型回頭檢視並修補自己寫的 SQL。</li>
+    </ol>
+
+    <div class="grid g3">
+      <div class="card"><h4>Spider Test EX</h4><p class="big">85.3%</p><p>GPT-4,勝過前 SOTA 79.9%(RESDSQL+NatSQL)</p></div>
+      <div class="card"><h4>BIRD Test EX</h4><p class="big">55.9%</p><p>發表時的新 SOTA</p></div>
+      <div class="card"><h4>相對 few-shot 提升</h4><p class="big">~10%</p><p>在三種不同 LLM 上都穩定成立</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="overview">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>流程總覽</h2>
+    <p class="lead">DIN-SQL 是一條四階段的 prompt chain。每一階段都是獨立的 LLM 呼叫,配自己的 few-shot 範例;前一階段的輸出成為下一階段的 context。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 940 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <rect x="10" y="95" width="120" height="60" rx="10" fill="#0a0e14" stroke="#26313f"/>
+        <text x="70" y="120" fill="#e8edf4" font-size="12" text-anchor="middle">Question +</text>
+        <text x="70" y="138" fill="#e8edf4" font-size="12" text-anchor="middle">DB Schema</text>
+
+        <rect x="170" y="90" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="245" y="112" fill="#5ad1c0" font-size="12.5" text-anchor="middle" font-weight="700">① Schema</text>
+        <text x="245" y="130" fill="#5ad1c0" font-size="12.5" text-anchor="middle" font-weight="700">Linking</text>
+        <text x="245" y="148" fill="#93a1b3" font-size="10" text-anchor="middle">CoT · 欄位 + FK</text>
+
+        <rect x="360" y="90" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="435" y="112" fill="#5ad1c0" font-size="12.5" text-anchor="middle" font-weight="700">② 分類 &amp;</text>
+        <text x="435" y="130" fill="#5ad1c0" font-size="12.5" text-anchor="middle" font-weight="700">拆解</text>
+        <text x="435" y="148" fill="#93a1b3" font-size="10" text-anchor="middle">easy/non-nest/nest</text>
+
+        <rect x="550" y="90" width="150" height="70" rx="10" fill="#141b25" stroke="#f4a259"/>
+        <text x="625" y="112" fill="#f4a259" font-size="12.5" text-anchor="middle" font-weight="700">③ SQL</text>
+        <text x="625" y="130" fill="#f4a259" font-size="12.5" text-anchor="middle" font-weight="700">生成</text>
+        <text x="625" y="148" fill="#93a1b3" font-size="10" text-anchor="middle">自適應 · NatSQL</text>
+
+        <rect x="740" y="90" width="150" height="70" rx="10" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="815" y="112" fill="#5ad1c0" font-size="12.5" text-anchor="middle" font-weight="700">④ 自我</text>
+        <text x="815" y="130" fill="#5ad1c0" font-size="12.5" text-anchor="middle" font-weight="700">修正</text>
+        <text x="815" y="148" fill="#93a1b3" font-size="10" text-anchor="middle">修補 pass</text>
+
+        <line x1="130" y1="125" x2="164" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="320" y1="125" x2="354" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="510" y1="125" x2="544" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="700" y1="125" x2="734" y2="125" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <text x="245" y="70" fill="#5b6675" font-size="10" text-anchor="middle">schema_links</text>
+        <text x="435" y="70" fill="#5b6675" font-size="10" text-anchor="middle">類別 + 子問題</text>
+        <text x="625" y="70" fill="#5b6675" font-size="10" text-anchor="middle">草稿 SQL</text>
+        <text x="815" y="185" fill="#5b6675" font-size="10" text-anchor="middle">最終 SQL ✓</text>
+      </svg>
+      <div class="figcap">圖 1 · DIN-SQL 四模組 prompt chain(依論文 Figure 1 重繪)</div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>為什麼拆解有用:</strong>每個模組面對的是一個更小、定義更清楚的任務,搭配專門針對該任務的示範。分類器的工作不是寫 SQL、只是「路由」;生成器不必猜哪些表相關,因為 schema linking 已經告訴它。錯誤被侷限在局部、可修補,而不是全部糾纏在一起。</p>
+    </div>
+  </div>
+</section>
+
+<section id="modules">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>四大模組</h2>
+    <p class="lead">每個模組本身就是一個 prompt engineering 的成品。以下說明各模組被要求做什麼,以及作者採用的 prompt 結構。</p>
+
+    <h3>① Schema Linking(結構連結)</h3>
+    <p>給定問題與資料庫 schema,模型找出查詢會用到哪些欄位、表、外鍵,以及題目提及的字面值(cell values)。此 prompt 採 <strong>chain-of-thought</strong>,以經典的 <em>「Let's think step by step」</em>開頭,並用十個 Spider 訓練範例做 grounding。輸出是一個以中括號包住的 <code>Schema_links</code> 清單。</p>
+
+    <pre><code><span class="cmt"># Schema Linking prompt(結構示意)</span>
+Q: <span class="str">"Find the buildings which have rooms with capacity more than 50."</span>
+<span class="cmt"># Let's think step by step. "buildings" -> classroom.building ;</span>
+<span class="cmt"># "capacity" -> classroom.capacity ; "more than 50" -> 50</span>
+Schema_links: [classroom.building, classroom.capacity, <span class="str">50</span>]</code></pre>
+
+    <div class="callout">
+      <p><strong>為何要獨立出來:</strong>消融實驗顯示 schema linking 是最吃重的單一模組。把它拿掉,CodeX 的 EX 從 69.9% 掉到 65.9%——4 個百分點的斷崖(見 §06)。</p>
+    </div>
+
+    <h3>② Classification &amp; Decomposition(分類與拆解)</h3>
+    <p>模型把每個問題路由到三種複雜度類別之一,並對最難的類別把它拆成子問題:</p>
+    <div class="grid g3">
+      <div class="card"><h4>EASY</h4><p>單表。無 JOIN、無巢狀。直接 few-shot 生成。</p></div>
+      <div class="card"><h4>NON-NESTED</h4><p>需要跨表 JOIN,但無子查詢。透過 NatSQL 中間步驟生成。</p></div>
+      <div class="card"><h4>NESTED</h4><p>需要子查詢 / 集合運算(IN、NOT IN、INTERSECT、UNION、EXCEPT)。先拆成子問題。</p></div>
+    </div>
+    <p>類別標籤加上要 JOIN 的表集合(巢狀類別還加上子問題列表)一起往下傳。這是整個方法「自適應」的樞紐——生成 prompt 由這個標籤決定。</p>
+
+    <h3>③ SQL Generation(自適應生成)</h3>
+    <p>生成 prompt 的結構隨難度成長:</p>
+    <div class="tbl-wrap">
+      <table>
+        <caption>各類別的生成 prompt 格式</caption>
+        <thead><tr><th>類別</th><th>示範格式</th><th>核心想法</th></tr></thead>
+        <tbody>
+          <tr><td><span class="hl2">Easy</span></td><td><code>&lt;Q, Schema_links, SQL&gt;</code></td><td>直接對映,無中間步驟。</td></tr>
+          <tr><td><span class="hl2">Non-nested</span></td><td><code>&lt;Q, Schema_links, NatSQL, SQL&gt;</code></td><td>先寫 NatSQL,再轉 SQL。</td></tr>
+          <tr><td><span class="hl2">Nested</span></td><td><code>&lt;Q, Schema_links, {子問題, 子答案}..., NatSQL, SQL&gt;</code></td><td>先解子查詢,再組合。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p><strong>NatSQL 是什麼?</strong>一種建立在 SemQL 之上的中間表示,<em>移除了沒有自然語言對應的 SQL 運算子</em>——<code>JOIN ON</code>、<code>FROM</code>、<code>GROUP BY</code>。因為 NatSQL 更貼近問題的語言,模型做 NL→NatSQL 的橋接比直接 NL→SQL 更可靠,最後再由一個確定性轉換器補完。它同時縮小了 schema linking 的負擔,因為 JOIN 鍵不再需要明寫出來。</p>
+    </div>
+
+    <h3>④ Self-Correction(自我修正)</h3>
+    <p>把草稿 SQL 回饋給模型,抓那些小 bug:漏了 <code>DISTINCT</code>、掉了 <code>DESC</code>、放錯的聚合函數、多餘的關鍵字。作者用了兩種語氣的 prompt:</p>
+    <ul>
+      <li><strong>Generic(直接)</strong>——「找出並修正這段 BUGGY SQL 中的錯誤。」預設它<em>有</em> bug。對 CodeX 最有效。</li>
+      <li><strong>Gentle(溫和)</strong>——不斷言有錯,只請模型檢查是否有「潛在問題」,並提示要注意哪些子句。對 GPT-4 最有效——它 bug 較少,用嚴厲 prompt 反而會過度修正。</li>
+    </ul>
+    <div class="callout hot">
+      <p><strong>語氣要看模型:</strong>同一個修正 prompt 幫得了 CodeX,卻會害了 GPT-4。假設一個強模型「有 bug」,會讓它捏造出破壞正確查詢的「修補」。</p>
+    </div>
+  </div>
+</section>
+
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>資料集與指標</h2>
+    <p class="lead">兩個跨領域 benchmark——Spider(乾淨、學術)與 BIRD(大型、雜亂、貼近真實)——之間共用三種指標。</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>Spider</h4>
+        <p>10,181 題 · 5,693 個相異查詢 · 200 個資料庫、橫跨 138 個領域。切分為 8,659 train / 1,034 dev / 2,147 test,且資料庫<em>互不重疊</em>。依關鍵字數量、巢狀、聚合分成四個難度(easy → extra hard)。</p>
+      </div>
+      <div class="card">
+        <h4>BIRD</h4>
+        <p>12,751 組問題–SQL · 95 個大型資料庫(33.4 GB)、橫跨 37+ 個專業領域。額外要求<em>外部知識</em>(數值推理、領域事實、同義詞、值的提示)——遠比 Spider 貼近正式生產資料。</p>
+      </div>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>Exact-Set-Match (EM)</h4><p>把每個 SQL 子句視為集合;每個成分都要與 gold query 相符。對<em>形式</em>嚴格——會懲罰合法的改寫。</p></div>
+      <div class="card"><h4>Execution Accuracy (EX)</h4><p>執行兩個查詢、比對結果集。只要回傳正確答案的 SQL 都算對。是最主要的頭條指標。</p></div>
+      <div class="card"><h4>Valid Efficiency Score (VES)</h4><p>BIRD 專用。以查詢執行的效率去加權「正確的」查詢。只在結果正確時才有定義。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>實驗結果</h2>
+    <p class="lead">在 Spider test,DIN-SQL + GPT-4 於執行準確率登頂;在 BIRD 上刷新 SOTA。相對於樸素 few-shot prompt 大約多 10 個百分點,而且提升幅度正好集中在題目最難的地方。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Spider TEST — 執行準確率 (EX) / 精確集合比對 (EM)</caption>
+        <thead><tr><th>方法</th><th>EX %</th><th>EM %</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">DIN-SQL + GPT-4</td><td class="num">85.3</td><td class="num">60</td></tr>
+          <tr><td>RESDSQL-3B + NatSQL <span style="color:#5b6675">(fine-tuned)</span></td><td class="num">79.9</td><td class="num">72</td></tr>
+          <tr><td>DIN-SQL + CodeX Davinci</td><td class="num">78.2</td><td class="num">57</td></tr>
+          <tr><td>T5-3B + PICARD <span style="color:#5b6675">(fine-tuned)</span></td><td class="num">75.1</td><td class="num">71.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>細看這個分裂:</strong>DIN-SQL 在 <span class="hl">EX</span> 勝出,但在 <span class="hl2">EM</span> 輸給 fine-tune 過的 RESDSQL。Prompted 模型會寫出<em>正確但形狀不同</em>的 SQL,而 EM 會懲罰這種差異。EX 才是反映真實可用性的指標。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4a · Spider DEV — EX / EM</caption>
+        <thead><tr><th>方法</th><th>EX %</th><th>EM %</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">DIN-SQL + GPT-4</td><td class="num">74.2</td><td class="num">60.1</td></tr>
+          <tr><td>DIN-SQL + CodeX Davinci</td><td class="num">69.9</td><td class="num">57.2</td></tr>
+          <tr><td>Few-shot GPT-4(baseline)</td><td class="num">67.4</td><td class="num">54.3</td></tr>
+          <tr><td>Few-shot CodeX Davinci(baseline)</td><td class="num">61.5</td><td class="num">50.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4b · Spider DEV — 依難度分的執行準確率 (%)</caption>
+        <thead><tr><th>方法</th><th>Easy</th><th>Medium</th><th>Hard</th><th>Extra</th><th>All</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">DIN-SQL + GPT-4</td><td class="num">91.1</td><td class="num">79.8</td><td class="num">64.9</td><td class="num">43.4</td><td class="num">74.2</td></tr>
+          <tr><td>Few-shot GPT-4</td><td class="num">86.7</td><td class="num">73.1</td><td class="num">59.2</td><td class="num">31.9</td><td class="num">67.4</td></tr>
+          <tr class="best"><td class="ours">DIN-SQL + CodeX</td><td class="num">89.1</td><td class="num">75.6</td><td class="num">58.0</td><td class="num">38.6</td><td class="num">69.9</td></tr>
+          <tr><td>Few-shot CodeX</td><td class="num">84.7</td><td class="num">67.3</td><td class="num">47.1</td><td class="num">26.5</td><td class="num">61.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p><strong>提升集中在難題上。</strong>在 <em>Extra hard</em>,GPT-4 從 31.9% → 43.4%(+11.5),CodeX 從 26.5% → 38.6%(+12.1)。Easy 題幾乎沒動(+4)。拆解的價值,正好體現在單一 prompt 溺水的地方。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · BIRD — 執行準確率 (EX) / 有效效率分數 (VES)</caption>
+        <thead><tr><th>方法</th><th>Dev EX</th><th>Dev VES</th><th>Test EX</th><th>Test VES</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">DIN-SQL + GPT-4</td><td class="num">50.72</td><td class="num">58.79</td><td class="num">55.9</td><td class="num">59.44</td></tr>
+          <tr><td>GPT-4(baseline)</td><td class="num">46.35</td><td class="num">49.77</td><td class="num">54.89</td><td class="num">60.77</td></tr>
+          <tr><td>CodeX</td><td class="num">34.35</td><td class="num">43.41</td><td class="num">36.47</td><td class="num">41.60</td></tr>
+          <tr><td>T5-3B <span style="color:#5b6675">(fine-tuned)</span></td><td class="num">23.34</td><td class="num">25.57</td><td class="num">—</td><td class="num">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>在 BIRD test,DIN-SQL 達到 55.9% EX——新 SOTA——不過注意 GPT-4 baseline 在 test 的 VES 略高(60.77 vs 59.44):DIN-SQL 以些微效率換取明確的準確率勝出。</p>
+  </div>
+</section>
+
+<section id="ablation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>消融分析——哪個模組扛最重?</h2>
+    <p class="lead">從 CodeX Davinci pipeline 逐一拿掉模組,顯示出清楚的排序:分類/拆解與 schema linking 最關鍵,自我修正則是較小的打磨。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Spider DEV 消融(CodeX Davinci,EX %)</caption>
+        <thead><tr><th>設定</th><th>EX %</th><th>Δ</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">完整 DIN-SQL(generic 自我修正)</td><td class="num">69.9</td><td class="num">—</td></tr>
+          <tr><td>− 自我修正</td><td class="num">67.3</td><td class="num">−2.6</td></tr>
+          <tr><td>− schema linking</td><td class="num">65.9</td><td class="num">−4.0</td></tr>
+          <tr><td>分類 → 僅 decomposed CoT</td><td class="num">68.2</td><td class="num">−1.7</td></tr>
+          <tr><td>分類 → 僅 simple few-shot</td><td class="num">63.1</td><td class="num">−6.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>結論:</strong>把自適應分類器退回成單純 few-shot prompt,代價最大(−6.8);schema linking 是第二根支柱(−4.0);自我修正真實但幅度不大(−2.6)。這套架構的價值在於<em>自適應路由</em>,而不是任何單一巧妙的 prompt。</p>
+    </div>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>限制與未來工作</h2>
+
+    <div class="callout hot">
+      <p><strong>成本與延遲:</strong>作者回報,用 GPT-4 回答一題 Spider,約需 <span class="hl2">每題 $0.50</span> 與 <span class="hl2">約 60 秒延遲</span>——這是四次串行 LLM 呼叫、每次都帶著長 few-shot prompt 的後果。對高吞吐量的生產服務並不實際。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>靜態示範:</strong>few-shot 範例是固定的。作者指出 <em>自適應示範選擇</em>——依進來的問題檢索相符的範例——是有前景的方向。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>錯誤傳遞:</strong>因為模組是串接的,一次 schema linking 失誤或錯誤的複雜度標籤,會毒害下游所有步驟。自我修正只能抓語法層級的小失誤,抓不到上游的路由錯誤。</p>
+    </div>
+
+    <p>作者把 DIN-SQL 定位得比較不像一個最終系統,而更像一個證據:<strong>「怎麼」</strong>prompt 一個 LLM(拆解、且難度感知),可能比<strong>「要不要」</strong>fine-tune 它更重要。隨著底層模型進步,他們預期每題成本會下降,而拆解這個想法仍會持續有用。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Mohammadreza Pourreza, Davood Rafiei (2023) · NeurIPS 2023 · University of Alberta</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2304.11015">arXiv:2304.11015</a> · <a href="https://github.com/MohammadrezaPourreza/Few-shot-NL2SQL-with-prompting">程式碼:Few-shot-NL2SQL-with-prompting</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要,圖表為依論文內容重繪／整理;數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>
