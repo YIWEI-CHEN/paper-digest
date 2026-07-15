@@ -1,0 +1,1773 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Build a GPT · ML Coding Practice · Python 解題筆記</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --panel-2: #1f2631;
+  --ink: #e6edf3;
+  --muted: #95a3b8;
+  --line: #2d3746;
+  --accent: #ffb000;
+  --accent-2: #58d5c9;
+  --accent-3: #c56cff;
+  --danger: #ff5470;
+  --success: #3ddc97;
+  --code: #0a0f16;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(88, 213, 201, 0.10), transparent 35%),
+    radial-gradient(circle at 92% 10%, rgba(197, 108, 255, 0.10), transparent 34%),
+    var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+  line-height: 1.75;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+header.hero {
+  padding: 78px 0 52px;
+  border-bottom: 1px solid var(--line);
+}
+.kicker {
+  color: var(--accent-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(36px, 6vw, 68px);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+.subtitle {
+  max-width: 850px;
+  margin: 20px 0 0;
+  color: var(--muted);
+  font-size: 18px;
+}
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(31, 38, 49, 0.78);
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+}
+.pill.easy { color: var(--success); border-color: rgba(61, 220, 151, 0.55); }
+.pill.hot { color: var(--accent); border-color: rgba(255, 176, 0, 0.55); }
+.pill.purple { color: var(--accent-3); border-color: rgba(197, 108, 255, 0.55); }
+nav.toc {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(13, 17, 23, 0.88);
+  backdrop-filter: blur(12px);
+}
+nav.toc .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+nav.toc a {
+  color: var(--muted);
+  text-decoration: none;
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+nav.toc a:hover { color: #fff; background: var(--panel-2); }
+section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+.section-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+h2 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+}
+h3 {
+  margin: 24px 0 10px;
+  color: var(--accent-2);
+  font-size: 19px;
+}
+h4 { margin: 16px 0 4px; color: #fff; font-size: 15px; }
+p { margin: 12px 0; }
+a { color: var(--accent-2); }
+.note {
+  margin-top: 24px;
+  padding: 18px 20px;
+  border: 1px solid rgba(255, 176, 0, 0.35);
+  border-left: 4px solid var(--accent);
+  border-radius: 12px;
+  background: rgba(255, 176, 0, 0.08);
+  color: #f7dd9a;
+}
+.concept-callout {
+  margin-top: 16px;
+  padding: 18px 20px;
+  border: 1px solid rgba(88, 213, 201, 0.32);
+  border-left: 4px solid var(--accent-2);
+  border-radius: 12px;
+  background: rgba(88, 213, 201, 0.08);
+  color: var(--muted);
+}
+.concept-callout strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #fff;
+  font-size: 17px;
+}
+.interview-flow {
+  margin-top: 16px;
+  padding: 20px 22px;
+  border: 1px solid rgba(197, 108, 255, 0.28);
+  border-left: 4px solid var(--accent-3);
+  border-radius: 12px;
+  background: rgba(197, 108, 255, 0.06);
+}
+.interview-flow p { color: var(--muted); }
+.interview-flow h4 { color: var(--accent-3); }
+.grid { display: grid; gap: 18px; }
+.overview-grid { grid-template-columns: repeat(3, 1fr); }
+.card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(31, 38, 49, 0.94), rgba(21, 27, 35, 0.94));
+  box-shadow: 0 16px 40px var(--shadow);
+  padding: 22px;
+}
+.card strong { color: #fff; }
+.table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--panel);
+}
+table { width: 100%; border-collapse: collapse; min-width: 940px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th {
+  color: var(--accent-2);
+  background: var(--panel-2);
+  font-size: 13px;
+  letter-spacing: 0.04em;
+}
+td { color: var(--muted); font-size: 14px; }
+td.problem { color: var(--ink); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+.problem-card {
+  margin-top: 26px;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(21, 27, 35, 0.92);
+  box-shadow: 0 18px 44px var(--shadow);
+}
+.problem-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.problem-head h2 { font-size: clamp(24px, 3vw, 34px); }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  color: var(--muted);
+  border: 1px solid var(--line);
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.badge.easy { color: var(--success); }
+.badge.medium { color: var(--accent); }
+.badge.hard { color: var(--danger); }
+.summary-list {
+  margin: 10px 0 0;
+  padding-left: 1.2rem;
+  color: var(--muted);
+}
+.summary-list li { margin: 6px 0; }
+pre {
+  margin: 18px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--code);
+  color: #d6deeb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre code {
+  color: inherit;
+  background: transparent;
+  padding: 0;
+}
+.py-keyword { color: #c792ea; }
+.py-builtin { color: #82aaff; }
+.py-type { color: #ffcb6b; }
+.py-function { color: #58d5c9; }
+.py-string { color: #ecc48d; }
+.py-number { color: #f78c6c; }
+.py-comment { color: #697989; font-style: italic; }
+.py-operator { color: #89ddff; }
+:not(pre) > code {
+  color: var(--accent-2);
+  background: var(--panel-2);
+  border-radius: 5px;
+  padding: 2px 6px;
+}
+.complexity {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 16px;
+}
+.complexity div {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: var(--panel-2);
+  color: var(--muted);
+}
+.complexity b { color: #fff; }
+footer {
+  padding: 44px 0 70px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 13px;
+}
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .overview-grid, .complexity { grid-template-columns: 1fr; }
+  .problem-card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">NLP → Attention → Build a GPT · ML Coding Practice</div>
+    <h1>17 題 從 NLP 基礎到打造 GPT 的 Python 筆記</h1>
+    <p class="subtitle">依學習順序分成三部分：NLP 基礎、Attention &amp; Transformers、Build a GPT。每題包含題目摘要、PyTorch 解法、繁體中文說明、Time / Space Complexity，以及 Interview Explanation Flow。適合 Top-tier AI lab 的 ML coding 面試練習。</p>
+    <div class="meta">
+      <span class="pill easy">5 Easy</span>
+      <span class="pill hot">9 Medium</span>
+      <span class="pill purple">3 Hard</span>
+      <span class="pill">NLP · Embeddings · Attention · Transformer · Training · Inference</span>
+      <span class="pill">PyTorch</span>
+      <span class="pill">Updated 2026-07-15</span>
+    </div>
+    <div class="note">題目描述是根據「NLP」「Attention &amp; Transformers」「Build a GPT」公開題名與常見實作版本（Karpathy nanoGPT / minBPE 系列、Attention Is All You Need）重新整理的原創摘要；重點放在面試時要能講清楚的張量形狀、資料流與設計取捨。</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#overview">總覽</a>
+    <a href="#intro-nlp">Intro to NLP</a>
+    <a href="#word-embeddings">Word Embeddings</a>
+    <a href="#sentiment">Sentiment Analysis</a>
+    <a href="#positional-encoding">Positional Encoding</a>
+    <a href="#self-attention">Self Attention</a>
+    <a href="#multi-head">Multi-Head Attention</a>
+    <a href="#transformer-block">Transformer Block</a>
+    <a href="#bpe">BPE Tokenizer</a>
+    <a href="#vocab">Build Vocabulary</a>
+    <a href="#edge-cases">Tokenization Edge Cases</a>
+    <a href="#data-loader">GPT Data Loader</a>
+    <a href="#dataset">GPT Dataset</a>
+    <a href="#code-gpt">Code GPT</a>
+    <a href="#train">Train Your GPT</a>
+    <a href="#generate">Make GPT Talk Back</a>
+    <a href="#kv-cache">KV-Cache</a>
+    <a href="#gqa">Grouped Query Attention</a>
+  </div>
+</nav>
+
+<main>
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-title">
+        <h2>解題總覽</h2>
+      </div>
+      <div class="grid overview-grid">
+        <div class="card"><strong>三個學習階段</strong><p><b>Part A · NLP 基礎</b>：前處理、word embeddings、情感分類、positional encoding。<b>Part B · Attention</b>：self-attention → multi-head → transformer block。<b>Part C · Build a GPT</b>：tokenizer、資料、完整 GPT、訓練、生成與推論優化。</p></div>
+        <div class="card"><strong>面試重點</strong><p>能講清楚每個張量的 shape <code>(B, T, C)</code>、attention 為什麼要 <code>1/√d</code> 縮放與 causal <code>tril</code> mask、cross-entropy 對齊時 target 為何右移一格、以及 KV-Cache 與 GQA 各自省下什麼。</p></div>
+        <div class="card"><strong>建議順序</strong><p>照表格 1→17 由淺入深：先把 NLP 與 attention 的積木練熟，第 5–7 題的 self-attention/transformer block 正是第 13 題 Code GPT 的零件，最後串起訓練、生成與推論優化。</p></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:24px">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Problem</th>
+              <th>Topic</th>
+              <th>Difficulty</th>
+              <th>核心想法</th>
+              <th>Time</th>
+              <th>Space</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td colspan="7" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part A · NLP 基礎</td></tr>
+            <tr><td>1</td><td class="problem">Intro to Natural Language Processing</td><td>NLP</td><td>Easy</td><td>normalize → tokenize → 建 vocab → bag-of-words 向量化。</td><td>O(N)</td><td>O(V)</td></tr>
+            <tr><td>2</td><td class="problem">Word Embeddings</td><td>NLP</td><td>Easy</td><td>用 embedding 查表得到 dense 向量，靠 cosine similarity 找近義詞。</td><td>O(V · d) 查詢</td><td>O(V · d)</td></tr>
+            <tr><td>3</td><td class="problem">Sentiment Analysis</td><td>NLP</td><td>Medium</td><td>masked mean-pool embedding → linear → cross-entropy 分類。</td><td>O(B · T · d)</td><td>O(params)</td></tr>
+            <tr><td>4</td><td class="problem">Positional Encoding</td><td>NLP</td><td>Medium</td><td>sinusoidal：even 維 sin、odd 維 cos，不同頻率注入位置資訊。</td><td>O(T · d)</td><td>O(T · d)</td></tr>
+            <tr><td colspan="7" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part B · Attention &amp; Transformers</td></tr>
+            <tr><td>5</td><td class="problem">Self Attention</td><td>Attention</td><td>Medium</td><td>scaled dot-product：<code>softmax(Q Kᵀ/√d) V</code>，可選 mask。</td><td>O(T² · d)</td><td>O(T²)</td></tr>
+            <tr><td>6</td><td class="problem">Multi Headed Self Attention</td><td>Attention</td><td>Medium</td><td>一次投影 QKV，reshape 成多頭平行運算，concat 後投影。</td><td>O(T² · C)</td><td>O(T² · h)</td></tr>
+            <tr><td>7</td><td class="problem">Transformer Block</td><td>Transformer</td><td>Medium</td><td>pre-norm 殘差：<code>x + attn(ln1(x))</code>、<code>x + ffn(ln2(x))</code>。</td><td>O(T² · C)</td><td>O(T² + params)</td></tr>
+            <tr><td colspan="7" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part C · Build a GPT</td></tr>
+            <tr><td>8</td><td class="problem">Tokenizer (Byte Pair Encoding)</td><td>Tokenization</td><td>Medium</td><td>從 UTF-8 bytes 出發，反覆合併出現頻率最高的相鄰 pair。</td><td>O(merges · N)</td><td>O(N + V)</td></tr>
+            <tr><td>9</td><td class="problem">Build Vocabulary</td><td>Tokenization</td><td>Easy</td><td>排序去重字元建立 <code>stoi</code> / <code>itos</code> 雙向映射。</td><td>O(N + Vlog V)</td><td>O(V)</td></tr>
+            <tr><td>10</td><td class="problem">Tokenization Edge Cases</td><td>Tokenization</td><td>Medium</td><td>保留 special token、未知字元回退到 <code>&lt;unk&gt;</code>、空字串安全處理。</td><td>O(N)</td><td>O(V)</td></tr>
+            <tr><td>11</td><td class="problem">GPT Data Loader</td><td>Data</td><td>Easy</td><td>隨機起點切出 <code>(B, T)</code> 的 x，y 是 x 右移一格。</td><td>O(B · T)</td><td>O(B · T)</td></tr>
+            <tr><td>12</td><td class="problem">GPT Dataset</td><td>Data</td><td>Easy</td><td>滑動視窗，每個 index 回傳長度 <code>block_size</code> 的 context 與 target。</td><td>O(T) / item</td><td>O(N)</td></tr>
+            <tr><td>13</td><td class="problem">Code GPT</td><td>Transformer</td><td>Hard</td><td>token+position embedding → 多層 causal self-attention block → LayerNorm → lm_head。</td><td>O(T² · C) / layer</td><td>O(T² + params)</td></tr>
+            <tr><td>14</td><td class="problem">Train Your GPT</td><td>Training</td><td>Medium</td><td>forward 算 cross-entropy loss，backward，AdamW step，週期性 eval。</td><td>O(iters · fwd)</td><td>O(params)</td></tr>
+            <tr><td>15</td><td class="problem">Make GPT Talk Back</td><td>Inference</td><td>Medium</td><td>自回歸：取最後位置 logits，softmax 後 multinomial 抽樣，接回序列。</td><td>O(K · T² · C)</td><td>O(T + params)</td></tr>
+            <tr><td>16</td><td class="problem">KV-Cache</td><td>Inference</td><td>Hard</td><td>快取過去的 K、V，新 token 只算自己的 Q/K/V 再 append。</td><td>O(K · T · C)</td><td>O(T · C)</td></tr>
+            <tr><td>17</td><td class="problem">Grouped Query Attention</td><td>Attention</td><td>Hard</td><td>KV head 數少於 Q head，數個 query 共用一組 KV，用 <code>repeat_kv</code> 展開。</td><td>O(T² · C)</td><td>O(T · C / g)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="intro-nlp">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>1. Intro to Natural Language Processing</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">NLP</span><span class="badge">Preprocessing</span><span class="badge">Bag-of-Words</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>建立最基本的 NLP 前處理管線：把原始文字<b>正規化</b>（轉小寫、去標點）、<b>斷詞</b>成 token，從語料建立詞彙表，再把任意句子轉成 <b>bag-of-words</b> 計數向量（每個維度是某個字出現幾次）。這是文字進到任何模型前的第一步。</p>
+        <h3>解法說明</h3>
+        <p><code>preprocess</code> 用 <code>lower()</code> 統一大小寫，再用正規表示式 <code>[a-z0-9']+</code> 抓出「連續字母數字」當作 word（順手把標點與空白當分隔）。<code>BagOfWords</code> 從語料收集排序後的 vocab 建 <code>stoi</code>，<code>vectorize</code> 掃過 token 累加對應維度；沒看過的字直接忽略。BoW 的特點是<b>只看字頻、不看順序</b>。</p>
+<pre><code class="language-python">import re
+from typing import Dict, List
+
+
+def preprocess(text: str) -&gt; List[str]:
+    text = text.lower()
+    return re.findall(r"[a-z0-9']+", text)   # Words = maximal alnum runs.
+
+
+class BagOfWords:
+    def __init__(self, corpus: List[str]):
+        vocab = sorted({tok for doc in corpus for tok in preprocess(doc)})
+        self.stoi: Dict[str, int] = {w: i for i, w in enumerate(vocab)}
+
+    def vectorize(self, text: str) -&gt; List[int]:
+        vec = [0] * len(self.stoi)
+        for tok in preprocess(text):
+            if tok in self.stoi:             # Ignore out-of-vocab words.
+                vec[self.stoi[tok]] += 1
+        return vec</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> 建 vocab O(total tokens + V log V)；<code>vectorize</code> O(句子長度)。</div>
+          <div><b>Space:</b> O(V)，vocab 映射與每個向量長度 V。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Name the pipeline stages</h4>
+          <p>"Classic NLP preprocessing is: normalize, tokenize, build a vocabulary, then vectorize. I'd state these four steps up front because every downstream model assumes them."</p>
+          <h4>Step 2: Walk one document</h4>
+<pre><code>corpus = ["The cat sat.", "The dog ran!"]
+preprocess("The cat sat.") -> ["the", "cat", "sat"]
+vocab = ["cat","dog","ran","sat","the"]  (sorted)
+stoi  = {cat:0, dog:1, ran:2, sat:3, the:4}
+
+vectorize("the cat the") -> [1, 0, 0, 0, 2]
+#                            cat        the appears twice</code></pre>
+          <h4>Step 3: State the key limitation</h4>
+          <p>"Bag-of-words throws away order — 'dog bites man' and 'man bites dog' get identical vectors. It's also sparse and high-dimensional. That's exactly why dense word embeddings and, later, attention exist."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>TF-IDF?</b> "Weight each count by how rare the word is across documents, downweighting common words like 'the'."</li>
+            <li><b>Handling unseen words?</b> "Ignore them, or reserve an UNK dimension — same idea as the tokenizer edge-cases problem."</li>
+          </ul>
+          <p><b>中文：</b>重點是 normalize → tokenize → vocab → vectorize 四步，並點出 BoW 丟失詞序、向量稀疏，鋪陳後面的 embeddings 與 attention。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="word-embeddings">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>2. Word Embeddings</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">NLP</span><span class="badge">Embeddings</span><span class="badge">Cosine Similarity</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>把 bag-of-words 那種稀疏、彼此正交的表示，換成<b>稠密向量</b>：每個 token id 對應一列可學習的 embedding。實作 embedding 查表，並用 <b>cosine similarity</b> 找出與某個字最相近的 k 個字（word2vec / GloVe 的核心操作）。</p>
+        <h3>解法說明</h3>
+        <p><code>nn.Embedding</code> 本質是一張 <code>(vocab_size, dim)</code> 的查表：給 id 就回傳對應的列向量。語意相近的字在訓練後會落在方向相近的位置，所以用 <b>cosine similarity</b>（只看方向、不看長度）衡量相似度。<code>nearest</code> 把 query 向量對整張表算相似度，排除自己後取 top-k。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from typing import List
+
+
+class WordEmbeddings(nn.Module):
+    def __init__(self, vocab_size: int, dim: int):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, dim)   # Lookup table.
+
+    def forward(self, ids: torch.Tensor) -&gt; torch.Tensor:
+        return self.embedding(ids)                        # (..., dim)
+
+
+def cosine_similarity(a: torch.Tensor, b: torch.Tensor) -&gt; torch.Tensor:
+    a = a / a.norm(dim=-1, keepdim=True)                  # Direction only.
+    b = b / b.norm(dim=-1, keepdim=True)
+    return a @ b.transpose(-2, -1)
+
+
+def nearest(query_id: int, weight: torch.Tensor, k: int = 5) -&gt; List[int]:
+    q = weight[query_id].unsqueeze(0)                     # (1, dim)
+    sims = cosine_similarity(q, weight).squeeze(0)        # (vocab,)
+    sims[query_id] = float("-inf")                        # Exclude the word itself.
+    return torch.topk(sims, k).indices.tolist()</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> 查表 O(1) per id；<code>nearest</code> O(V · d) 對整張表算相似度再 O(V log k) 取 top-k。</div>
+          <div><b>Space:</b> O(V · d) 的 embedding 矩陣。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>為什麼用 cosine 而不是 Euclidean？</strong>
+          <p>Embedding 的「語意」主要編碼在<b>方向</b>而非長度上（高頻字常有較大 norm）。cosine similarity 先做 L2 normalize 再點積，等於只比方向，因此 <code>king - man + woman ≈ queen</code> 這類類比才成立。範圍固定在 <code>[-1, 1]</code> 也讓不同字之間好比較。</p>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Motivate dense over sparse</h4>
+          <p>"One-hot / bag-of-words vectors are huge and orthogonal — every pair of words is equally dissimilar. Embeddings map each token to a low-dim dense vector where distance encodes meaning."</p>
+          <h4>Step 2: Explain the lookup</h4>
+          <p>"<code>nn.Embedding</code> is literally a <code>(vocab, dim)</code> matrix; indexing with a token id returns its row. During training those rows move so that words used in similar contexts end up nearby."</p>
+          <h4>Step 3: Similarity search</h4>
+<pre><code>weight: (vocab=10000, dim=64)
+q = weight[stoi["king"]]              # (64,)
+sims = cosine(q, weight)             # (10000,)
+sims[stoi["king"]] = -inf           # don't return itself
+topk(sims, 5) -> ["queen","prince","monarch","throne","royal"]</code></pre>
+          <h4>Step 4: Complexity</h4>
+          <p>"A brute-force nearest search is O(V·d). For millions of vectors you'd switch to an approximate index like FAISS/HNSW."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>How are these trained?</b> "word2vec skip-gram predicts context words; GloVe factorizes a co-occurrence matrix. In a transformer the embedding is learned end-to-end with the task."</li>
+            <li><b>Why normalize before dot product?</b> "So the score reflects direction (semantics), not vector magnitude."</li>
+          </ul>
+          <p><b>中文：</b>重點：embedding 是查表矩陣，語意編碼在方向上，所以用 cosine similarity 找近義詞。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="sentiment">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>3. Sentiment Analysis</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">NLP</span><span class="badge">Classification</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>做一個文字情感分類器（正面／負面）。輸入是一批 token id <code>(B, T)</code>（不等長的句子用 <code>&lt;pad&gt;</code> 補齊），模型要輸出每個類別的 logits。做法：查 embedding → 對每句<b>忽略 padding 做 mean-pooling</b>得到句向量 → 線性層分類 → 用 cross-entropy 訓練。</p>
+        <h3>解法說明</h3>
+        <p>關鍵是 <b>masked mean-pooling</b>：直接對整個 <code>(B, T, d)</code> 取平均會把 pad token 算進去而稀釋語意。用 <code>ids != pad_id</code> 造 mask，只加總真實 token 再除以真實長度（<code>clamp(min=1)</code> 防止空句除以零）。<code>padding_idx</code> 讓 pad 的 embedding 固定為 0 且不更新。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+
+class SentimentClassifier(nn.Module):
+    def __init__(self, vocab_size: int, dim: int, num_classes: int = 2, pad_id: int = 0):
+        super().__init__()
+        self.embedding = nn.Embedding(vocab_size, dim, padding_idx=pad_id)
+        self.fc = nn.Linear(dim, num_classes)
+        self.pad_id = pad_id
+
+    def forward(self, ids: torch.Tensor) -&gt; torch.Tensor:
+        emb = self.embedding(ids)                    # (B, T, dim)
+        mask = (ids != self.pad_id).unsqueeze(-1)    # (B, T, 1)
+        summed = (emb * mask).sum(dim=1)             # (B, dim), pads zeroed out
+        counts = mask.sum(dim=1).clamp(min=1)        # (B, 1), avoid div-by-zero
+        pooled = summed / counts                     # Masked mean over real tokens.
+        return self.fc(pooled)                       # (B, num_classes)
+
+
+def train_step(model, ids, labels, optimizer) -&gt; float:
+    logits = model(ids)
+    loss = F.cross_entropy(logits, labels)
+    optimizer.zero_grad(set_to_none=True)
+    loss.backward()
+    optimizer.step()
+    return loss.item()
+
+
+@torch.no_grad()
+def predict(model, ids) -&gt; torch.Tensor:
+    return model(ids).argmax(dim=-1)                 # Class with highest logit.</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> forward O(B · T · d)（embedding 與 pooling）＋ O(B · d · classes)（線性層）。</div>
+          <div><b>Space:</b> O(vocab · d) 參數；activations O(B · T · d)。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame as sequence classification</h4>
+          <p>"I need one label per sequence, so I must collapse a variable-length sequence of embeddings into a single vector, then classify it. Mean-pooling is the simplest, strong baseline."</p>
+          <h4>Step 2: Stress the masking</h4>
+          <p>"Batches are padded to equal length. If I average naively, padding tokens drag the sentence vector toward zero. So I mask them out — sum only real tokens and divide by the real count."</p>
+<pre><code>ids = [[The, movie, was, great],
+       [Bad,  &lt;pad&gt;, &lt;pad&gt;, &lt;pad&gt;]]     # pad_id = 0
+mask = [[1,1,1,1],
+        [1,0,0,0]]
+pooled row 1 = mean of 4 embeddings
+pooled row 2 = embedding("Bad") / 1     # not / 4</code></pre>
+          <h4>Step 3: Loss and prediction</h4>
+          <p>"<code>cross_entropy</code> takes raw logits <code>(B, C)</code> and integer labels <code>(B,)</code> — it applies log-softmax internally, so I don't softmax first. Prediction is <code>argmax</code> over the logits."</p>
+          <h4>Step 4: Complexity and scaling up</h4>
+          <p>"This is linear in tokens. To do better I'd replace mean-pooling with an RNN or a transformer encoder that respects word order — mean-pooling can't tell 'not good' from 'good'."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Binary — why 2 logits not 1?</b> "Two-class softmax with CE is equivalent to one-logit BCE; I use CE so the head generalizes to multi-class."</li>
+            <li><b>Class imbalance?</b> "Pass <code>weight=</code> to cross-entropy or resample."</li>
+          </ul>
+          <p><b>中文：</b>重點是 masked mean-pooling 忽略 padding，再接線性層與 cross-entropy；也要點出 mean-pooling 無法處理否定詞這種詞序訊息。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="positional-encoding">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>4. Positional Encoding</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">NLP</span><span class="badge">Transformer</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>Self-attention 本身<b>對位置無感</b>（打亂 token 順序，輸出只是跟著換位置），所以要額外把「位置」資訊加進去。實作 <i>Attention Is All You Need</i> 的 <b>sinusoidal positional encoding</b>：產生一個 <code>(seq_len, d_model)</code> 矩陣，偶數維用 sin、奇數維用 cos，且不同維度用不同頻率，之後直接加到 token embedding 上。</p>
+        <h3>解法說明</h3>
+        <p>位置 <code>pos</code> 在維度 <code>i</code> 的角度是 <code>pos / 10000^(2i/d)</code>。用 <code>div_term = exp(arange(0,d,2) · (-log(10000)/d))</code> 一次算好所有頻率（等價但數值更穩）。偶數維 <code>0::2</code> 填 sin、奇數維 <code>1::2</code> 填 cos。這種編碼固定不用學、對任意長度都定義得出來，而且相鄰位置的編碼有平滑關係。</p>
+<pre><code class="language-python">import math
+import torch
+
+
+def sinusoidal_positional_encoding(seq_len: int, d_model: int) -&gt; torch.Tensor:
+    pe = torch.zeros(seq_len, d_model)
+    position = torch.arange(seq_len).unsqueeze(1).float()          # (T, 1)
+    # div_term[i] = 1 / 10000^(2i / d_model), computed in log-space for stability.
+    div_term = torch.exp(
+        torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model)
+    )
+    pe[:, 0::2] = torch.sin(position * div_term)                   # Even dims -&gt; sin.
+    pe[:, 1::2] = torch.cos(position * div_term)                   # Odd dims  -&gt; cos.
+    return pe                                                      # (seq_len, d_model)
+
+
+# Usage: x = token_embedding(idx) + sinusoidal_positional_encoding(T, d_model)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(seq_len · d_model)，填滿整個編碼矩陣。</div>
+          <div><b>Space:</b> O(seq_len · d_model)，回傳的位置編碼矩陣。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>Sinusoidal vs Learned positional embedding</strong>
+          <p>本題的 sinusoidal 版本<b>不需訓練</b>、能外推到比訓練時更長的序列，是原始 Transformer 的選擇。第 13 題 Code GPT 用的則是 <code>nn.Embedding(block_size, n_embd)</code> 這種<b>可學習</b>的位置向量，簡單但無法超過 <code>block_size</code>。現代模型還常用 RoPE（把位置編到旋轉裡）。三者目的相同：讓 permutation-invariant 的 attention 知道 token 的先後。</p>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Explain why we need it at all</h4>
+          <p>"Attention computes weighted sums over a set — it's permutation-invariant. Without position info, 'dog bites man' and 'man bites dog' are indistinguishable. So I inject position explicitly and add it to the token embeddings."</p>
+          <h4>Step 2: Explain the sinusoid design</h4>
+          <p>"Each dimension is a sinusoid whose wavelength grows geometrically from 2π up to ~10000·2π. Low dimensions oscillate fast (fine position), high dimensions slowly (coarse position), so the full vector is a unique fingerprint of the position."</p>
+<pre><code>d_model = 4, positions 0..3
+pos=0: [sin0, cos0, sin0,  cos0 ] = [0, 1, 0, 1]
+pos=1: [sin1, cos1, sin(1/100), cos(1/100)]
+       fast-freq dims          slow-freq dims
+even index -> sin, odd index -> cos</code></pre>
+          <h4>Step 3: Why 10000 and log-space?</h4>
+          <p>"10000 sets the longest wavelength — big enough to give distinct codes across realistic sequence lengths. Computing <code>div_term</code> via <code>exp(... · -log(10000)/d)</code> avoids the numerically nasty direct power."</p>
+          <h4>Step 4: Key property</h4>
+          <p>"Because it's built from sinusoids, the encoding for position <code>pos+k</code> is a linear function of the encoding at <code>pos</code>, which lets the model learn to attend by relative offset, and it extrapolates to unseen lengths."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Add or concatenate?</b> "The paper adds it to the embedding; adding keeps dimensionality fixed and works well in practice."</li>
+            <li><b>Learned vs fixed?</b> "Learned is simpler and often matches quality but can't extrapolate past the trained max length."</li>
+          </ul>
+          <p><b>中文：</b>重點：attention 對位置無感所以要加位置編碼；even 用 sin、odd 用 cos，不同維度不同頻率，能外推且相對位置關係平滑。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="self-attention">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>5. Self Attention</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Attention</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>實作單頭的 <b>scaled dot-product self-attention</b>。輸入 <code>x</code>（shape <code>(B, T, n_embd)</code>），從 x 投影出 Query、Key、Value，用 <code>softmax(Q Kᵀ / √d) · V</code> 讓每個位置根據相關性聚合其他位置的資訊。支援可選的 mask（例如 causal 或 padding mask）。這是整個 Transformer 的最小積木。</p>
+        <h3>解法說明</h3>
+        <p>三個線性層各自把 x 投影成 Q、K、V。注意力分數 <code>Q Kᵀ</code> 是每個 query 對每個 key 的內積，除以 <code>√head_size</code> 避免維度變大時 softmax 過度飽和。若有 mask，把不該看的位置設 <code>-inf</code>，softmax 後歸零，再對 V 加權求和。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+
+class SelfAttention(nn.Module):
+    def __init__(self, n_embd: int, head_size: int):
+        super().__init__()
+        self.key = nn.Linear(n_embd, head_size, bias=False)
+        self.query = nn.Linear(n_embd, head_size, bias=False)
+        self.value = nn.Linear(n_embd, head_size, bias=False)
+
+    def forward(self, x, mask=None):
+        k = self.key(x)      # (B, T, head_size)
+        q = self.query(x)
+        v = self.value(x)
+        wei = q @ k.transpose(-2, -1) * k.shape[-1] ** -0.5   # (B, T, T)
+        if mask is not None:
+            wei = wei.masked_fill(mask == 0, float("-inf"))   # Block disallowed pairs.
+        wei = F.softmax(wei, dim=-1)                          # Row-normalized weights.
+        return wei @ v                                        # (B, T, head_size)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(T² · head_size)，<code>Q Kᵀ</code> 與加權各是 T×T 對每維運算。</div>
+          <div><b>Space:</b> O(T²) 的 attention 權重矩陣。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: The query/key/value metaphor</h4>
+          <p>"Each token asks a question (query), advertises what it offers (key), and carries content (value). A token's output is a weighted blend of everyone's values, where weights come from how well its query matches each key."</p>
+          <h4>Step 2: Walk the shapes</h4>
+<pre><code>x: (B, T, n_embd) = (1, 3, 8), head_size = 4
+q,k,v: (1, 3, 4)
+wei = q @ kᵀ / sqrt(4)  -> (1, 3, 3)   # token-to-token scores
+softmax rows -> weights sum to 1
+out = wei @ v -> (1, 3, 4)</code></pre>
+          <h4>Step 3: Why divide by √d?</h4>
+          <p>"Dot products scale with dimension; large magnitudes push softmax into saturated regions where gradients vanish. Dividing by <code>√head_size</code> keeps the variance ~1 so training stays stable."</p>
+          <h4>Step 4: The mask</h4>
+          <p>"Setting disallowed scores to <code>-inf</code> before softmax makes their weight exactly 0. A lower-triangular mask gives causal attention (GPT); a padding mask blocks attending to pad tokens (encoders)."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Self vs cross attention?</b> "Here Q, K, V all come from the same <code>x</code>. In cross-attention, Q comes from the decoder and K, V from the encoder."</li>
+            <li><b>Why no bias on the projections?</b> "Common simplification; the following LayerNorm/residual makes biases largely redundant."</li>
+          </ul>
+          <p><b>中文：</b>核心公式 <code>softmax(QKᵀ/√d)V</code>；強調 √d 縮放穩定 softmax，以及 mask 用 -inf 歸零。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="multi-head">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>6. Multi Headed Self Attention</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Attention</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>把單頭 attention 擴成 <b>multi-head</b>：把 <code>n_embd</code> 切成 <code>n_head</code> 份，每個 head 在自己的子空間獨立做 attention，讓模型能同時關注不同面向（語法、指代、距離…），最後把各 head 輸出 concat 再投影回 <code>n_embd</code>。要求用<b>張量 reshape</b>做平行運算，而不是 Python for-loop 逐 head 跑。</p>
+        <h3>解法說明</h3>
+        <p>用<b>單一個 <code>qkv</code> 線性層</b>一次算出 Q、K、V（再 split），比多個 Linear 更省。接著 <code>view</code> 成 <code>(B, T, n_head, head_size)</code> 再 <code>transpose</code> 到 <code>(B, n_head, T, head_size)</code>，讓 head 變成 batch 維度一起算 attention。算完 <code>transpose</code> 回來、<code>contiguous().view</code> 把各 head concat 成 <code>(B, T, n_embd)</code>，再過輸出投影 <code>proj</code>。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+
+class MultiHeadSelfAttention(nn.Module):
+    def __init__(self, n_embd: int, n_head: int):
+        super().__init__()
+        assert n_embd % n_head == 0
+        self.n_head = n_head
+        self.head_size = n_embd // n_head
+        self.qkv = nn.Linear(n_embd, 3 * n_embd, bias=False)   # Fused Q,K,V.
+        self.proj = nn.Linear(n_embd, n_embd)                  # Mix heads back.
+
+    def forward(self, x, mask=None):
+        B, T, C = x.shape
+        q, k, v = self.qkv(x).split(C, dim=2)
+        # (B, T, C) -&gt; (B, n_head, T, head_size): heads become a batch dim.
+        q = q.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        k = k.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        v = v.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+
+        att = q @ k.transpose(-2, -1) * self.head_size ** -0.5   # (B, nh, T, T)
+        if mask is not None:
+            att = att.masked_fill(mask == 0, float("-inf"))
+        att = F.softmax(att, dim=-1)
+        out = att @ v                                            # (B, nh, T, hs)
+        out = out.transpose(1, 2).contiguous().view(B, T, C)     # Concat heads.
+        return self.proj(out)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(T² · C)，所有 head 合計等同一次全寬 attention。</div>
+          <div><b>Space:</b> O(n_head · T²) 的注意力權重。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Why multiple heads?</h4>
+          <p>"A single attention distribution can only emphasize one kind of relationship at a time. Splitting into heads lets the model attend to several patterns in parallel — one head might track syntax, another long-range coreference — then combine them."</p>
+          <h4>Step 2: The reshape trick</h4>
+          <p>"Instead of looping over heads, I fold the head dimension next to the batch dimension. After <code>view</code> + <code>transpose</code> the tensor is <code>(B, n_head, T, head_size)</code>, so one batched matmul does all heads at once on the GPU."</p>
+<pre><code>n_embd = 64, n_head = 8 -> head_size = 8
+qkv(x): (B, T, 192) -> split -> q,k,v each (B, T, 64)
+view:      (B, T, 8, 8)
+transpose: (B, 8, T, 8)   # (batch, heads, time, head_size)
+att = q @ kᵀ : (B, 8, T, T)   # 8 heads computed together
+out -> transpose+view -> (B, T, 64) -> proj</code></pre>
+          <h4>Step 3: Why the final projection?</h4>
+          <p>"Concatenating heads just stacks independent subspaces; the <code>proj</code> linear layer lets them exchange information and maps back to model width."</p>
+          <h4>Step 4: Complexity note</h4>
+          <p>"Total cost equals one full-width attention — splitting into heads doesn't add FLOPs, it just partitions the representation. It's still O(T²) in sequence length."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why <code>contiguous()</code> before <code>view</code>?</b> "<code>transpose</code> returns a non-contiguous view; <code>view</code> needs contiguous memory, so I materialize it first."</li>
+            <li><b>Fused vs separate QKV?</b> "One <code>3*n_embd</code> matmul is more hardware-efficient than three separate ones."</li>
+          </ul>
+          <p><b>中文：</b>重點：head 折進 batch 維用一次 batched matmul 平行算，concat 後靠 <code>proj</code> 混合；總 FLOPs 與單頭全寬相同。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="transformer-block">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>7. Transformer Block</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Transformer</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>把 multi-head attention 與 feed-forward 組成一個可堆疊的 <b>Transformer block</b>。用 <b>pre-norm 殘差</b>結構：<code>x = x + attn(ln1(x))</code>、<code>x = x + ffn(ln2(x))</code>。attention 負責跨位置「溝通」，feed-forward 負責每個位置獨立「思考」。堆 N 層就是 GPT / BERT 的主體。</p>
+        <h3>解法說明</h3>
+        <p>兩個 sub-layer 各包一層 LayerNorm 與 residual。<b>Pre-norm</b>（先 norm 再進 sub-layer）比原論文的 post-norm 更好訓練、梯度更穩，是現代做法。feed-forward 先擴張到 <code>4 · n_embd</code>、過非線性（GELU）、再投影回來，給模型逐位置的非線性容量。這正是第 13 題 Code GPT 裡 <code>Block</code> 的通用版（多接了一個 mask 參數，可當 encoder 或 decoder 用）。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+
+
+class TransformerBlock(nn.Module):
+    def __init__(self, n_embd: int, n_head: int, dropout: float = 0.1):
+        super().__init__()
+        self.attn = MultiHeadSelfAttention(n_embd, n_head)   # From problem 6.
+        self.ff = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd),   # Expand.
+            nn.GELU(),                        # Per-position non-linearity.
+            nn.Linear(4 * n_embd, n_embd),   # Project back.
+            nn.Dropout(dropout),
+        )
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+
+    def forward(self, x, mask=None):
+        x = x + self.attn(self.ln1(x), mask)   # Communicate across positions.
+        x = x + self.ff(self.ln2(x))           # Think at each position.
+        return x</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(T² · C)（attention）＋ O(T · C²)（feed-forward）每個 block。</div>
+          <div><b>Space:</b> O(T² + params)，注意力矩陣與兩個 sub-layer 的權重。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>Pre-norm 為什麼比 Post-norm 好？</strong>
+          <p>Post-norm（<code>LayerNorm(x + sublayer(x))</code>）在深層堆疊時梯度較不穩，常需要 warmup 才收斂。Pre-norm（<code>x + sublayer(LayerNorm(x))</code>）讓 residual 形成一條乾淨的恆等捷徑，梯度能直接流過，深層模型更好訓練——這是 GPT-2 之後的標準。</p>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Two responsibilities</h4>
+          <p>"A block has two sub-layers: self-attention mixes information across tokens, and a position-wise MLP transforms each token independently. Communication then computation."</p>
+          <h4>Step 2: Residual + norm wiring</h4>
+          <p>"I wrap each sub-layer with pre-LayerNorm and a residual add: <code>x = x + sublayer(norm(x))</code>. The residual is a gradient highway; pre-norm keeps activations well-scaled so deep stacks train without fancy warmup."</p>
+<pre><code>x --> ln1 --> attn --+--> ln2 --> ff --+--> out
+ \___________________/ \_______________/
+      residual add         residual add</code></pre>
+          <h4>Step 3: Why the 4× MLP?</h4>
+          <p>"The feed-forward expands to 4× width, applies GELU, and projects back. That expansion gives the model non-linear capacity to process each position's representation; 4× is the conventional ratio from the original Transformer."</p>
+          <h4>Step 4: Relate to the full model</h4>
+          <p>"Stacking N of these, with token + positional embeddings in front and a linear head at the end, is exactly the GPT in problem 13. With a bidirectional (no causal) mask it's a BERT-style encoder instead."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>GELU vs ReLU?</b> "GELU is smoother and standard in transformers; ReLU also works and is what the minimal nanoGPT uses."</li>
+            <li><b>Where does dropout go?</b> "After attention output and inside the MLP, to regularize both mixing and per-position transforms."</li>
+          </ul>
+          <p><b>中文：</b>重點：attention 溝通、FFN 思考，pre-norm 殘差讓深層好訓練；堆 N 層加 embedding 與 head 就是 GPT。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="bpe">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>8. Tokenizer (Byte Pair Encoding)</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Tokenization</span><span class="badge">BPE</span><span class="badge">Bytes</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>實作一個 byte-level 的 BPE tokenizer。給一段訓練文字與目標 <code>vocab_size</code>，先把文字編成 UTF-8 bytes（0–255 共 256 個基礎 token），接著反覆找出<b>出現頻率最高的相鄰 token pair</b>，把它合併成一個新的 token id，直到達到目標詞彙量。之後要能用學到的 merges 對任意文字 <code>encode</code>，並能 <code>decode</code> 回原字串。</p>
+        <h3>解法說明</h3>
+        <p>三個核心函式：<code>get_stats</code> 統計相鄰 pair 次數、<code>merge</code> 把某個 pair 換成新 id、訓練時每輪選 <code>max</code> 頻率的 pair 合併並記錄到 <code>merges</code>。<code>encode</code> 時要<b>依照學習順序</b>套用 merge（每次挑 merge index 最小、也就是最早學到的 pair），這樣才能重現訓練時的合併結果。<code>decode</code> 則把每個 id 對應的 bytes 串起來再 UTF-8 解碼。</p>
+        <div class="concept-callout">
+          <strong>為什麼用 byte-level？</strong>
+          <p>直接對 Unicode 字元切，詞彙表會爆炸且遇到沒看過的字就爆掉。改用 UTF-8 bytes，基礎詞彙固定 256 個，任何字串都表示得出來（不會有 out-of-vocabulary），再靠 BPE 把常見 byte 序列合併成子詞。這正是 GPT-2 tokenizer 的做法。</p>
+        </div>
+<pre><code class="language-python">from collections import Counter
+from typing import Dict, List, Tuple
+
+
+def get_stats(ids: List[int]) -&gt; Counter:
+    counts = Counter()
+    for pair in zip(ids, ids[1:]):   # Every adjacent pair.
+        counts[pair] += 1
+    return counts
+
+
+def merge(ids: List[int], pair: Tuple[int, int], new_id: int) -&gt; List[int]:
+    result = []
+    i = 0
+    while i &lt; len(ids):
+        if i &lt; len(ids) - 1 and ids[i] == pair[0] and ids[i + 1] == pair[1]:
+            result.append(new_id)
+            i += 2
+        else:
+            result.append(ids[i])
+            i += 1
+    return result
+
+
+class BPETokenizer:
+    def __init__(self):
+        self.merges: Dict[Tuple[int, int], int] = {}
+        self.vocab: Dict[int, bytes] = {i: bytes([i]) for i in range(256)}
+
+    def train(self, text: str, vocab_size: int) -&gt; None:
+        assert vocab_size &gt;= 256
+        num_merges = vocab_size - 256
+        ids = list(text.encode("utf-8"))
+
+        for i in range(num_merges):
+            stats = get_stats(ids)
+            if not stats:
+                break
+            pair = max(stats, key=stats.get)   # Most frequent adjacent pair.
+            new_id = 256 + i
+            ids = merge(ids, pair, new_id)
+            self.merges[pair] = new_id
+            self.vocab[new_id] = self.vocab[pair[0]] + self.vocab[pair[1]]
+
+    def encode(self, text: str) -&gt; List[int]:
+        ids = list(text.encode("utf-8"))
+        while len(ids) &gt;= 2:
+            stats = get_stats(ids)
+            # Apply the earliest-learned merge that still appears.
+            pair = min(stats, key=lambda p: self.merges.get(p, float("inf")))
+            if pair not in self.merges:
+                break
+            ids = merge(ids, pair, self.merges[pair])
+        return ids
+
+    def decode(self, ids: List[int]) -&gt; str:
+        raw = b"".join(self.vocab[i] for i in ids)
+        return raw.decode("utf-8", errors="replace")</code></pre>
+        <div class="complexity">
+          <div><b>Train:</b> O(num_merges · N)，每輪掃過整段 ids（長度 N）統計並合併一次。</div>
+          <div><b>Encode:</b> O(M · N')，M 是合併次數上界，N' 是輸入長度；Decode O(total bytes)。Space O(N + vocab_size)。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame the problem</h4>
+          <p>"BPE is a compression-style algorithm adapted to tokenization. I start from raw UTF-8 bytes so nothing is ever out-of-vocabulary, then I greedily merge the most frequent adjacent pair, over and over, until I hit the target vocab size."</p>
+          <h4>Step 2: Walk through training</h4>
+          <p>"Each round I count adjacent pairs, pick the max-frequency one, assign it the next free id, and record the merge. Merging is order-dependent, so I store <code>merges</code> as a dict from pair to id."</p>
+<pre><code>text = "aaabdaaabac"   # treat as chars for illustration
+ids  = [a, a, a, b, d, a, a, a, b, a, c]
+
+round 1: most frequent pair = (a, a) -> Z
+ids  = [Z, a, b, d, Z, a, b, a, c]      merges[(a,a)] = Z
+
+round 2: most frequent pair = (Z, a) -> Y
+ids  = [Y, b, d, Y, b, a, c]            merges[(Z,a)] = Y
+
+round 3: most frequent pair = (Y, b) -> X
+ids  = [X, d, X, a, c]                  merges[(Y,b)] = X</code></pre>
+          <h4>Step 3: Explain encode ordering</h4>
+          <p>"At encode time I must replay merges in the order they were learned. I pick the candidate pair with the smallest merge index, because a later merge (like Y=Za) is only valid after the earlier one (Z=aa) has been applied."</p>
+          <h4>Step 4: Discuss edge cases</h4>
+          <p>"Empty text gives an empty id list. If a round has no pairs left (a single token), I break early. On decode I use <code>errors='replace'</code> because a truncated token sequence can produce invalid UTF-8."</p>
+          <h4>Step 5: Complexity</h4>
+          <p>"Training is O(num_merges · N) with the naive re-scan; production tokenizers optimize this with incremental pair counts. Encode is roughly O(M · N') for input length N'."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why bytes instead of characters?</b> "256 base tokens cover every possible input, so there is no UNK problem."</li>
+            <li><b>How would GPT-2 split first?</b> "It applies a regex to pre-split on word/whitespace boundaries so merges never cross e.g. a space into a letter, which stabilizes the vocabulary."</li>
+          </ul>
+          <p><b>中文：</b>面試時強調「byte-level 避免 OOV」與「encode 要照 merge 學習順序重放」這兩個關鍵。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="vocab">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>9. Build Vocabulary</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Tokenization</span><span class="badge">Mapping</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>建立字元級（character-level）詞彙表。給一段文字，取出所有<b>不重複字元</b>並排序，建立 <code>stoi</code>（字元 → 整數 id）與 <code>itos</code>（id → 字元）兩個對照表，並提供 <code>encode(str) -&gt; List[int]</code> 與 <code>decode(List[int]) -&gt; str</code>。這是最簡單的 tokenizer，也是 Karpathy「makemore / mini-GPT」教學的起點。</p>
+        <h3>解法說明</h3>
+        <p><code>sorted(set(text))</code> 一行取得穩定、可重現的字元順序（排序很重要，否則每次跑出來的 id 都不同，模型無法載入舊 checkpoint）。<code>stoi</code> 與 <code>itos</code> 用 enumerate 一次建好；encode/decode 就是 list comprehension 查表。</p>
+<pre><code class="language-python">from typing import List
+
+
+class CharVocab:
+    def __init__(self, text: str):
+        chars = sorted(set(text))   # Deterministic order for reproducibility.
+        self.stoi = {ch: i for i, ch in enumerate(chars)}
+        self.itos = {i: ch for i, ch in enumerate(chars)}
+
+    @property
+    def size(self) -&gt; int:
+        return len(self.stoi)
+
+    def encode(self, s: str) -&gt; List[int]:
+        return [self.stoi[ch] for ch in s]
+
+    def decode(self, ids: List[int]) -&gt; str:
+        return "".join(self.itos[i] for i in ids)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> 建表 O(N + V log V)，N 是文字長度、V 是不重複字元數；encode/decode 各 O(len)。</div>
+          <div><b>Space:</b> O(V)，兩張大小為 V 的映射表。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame the problem</h4>
+          <p>"A vocabulary is just a bijection between symbols and integer ids. For a character-level model, the symbols are the unique characters in the corpus."</p>
+          <h4>Step 2: Explain the key decision</h4>
+          <p>"I sort the unique characters before assigning ids. Sorting makes the mapping deterministic, so a checkpoint trained today still loads tomorrow — without it, <code>set</code> iteration order could reshuffle every id."</p>
+<pre><code>text = "hello"
+set(text)          -> {'h','e','l','o'}   (unordered)
+sorted(set(text))  -> ['e','h','l','o']
+
+stoi = {'e':0, 'h':1, 'l':2, 'o':3}
+encode("hell") -> [1, 0, 2, 2]
+decode([1,0,2,2]) -> "hell"</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Building is dominated by the sort, O(V log V). Both encode and decode are linear table lookups."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Char vs subword?</b> "Character vocab is tiny and never OOV, but sequences get long. Subword (BPE) trades a bigger vocab for shorter sequences."</li>
+            <li><b>Unknown characters at inference?</b> "A pure char vocab throws a KeyError; the next problem handles that with an UNK fallback."</li>
+          </ul>
+          <p><b>中文：</b>重點是「先排序再編號」以確保 id 可重現，這樣 checkpoint 才對得上。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="edge-cases">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>10. Tokenization Edge Cases</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Tokenization</span><span class="badge">Special Tokens</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>把基礎 vocab 強化成能處理真實輸入的邊界情況：(1) <b>special tokens</b> 如 <code>&lt;pad&gt;</code>、<code>&lt;unk&gt;</code>、<code>&lt;|endoftext|&gt;</code> 要保留固定 id；(2) 遇到訓練時沒看過的<b>未知字元</b>要回退到 <code>&lt;unk&gt;</code> 而不是 crash；(3) <b>空字串</b>要回傳空 list；(4) 文字中若出現 special token 字面字串，要當成單一 token 切出來，而不是逐字元拆開。</p>
+        <h3>解法說明</h3>
+        <p>把 special tokens 放在 id 空間<b>最前面</b>（固定、可預期），一般字元接在後面。encode 先用正規表示式把 special token 從文字切出來，落在中間的普通片段再逐字元查表，查不到就用 <code>stoi.get(ch, unk_id)</code> 回退。decode 對稱處理，未知 id 也回退到 <code>&lt;unk&gt;</code> 字面。</p>
+<pre><code class="language-python">import re
+from typing import List, Tuple
+
+
+class RobustVocab:
+    def __init__(self, text: str, specials: Tuple[str, ...] = ("&lt;pad&gt;", "&lt;unk&gt;", "&lt;|endoftext|&gt;")):
+        self.unk = "&lt;unk&gt;"
+        chars = sorted(set(text))
+        # Special tokens occupy the lowest, fixed ids.
+        tokens = list(specials) + [c for c in chars if c not in specials]
+        self.stoi = {tok: i for i, tok in enumerate(tokens)}
+        self.itos = {i: tok for tok, i in self.stoi.items()}
+        # Match any special token, longest first, so "&lt;|endoftext|&gt;" wins.
+        escaped = sorted(specials, key=len, reverse=True)
+        self.pattern = re.compile("(" + "|".join(re.escape(s) for s in escaped) + ")")
+
+    def encode(self, s: str) -&gt; List[int]:
+        if not s:                        # Empty input is valid -> empty output.
+            return []
+        unk_id = self.stoi[self.unk]
+        ids = []
+        for chunk in self.pattern.split(s):
+            if chunk == "":
+                continue
+            if chunk in self.stoi and chunk in ("&lt;pad&gt;", "&lt;unk&gt;", "&lt;|endoftext|&gt;"):
+                ids.append(self.stoi[chunk])     # Whole special token.
+            else:
+                ids.extend(self.stoi.get(ch, unk_id) for ch in chunk)
+        return ids
+
+    def decode(self, ids: List[int]) -&gt; str:
+        return "".join(self.itos.get(i, self.unk) for i in ids)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> encode/decode O(N)，regex split 與逐字元查表都是線性。</div>
+          <div><b>Space:</b> O(V)，映射表與編譯後的 pattern。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Enumerate the edge cases up front</h4>
+          <p>"I'd list them explicitly: empty string, unseen characters, special/control tokens, and special tokens that literally appear inside the text. Naming them shows the interviewer I'm thinking about robustness, not just the happy path."</p>
+          <h4>Step 2: Reserve special ids first</h4>
+          <p>"Special tokens go at ids 0..k-1 so they're stable and predictable — the model's <code>&lt;pad&gt;</code> id never shifts when the corpus changes."</p>
+          <h4>Step 3: Walk through a mixed input</h4>
+<pre><code>specials = &lt;pad&gt;=0, &lt;unk&gt;=1, &lt;|endoftext|&gt;=2
+chars:  a=3, b=4, i=5, h=6
+
+encode("hi&lt;|endoftext|&gt;")
+split -> ["hi", "&lt;|endoftext|&gt;", ""]
+"hi"  -> [6, 5]
+token -> [2]
+result -> [6, 5, 2]
+
+encode("bzi")   # 'z' never seen
+-> [4, 1, 5]    # z falls back to &lt;unk&gt;=1
+
+encode("")  -> []</code></pre>
+          <h4>Step 4: Why split on the pattern first?</h4>
+          <p>"If I tokenized character by character, <code>&lt;|endoftext|&gt;</code> would explode into a dozen tokens. Splitting on the special-token regex first keeps it atomic; I sort patterns longest-first so a longer marker isn't shadowed by a shorter one."</p>
+          <h4>Complexity</h4>
+          <p>"Everything is a single linear pass, O(N)."</p>
+          <p><b>中文：</b>面試時把邊界情況先講出來，重點是 special token 要原子化切出，未知字元 <code>.get(ch, unk_id)</code> 安全回退。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="data-loader">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>11. GPT Data Loader</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Data</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給一整串已編碼的 token（一維 tensor <code>data</code>）、<code>batch_size</code> 與 <code>block_size</code>（context 長度），寫一個 <code>get_batch</code> 隨機抽出訓練 batch。回傳 <code>x</code>（shape <code>(B, T)</code>）與 <code>y</code>；<code>y</code> 是 <code>x</code> 整體<b>右移一格</b>的下一個 token，也就是每個位置的預測目標。</p>
+        <h3>解法說明</h3>
+        <p>用 <code>torch.randint</code> 抽 B 個起點 <code>ix</code>，範圍是 <code>len(data) - block_size</code>（保證 <code>i + block_size</code> 不越界，因為 y 還要多取一格）。每個起點切出長度 <code>block_size</code> 的片段當 x，起點 +1 的片段當 y，最後 <code>torch.stack</code> 疊成 batch。</p>
+<pre><code class="language-python">import torch
+from typing import Tuple
+
+
+def get_batch(data: torch.Tensor, batch_size: int, block_size: int) -&gt; Tuple[torch.Tensor, torch.Tensor]:
+    # Random start offsets; -block_size keeps y's last index in range.
+    ix = torch.randint(len(data) - block_size, (batch_size,))
+    x = torch.stack([data[i:i + block_size] for i in ix])
+    y = torch.stack([data[i + 1:i + 1 + block_size] for i in ix])
+    return x, y</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(B · T)，抽樣與複製各 batch 的 tokens。</div>
+          <div><b>Space:</b> O(B · T)，輸出兩個 <code>(B, T)</code> tensor。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Explain the target shift</h4>
+          <p>"GPT is trained on next-token prediction, so the label for position <code>t</code> is the token at <code>t+1</code>. That's why <code>y</code> is <code>x</code> shifted right by one — each of the T positions in a block produces a training signal."</p>
+          <h4>Step 2: Walk through the indexing</h4>
+<pre><code>data = [10, 11, 12, 13, 14, 15]   block_size = 3
+i = 1
+x = data[1:4] = [11, 12, 13]
+y = data[2:5] = [12, 13, 14]
+
+# position-by-position targets:
+# see 11        -> predict 12
+# see 11,12     -> predict 13
+# see 11,12,13  -> predict 14</code></pre>
+          <h4>Step 3: Why <code>len(data) - block_size</code>?</h4>
+          <p>"The largest valid start <code>i</code> must satisfy <code>i + block_size &lt;= len(data)</code> so that <code>y</code>'s slice <code>[i+1 : i+1+block_size]</code> stays in bounds. <code>torch.randint(len(data) - block_size, ...)</code> gives exactly that range."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Train/val split?</b> "Pass in the split tensor, or key on a <code>'train'/'val'</code> argument selecting different data."</li>
+            <li><b>Device?</b> "In practice I'd move x, y to GPU with <code>.to(device)</code>, ideally with <code>pin_memory</code> + non-blocking transfer."</li>
+          </ul>
+          <p><b>中文：</b>核心一句話：y 是 x 右移一格，一個 block 內 T 個位置同時提供 next-token 監督訊號。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="dataset">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>12. GPT Dataset</h2>
+          <div class="badges"><span class="badge easy">Easy</span><span class="badge">Data</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>把上一題的隨機抽樣，改寫成標準的 <code>torch.utils.data.Dataset</code>，好讓官方 <code>DataLoader</code> 負責 shuffle、batching、多進程載入。需要實作 <code>__len__</code> 與 <code>__getitem__</code>，每個 index 用滑動視窗回傳一組 <code>(x, y)</code>，兩者都長 <code>block_size</code> 且 y 相對 x 右移一格。</p>
+        <h3>解法說明</h3>
+        <p><code>__getitem__</code> 一次切出長度 <code>block_size + 1</code> 的 chunk，前 T 個當 x、後 T 個當 y，這樣只需一次 slice。<code>__len__</code> 是 <code>len(data) - block_size</code>，確保最後一個 index 也切得出完整的 <code>block_size + 1</code>。</p>
+<pre><code class="language-python">import torch
+from torch.utils.data import Dataset
+from typing import Tuple
+
+
+class GPTDataset(Dataset):
+    def __init__(self, data: torch.Tensor, block_size: int):
+        self.data = data
+        self.block_size = block_size
+
+    def __len__(self) -&gt; int:
+        # Last valid start needs block_size + 1 tokens available.
+        return len(self.data) - self.block_size
+
+    def __getitem__(self, idx: int) -&gt; Tuple[torch.Tensor, torch.Tensor]:
+        chunk = self.data[idx:idx + self.block_size + 1]
+        x = chunk[:-1]   # tokens 0 .. T-1
+        y = chunk[1:]    # tokens 1 .. T   (shifted by one)
+        return x, y
+
+
+# Usage:
+# loader = DataLoader(GPTDataset(data, block_size=8), batch_size=32, shuffle=True)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> <code>__getitem__</code> O(T) 切片；<code>__len__</code> O(1)。</div>
+          <div><b>Space:</b> O(N) 保存底層 data；每次取出額外 O(T)。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Contrast with get_batch</h4>
+          <p>"The <code>Dataset</code> protocol separates 'how to fetch one example' from 'how to batch/shuffle'. I only define <code>__len__</code> and <code>__getitem__</code>, and <code>DataLoader</code> handles the rest, including multi-worker prefetching."</p>
+          <h4>Step 2: The single-slice trick</h4>
+<pre><code>block_size = 4, idx = 0
+chunk = data[0:5] = [t0, t1, t2, t3, t4]
+x = chunk[:-1] = [t0, t1, t2, t3]
+y = chunk[1:]  = [t1, t2, t3, t4]</code></pre>
+          <p>"Grabbing <code>block_size + 1</code> tokens once and splitting is cleaner than two separate slices."</p>
+          <h4>Step 3: Why that length?</h4>
+          <p>"<code>__len__</code> must exclude the tail where a full <code>block_size + 1</code> window no longer fits, so I return <code>len(data) - block_size</code>. Off-by-one here is the classic bug."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Overlapping vs non-overlapping windows?</b> "This yields overlapping windows (stride 1). For less correlated samples, stride by <code>block_size</code> and divide the length accordingly."</li>
+            <li><b>Huge corpora?</b> "Memory-map the token file so <code>data</code> isn't fully resident in RAM."</li>
+          </ul>
+          <p><b>中文：</b>重點是 <code>len(data) - block_size</code> 的 off-by-one，以及一次切 <code>block_size + 1</code> 再拆成 x/y。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="code-gpt">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>13. Code GPT</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Transformer</span><span class="badge">Self-Attention</span><span class="badge">PyTorch</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>實作一個 decoder-only GPT。輸入 token id <code>idx</code>（shape <code>(B, T)</code>），輸出每個位置對整個 vocab 的 logits <code>(B, T, vocab_size)</code>；若提供 <code>targets</code> 也回傳 cross-entropy loss。要點：token embedding + position embedding、堆疊多個 transformer block（每個 block 含 <b>causal multi-head self-attention</b> 與 feed-forward，皆用 pre-LayerNorm + residual），最後接 LayerNorm 與線性 <code>lm_head</code>。</p>
+        <h3>解法說明</h3>
+        <p>單個 attention head 算 <code>Q, K, V</code>，注意力分數 <code>Q Kᵀ / √d</code>，再用下三角 <code>tril</code> mask 把「看未來」的位置設成 <code>-inf</code>（causal），softmax 後對 V 加權。多頭就是把數個 head 的輸出 concat 再投影。Block 用 pre-norm 殘差：<code>x = x + attn(ln1(x))</code>、<code>x = x + ffn(ln2(x))</code>。GPT 把 token 與 position embedding 相加後過所有 block，最後 <code>lm_head</code> 投影到 vocab。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+
+class Head(nn.Module):
+    """One head of causal self-attention."""
+
+    def __init__(self, n_embd: int, head_size: int, block_size: int, dropout: float):
+        super().__init__()
+        self.key = nn.Linear(n_embd, head_size, bias=False)
+        self.query = nn.Linear(n_embd, head_size, bias=False)
+        self.value = nn.Linear(n_embd, head_size, bias=False)
+        # Lower-triangular mask, registered as a buffer (not a parameter).
+        self.register_buffer("tril", torch.tril(torch.ones(block_size, block_size)))
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        B, T, C = x.shape
+        k = self.key(x)      # (B, T, head_size)
+        q = self.query(x)
+        wei = q @ k.transpose(-2, -1) * k.shape[-1] ** -0.5   # (B, T, T)
+        wei = wei.masked_fill(self.tril[:T, :T] == 0, float("-inf"))   # Causal.
+        wei = F.softmax(wei, dim=-1)
+        wei = self.dropout(wei)
+        v = self.value(x)
+        return wei @ v       # (B, T, head_size)
+
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, n_embd, n_head, block_size, dropout):
+        super().__init__()
+        head_size = n_embd // n_head
+        self.heads = nn.ModuleList(
+            [Head(n_embd, head_size, block_size, dropout) for _ in range(n_head)]
+        )
+        self.proj = nn.Linear(n_embd, n_embd)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x):
+        out = torch.cat([h(x) for h in self.heads], dim=-1)   # (B, T, n_embd)
+        return self.dropout(self.proj(out))
+
+
+class FeedForward(nn.Module):
+    def __init__(self, n_embd, dropout):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(n_embd, 4 * n_embd),   # Expand.
+            nn.ReLU(),
+            nn.Linear(4 * n_embd, n_embd),   # Project back.
+            nn.Dropout(dropout),
+        )
+
+    def forward(self, x):
+        return self.net(x)
+
+
+class Block(nn.Module):
+    def __init__(self, n_embd, n_head, block_size, dropout):
+        super().__init__()
+        self.sa = MultiHeadAttention(n_embd, n_head, block_size, dropout)
+        self.ff = FeedForward(n_embd, dropout)
+        self.ln1 = nn.LayerNorm(n_embd)
+        self.ln2 = nn.LayerNorm(n_embd)
+
+    def forward(self, x):
+        x = x + self.sa(self.ln1(x))   # Pre-norm + residual.
+        x = x + self.ff(self.ln2(x))
+        return x
+
+
+class GPT(nn.Module):
+    def __init__(self, vocab_size, n_embd, n_head, n_layer, block_size, dropout=0.1):
+        super().__init__()
+        self.block_size = block_size
+        self.token_embedding = nn.Embedding(vocab_size, n_embd)
+        self.position_embedding = nn.Embedding(block_size, n_embd)
+        self.blocks = nn.Sequential(
+            *[Block(n_embd, n_head, block_size, dropout) for _ in range(n_layer)]
+        )
+        self.ln_f = nn.LayerNorm(n_embd)
+        self.lm_head = nn.Linear(n_embd, vocab_size)
+
+    def forward(self, idx, targets=None):
+        B, T = idx.shape
+        tok = self.token_embedding(idx)                                   # (B, T, C)
+        pos = self.position_embedding(torch.arange(T, device=idx.device)) # (T, C)
+        x = tok + pos                                                     # Broadcast add.
+        x = self.blocks(x)
+        x = self.ln_f(x)
+        logits = self.lm_head(x)                                          # (B, T, vocab)
+
+        loss = None
+        if targets is not None:
+            B, T, V = logits.shape
+            loss = F.cross_entropy(logits.view(B * T, V), targets.view(B * T))
+        return logits, loss</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> 每層 self-attention O(T² · C)（<code>Q Kᵀ</code> 與加權），feed-forward O(T · C²)；整體 × n_layer。</div>
+          <div><b>Space:</b> O(T²) 的 attention 矩陣（每 head）＋ O(params) 權重。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>為什麼要 causal mask（<code>tril</code>）？</strong>
+          <p>GPT 是自回歸模型，位置 <code>t</code> 只能看到 <code>≤ t</code> 的 token。把上三角（未來）位置的 attention 分數設成 <code>-inf</code>，softmax 後就變成 0 權重，等於「看不到未來」。少了這個 mask，模型訓練時會偷看答案，推論時卻沒有，導致嚴重不一致。</p>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Frame the architecture top-down</h4>
+          <p>"A GPT is: embed tokens and positions, run N identical transformer blocks, layer-norm, then a linear head to vocab logits. Each block mixes information across time via self-attention, then transforms each position independently via an MLP."</p>
+          <h4>Step 2: Explain one attention head</h4>
+          <p>"Each position emits a query, key, and value. The score <code>q·k</code> measures relevance; I scale by <code>1/√d</code> to keep softmax gradients healthy, mask the future, softmax to weights, and take a weighted sum of values."</p>
+<pre><code>x: (B, T, C) = (32, 8, 64),  n_head = 4 -> head_size = 16
+q,k,v: (B, T, 16)
+wei = q @ k.transpose(-2,-1) / sqrt(16)  -> (B, T, T) = (32, 8, 8)
+masked_fill upper triangle with -inf, softmax over last dim
+out = wei @ v -> (B, T, 16); concat 4 heads -> (B, T, 64)</code></pre>
+          <h4>Step 3: Explain the block wiring</h4>
+          <p>"I use pre-norm residuals: <code>x = x + sa(ln1(x))</code> then <code>x = x + ff(ln2(x))</code>. The residual gives a gradient highway so deep stacks stay trainable; pre-norm (norm before the sublayer) is more stable than the original post-norm."</p>
+          <h4>Step 4: Explain the loss reshaping</h4>
+          <p>"<code>F.cross_entropy</code> expects <code>(N, vocab)</code> logits and <code>(N,)</code> targets, so I flatten <code>(B, T, V)</code> to <code>(B·T, V)</code> and targets to <code>(B·T,)</code>. Every one of the B·T positions contributes a next-token loss."</p>
+          <h4>Step 5: Complexity</h4>
+          <p>"Attention is O(T²·C) per layer — quadratic in sequence length, which is the well-known bottleneck that KV-cache and efficient-attention variants target."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why scale by 1/√d?</b> "Dot products grow with dimension; without scaling, softmax saturates and gradients vanish."</li>
+            <li><b>Weight tying?</b> "GPT-2 ties <code>token_embedding</code> and <code>lm_head</code> weights to save parameters and often improve quality."</li>
+            <li><b>Why buffer for tril?</b> "It's fixed state that should move with <code>.to(device)</code> and be saved, but must not receive gradients — that's exactly a buffer."</li>
+          </ul>
+          <p><b>中文：</b>面試時由上而下講：embedding → N 個 block（causal self-attention + MLP，pre-norm 殘差）→ lm_head，並強調 <code>1/√d</code> 縮放與 causal mask 的必要性。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="train">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>14. Train Your GPT</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Training</span><span class="badge">Optimizer</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>寫出 GPT 的訓練迴圈：用 <code>AdamW</code> 當 optimizer，每個 step 抽一個 batch、forward 得到 loss、<code>zero_grad</code> → <code>backward</code> → <code>step</code>，並週期性用<b>不算梯度</b>的方式估計 train/val loss 監控是否過擬合。</p>
+        <h3>解法說明</h3>
+        <p><code>estimate_loss</code> 加 <code>@torch.no_grad()</code> 與 <code>model.eval()</code>（關掉 dropout），多抽幾個 batch 取平均降低雜訊，結束再切回 <code>model.train()</code>。訓練迴圈標準四步：<code>zero_grad(set_to_none=True)</code> 較省記憶體、<code>loss.backward()</code> 反傳、<code>optimizer.step()</code> 更新。</p>
+<pre><code class="language-python">import torch
+
+
+@torch.no_grad()
+def estimate_loss(model, get_batch, eval_iters: int = 200):
+    out = {}
+    model.eval()                       # Disable dropout for stable measurement.
+    for split in ("train", "val"):
+        losses = torch.zeros(eval_iters)
+        for k in range(eval_iters):
+            x, y = get_batch(split)
+            _, loss = model(x, y)
+            losses[k] = loss.item()
+        out[split] = losses.mean().item()
+    model.train()                      # Back to training mode.
+    return out
+
+
+def train(model, get_batch, max_iters=5000, lr=3e-4, eval_interval=500):
+    optimizer = torch.optim.AdamW(model.parameters(), lr=lr)
+
+    for step in range(max_iters):
+        if step % eval_interval == 0:
+            losses = estimate_loss(model, get_batch)
+            print(f"step {step}: train {losses['train']:.4f}, val {losses['val']:.4f}")
+
+        xb, yb = get_batch("train")
+        _, loss = model(xb, yb)
+        optimizer.zero_grad(set_to_none=True)   # Clear old gradients.
+        loss.backward()                         # Backprop.
+        optimizer.step()                        # Update parameters.
+
+    return model</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(max_iters · forward_cost)，每步一次 forward+backward。</div>
+          <div><b>Space:</b> O(params + activations)，AdamW 另需約 2× 參數量的 optimizer state（一階、二階動量）。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: State the training loop skeleton</h4>
+          <p>"The core is four lines per step: forward to a loss, <code>zero_grad</code>, <code>backward</code>, <code>step</code>. Everything else — eval, logging, scheduling — wraps around that."</p>
+          <h4>Step 2: Why the eval helper is decorated</h4>
+          <p>"<code>@torch.no_grad()</code> stops building the autograd graph, saving memory and time, and <code>model.eval()</code> turns off dropout so the measurement isn't noisy. I average over many batches, then restore <code>train()</code> mode — forgetting to switch back is a common bug."</p>
+          <h4>Step 3: Why AdamW, why zero_grad</h4>
+          <p>"AdamW decouples weight decay from the adaptive step, which is the standard for transformers. Gradients accumulate by default in PyTorch, so I must clear them each step; <code>set_to_none=True</code> is a slightly cheaper reset."</p>
+<pre><code>step 0:    train 4.20, val 4.21
+step 500:  train 2.55, val 2.58
+step 1000: train 2.10, val 2.19   # val lagging -> mild overfit starting
+...</code></pre>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Gradient clipping?</b> "Add <code>clip_grad_norm_(model.parameters(), 1.0)</code> before <code>step</code> to tame exploding gradients."</li>
+            <li><b>LR schedule?</b> "Warmup then cosine decay is typical for GPT-style training."</li>
+            <li><b>Mixed precision?</b> "Wrap forward in <code>autocast</code> and use a <code>GradScaler</code> for bf16/fp16 speedups."</li>
+          </ul>
+          <p><b>中文：</b>核心四步 forward→zero_grad→backward→step；eval 要包 <code>no_grad</code>＋<code>eval()</code> 並記得切回 <code>train()</code>。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="generate">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>15. Make GPT Talk Back</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Inference</span><span class="badge">Sampling</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>實作自回歸生成 <code>generate</code>。給一段起始 context <code>idx</code>（shape <code>(B, T)</code>）與要生成的 <code>max_new_tokens</code>，反覆：把序列餵進模型 → 取<b>最後一個位置</b>的 logits → 用 <code>temperature</code>（與可選 <code>top_k</code>）調整 → softmax 成機率 → <code>multinomial</code> 抽下一個 token → 接回序列。注意每步都要把 context 裁到最多 <code>block_size</code> 個 token。</p>
+        <h3>解法說明</h3>
+        <p>只取 <code>logits[:, -1, :]</code> 是因為生成只關心「下一個」token。<code>temperature</code> &lt; 1 讓分布更尖銳（保守），&gt; 1 更發散（有創意）。<code>top_k</code> 只保留機率最高的 k 個，其餘設 <code>-inf</code>，避免抽到長尾雜訊。<code>multinomial</code> 依機率抽樣（不是永遠取 argmax，才有多樣性）。</p>
+<pre><code class="language-python">import torch
+from torch.nn import functional as F
+
+
+@torch.no_grad()
+def generate(model, idx, max_new_tokens, block_size, temperature=1.0, top_k=None):
+    for _ in range(max_new_tokens):
+        idx_cond = idx[:, -block_size:]          # Never exceed the context window.
+        logits, _ = model(idx_cond)
+        logits = logits[:, -1, :] / temperature  # Only the last step matters.
+
+        if top_k is not None:
+            v, _ = torch.topk(logits, top_k)
+            logits[logits &lt; v[:, [-1]]] = float("-inf")   # Keep top-k only.
+
+        probs = F.softmax(logits, dim=-1)
+        next_id = torch.multinomial(probs, num_samples=1)  # Sample, not argmax.
+        idx = torch.cat((idx, next_id), dim=1)             # Append.
+    return idx</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(max_new_tokens · T² · C)，每步都對整段 context 重跑一次 attention（沒有快取）。</div>
+          <div><b>Space:</b> O(T + params)，序列逐步變長至多 block_size。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Explain autoregression</h4>
+          <p>"Generation is a loop: predict one token, append it, feed the extended sequence back in. The model only ever needs the last position's logits because that's the distribution over the next token."</p>
+          <h4>Step 2: Walk one step</h4>
+<pre><code>idx = [[The, cat]]           # (1, 2)
+logits = model(idx)          # (1, 2, vocab)
+last = logits[:, -1, :]      # (1, vocab)  distribution after "cat"
+probs = softmax(last / temperature)
+next = multinomial(probs)    # e.g. "sat"
+idx = [[The, cat, sat]]      # append, repeat</code></pre>
+          <h4>Step 3: Explain the knobs</h4>
+          <p>"Temperature rescales logits before softmax: low temperature sharpens toward the top choice (more deterministic), high temperature flattens it (more diverse). Top-k masks everything outside the k most likely tokens so we never sample implausible tail tokens."</p>
+          <h4>Step 4: The context crop</h4>
+          <p>"I slice <code>idx[:, -block_size:]</code> every step because the position embedding only has <code>block_size</code> entries — feeding a longer sequence would index out of range."</p>
+          <h4>Step 5: Why sample instead of argmax?</h4>
+          <p>"Pure argmax is deterministic and tends to loop or produce dull text. Sampling from the distribution gives varied, natural output; temperature and top-k control how risky that sampling is."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Top-p / nucleus?</b> "Instead of a fixed k, keep the smallest set of tokens whose cumulative probability exceeds p."</li>
+            <li><b>This is O(T²) per step — can we fix it?</b> "Yes — that's exactly what the KV-cache problem solves."</li>
+          </ul>
+          <p><b>中文：</b>重點是「只取最後位置 logits」、context 要裁到 <code>block_size</code>、以及用 <code>multinomial</code> 抽樣搭配 temperature / top-k 控制多樣性。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="kv-cache">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>16. KV-Cache</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Inference</span><span class="badge">Optimization</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>上一題的生成每步都對整段 context 重算 attention，複雜度 O(T²)。KV-Cache 的洞見是：<b>過去 token 的 Key 與 Value 不會改變</b>，所以可以快取起來；每生成一個新 token，只需算它自己的 Q/K/V，把新的 K、V <b>append</b> 到快取，再讓新 Q 對「快取 + 自己」的 K、V 做 attention。實作一個吃 <code>cache</code>、回傳更新後 <code>cache</code> 的 self-attention。</p>
+        <h3>解法說明</h3>
+        <p>一次算好 <code>qkv</code> 再 split，reshape 成 <code>(B, n_head, T, head_size)</code>。若有 <code>cache=(past_k, past_v)</code>，就沿<b>時間軸（dim=2）</b>把新的 k、v 接到後面；attention 分數是新 Q 對「全部歷史 K」。在解碼階段每步 <code>T == 1</code>，新 query 天生只看得到過去，所以<b>不需要 causal mask</b>。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+
+class CachedSelfAttention(nn.Module):
+    def __init__(self, n_embd: int, n_head: int):
+        super().__init__()
+        assert n_embd % n_head == 0
+        self.n_head = n_head
+        self.head_size = n_embd // n_head
+        self.qkv = nn.Linear(n_embd, 3 * n_embd, bias=False)
+        self.proj = nn.Linear(n_embd, n_embd)
+
+    def forward(self, x, cache=None):
+        B, T, C = x.shape
+        q, k, v = self.qkv(x).split(C, dim=2)
+        # (B, T, C) -&gt; (B, n_head, T, head_size)
+        q = q.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        k = k.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        v = v.view(B, T, self.n_head, self.head_size).transpose(1, 2)
+
+        if cache is not None:
+            past_k, past_v = cache
+            k = torch.cat([past_k, k], dim=2)   # Append along the time axis.
+            v = torch.cat([past_v, v], dim=2)
+        new_cache = (k, v)                      # Hand back for the next step.
+
+        att = q @ k.transpose(-2, -1) * self.head_size ** -0.5
+        # In decode mode T == 1: the single new query only sees past keys,
+        # so an explicit causal mask is unnecessary.
+        att = F.softmax(att, dim=-1)
+        out = att @ v
+        out = out.transpose(1, 2).contiguous().view(B, T, C)
+        return self.proj(out), new_cache</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> 生成 K 個 token 從 O(K · T² · C) 降到 O(K · T · C)：每步新 query 只對 T 個歷史 key 做一次 attention。</div>
+          <div><b>Space:</b> O(T · C) 快取所有層、所有 head 的 K、V（記憶體換時間）。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>KV-Cache 到底省了什麼？</strong>
+          <p>沒有 cache 時，生成第 t 個 token 要重算前面 t 個 token 的 K、V，總成本 1+2+...+K ≈ O(K²)。有了 cache，每個 token 的 K、V 只算一次並存起來，新 token 直接重用，總成本降到 O(K)。代價是要用 O(T·C) 記憶體存快取 —— 這也是長 context LLM 推論的主要記憶體瓶頸，正是 GQA 想進一步壓縮的東西。</p>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: State the redundancy</h4>
+          <p>"During generation without a cache, every step recomputes keys and values for all previous tokens — but those never change once produced. That's pure redundant work."</p>
+          <h4>Step 2: The fix</h4>
+          <p>"Cache the K and V for every past position. Each new step computes Q, K, V only for the single new token, appends its K/V to the cache, and attends the new Q over the full cached K/V."</p>
+<pre><code>Without cache, generating token 4 recomputes K,V for tokens 1..4.
+With cache:
+  step t: q_t, k_t, v_t = project(x_t)          # 1 token only
+  K = cat(cache_K, k_t); V = cat(cache_V, v_t)  # append
+  out = softmax(q_t @ Kᵀ / sqrt(d)) @ V         # attend over history
+  cache = (K, V)                                # carry forward</code></pre>
+          <h4>Step 3: Shapes and the append axis</h4>
+          <p>"Tensors are <code>(B, n_head, T, head_size)</code>. I concatenate along <code>dim=2</code>, the time axis, so the cache grows by one position per step."</p>
+          <h4>Step 4: Why no causal mask in decode?</h4>
+          <p>"When feeding one token at a time, the new query is the most recent position and the cached keys are strictly older, so causality holds automatically. The mask is only needed when processing multiple new positions at once (e.g. the initial prompt)."</p>
+          <h4>Step 5: Complexity and trade-off</h4>
+          <p>"Total generation cost drops from quadratic to linear in sequence length. The price is O(T·C) memory per layer for the cache — which becomes the dominant cost for long contexts and motivates GQA."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Prefill vs decode?</b> "The prompt is processed in one masked forward pass (prefill) that populates the cache; then decode appends one token at a time."</li>
+            <li><b>Memory for long context?</b> "Cache size scales with tokens × layers × heads — that's the exact quantity MQA/GQA shrink by sharing KV heads."</li>
+          </ul>
+          <p><b>中文：</b>核心：過去 K/V 不變 → 快取重用 → O(T²) 降 O(T)，沿時間軸 append，decode 時單 token 不需 mask。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="gqa">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>17. Grouped Query Attention (GQA)</h2>
+          <div class="badges"><span class="badge hard">Hard</span><span class="badge">Attention</span><span class="badge">Efficiency</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>標準 multi-head attention 每個 query head 都有專屬的 KV head，KV-Cache 因此很大。GQA 讓 <code>n_kv_head &lt; n_head</code>：把 query head 分成 <code>n_kv_head</code> 組，<b>同一組的多個 query head 共用一組 K、V</b>。實作 GQA：Q 投影出 <code>n_head</code> 組、K/V 只投影出 <code>n_kv_head</code> 組，再用 <code>repeat_kv</code> 把 KV 複製到與 Q 對齊後做 attention。（<code>n_kv_head = 1</code> 就退化成 MQA，<code>n_kv_head = n_head</code> 就是原本的 MHA。）</p>
+        <h3>解法說明</h3>
+        <p>關鍵是 <code>n_rep = n_head // n_kv_head</code>：每個 KV head 要被 <code>n_rep</code> 個 query head 共用。<code>repeat_kv</code> 用 <code>expand</code>（不實際複製記憶體）再 <code>reshape</code> 把 KV 從 <code>(B, n_kv_head, T, d)</code> 展開成 <code>(B, n_head, T, d)</code>，之後就跟一般 MHA 一樣算。省下的是 K/V 投影參數與 <b>KV-Cache 記憶體</b>（縮小 <code>n_rep</code> 倍）。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torch.nn import functional as F
+
+
+def repeat_kv(x: torch.Tensor, n_rep: int) -&gt; torch.Tensor:
+    # (B, n_kv_head, T, d) -&gt; (B, n_kv_head * n_rep, T, d)
+    B, n_kv_head, T, d = x.shape
+    if n_rep == 1:
+        return x
+    x = x[:, :, None, :, :].expand(B, n_kv_head, n_rep, T, d)  # No real copy.
+    return x.reshape(B, n_kv_head * n_rep, T, d)
+
+
+class GroupedQueryAttention(nn.Module):
+    def __init__(self, n_embd: int, n_head: int, n_kv_head: int):
+        super().__init__()
+        assert n_head % n_kv_head == 0
+        self.n_head = n_head
+        self.n_kv_head = n_kv_head
+        self.n_rep = n_head // n_kv_head          # Queries per KV group.
+        self.head_size = n_embd // n_head
+
+        self.q_proj = nn.Linear(n_embd, n_head * self.head_size, bias=False)
+        self.k_proj = nn.Linear(n_embd, n_kv_head * self.head_size, bias=False)
+        self.v_proj = nn.Linear(n_embd, n_kv_head * self.head_size, bias=False)
+        self.o_proj = nn.Linear(n_head * self.head_size, n_embd, bias=False)
+
+    def forward(self, x):
+        B, T, C = x.shape
+        q = self.q_proj(x).view(B, T, self.n_head, self.head_size).transpose(1, 2)
+        k = self.k_proj(x).view(B, T, self.n_kv_head, self.head_size).transpose(1, 2)
+        v = self.v_proj(x).view(B, T, self.n_kv_head, self.head_size).transpose(1, 2)
+
+        k = repeat_kv(k, self.n_rep)   # Share each KV head across its query group.
+        v = repeat_kv(v, self.n_rep)
+
+        att = q @ k.transpose(-2, -1) * self.head_size ** -0.5
+        mask = torch.tril(torch.ones(T, T, device=x.device)).bool()
+        att = att.masked_fill(~mask, float("-inf"))    # Causal.
+        att = F.softmax(att, dim=-1)
+        out = att @ v
+        out = out.transpose(1, 2).contiguous().view(B, T, self.n_head * self.head_size)
+        return self.o_proj(out)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> attention 仍是 O(T² · C)（<code>repeat_kv</code> 用 expand 幾乎零成本）。</div>
+          <div><b>Space:</b> KV projection 參數與 KV-Cache 記憶體都縮小 <code>n_rep = n_head / n_kv_head</code> 倍。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>MHA、GQA、MQA 三者關係</strong>
+          <p><b>MHA</b>（<code>n_kv_head = n_head</code>）：每個 query 有自己的 KV，品質最好但 KV-Cache 最大。<b>MQA</b>（<code>n_kv_head = 1</code>）：全部 query 共用一組 KV，cache 最小但品質掉最多。<b>GQA</b> 是中間地帶：用少數幾組 KV（例如 8 個 query head 共用 2 組 KV），在幾乎不掉品質的前提下大幅縮小 KV-Cache——這正是 Llama 2/3、Mistral 等現代模型的選擇。</p>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Motivate from the KV-cache</h4>
+          <p>"The KV-cache is the memory bottleneck for long-context inference, and its size scales with the number of KV heads. GQA shrinks it by letting several query heads share one key/value head."</p>
+          <h4>Step 2: Define the grouping</h4>
+          <p>"With <code>n_head</code> query heads and <code>n_kv_head</code> KV heads, each KV head serves <code>n_rep = n_head / n_kv_head</code> queries. So Q is projected to full width, but K and V are projected to only <code>n_kv_head</code> heads' worth."</p>
+<pre><code>n_head = 8, n_kv_head = 2  ->  n_rep = 4
+Q heads:  q0 q1 q2 q3 | q4 q5 q6 q7
+KV heads:      kv0     |     kv1
+group 0: q0..q3 all attend using kv0
+group 1: q4..q7 all attend using kv1
+
+repeat_kv: (B, 2, T, d) -> expand -> (B, 8, T, d)   # aligns with Q</code></pre>
+          <h4>Step 3: Explain repeat_kv</h4>
+          <p>"I insert a repeat axis and <code>expand</code> it — that creates a broadcast view without copying memory — then <code>reshape</code> to interleave the repeats so KV head <code>g</code> lines up with its <code>n_rep</code> query heads. After that, the math is identical to plain multi-head attention."</p>
+          <h4>Step 4: The spectrum</h4>
+          <p>"<code>n_kv_head = n_head</code> recovers MHA; <code>n_kv_head = 1</code> is MQA. GQA sits in between, capturing most of MHA's quality at a fraction of the KV memory."</p>
+          <h4>Step 5: What actually gets saved</h4>
+          <p>"Fewer K/V projection parameters, and — crucially at inference — a KV-cache that's <code>n_rep×</code> smaller, which directly raises the max batch size and context length you can serve."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Does GQA change attention FLOPs?</b> "Barely — after <code>repeat_kv</code> the attention compute matches MHA; the win is memory/bandwidth, not FLOPs."</li>
+            <li><b>How to pick n_kv_head?</b> "Empirically a small number like 8 (Llama-2 70B) retains quality; too few (MQA) can hurt on harder tasks."</li>
+          </ul>
+          <p><b>中文：</b>重點：<code>n_rep = n_head / n_kv_head</code>，數個 query 共用一組 KV，用 <code>expand</code> 展開幾乎零成本，主要省的是 KV-Cache 記憶體。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Built for NLP · Attention &amp; Transformers · "Build a GPT" ML coding practice · PyTorch solutions with Traditional Chinese explanations and interview flows.
+</footer>
+<script>
+(() => {
+  const keywords = new Set([
+    "and", "as", "assert", "break", "class", "continue", "def", "del", "elif",
+    "else", "except", "False", "finally", "for", "from", "if", "import", "in",
+    "is", "lambda", "None", "nonlocal", "not", "or", "pass", "raise", "return",
+    "True", "try", "while", "with", "yield", "global",
+  ]);
+  const builtins = new Set([
+    "abs", "all", "any", "bool", "bytes", "dict", "divmod", "enumerate", "float",
+    "getattr", "int", "isinstance", "len", "list", "map", "max", "min", "ord",
+    "print", "property", "range", "reversed", "set", "sorted", "str", "sum",
+    "super", "tuple", "zip",
+  ]);
+  const types = new Set([
+    "List", "Dict", "Tuple", "Counter", "Optional", "Tensor", "Dataset",
+    "BagOfWords", "WordEmbeddings", "SentimentClassifier", "SelfAttention",
+    "MultiHeadSelfAttention", "TransformerBlock",
+    "BPETokenizer", "CharVocab", "RobustVocab", "GPTDataset", "Head",
+    "MultiHeadAttention", "FeedForward", "Block", "GPT", "CachedSelfAttention",
+    "GroupedQueryAttention",
+  ]);
+  const escapeHtml = (text) => text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const span = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  function readString(code, start) {
+    const prefixMatch = code.slice(start).match(/^([rRuUbBfF]{0,2})(?:"""|'''|"|')/);
+    if (!prefixMatch) return null;
+
+    const prefix = prefixMatch[1];
+    const quoteStart = start + prefix.length;
+    const quote = code.startsWith('"""', quoteStart) || code.startsWith("'''", quoteStart)
+      ? code.slice(quoteStart, quoteStart + 3)
+      : code[quoteStart];
+    let i = quoteStart + quote.length;
+
+    while (i < code.length) {
+      if (code.startsWith(quote, i)) {
+        i += quote.length;
+        break;
+      }
+      if (quote.length === 1 && code[i] === "\\") {
+        i += 2;
+      } else {
+        i += 1;
+      }
+    }
+
+    return i;
+  }
+
+  function highlightPython(code) {
+    let html = "";
+    let i = 0;
+
+    while (i < code.length) {
+      const ch = code[i];
+
+      if (ch === "#") {
+        const end = code.indexOf("\n", i);
+        const stop = end === -1 ? code.length : end;
+        html += span("py-comment", code.slice(i, stop));
+        i = stop;
+        continue;
+      }
+
+      const stringEnd = readString(code, i);
+      if (stringEnd !== null) {
+        html += span("py-string", code.slice(i, stringEnd));
+        i = stringEnd;
+        continue;
+      }
+
+      if (/\d/.test(ch)) {
+        const match = code.slice(i).match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?)/);
+        html += span("py-number", match[0]);
+        i += match[0].length;
+        continue;
+      }
+
+      if (/[A-Za-z_]/.test(ch)) {
+        const match = code.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+        const word = match[0];
+        const after = code.slice(i + word.length).match(/^\s*\(/);
+        let className = "";
+        if (keywords.has(word)) className = "py-keyword";
+        else if (builtins.has(word)) className = "py-builtin";
+        else if (types.has(word) || /^[A-Z]/.test(word)) className = "py-type";
+        else if (after) className = "py-function";
+
+        html += className ? span(className, word) : escapeHtml(word);
+        i += word.length;
+        continue;
+      }
+
+      if (/[-+*/%=!<>|&~^:,.()[\]{}@]/.test(ch)) {
+        html += span("py-operator", ch);
+      } else {
+        html += escapeHtml(ch);
+      }
+      i += 1;
+    }
+
+    return html;
+  }
+
+  document.querySelectorAll("pre code.language-python").forEach((block) => {
+    block.innerHTML = highlightPython(block.textContent);
+  });
+})();
+</script>
+</body>
+</html>
