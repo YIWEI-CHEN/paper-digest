@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT-2 Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px;color:var(--ink)}
+  li{margin:7px 0}
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">OpenAI 2019 · Paper Digest</div>
+    <h1 class="title">GPT-<span class="sql">2</span></h1>
+    <p class="subtitle">Language Models are Unsupervised Multitask Learners — train a big Transformer LM to predict a large, diverse web corpus, and it starts doing QA, translation, and summarization <em>zero-shot</em> — no per-task labels, no architecture changes.</p>
+    <div class="meta-row">
+      <span class="tag lit">Zero-Shot Transfer</span>
+      <span class="tag lit">Unsupervised Multitask</span>
+      <span class="tag">WebText</span>
+      <span class="tag">Byte-level BPE</span>
+      <span class="tag">1.5B Transformer</span>
+    </div>
+    <p class="authors">Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, Ilya Sutskever · OpenAI · <a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">PDF (OpenAI)</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#idea">02 Core Idea</a>
+    <a href="#webtext">03 WebText</a>
+    <a href="#model">04 Input &amp; Model</a>
+    <a href="#lm">05 LM Results</a>
+    <a href="#tasks">06 Downstream (Zero-shot)</a>
+    <a href="#memo">07 Memorization</a>
+    <a href="#limits">08 Limitations</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>The Problem — Why Zero-Shot</h2>
+    <p class="lead">Mainstream NLP was "one task, one dataset, one supervised model." The authors argue that this single-task, single-domain regime is a major cause of the field's poor generalization.</p>
+
+    <p>The dominant recipe circa 2018–2019 was: <strong>collect labeled data for a task → train a model to imitate it → test on IID held-out examples</strong>. This works for "narrow experts," but the authors note such systems are brittle — reading-comprehension, image-classification, and captioning models behave erratically under small input shifts.</p>
+
+    <p>The alternative is <strong>multitask learning</strong>, promising in theory but nascent in NLP at the time. The two most ambitious efforts (McCann 2018's decaNLP, Bowman 2018) trained on only <span class="hl">10 and 17 (dataset, objective) pairs</span> respectively. From a meta-learning view, each such pair is a single training example drawn from the distribution of tasks — and since current systems need hundreds-to-thousands of examples to generalize, brute-forcing generality by hand-authoring datasets and objectives is unlikely to scale.</p>
+
+    <div class="callout">
+      <p><strong>The bet:</strong> Instead of curating supervised data per task, train a <span class="hl">sufficiently large language model</span> to predict naturally occurring web text. Since the web already contains scattered demonstrations of many tasks (translation, QA, summarization…), a high-capacity LM will be forced to <em>learn to perform them</em> just to predict the text better.</p>
+    </div>
+
+    <p>The paper connects two lines of work — (1) the pre-train + supervised-finetune transfer trend, and (2) using LMs directly for specific tasks (commonsense reasoning, sentiment) — and pushes further: <strong>test what an LM can do zero-shot, with no parameter or architecture modification whatsoever.</strong></p>
+  </div>
+</section>
+
+<section id="idea">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Core Idea — An LM Is an Unsupervised Multitask Learner</h2>
+    <p class="lead">The key insight: language itself is a general-purpose "task specification language." Write the task, input, and output as one symbol sequence, and a single LM can model all tasks at once.</p>
+
+    <p>A language model does unsupervised distribution estimation over sequences. Given <code>(s₁, s₂, …, sₙ)</code>, the natural ordering of language lets us factor the joint probability as a product of conditionals:</p>
+
+    <div class="formula">p(x) = &prod;<sub>i=1..n</sub> p(s<sub>n</sub> | s<sub>1</sub>, …, s<sub>n-1</sub>)<br><span style="color:var(--muted)">Autoregressive factorization: next symbol conditioned on all prior symbols</span></div>
+
+    <p>A single task is estimating <code>p(output | input)</code>. But a general system must produce different outputs for the same input under different tasks, so it should model:</p>
+
+    <div class="formula">p(output | input, <span class="str">task</span>)<br><span style="color:var(--muted)">Task conditioning: output depends on the input AND the task to perform</span></div>
+
+    <p>Task conditioning has usually been done at the <strong>architecture level</strong> (task-specific encoders/decoders) or the <strong>algorithm level</strong> (e.g. MAML's inner/outer loops). McCann (2018) showed a cleaner way: <span class="hl">express task, input, and output all as one sequence of symbols</span>. For example:</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <rect x="30" y="30" width="760" height="70" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="50" y="60" fill="#93a1b3" font-size="13">Translation, as a sequence:</text>
+        <text x="50" y="85" fill="#5ad1c0" font-size="14">(<tspan fill="#f4a259">translate to french</tspan>, english text, <tspan fill="#f4a259">french text</tspan>)</text>
+
+        <rect x="30" y="120" width="760" height="70" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="50" y="150" fill="#93a1b3" font-size="13">Reading comprehension, as a sequence:</text>
+        <text x="50" y="175" fill="#5ad1c0" font-size="14">(<tspan fill="#f4a259">answer the question</tspan>, document, question, <tspan fill="#f4a259">answer</tspan>)</text>
+
+        <text x="400" y="225" fill="#93a1b3" font-size="12" text-anchor="middle">The supervised objective is the unsupervised objective evaluated on a subset &rarr; same global minimum</text>
+      </svg>
+      <div class="figcap">Fig 1 · Specifying tasks as symbol sequences (redrawn from §2)</div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The crucial argument:</strong> The supervised and unsupervised objectives are <span class="hl2">the same objective</span> — the supervised one is just evaluated on a subset of the sequence. So the global minimum of the unsupervised objective is also the global minimum of the supervised one. The only remaining question is whether it can be optimized to convergence in practice. Preliminary experiments confirmed large LMs <em>can</em> multitask this way — just <span class="hl">much slower than explicit supervision</span>.</p>
+    </div>
+
+    <p>Rather than a dialog-based route (which needs interaction and a reward signal), the authors argue: <strong>the internet holds a vast amount of passively available information, and a high-capacity LM will begin to infer and perform the tasks demonstrated in that text simply to predict it better.</strong> If so, it is effectively performing unsupervised multitask learning.</p>
+  </div>
+</section>
+
+<section id="webtext">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>WebText — Using Reddit as a Quality Filter</h2>
+    <p class="lead">To expose the LM to varied task demonstrations, the data must be large and diverse — but not Common-Crawl-grade garbage. The authors used a clever heuristic: let Reddit users do the filtering.</p>
+
+    <p>Web scrapes like Common Crawl are huge but suffer serious quality issues (Trinh &amp; Le 2018 complained many documents are "mostly unintelligible"). Rather than selecting documents similar to a target task — which pre-commits to which tasks matter — the authors built a scrape emphasizing <strong>document quality</strong>:</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Scrape outbound Reddit links</h4>
+        <p>All outbound links from Reddit posts with <span class="hl">at least 3 karma</span>. 3 karma is a heuristic that other users found the link interesting, educational, or funny — human upvotes as a quality filter.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Extract the text</h4>
+        <p><span class="hl">45 million links</span> total. Text extracted from HTML using a combination of the Dragnet and Newspaper content extractors.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>De-duplicate &amp; clean</h4>
+        <p>Only links created before Dec 2017 (preliminary version). After de-duplication and heuristic cleaning: <span class="hl">slightly over 8 million documents, 40 GB of text</span>.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Remove Wikipedia</h4>
+        <p>All Wikipedia documents were <span class="hl2">deliberately removed</span> — it is a common source for other datasets, and keeping it would complicate the train/test overlap analysis.</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>An unintended byproduct:</strong> Even though non-English pages were filtered out, WebText still contained many naturally occurring English↔French translation demonstrations (e.g. <em>"…in French: 'parfum.'"</em>). This is why GPT-2 later showed some translation ability <span class="hl">despite never being taught to translate</span> — a byte-level language detector found only ~10MB of French in all of WebText, roughly 500× smaller than the monolingual French corpora typical in unsupervised MT research.</p>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Input Representation &amp; Model — Byte-level BPE + 4 Sizes</h2>
+    <p class="lead">To let the LM assign probability to <em>any</em> string (free of tokenization / lowercasing / OOV restrictions), GPT-2 uses byte-level BPE. The architecture is mostly GPT with minor tweaks, trained at 4 log-uniformly spaced sizes.</p>
+
+    <h3>Byte-level BPE: the middle ground between char and word</h3>
+    <p>Raw UTF-8 bytes are universal, but byte-level LMs of the day couldn't match word-level LMs at scale. BPE (Byte Pair Encoding) interpolates between the two: word-level inputs for frequent sequences, character-level for infrequent ones. But reference BPE runs on Unicode code points, giving a base vocab over 130,000; a <span class="hl">byte-level BPE needs a base vocab of only 256</span>.</p>
+    <p>Applying BPE directly to byte sequences produced sub-optimal merges — the greedy heuristic would learn many variants like <code>dog</code>, <code>dog!</code>, <code>dog?</code> as distinct tokens, wasting vocab slots. Fix: <strong>prevent BPE from merging across character categories</strong> (with an exception for spaces), preserving word integrity while keeping compression efficient. Final <span class="hl">vocabulary of 50,257</span>. This lets GPT-2 score any Unicode string, so it can be evaluated on any dataset regardless of preprocessing.</p>
+
+    <h3>Model: essentially a scaled-up GPT</h3>
+    <p>The architecture follows OpenAI GPT (a Transformer decoder) with: Layer Norm moved to the <strong>input</strong> of each sub-block (pre-activation), an <strong>extra LayerNorm after the final self-attention block</strong>, residual weights scaled by <strong>1/&radic;N</strong> at init (N = number of residual layers), context expanded from 512 to <span class="hl">1024</span>, and a batch size of <span class="hl">512</span>.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Architecture hyperparameters for the 4 model sizes</caption>
+        <thead><tr><th>Parameters</th><th>Layers</th><th>d<sub>model</sub></th><th>Equivalent to</th></tr></thead>
+        <tbody>
+          <tr><td class="num">117M</td><td class="num">12</td><td class="num">768</td><td>≈ original GPT</td></tr>
+          <tr><td class="num">345M</td><td class="num">24</td><td class="num">1024</td><td>≈ BERT-Large</td></tr>
+          <tr><td class="num">762M</td><td class="num">36</td><td class="num">1280</td><td>—</td></tr>
+          <tr class="best"><td class="num ours">1542M</td><td class="num">48</td><td class="num">1600</td><td class="ours">GPT-2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Worth remembering:</strong> Each model's learning rate was hand-tuned for best perplexity on a 5% held-out WebText sample, and — <span class="hl2">"all models still underfit WebText and held-out perplexity has as of yet improved given more training time."</span> Even the 1.5B GPT-2 hadn't fully digested WebText.</p>
+    </div>
+  </div>
+</section>
+
+<section id="lm">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Language Modeling Results — 7 of 8 Datasets</h2>
+    <p class="lead">The first zero-shot test is the LM's home turf: take the WebText LM directly to other LM datasets and compute perplexity / accuracy, with no finetuning. Because byte-level modeling needs no lossy preprocessing, GPT-2 can be evaluated on <em>any</em> LM benchmark.</p>
+
+    <p>To remove tokenization artifacts (disconnected punctuation, contractions, shuffled sentences, and the ultra-rare <code>&lt;UNK&gt;</code> — occurring just 26 times in 40 billion bytes), the authors apply <strong>invertible de-tokenizers</strong> as a simple form of domain adaptation, worth 2.5–5 perplexity. Result: GPT-2 sets new zero-shot SOTA on <span class="hl">7 of 8 datasets</span>.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · Zero-shot results (no training/finetuning). ↓ lower is better, ↑ higher is better</caption>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th>LAMBADA<br>PPL ↓</th>
+            <th>LAMBADA<br>ACC ↑</th>
+            <th>CBT-CN<br>ACC ↑</th>
+            <th>CBT-NE<br>ACC ↑</th>
+            <th>WikiText2<br>PPL ↓</th>
+            <th>PTB<br>PPL ↓</th>
+            <th>enwik8<br>BPB ↓</th>
+            <th>text8<br>BPC ↓</th>
+            <th>WikiText103<br>PPL ↓</th>
+            <th>1BW<br>PPL ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Prior SOTA</td>
+            <td class="num">99.8</td><td class="num">59.23</td><td class="num">85.7</td><td class="num">82.3</td>
+            <td class="num">39.14</td><td class="num">46.54</td><td class="num">0.99</td><td class="num">1.08</td>
+            <td class="num">18.3</td><td class="num">21.8</td>
+          </tr>
+          <tr>
+            <td>117M</td>
+            <td class="num">35.13</td><td class="num">45.99</td><td class="num">87.65</td><td class="num">83.4</td>
+            <td class="num">29.41</td><td class="num">65.85</td><td class="num">1.16</td><td class="num">1.17</td>
+            <td class="num">37.50</td><td class="num">75.20</td>
+          </tr>
+          <tr>
+            <td>345M</td>
+            <td class="num">15.60</td><td class="num">55.48</td><td class="num">92.35</td><td class="num">87.1</td>
+            <td class="num">22.76</td><td class="num">47.33</td><td class="num">1.01</td><td class="num">1.06</td>
+            <td class="num">26.37</td><td class="num">55.72</td>
+          </tr>
+          <tr>
+            <td>762M</td>
+            <td class="num">10.87</td><td class="num">60.12</td><td class="num">93.45</td><td class="num">88.0</td>
+            <td class="num">19.93</td><td class="num">40.31</td><td class="num">0.97</td><td class="num">1.02</td>
+            <td class="num">22.05</td><td class="num">44.575</td>
+          </tr>
+          <tr class="best">
+            <td class="ours">1542M (GPT-2)</td>
+            <td class="num">8.63</td><td class="num">63.24</td><td class="num">93.30</td><td class="num">89.05</td>
+            <td class="num">18.34</td><td class="num">35.76</td><td class="num">0.93</td><td class="num">0.98</td>
+            <td class="num">17.48</td><td class="num">42.16</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>Biggest gains: small datasets</h4><p>PTB and WikiText-2 (only 1–2M training tokens) improve most (PTB 46.54 → 35.76).</p></div>
+      <div class="card"><h4>Also: long-dependency sets</h4><p>LAMBADA and CBT, built to test long-range dependencies, improve sharply (LAMBADA PPL 99.8 → 8.63).</p></div>
+      <div class="card"><h4>The one it loses: 1BW</h4><p>On the 1 Billion Word benchmark, GPT-2 (42.16) is far worse than SOTA (21.8) — it's the largest set and the most destructively preprocessed; sentence-level shuffling destroys all long-range structure.</p></div>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="30" x2="70" y2="250" stroke="#26313f"/>
+        <line x1="70" y1="250" x2="680" y2="250" stroke="#26313f"/>
+        <text x="30" y="40" fill="#93a1b3" font-size="11">ACC%</text>
+        <text x="55" y="254" fill="#93a1b3" font-size="10" text-anchor="end">40</text>
+        <text x="55" y="150" fill="#93a1b3" font-size="10" text-anchor="end">55</text>
+        <text x="55" y="50" fill="#93a1b3" font-size="10" text-anchor="end">65</text>
+        <line x1="70" y1="150" x2="680" y2="150" stroke="#1b2430"/>
+        <circle cx="150" cy="199.7" r="5" fill="#5ad1c0"/>
+        <circle cx="320" cy="119.9" r="5" fill="#5ad1c0"/>
+        <circle cx="490" cy="80.9" r="5" fill="#5ad1c0"/>
+        <circle cx="640" cy="54.7" r="5" fill="#5ad1c0"/>
+        <polyline points="150,199.7 320,119.9 490,80.9 640,54.7" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="150" y="275" fill="#93a1b3" font-size="10" text-anchor="middle">117M</text>
+        <text x="320" y="275" fill="#93a1b3" font-size="10" text-anchor="middle">345M</text>
+        <text x="490" y="275" fill="#93a1b3" font-size="10" text-anchor="middle">762M</text>
+        <text x="640" y="275" fill="#f4a259" font-size="10" text-anchor="middle">1.5B ★</text>
+        <text x="150" y="192" fill="#93a1b3" font-size="10" text-anchor="middle">46.0</text>
+        <text x="320" y="112" fill="#93a1b3" font-size="10" text-anchor="middle">55.5</text>
+        <text x="490" y="73" fill="#93a1b3" font-size="10" text-anchor="middle">60.1</text>
+        <text x="640" y="47" fill="#5ad1c0" font-size="10" text-anchor="middle">63.2</text>
+      </svg>
+      <div class="figcap">Fig 2 · LAMBADA accuracy rises roughly log-linearly with model size (data from Table 3)</div>
+    </div>
+  </div>
+</section>
+
+<section id="tasks">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Downstream Tasks — How Far Zero-Shot Reaches</h2>
+    <p class="lead">Beyond language modeling, the authors test a row of classic NLP tasks. The consistent pattern: bigger capacity → better zero-shot performance, and you need enough capacity before beating trivial baselines.</p>
+
+    <h3>Reading Comprehension (CoQA)</h3>
+    <p>Feed GPT-2 the document + conversation history + a final <code>A:</code>, greedy-decode, and it scores <span class="hl">55 F1</span> on CoQA dev — matching or exceeding 3 of 4 baselines <span class="hl2">without using the 127,000+ labeled QA pairs</span> those baselines trained on. (Supervised SOTA is a BERT-based 89 F1, near human.) The authors note candidly that GPT-2 often relies on simple retrieval heuristics — e.g. answering a "who" question with a name from the document.</p>
+
+    <h3>Commonsense Reasoning (Winograd Schema)</h3>
+    <p>Following Trinh &amp; Le (2018)'s probability-scoring formulation, GPT-2 improves SOTA accuracy by 7% to <span class="hl">70.70%</span>. But the dataset is tiny — only 273 examples.</p>
+
+    <h3>Summarization (CNN / Daily Mail)</h3>
+    <p>Append <code>TL;DR:</code> after the article to induce summarization, sample 100 tokens with top-k (k=2), and take the first 3 sentences. On ROUGE, GPT-2 only begins to approach classic neural baselines and just barely beats picking 3 random sentences.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · CNN / Daily Mail summarization ROUGE-F1 (Bottom-Up is SOTA)</caption>
+        <thead><tr><th>Method</th><th>R-1</th><th>R-2</th><th>R-L</th><th>R-AVG</th></tr></thead>
+        <tbody>
+          <tr><td>Bottom-Up Sum (SOTA)</td><td class="num">41.22</td><td class="num">18.68</td><td class="num">38.34</td><td class="num">32.75</td></tr>
+          <tr><td>Lede-3</td><td class="num">40.38</td><td class="num">17.66</td><td class="num">36.62</td><td class="num">31.55</td></tr>
+          <tr><td>Seq2Seq + Attn</td><td class="num">31.33</td><td class="num">11.81</td><td class="num">28.83</td><td class="num">23.99</td></tr>
+          <tr class="best"><td class="ours">GPT-2 TL;DR:</td><td class="num">29.34</td><td class="num">8.27</td><td class="num">26.58</td><td class="num">21.40</td></tr>
+          <tr><td>Random-3</td><td class="num">28.78</td><td class="num">8.63</td><td class="num">25.52</td><td class="num">20.98</td></tr>
+          <tr><td>GPT-2 no hint</td><td class="num">21.58</td><td class="num">4.03</td><td class="num">19.47</td><td class="num">15.03</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>A neat piece of evidence:</strong> removing the <code>TL;DR:</code> hint drops the aggregate metric by <span class="hl">6.4 points</span> (21.40 → 15.03). This proves you can <span class="hl2">invoke task-specific behavior with a natural-language cue rather than an architecture change</span> — the seed of the "prompt" idea.</p>
+    </div>
+
+    <h3>Translation (WMT-14)</h3>
+    <p>Seed the context with <code>english = french</code> example pairs, then end with <code>english =</code> and let it continue. English→French is only <span class="hl">5 BLEU</span> (worse than word-by-word dictionary substitution); but French→English reaches <span class="hl">11.5 BLEU</span>, beating several unsupervised-MT baselines — yet far below the best unsupervised MT of the day (33.5 BLEU). Given WebText has almost no French, the result itself is surprising.</p>
+
+    <h3>Question Answering (Natural Questions)</h3>
+    <p>Seeded with example QA pairs, GPT-2 answers <span class="hl">4.1%</span> of questions correctly by exact match — 5.3× the smallest model (1.0%), again showing capacity is the key factor. It is also well calibrated: on the <span class="hl2">1% of questions it is most confident about</span>, accuracy is <span class="hl">63.1%</span>. Overall it is still far below retrieval-augmented open-domain QA systems (30–50%).</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 (excerpt) · GPT-2's most confident Natural Questions answers (by self-assigned probability)</caption>
+        <thead><tr><th>Question</th><th>Generated Answer</th><th>Probability</th></tr></thead>
+        <tbody>
+          <tr><td>Who wrote the book the origin of species?</td><td>Charles Darwin</td><td class="num">83.4%</td></tr>
+          <tr><td>Who is the founder of the ubuntu project?</td><td>Mark Shuttleworth</td><td class="num">82.0%</td></tr>
+          <tr><td>Who is the quarterback for the green bay packers?</td><td>Aaron Rodgers</td><td class="num">81.1%</td></tr>
+          <tr><td>Panda is a national animal of which country?</td><td>China</td><td class="num">76.8%</td></tr>
+          <tr><td>When was the first star wars film released?</td><td>1977</td><td class="num">71.4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 740 280" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="370" y="24" fill="#93a1b3" font-size="12" text-anchor="middle">zero-shot performance broadly rises with capacity (illustrative, per Figure 1)</text>
+        <g>
+          <text x="130" y="60" fill="#5ad1c0" font-size="11" text-anchor="middle">Reading Comp. (CoQA F1)</text>
+          <polyline points="60,180 110,150 160,120 200,100" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        </g>
+        <g>
+          <text x="360" y="60" fill="#5ad1c0" font-size="11" text-anchor="middle">Translation (BLEU)</text>
+          <polyline points="290,185 340,175 390,150 430,120" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        </g>
+        <g>
+          <text x="600" y="60" fill="#5ad1c0" font-size="11" text-anchor="middle">QA (Natural Q. acc)</text>
+          <polyline points="520,190 570,185 620,170 660,150" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        </g>
+        <g>
+          <text x="230" y="230" fill="#f4a259" font-size="11" text-anchor="middle">Summarization (ROUGE)</text>
+          <polyline points="160,255 210,250 260,242 300,238" fill="none" stroke="#f4a259" stroke-width="2"/>
+        </g>
+        <text x="500" y="248" fill="#93a1b3" font-size="10">x-axis: 117M → 345M → 762M → 1.5B</text>
+      </svg>
+      <div class="figcap">Fig 3 · Illustrative trend of zero-shot performance vs. model size across four task families (redrawn from Figure 1; directional, not exact values)</div>
+    </div>
+  </div>
+</section>
+
+<section id="memo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Memorization vs Generalization — How Bad Is the Overlap?</h2>
+    <p class="lead">The bigger a dataset, the more likely train/test near-duplicates appear, inflating apparent generalization. The authors run an honest overlap analysis with Bloom filters.</p>
+
+    <p>They build Bloom filters over 8-grams of the WebText training set (strings normalized to lowercase alphanumerics with single-space delimiters, false-positive rate bounded by 1/10⁸, verified with 1M strings yielding zero false hits). Then they compute what fraction of each evaluation dataset's 8-grams also appear in WebText train:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · Percentage of test-set 8-grams overlapping with training sets (%)</caption>
+        <thead><tr><th>Overlap with</th><th>PTB</th><th>WikiText-2</th><th>enwik8</th><th>text8</th><th>WikiText-103</th><th>1BW</th></tr></thead>
+        <tbody>
+          <tr><td>WebText train</td><td class="num">2.67</td><td class="num">0.66</td><td class="num">7.50</td><td class="num">2.34</td><td class="num">9.09</td><td class="num">13.19</td></tr>
+          <tr><td>own train split</td><td class="num">0.88</td><td class="num">1.63</td><td class="num">6.31</td><td class="num">3.94</td><td class="num">2.42</td><td class="num">3.75</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The surprising finding:</strong> test sets overlap with WebText train by <span class="hl2">~3.2% on average</span> — but many datasets overlap <span class="hl">more with their own training splits</span> (5.9% on average). 1BW overlaps its own train set by 13.2%. In other words, GPT-2's train/test contamination is no worse than what already exists inside these datasets.</p>
+    </div>
+
+    <ul>
+      <li><strong>CoQA:</strong> ~15% of news-domain documents are already in WebText, and the model does ~3 F1 better on those; the overall dev gain is ~0.5–1.0 F1. But no actual QA pairs are in WebText (CoQA was released after the link cutoff).</li>
+      <li><strong>LAMBADA:</strong> average overlap 1.2%; excluding all overlapping examples shifts PPL 8.6 → 8.7 and ACC 63.2% → 62.9% — a tiny change.</li>
+      <li><strong>Takeaway:</strong> overlap gives a small but consistent benefit, not enough to explain GPT-2's performance. The authors recommend n-gram overlap de-duplication as a standard sanity check for new datasets.</li>
+    </ul>
+
+    <p>Another "not just memorization" signal: on WebText's own held-out set, <strong>train and test performance improve together as the model grows</strong> — indicating even the 1.5B GPT-2 is still underfitting rather than overfitting. The appendix also quantifies that GPT-2's samples repeat training text <span class="hl">less often</span> than the baseline rate of held-out articles.</p>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Limitations &amp; Discussion — In the Authors' Own Words</h2>
+    <p class="lead">The Discussion is notably restrained. Everything below is a limitation the authors <em>explicitly state</em> — not a later reinterpretation.</p>
+
+    <div class="grid g2">
+      <div class="callout hot"><p><strong>Far from usable:</strong> On reading comprehension, zero-shot GPT-2 is competitive with supervised baselines; but on tasks like summarization, "while it is qualitatively performing the task, its performance is still only rudimentary." Overall, zero-shot GPT-2 is "still far from use-able."</p></div>
+      <div class="callout hot"><p><strong>Many tasks no better than random:</strong> "There are undoubtedly many practical tasks where the performance of GPT-2 is still no better than random"; even on QA and translation, LMs only beat trivial baselines <span class="hl">with sufficient capacity</span>.</p></div>
+      <div class="callout hot"><p><strong>Finetuning ceiling unknown:</strong> zero-shot only establishes a lower bound of potential; the ceiling with finetuning is unclear. The authors plan finetuning experiments on decaNLP and GLUE.</p></div>
+      <div class="callout hot"><p><strong>Uni-directional concern:</strong> it's unclear whether GPT-2's extra data and capacity are enough to overcome the inefficiencies of uni-directional representations demonstrated by BERT.</p></div>
+    </div>
+
+    <h3>The conclusion in one line</h3>
+    <div class="callout">
+      <p>When a large LM is trained on a <span class="hl">sufficiently large and diverse</span> dataset, it performs well across many domains and datasets. GPT-2 zero-shots to SOTA on 7 of 8 LM datasets. The diversity of tasks it performs suggests that <span class="hl2">high-capacity models trained to maximize the likelihood of a sufficiently varied corpus begin to learn to perform a surprising range of tasks without explicit supervision.</span></p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>In hindsight:</strong> This 2019 paper laid the groundwork for GPT-3's in-context / few-shot learning and the entire prompt paradigm. It was the first systematic demonstration that <span class="hl">scale + diverse data → task abilities emerge</span>, and that a natural-language cue like <code>TL;DR:</code> can elicit a specific behavior — the prototype of today's prompting.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Radford, Wu, Child, Luan, Amodei, Sutskever (2019) · OpenAI · "Language Models are Unsupervised Multitask Learners"</p>
+    <p style="margin-top:8px"><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">Paper PDF (OpenAI)</a> · <a href="https://github.com/openai/gpt-2">Code: openai/gpt-2</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a reading digest; figures are redrawn/organized from the paper's content, with all numbers per the original paper.</p>
+  </div>
+</footer>
+</body>
+</html>

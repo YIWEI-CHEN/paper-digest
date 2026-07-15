@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GPT-2 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px;color:var(--ink)}
+  li{margin:7px 0}
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">OpenAI 2019 · 論文導讀</div>
+    <h1 class="title">GPT-<span class="sql">2</span></h1>
+    <p class="subtitle">Language Models are Unsupervised Multitask Learners — 只要在夠大、夠雜的網頁文本上做語言模型預訓練,模型就能在「零樣本」(zero-shot) 下開始執行問答、翻譯、摘要等任務,完全不需要為每個任務標註資料或改架構。</p>
+    <div class="meta-row">
+      <span class="tag lit">Zero-Shot Transfer</span>
+      <span class="tag lit">Unsupervised Multitask</span>
+      <span class="tag">WebText</span>
+      <span class="tag">Byte-level BPE</span>
+      <span class="tag">1.5B Transformer</span>
+    </div>
+    <p class="authors">Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, Ilya Sutskever · OpenAI · <a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">PDF (OpenAI)</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#idea">02 核心觀點</a>
+    <a href="#webtext">03 WebText 資料集</a>
+    <a href="#model">04 輸入表示與模型</a>
+    <a href="#lm">05 語言模型結果</a>
+    <a href="#tasks">06 下游任務 (Zero-shot)</a>
+    <a href="#memo">07 記憶 vs 泛化</a>
+    <a href="#limits">08 限制與討論</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 為什麼要 Zero-Shot</h2>
+    <p class="lead">主流 NLP 的做法是「一個任務,一個資料集,一個監督模型」。作者主張:這種單任務、單領域的訓練,正是當前系統缺乏泛化能力的主因。</p>
+
+    <p>當時 (2018–2019) 打造 ML 系統的主流配方是:<strong>收集某任務的標註資料 → 訓練模型模仿 → 在 IID 的 held-out 集上測試</strong>。這在「窄領域專家」上很有效,但作者指出這類系統其實很脆弱——閱讀理解、影像分類、看圖說話模型在輸入稍有變化時就會出現不穩定的行為。</p>
+
+    <p>另一條路是 <strong>multitask learning</strong>(多任務學習),理論上能提升通用性。但當時 NLP 的多任務訓練還很初期:最有企圖心的兩個工作 (McCann 2018 的 decaNLP、Bowman 2018) 分別也只訓練了 <span class="hl">10 個和 17 個 (dataset, objective) pair</span>。從 meta-learning 的角度看,每個 (dataset, objective) pair 只是「任務分佈」中的一個訓練樣本;而現在的系統要泛化好,往往需要成百上千個樣本——這意味著要靠人工繼續擴充資料集與目標函數來「暴力堆」出通用性,幾乎是不可行的。</p>
+
+    <div class="callout">
+      <p><strong>本文的賭注:</strong>與其為每個任務準備監督資料,不如訓練一個<span class="hl">夠大的語言模型</span>去預測「自然出現在網路上」的文本。因為網路文本裡本來就散落著各種任務的示範(翻譯、問答、摘要……),一個容量夠大的 LM 為了更好地預測這些文本,會被迫「順便學會」執行這些任務。</p>
+    </div>
+
+    <p>作者把兩條研究線接起來——(1) 預訓練 + 監督微調的 transfer 趨勢,以及 (2) 用 LM 直接做特定任務(如常識推理、情感分析)——並更進一步:<strong>不做任何參數更新、不改架構,直接在 zero-shot 設定下測試 LM 能做多少任務。</strong></p>
+  </div>
+</section>
+
+<section id="idea">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>核心觀點 — 語言模型就是無監督的多任務學習器</h2>
+    <p class="lead">關鍵洞察:語言本身就是一種通用的「任務規格語言」。把任務、輸入、輸出都寫成同一串符號序列,語言模型就能同時建模所有任務。</p>
+
+    <p>語言模型的本質是對序列做無監督的機率分佈估計。給定符號序列 <code>(s₁, s₂, …, sₙ)</code>,利用語言的自然順序把聯合機率分解為條件機率的乘積:</p>
+
+    <div class="formula">p(x) = &prod;<sub>i=1..n</sub> p(s<sub>n</sub> | s<sub>1</sub>, …, s<sub>n-1</sub>)<br><span style="color:var(--muted)">自迴歸分解:下一個符號的機率,條件在前面所有符號上</span></div>
+
+    <p>單一任務可以形式化為估計 <code>p(output | input)</code>。但一個通用系統對「同一個輸入」在不同任務下要有不同輸出,所以它應該建模的是——</p>
+
+    <div class="formula">p(output | input, <span class="str">task</span>)<br><span style="color:var(--muted)">任務條件化:輸出同時取決於輸入「和要執行的任務」</span></div>
+
+    <p>過去 task conditioning 常在<strong>架構層</strong>(任務專屬的 encoder/decoder)或<strong>演算法層</strong>(如 MAML 的內外迴圈)實現。但 McCann (2018) 展示了更漂亮的做法:<span class="hl">用語言本身把任務、輸入、輸出全部寫成一串符號</span>。例如:</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 820 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <rect x="30" y="30" width="760" height="70" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="50" y="60" fill="#93a1b3" font-size="13">翻譯任務,寫成序列:</text>
+        <text x="50" y="85" fill="#5ad1c0" font-size="14">(<tspan fill="#f4a259">translate to french</tspan>, english text, <tspan fill="#f4a259">french text</tspan>)</text>
+
+        <rect x="30" y="120" width="760" height="70" rx="10" fill="#1b2430" stroke="#26313f"/>
+        <text x="50" y="150" fill="#93a1b3" font-size="13">閱讀理解任務,寫成序列:</text>
+        <text x="50" y="175" fill="#5ad1c0" font-size="14">(<tspan fill="#f4a259">answer the question</tspan>, document, question, <tspan fill="#f4a259">answer</tspan>)</text>
+
+        <text x="400" y="225" fill="#93a1b3" font-size="12" text-anchor="middle">監督目標只是「在序列子集上」評估的無監督目標 → 兩者的全域最小值相同</text>
+      </svg>
+      <div class="figcap">圖 1 · 用自然語言把任務規格化為符號序列(依論文 §2 概念重繪)</div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>關鍵論證:</strong>監督目標與無監督目標其實是<span class="hl2">同一個目標</span>,只是監督目標只在序列的「一部分」上評估。因此無監督目標的全域最小值,也是監督目標的全域最小值。問題只剩下:實務上能不能把無監督目標優化到收斂?作者的初步實驗確認——夠大的 LM 確實能在這種設定下做多任務學習,只是<span class="hl">學得比明確監督慢得多</span>。</p>
+    </div>
+
+    <p>作者不採用對話式(需要互動與 reward)的路線,而是主張:<strong>網路上有海量、被動可得的資訊,一個容量足夠的 LM 為了更好地預測這些自然出現的示範,就會開始學會推斷並執行其中的任務。</strong>若真如此,它實際上就是在做「無監督的多任務學習」。</p>
+  </div>
+</section>
+
+<section id="webtext">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>WebText — 用 Reddit 當品質過濾器</h2>
+    <p class="lead">既然要 LM「見過」各式各樣的任務示範,資料就得又大又雜,但又不能像 Common Crawl 那樣充滿垃圾。作者用了一個聰明的 heuristic:讓 Reddit 使用者幫忙篩。</p>
+
+    <p>Common Crawl 這類全網爬蟲雖然規模夠大,但資料品質問題嚴重(Trinh &amp; Le 2018 就抱怨很多文件「內容基本上讀不懂」)。與其為特定任務去挑相似文件(那會對「要做哪些任務」預設立場),作者選擇強調<strong>文件品質</strong>的爬法:</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>從 Reddit 抓外連結</h4>
+        <p>爬取所有在 Reddit 上獲得<span class="hl">至少 3 個 karma</span> 的貼文所指向的外部連結。3 karma 是「其他使用者覺得這連結有趣 / 有教育性 / 好笑」的啟發式指標——等於是拿人類的點讚當品質過濾器。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>抽取正文</h4>
+        <p>共 <span class="hl">4,500 萬個連結</span>。用 Dragnet + Newspaper 兩個內容抽取器從 HTML 取出正文。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>去重與清理</h4>
+        <p>只用 2017 年 12 月前的連結(preliminary 版本);經去重與啟發式清理後,得到<span class="hl">略多於 800 萬份文件、共 40 GB 文本</span>。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>移除 Wikipedia</h4>
+        <p>刻意<span class="hl2">移除所有 Wikipedia 文件</span>——因為它是許多評測資料集的共同來源,留著會讓「訓練/測試重疊」的分析變得棘手。</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>意外的副產品:</strong>雖然作者刻意過濾掉了非英文網頁,WebText 裡仍散落著大量「自然出現」的英↔法翻譯示範(如 <em>"…in French: 'parfum.'"</em> 這類句子)。這正是為什麼 GPT-2 後來能在<span class="hl">完全沒被教過翻譯</span>的情況下,還是學到一點翻譯能力——語言偵測器在整個 WebText 裡只找到約 10MB 的法文,比典型無監督翻譯研究用的法文語料小了約 500 倍。</p>
+    </div>
+  </div>
+</section>
+
+<section id="model">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>輸入表示與模型 — Byte-level BPE + 4 種尺寸</h2>
+    <p class="lead">為了讓 LM 能對「任何字串」都給出機率(不受 tokenization / 大小寫 / OOV 限制),GPT-2 採用位元組層級的 BPE;架構則沿用 GPT,只做少量調整,並訓練 4 種 log-uniform 間隔的尺寸。</p>
+
+    <h3>Byte-level BPE:字元與詞的中間地帶</h3>
+    <p>直接用 UTF-8 位元組雖然通用,但當時 byte-level LM 在大規模資料上打不過 word-level LM。BPE (Byte Pair Encoding) 是介於字元與詞之間的折衷:對高頻符號序列用詞級輸入,對低頻用字元級輸入。但參考實作多半跑在 Unicode code point 上,base vocab 會超過 13 萬;而 <span class="hl">byte-level BPE 的 base vocab 只要 256</span>。</p>
+    <p>作者發現直接對位元組序列跑 BPE 會因貪婪合併產生次佳的 merge(例如 <code>dog</code>、<code>dog!</code>、<code>dog?</code> 被當成不同 token,浪費詞彙槽)。解法:<strong>禁止 BPE 跨字元類別合併</strong>(但對空格開例外),兼顧壓縮效率與詞的完整性。最終 <span class="hl">詞彙表擴到 50,257</span>。這讓 GPT-2 能對任何 Unicode 字串算機率,因此可以在任何資料集上評測,不管它的預處理方式。</p>
+
+    <h3>模型:基本上是放大的 GPT</h3>
+    <p>架構沿用 OpenAI GPT (Transformer decoder),差異僅:Layer Norm 移到每個 sub-block 的<strong>輸入端</strong>(pre-activation)、在最後一個 self-attention block 後<strong>再加一層 LayerNorm</strong>、殘差層權重在初始化時<strong>乘上 1/&radic;N</strong>(N 為殘差層數)、context 從 512 增為 <span class="hl">1024</span>、batch size 用 <span class="hl">512</span>。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · 4 種模型尺寸的架構超參數</caption>
+        <thead><tr><th>Parameters</th><th>Layers</th><th>d<sub>model</sub></th><th>對應</th></tr></thead>
+        <tbody>
+          <tr><td class="num">117M</td><td class="num">12</td><td class="num">768</td><td>≈ 原始 GPT</td></tr>
+          <tr><td class="num">345M</td><td class="num">24</td><td class="num">1024</td><td>≈ BERT-Large</td></tr>
+          <tr><td class="num">762M</td><td class="num">36</td><td class="num">1280</td><td>—</td></tr>
+          <tr class="best"><td class="num ours">1542M</td><td class="num">48</td><td class="num">1600</td><td class="ours">GPT-2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>值得記住的一句話:</strong>四種模型的學習率都是針對 5% held-out WebText 的最佳 perplexity 手動調的,而且——<span class="hl2">「所有模型仍然對 WebText 欠擬合 (underfit),給更多訓練時間 held-out perplexity 還會繼續下降」</span>。也就是說連 1.5B 的 GPT-2 都還沒把 WebText「吃飽」。</p>
+    </div>
+  </div>
+</section>
+
+<section id="lm">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>語言模型結果 — 8 個資料集贏 7 個</h2>
+    <p class="lead">第一個 zero-shot 測試就是 LM 的本行:直接拿 WebText LM 去別的語言模型資料集上算 perplexity / accuracy,不做任何微調。因為 byte-level 不需要有損預處理,GPT-2 可以評測「任何」LM benchmark。</p>
+
+    <p>為了移除 tokenization 假象(如斷開的標點、縮寫、被打亂的句子,還有 WebText 裡 40 億位元組只出現 26 次的極罕見 <code>&lt;UNK&gt;</code>),作者用<strong>可逆 de-tokenizer</strong> 當作一種簡單的 domain adaptation,帶來 2.5–5 的 perplexity 增益。結果:GPT-2 在 <span class="hl">8 個資料集中的 7 個</span>刷新了 zero-shot SOTA。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · Zero-shot 結果(未做任何訓練/微調)。↓ 越低越好、↑ 越高越好</caption>
+        <thead>
+          <tr>
+            <th>模型</th>
+            <th>LAMBADA<br>PPL ↓</th>
+            <th>LAMBADA<br>ACC ↑</th>
+            <th>CBT-CN<br>ACC ↑</th>
+            <th>CBT-NE<br>ACC ↑</th>
+            <th>WikiText2<br>PPL ↓</th>
+            <th>PTB<br>PPL ↓</th>
+            <th>enwik8<br>BPB ↓</th>
+            <th>text8<br>BPC ↓</th>
+            <th>WikiText103<br>PPL ↓</th>
+            <th>1BW<br>PPL ↓</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>先前 SOTA</td>
+            <td class="num">99.8</td><td class="num">59.23</td><td class="num">85.7</td><td class="num">82.3</td>
+            <td class="num">39.14</td><td class="num">46.54</td><td class="num">0.99</td><td class="num">1.08</td>
+            <td class="num">18.3</td><td class="num">21.8</td>
+          </tr>
+          <tr>
+            <td>117M</td>
+            <td class="num">35.13</td><td class="num">45.99</td><td class="num">87.65</td><td class="num">83.4</td>
+            <td class="num">29.41</td><td class="num">65.85</td><td class="num">1.16</td><td class="num">1.17</td>
+            <td class="num">37.50</td><td class="num">75.20</td>
+          </tr>
+          <tr>
+            <td>345M</td>
+            <td class="num">15.60</td><td class="num">55.48</td><td class="num">92.35</td><td class="num">87.1</td>
+            <td class="num">22.76</td><td class="num">47.33</td><td class="num">1.01</td><td class="num">1.06</td>
+            <td class="num">26.37</td><td class="num">55.72</td>
+          </tr>
+          <tr>
+            <td>762M</td>
+            <td class="num">10.87</td><td class="num">60.12</td><td class="num">93.45</td><td class="num">88.0</td>
+            <td class="num">19.93</td><td class="num">40.31</td><td class="num">0.97</td><td class="num">1.02</td>
+            <td class="num">22.05</td><td class="num">44.575</td>
+          </tr>
+          <tr class="best">
+            <td class="ours">1542M (GPT-2)</td>
+            <td class="num">8.63</td><td class="num">63.24</td><td class="num">93.30</td><td class="num">89.05</td>
+            <td class="num">18.34</td><td class="num">35.76</td><td class="num">0.93</td><td class="num">0.98</td>
+            <td class="num">17.48</td><td class="num">42.16</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>小資料集大進步</h4><p>PTB、WikiText-2 這種只有 1–2M 訓練 token 的資料集,進步幅度最大(PTB 46.54 → 35.76)。</p></div>
+      <div class="card"><h4>長依賴大進步</h4><p>為長距離依賴設計的 LAMBADA、CBT 也顯著改善(LAMBADA PPL 99.8 → 8.63)。</p></div>
+      <div class="card"><h4>唯一輸的:1BW</h4><p>1 Billion Word 上 GPT-2 (42.16) 仍遠差於 SOTA (21.8)。因為 1BW 是最大且預處理最「破壞性」——句子層級的洗牌把所有長距結構都毀了。</p></div>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="30" x2="70" y2="250" stroke="#26313f"/>
+        <line x1="70" y1="250" x2="680" y2="250" stroke="#26313f"/>
+        <text x="30" y="40" fill="#93a1b3" font-size="11">ACC%</text>
+        <text x="55" y="254" fill="#93a1b3" font-size="10" text-anchor="end">40</text>
+        <text x="55" y="150" fill="#93a1b3" font-size="10" text-anchor="end">55</text>
+        <text x="55" y="50" fill="#93a1b3" font-size="10" text-anchor="end">65</text>
+        <line x1="70" y1="150" x2="680" y2="150" stroke="#1b2430"/>
+        <!-- LAMBADA ACC: 45.99, 55.48, 60.12, 63.24 mapped: acc40->y250, acc65->y40; scale (250-40)/(65-40)=8.4 per pt -->
+        <!-- x positions -->
+        <circle cx="150" cy="199.7" r="5" fill="#5ad1c0"/>
+        <circle cx="320" cy="119.9" r="5" fill="#5ad1c0"/>
+        <circle cx="490" cy="80.9" r="5" fill="#5ad1c0"/>
+        <circle cx="640" cy="54.7" r="5" fill="#5ad1c0"/>
+        <polyline points="150,199.7 320,119.9 490,80.9 640,54.7" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="150" y="275" fill="#93a1b3" font-size="10" text-anchor="middle">117M</text>
+        <text x="320" y="275" fill="#93a1b3" font-size="10" text-anchor="middle">345M</text>
+        <text x="490" y="275" fill="#93a1b3" font-size="10" text-anchor="middle">762M</text>
+        <text x="640" y="275" fill="#f4a259" font-size="10" text-anchor="middle">1.5B ★</text>
+        <text x="150" y="192" fill="#93a1b3" font-size="10" text-anchor="middle">46.0</text>
+        <text x="320" y="112" fill="#93a1b3" font-size="10" text-anchor="middle">55.5</text>
+        <text x="490" y="73" fill="#93a1b3" font-size="10" text-anchor="middle">60.1</text>
+        <text x="640" y="47" fill="#5ad1c0" font-size="10" text-anchor="middle">63.2</text>
+      </svg>
+      <div class="figcap">圖 2 · LAMBADA 準確率隨模型尺寸近似 log-linear 上升(數據取自 Table 3)</div>
+    </div>
+  </div>
+</section>
+
+<section id="tasks">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>下游任務 — Zero-shot 打到哪</h2>
+    <p class="lead">除了語言模型本行,作者還測了一整排「典型 NLP 任務」。整體規律:模型容量越大,zero-shot 表現越好,而且要有足夠容量才開始贏過 trivial baseline。</p>
+
+    <h3>閱讀理解 (CoQA)</h3>
+    <p>把文件 + 對話歷史 + 最後的 <code>A:</code> 餵給 GPT-2,greedy decode,在 CoQA dev 上拿到 <span class="hl">55 F1</span>——在<span class="hl2">完全沒用那 127,000+ 標註問答對</span>的情況下,追平或超越 4 個 baseline 系統中的 3 個。(監督 SOTA 是 BERT-based 的 89 F1,接近人類。)不過作者誠實指出:GPT-2 常靠簡單的檢索式啟發(例如遇到 who 問題就從文件裡挑一個名字回答)。</p>
+
+    <h3>常識推理 (Winograd Schema)</h3>
+    <p>沿用 Trinh &amp; Le (2018) 的機率打分法,GPT-2 把 SOTA 準確率提升 7%,達到 <span class="hl">70.70%</span>。但資料集只有 273 例,非常小。</p>
+
+    <h3>摘要 (CNN / Daily Mail)</h3>
+    <p>在文章後加上 <code>TL;DR:</code> 誘導摘要行為,用 top-k (k=2) 生成 100 token,取前 3 句當摘要。ROUGE 上 GPT-2 只勉強接近經典 neural baseline、僅略勝「隨機挑 3 句」。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · CNN / Daily Mail 摘要 ROUGE-F1(Bottom-Up 為 SOTA)</caption>
+        <thead><tr><th>方法</th><th>R-1</th><th>R-2</th><th>R-L</th><th>R-AVG</th></tr></thead>
+        <tbody>
+          <tr><td>Bottom-Up Sum (SOTA)</td><td class="num">41.22</td><td class="num">18.68</td><td class="num">38.34</td><td class="num">32.75</td></tr>
+          <tr><td>Lede-3</td><td class="num">40.38</td><td class="num">17.66</td><td class="num">36.62</td><td class="num">31.55</td></tr>
+          <tr><td>Seq2Seq + Attn</td><td class="num">31.33</td><td class="num">11.81</td><td class="num">28.83</td><td class="num">23.99</td></tr>
+          <tr class="best"><td class="ours">GPT-2 TL;DR:</td><td class="num">29.34</td><td class="num">8.27</td><td class="num">26.58</td><td class="num">21.40</td></tr>
+          <tr><td>Random-3</td><td class="num">28.78</td><td class="num">8.63</td><td class="num">25.52</td><td class="num">20.98</td></tr>
+          <tr><td>GPT-2 no hint(移除提示)</td><td class="num">21.58</td><td class="num">4.03</td><td class="num">19.47</td><td class="num">15.03</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <p><strong>一個漂亮的證據:</strong>移除 <code>TL;DR:</code> 提示後,aggregate 指標<span class="hl">掉了 6.4 分</span>(21.40 → 15.03)。這證明可以<span class="hl2">用一段自然語言(而非改架構)去喚起 LM 的任務專屬行為</span>——這正是「prompt」概念的雛形。</p>
+    </div>
+
+    <h3>翻譯 (WMT-14)</h3>
+    <p>用 <code>english = french</code> 的示範對餵給模型,再以 <code>english =</code> 收尾讓它續寫。英→法只有 <span class="hl">5 BLEU</span>(比詞典逐字替換還差);但法→英達 <span class="hl">11.5 BLEU</span>,勝過幾個無監督 MT baseline,但仍遠差於當時最佳無監督 MT 的 33.5 BLEU。考慮到 WebText 幾乎沒有法文,這個結果本身就令人意外。</p>
+
+    <h3>問答 (Natural Questions)</h3>
+    <p>用範例問答對 seed context,GPT-2 以 exact-match 答對 <span class="hl">4.1%</span> 的問題——是最小模型 (1.0%) 的 5.3 倍,再次顯示容量是關鍵。而且機率校準良好:在它<span class="hl2">最有信心的 1%</span> 問題上,準確率達 <span class="hl">63.1%</span>。但整體仍遠差於結合檢索的開放域 QA 系統 (30–50%)。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 (節選) · GPT-2 在 Natural Questions 上最有信心的幾筆(依模型自評機率排序)</caption>
+        <thead><tr><th>問題</th><th>生成答案</th><th>機率</th></tr></thead>
+        <tbody>
+          <tr><td>Who wrote the book the origin of species?</td><td>Charles Darwin</td><td class="num">83.4%</td></tr>
+          <tr><td>Who is the founder of the ubuntu project?</td><td>Mark Shuttleworth</td><td class="num">82.0%</td></tr>
+          <tr><td>Who is the quarterback for the green bay packers?</td><td>Aaron Rodgers</td><td class="num">81.1%</td></tr>
+          <tr><td>Panda is a national animal of which country?</td><td>China</td><td class="num">76.8%</td></tr>
+          <tr><td>When was the first star wars film released?</td><td>1977</td><td class="num">71.4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 740 280" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="370" y="24" fill="#93a1b3" font-size="12" text-anchor="middle">zero-shot 表現隨模型容量普遍上升(方向示意,依 Figure 1)</text>
+        <!-- four mini-panels -->
+        <g>
+          <text x="130" y="60" fill="#5ad1c0" font-size="11" text-anchor="middle">Reading Comp. (CoQA F1)</text>
+          <polyline points="60,180 110,150 160,120 200,100" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        </g>
+        <g>
+          <text x="360" y="60" fill="#5ad1c0" font-size="11" text-anchor="middle">Translation (BLEU)</text>
+          <polyline points="290,185 340,175 390,150 430,120" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        </g>
+        <g>
+          <text x="600" y="60" fill="#5ad1c0" font-size="11" text-anchor="middle">QA (Natural Q. acc)</text>
+          <polyline points="520,190 570,185 620,170 660,150" fill="none" stroke="#5ad1c0" stroke-width="2"/>
+        </g>
+        <g>
+          <text x="230" y="230" fill="#f4a259" font-size="11" text-anchor="middle">Summarization (ROUGE)</text>
+          <polyline points="160,255 210,250 260,242 300,238" fill="none" stroke="#f4a259" stroke-width="2"/>
+        </g>
+        <text x="500" y="248" fill="#93a1b3" font-size="10">x 軸:117M → 345M → 762M → 1.5B</text>
+      </svg>
+      <div class="figcap">圖 3 · 四類任務的 zero-shot 表現隨模型尺寸的趨勢示意(依論文 Figure 1 重繪;為方向示意,非精確數值)</div>
+    </div>
+  </div>
+</section>
+
+<section id="memo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>記憶 vs 泛化 — 重疊到底有多嚴重?</h2>
+    <p class="lead">大資料集越大,訓練/測試出現「近似重複」的機率就越高,會高估泛化能力。作者用 Bloom filter 做了一次誠實的重疊分析。</p>
+
+    <p>作者對 WebText 訓練集的 8-gram 建立 Bloom filter(把字串正規化為小寫英數 + 單一空格,假陽性率上界 1/10⁸,並用 100 萬條字串驗證 0 誤判)。接著計算各評測資料集有多少比例的 8-gram 也出現在 WebText 訓練集中:</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · 測試集 8-gram 與訓練集的重疊比例(%)</caption>
+        <thead><tr><th>重疊對象</th><th>PTB</th><th>WikiText-2</th><th>enwik8</th><th>text8</th><th>WikiText-103</th><th>1BW</th></tr></thead>
+        <tbody>
+          <tr><td>vs. WebText train</td><td class="num">2.67</td><td class="num">0.66</td><td class="num">7.50</td><td class="num">2.34</td><td class="num">9.09</td><td class="num">13.19</td></tr>
+          <tr><td>vs. 自己的 train</td><td class="num">0.88</td><td class="num">1.63</td><td class="num">6.31</td><td class="num">3.94</td><td class="num">2.42</td><td class="num">3.75</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>令人意外的發現:</strong>各測試集與 WebText 訓練集的重疊平均約 <span class="hl2">3.2%</span>;但很多資料集與<span class="hl">「自己的訓練集」</span>重疊更嚴重(平均 5.9%)。例如 1BW 與自己的訓練集重疊高達 13.2%。換言之,GPT-2 的訓練/測試重疊,並沒有比這些資料集「內部本來就有」的重疊更誇張。</p>
+    </div>
+
+    <ul>
+      <li><strong>CoQA:</strong> news 域約 15% 文件已在 WebText,模型在這些上約高 3 F1;整體 dev 指標約增益 0.5–1.0 F1。但實際問答對都不在 WebText(CoQA 發布晚於連結截止日)。</li>
+      <li><strong>LAMBADA:</strong> 平均重疊 1.2%;排除所有重疊後,PPL 8.6 → 8.7、ACC 63.2% → 62.9%,變化極小。</li>
+      <li><strong>結論:</strong>重疊帶來「小而一致」的好處,但不足以解釋 GPT-2 的表現。作者建議把 n-gram 重疊去重當作新資料集的標準驗證步驟。</li>
+    </ul>
+
+    <p>另一個「不是靠記憶」的證據:GPT-2 在自己的 WebText held-out 上,<strong>訓練集與測試集的表現一起隨模型變大而改善</strong>——顯示即使是 1.5B 的 GPT-2 仍在 underfit,而非過擬合。附錄也量化了:GPT-2 生成的樣本,重複訓練集文本的比例<span class="hl">還低於</span> held-out 真實文章的基準率。</p>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>限制與討論 — 作者自己怎麼說</h2>
+    <p class="lead">論文的 Discussion 相當克制。以下都是作者「明確寫出來」的限制,不是後人的解讀。</p>
+
+    <div class="grid g2">
+      <div class="callout hot"><p><strong>離「可用」還很遠:</strong>閱讀理解上 GPT-2 的 zero-shot 能與監督 baseline 競爭;但摘要等任務「雖然質性上在做這件事,量化指標上仍很初階」。整體而言 zero-shot 的 GPT-2「離實際可用還很遠」。</p></div>
+      <div class="callout hot"><p><strong>很多任務仍等同亂猜:</strong>「無疑有許多實際任務上,GPT-2 的表現不比隨機好」;即使在評測過的問答、翻譯上,也要<span class="hl">容量夠大</span>才開始勝過 trivial baseline。</p></div>
+      <div class="callout hot"><p><strong>Finetuning 天花板未知:</strong>zero-shot 只是「潛力下界」,加上 finetuning 後的上限並不清楚。作者計畫在 decaNLP、GLUE 上做微調實驗。</p></div>
+      <div class="callout hot"><p><strong>單向表示的疑慮:</strong>不確定 GPT-2 的額外資料與容量,是否足以克服 BERT 所展示的、單向 (uni-directional) 表示的效率劣勢。</p></div>
+    </div>
+
+    <h3>結論一句話</h3>
+    <div class="callout">
+      <p>當一個大型語言模型在<span class="hl">足夠大且多樣</span>的資料上訓練,它能在許多領域與資料集上表現良好。GPT-2 zero-shot 就刷新了 8 個 LM 資料集中的 7 個。它能執行的任務之多樣,暗示了:<span class="hl2">高容量模型只要最大化「足夠多樣文本」的似然,就會開始學會執行大量任務,無需明確監督。</span></p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>回頭看的意義:</strong>這篇 2019 的論文奠定了後續 GPT-3「in-context / few-shot learning」與整個 prompt 範式的基礎——它第一次系統性地論證:<span class="hl">scale + 多樣資料 → 任務能力會「浮現」</span>,而 <code>TL;DR:</code> 這種自然語言提示能喚起特定行為,正是今天 prompting 的原型。</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Radford, Wu, Child, Luan, Amodei, Sutskever (2019) · OpenAI · "Language Models are Unsupervised Multitask Learners"</p>
+    <p style="margin-top:8px"><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">論文 PDF (OpenAI)</a> · <a href="https://github.com/openai/gpt-2">程式碼 openai/gpt-2</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要,圖表為依論文內容重繪／整理;數值以原論文為準。</p>
+  </div>
+</footer>
+</body>
+</html>
