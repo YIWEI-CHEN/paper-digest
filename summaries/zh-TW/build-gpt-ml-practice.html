@@ -429,6 +429,37 @@ vectorize("the cat the") -> [1, 0, 0, 0, 2]
           </ul>
           <p><b>中文：</b>重點是 normalize → tokenize → vocab → vectorize 四步，並點出 BoW 丟失詞序、向量稀疏，鋪陳後面的 embeddings 與 attention。</p>
         </div>
+
+        <h3>延伸練習：Unicode-aware preprocessing（follow-up）</h3>
+        <p>上面的 <code>preprocess</code> 只吃 ASCII：<code>[a-z0-9']</code> 遇到 <code>café</code>、<code>Zürich</code>、<code>北京</code>、<code>Москва</code> 會把重音字、非拉丁字母切爛或丟掉。以下是<b>不改動原題解</b>、額外提供的 Unicode 版本；Python 3 的 <code>\w</code> 對 <code>str</code> pattern 預設就是 Unicode。</p>
+<pre><code class="language-python">import re
+import unicodedata
+
+
+def preprocess_unicode(text: str) -&gt; list:
+    text = unicodedata.normalize("NFC", text)   # 1. Compose accents to canonical form.
+    text = text.casefold()                       # 2. Unicode-aware lowercasing.
+    # 3. Word = run of Unicode letters/digits (not underscore), keeping contractions.
+    return re.findall(r"[^\W_]+(?:['’][^\W_]+)*", text)</code></pre>
+        <p>三個步驟各修一個 Unicode 陷阱：</p>
+        <ul class="summary-list">
+          <li><b><code>normalize("NFC")</code>：</b><code>é</code> 可能是單一 codepoint <code>U+00E9</code>，也可能是 <code>e</code> + 結合重音 <code>U+0301</code>；兩者外觀相同但是<b>不同字串</b>，會讓 vocab 對不上。NFC 先合成成同一種標準形式。</li>
+          <li><b><code>casefold()</code> 取代 <code>lower()</code>：</b>casefold 是給「無視大小寫比對」用的正確版本。例如德文 <code>"Straße".casefold()</code> → <code>'strasse'</code>、希臘文字尾 sigma 也處理正確，<code>lower()</code> 都會漏。</li>
+          <li><b><code>[^\W_]+(?:['’][^\W_]+)*</code>：</b><code>[^\W_]</code> 是「Unicode 詞字元但排除底線」（純 <code>\w</code> 會把 <code>_</code> 也算進去）；後面允許詞內單引號，且同時吃 ASCII <code>'</code> 與真實文本常見的 Unicode 右單引號 <code>’</code>（U+2019），讓 <code>it's</code> / <code>it’s</code> 都保持完整。</li>
+        </ul>
+        <p>行為對比：</p>
+<pre><code>s = "Café Zürich — it's naïve. 北京 Москва don’t"
+
+# 原題 ASCII 版
+re.findall(r"[a-z0-9']+", s.lower())
+-&gt; ['caf', 'z', 'rich', "it's", 'na', 've', 'don']              # 重音與非拉丁字母被切爛
+
+preprocess_unicode(s)
+-&gt; ['café', 'zürich', "it's", 'naïve', '北京', 'москва', 'don’t']  # 保持完整</code></pre>
+        <div class="concept-callout">
+          <strong>注意：CJK 沒有空白分詞</strong>
+          <p><code>\w+</code> 會貪婪抓一整串詞字元，但中文／日文／泰文不用空白斷詞，所以 <code>北京大学</code> 會變成<b>一個 token</b>而不是 北京 + 大学。若真的需要 CJK 詞邊界，regex 不夠，得用斷詞器（中文 <code>jieba</code>、日文 <code>fugashi</code> / MeCab）；bag-of-words baseline 常見的便宜替代是對 CJK 改用<b>字元級</b>切分。</p>
+        </div>
       </article>
     </div>
   </section>
