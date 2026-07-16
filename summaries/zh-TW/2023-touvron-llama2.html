@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Llama 2 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px}
+  li{margin:8px 0;color:var(--muted)}
+  li strong{color:#fff}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2023 · 論文導讀</div>
+    <h1 class="title">Llama <span class="sql">2</span></h1>
+    <p class="subtitle">開源社群缺的從來不是預訓練模型,而是那套沒人公開的對齊配方。Llama 2 把 RLHF 的每一個螺絲都攤開來寫。</p>
+    <div class="meta-row">
+      <span class="tag lit">RLHF</span>
+      <span class="tag lit">Rejection Sampling</span>
+      <span class="tag lit">Ghost Attention</span>
+      <span class="tag">雙 Reward Model</span>
+      <span class="tag">GQA</span>
+      <span class="tag">2T tokens</span>
+      <span class="tag">7B / 13B / 34B / 70B</span>
+    </div>
+    <p class="authors">Hugo Touvron, Louis Martin, Kevin Stone 等 68 位作者 · GenAI, Meta · <a href="https://arxiv.org/abs/2307.09288">arXiv:2307.09288</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#pretrain">02 預訓練</a>
+    <a href="#finetune">03 對齊流程</a>
+    <a href="#gatt">04 Ghost Attention</a>
+    <a href="#safety">05 安全性</a>
+    <a href="#findings">06 意外發現</a>
+    <a href="#limits">07 限制</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 開源缺的是什麼</h2>
+    <p class="lead">2023 年中,開源預訓練模型其實已經追上閉源的基礎模型了。真正的落差不在預訓練,而在後面那一段沒人願意寫清楚的對齊工程。</p>
+
+    <p>論文開場的診斷很直接:BLOOM、LLaMA 1、Falcon 這些公開釋出的預訓練模型,在基準測試上已經能匹敵 GPT-3、Chinchilla 這類閉源的預訓練競爭者。<strong>但沒有一個能當成 ChatGPT、BARD、Claude 的替代品。</strong></p>
+
+    <p>差別在哪?差在那些閉源「產品級」LLM 都經過大量的 fine-tune 來對齊人類偏好——而這一步需要可觀的運算與人工標註成本,<span class="hl">而且通常不透明、不易重現</span>。結果就是整個社群在 AI alignment 這條路上前進得很慢:大家都知道 RLHF 有效,但沒人知道實際做起來的細節長什麼樣。</p>
+
+    <div class="callout">
+      <p><strong>這篇論文的定位:</strong>與其說是「又一個更強的開源模型」,不如說是<span class="hl">一份把對齊流程完整攤開的工程報告</span>。模型權重是附贈的,方法論才是主體——標註怎麼收、reward model 怎麼切、rejection sampling 跟 PPO 怎麼搭、安全資料加多少會開始傷害 helpfulness。</p>
+    </div>
+
+    <h3>釋出了什麼</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Llama 2 (base)</h4>
+        <p>Llama 1 的更新版,重新混合的公開資料。預訓練語料<span class="hl2">增加 40%</span>、context length <span class="hl2">翻倍至 4k</span>、大模型改用 grouped-query attention。</p>
+        <p>釋出 7B / 13B / 70B。34B 有訓練並在論文中報告,但<span class="hl2">因 red teaming 時間不足而未釋出</span>。</p>
+      </div>
+      <div class="card">
+        <h4>Llama 2-Chat</h4>
+        <p>針對對話場景優化的 fine-tuned 版本,經歷數個月的 SFT + RLHF 迭代(RLHF-V1 至 V5)。</p>
+        <p>釋出 7B / 13B / 70B。研究與商業用途皆可使用。</p>
+      </div>
+    </div>
+
+    <p>作者主張,在人類評估的 helpfulness 與 safety 上,Llama 2-Chat 普遍勝過既有開源模型,<span class="hl">並且至少在他們自己做的人類評估裡,與部分閉源模型不相上下</span>。這個「至少在我們的評估裡」的保留措辭在論文中反覆出現,是很誠實的寫法——後面第 7 節會看到他們自己列出的評估侷限。</p>
+  </div>
+</section>
+
+<section id="pretrain">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>預訓練 — 保守但扎實的升級</h2>
+    <p class="lead">架構上幾乎沒有新東西。Llama 2 的預訓練哲學是:不冒險改架構,把資料量、context、推論效率三件事做對。</p>
+
+    <p>Llama 2 沿用 Llama 1 的大部分設定:標準 transformer、以 RMSNorm 做 pre-normalization、SwiGLU 激活函數、RoPE 旋轉位置編碼。tokenizer 也完全相同——BPE(SentencePiece 實作),數字拆成個別 digit,未知 UTF-8 字元用 byte 分解,vocabulary 共 32k。</p>
+
+    <p>相對 Llama 1 的實質改動只有三項:<span class="hl">更嚴謹的資料清理與新的資料混合</span>、<span class="hl">context length 從 2k 加倍到 4k</span>、以及 <span class="hl">34B / 70B 改用 grouped-query attention (GQA)</span>。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Llama 2 模型家族(token 數僅指預訓練資料)</caption>
+        <thead><tr><th>模型</th><th>訓練資料</th><th>參數</th><th>Context</th><th>GQA</th><th>Tokens</th><th>學習率</th></tr></thead>
+        <tbody>
+          <tr><td>Llama 1</td><td>見 Touvron et al. (2023)</td><td class="num">7B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr><td>Llama 1</td><td>同上</td><td class="num">13B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr><td>Llama 1</td><td>同上</td><td class="num">33B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.4T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+          <tr><td>Llama 1</td><td>同上</td><td class="num">65B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.4T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>新的公開線上資料混合</td><td class="num">7B</td><td class="num">4k</td><td class="num">–</td><td class="num">2.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>同上</td><td class="num">13B</td><td class="num">4k</td><td class="num">–</td><td class="num">2.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>同上</td><td class="num">34B</td><td class="num">4k</td><td class="num">✓</td><td class="num">2.0T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>同上</td><td class="num">70B</td><td class="num">4k</td><td class="num">✓</td><td class="num">2.0T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>所有模型都以 <span class="hl">4M tokens 的 global batch size</span> 訓練。優化器為 AdamW(β₁=0.9, β₂=0.95, eps=10⁻⁵),cosine 學習率排程、2000 步 warmup、最終衰減至峰值的 10%,weight decay 0.1、gradient clipping 1.0。</p>
+
+    <h3>資料:2 兆 tokens,以及一個刻意的取捨</h3>
+
+    <p>訓練語料全部來自公開來源,<strong>不含任何 Meta 產品或服務的資料</strong>,並移除了已知含大量私人個資的網站。選擇 2T tokens 是效能與成本的折衷點,並且<span class="hl">對最具事實性的來源做 up-sampling</span>,目的是增加知識、抑制幻覺。</p>
+
+    <div class="callout warn">
+      <p><strong>刻意不做的事:</strong>他們<span class="hl2">沒有對預訓練資料做積極的毒性過濾</span>。理由有二:一是保留 base model 在下游任務的廣泛可用性(例如拿來做 hate speech 分類);二是避免過度清洗造成「意外的人口族群抹除」。代價寫在 Table 11——Llama 2 在 toxicity 指標上並沒有贏過別人。這是一個公開承認的權衡,不是疏漏。</p>
+    </div>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>GPU HOURS</h4>
+        <p class="big">3.3M</p>
+        <p>A100-80GB,累計。70B 單獨佔 1,720,320 小時。</p>
+      </div>
+      <div class="card">
+        <h4>CARBON</h4>
+        <p class="big">539</p>
+        <p>tCO₂eq 總排放,<span class="hl">100% 由 Meta 永續計畫直接抵銷</span>。</p>
+      </div>
+      <div class="card">
+        <h4>英文佔比</h4>
+        <p class="big">89.7%</p>
+        <p>unknown 佔 8.38%(部分是程式碼)。德文 0.17%、中文 0.13%。</p>
+      </div>
+    </div>
+
+    <h3>Grouped-Query Attention:為什麼不是 MQA</h3>
+
+    <p>自迴歸解碼時要 cache 先前 token 的 K/V。當 context window 或 batch size 變大,MHA 的 KV cache 記憶體成本會急遽膨脹。解法是讓多個 head 共享 K/V projection——極端做法是 MQA(只留 1 組 KV projection),折衷做法是 GQA(8 組 KV projection)。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="120" y="24" fill="#e8edf4" font-size="14" text-anchor="middle" font-weight="700">MHA</text>
+        <text x="380" y="24" fill="#5ad1c0" font-size="14" text-anchor="middle" font-weight="700">GQA (8 KV) ★ 採用</text>
+        <text x="640" y="24" fill="#93a1b3" font-size="14" text-anchor="middle" font-weight="700">MQA (1 KV)</text>
+
+        <!-- MHA -->
+        <g>
+          <rect x="30" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="75" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="120" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="165" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <text x="48" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="93" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="138" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="183" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <line x1="48" y1="71" x2="48" y2="110" stroke="#3a4658"/>
+          <line x1="93" y1="71" x2="93" y2="110" stroke="#3a4658"/>
+          <line x1="138" y1="71" x2="138" y2="110" stroke="#3a4658"/>
+          <line x1="183" y1="71" x2="183" y2="110" stroke="#3a4658"/>
+          <rect x="30" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <rect x="75" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <rect x="120" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <rect x="165" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <text x="48" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="93" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="138" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="183" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="115" y="165" fill="#93a1b3" font-size="11" text-anchor="middle">每個 head 一組 KV</text>
+          <text x="115" y="185" fill="#ff6b6b" font-size="11" text-anchor="middle">KV cache 最大</text>
+        </g>
+
+        <!-- GQA -->
+        <g>
+          <rect x="290" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <rect x="335" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <rect x="390" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <rect x="435" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <text x="308" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <text x="353" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <text x="408" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <text x="453" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <line x1="308" y1="71" x2="325" y2="110" stroke="#5ad1c0"/>
+          <line x1="353" y1="71" x2="330" y2="110" stroke="#5ad1c0"/>
+          <line x1="408" y1="71" x2="428" y2="110" stroke="#5ad1c0"/>
+          <line x1="453" y1="71" x2="433" y2="110" stroke="#5ad1c0"/>
+          <rect x="308" y="110" width="40" height="26" rx="5" fill="#26313f" stroke="#5ad1c0"/>
+          <rect x="410" y="110" width="40" height="26" rx="5" fill="#26313f" stroke="#5ad1c0"/>
+          <text x="328" y="128" fill="#5ad1c0" font-size="10" text-anchor="middle">KV</text>
+          <text x="430" y="128" fill="#5ad1c0" font-size="10" text-anchor="middle">KV</text>
+          <text x="380" y="165" fill="#93a1b3" font-size="11" text-anchor="middle">一群 head 共享一組 KV</text>
+          <text x="380" y="185" fill="#5ad1c0" font-size="11" text-anchor="middle">可沿 head 切分到 8 GPU</text>
+        </g>
+
+        <!-- MQA -->
+        <g>
+          <rect x="550" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="595" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="640" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="685" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <text x="568" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="613" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="658" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="703" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <line x1="568" y1="71" x2="628" y2="110" stroke="#3a4658"/>
+          <line x1="613" y1="71" x2="633" y2="110" stroke="#3a4658"/>
+          <line x1="658" y1="71" x2="638" y2="110" stroke="#3a4658"/>
+          <line x1="703" y1="71" x2="643" y2="110" stroke="#3a4658"/>
+          <rect x="615" y="110" width="40" height="26" rx="5" fill="#26313f" stroke="#3a4658"/>
+          <text x="635" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="635" y="165" fill="#93a1b3" font-size="11" text-anchor="middle">全部 head 共用一組</text>
+          <text x="635" y="185" fill="#f4a259" font-size="11" text-anchor="middle">head 數 &lt; GPU 數 → 難切分</text>
+        </g>
+      </svg>
+      <div class="figcap">圖 1 · MHA / GQA / MQA 的 KV projection 共享結構(依論文 A.2.1 節文字重繪,head 數為示意)</div>
+    </div>
+
+    <p>消融實驗固定 30B 模型、訓練 150B tokens,並調整 FFN 維度以維持參數量相當(MQA 放大 1.33 倍、GQA 放大 1.3 倍):</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 18 · Attention 架構消融(除 MMLU 5-shot、GSM8K 8-shot 外皆為 0-shot)</caption>
+        <thead><tr><th>架構</th><th>BoolQ</th><th>PIQA</th><th>SIQA</th><th>HellaSwag</th><th>ARC-e</th><th>ARC-c</th><th>NQ</th><th>TQA</th><th>MMLU</th><th>GSM8K</th><th>HumanEval</th></tr></thead>
+        <tbody>
+          <tr><td>MHA</td><td class="num">71.0</td><td class="num">79.3</td><td class="num">48.2</td><td class="num">75.1</td><td class="num">71.2</td><td class="num">43.0</td><td class="num">12.4</td><td class="num">44.7</td><td class="num">28.0</td><td class="num">4.9</td><td class="num">7.9</td></tr>
+          <tr><td>MQA</td><td class="num">70.6</td><td class="num">79.0</td><td class="num">47.9</td><td class="num">74.5</td><td class="num">71.6</td><td class="num">41.9</td><td class="num">14.5</td><td class="num">42.8</td><td class="num">26.5</td><td class="num">4.8</td><td class="num">7.3</td></tr>
+          <tr class="best"><td class="ours">GQA</td><td class="num">69.4</td><td class="num">78.8</td><td class="num">48.6</td><td class="num">75.4</td><td class="num">72.1</td><td class="num">42.5</td><td class="num">14.0</td><td class="num">46.2</td><td class="num">26.9</td><td class="num">5.3</td><td class="num">7.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>GQA 在多數任務上與 MHA 相當,平均優於 MQA。但真正的決定性理由其實是<span class="hl">工程上的</span>:他們用 8 張 A100 搭配 tensor parallelism 來服務最大模型,而 MQA 的 head 數低於 GPU 數,無法沿 head 維度切分——要嘛在每張 GPU 上複製 KV(那 cache 大小就等同 GQA 了),要嘛改沿 batch 維度切分(會讓推論服務變複雜)。<strong>所以 34B/70B 選 GQA 而非 MQA,是「消融結果 + 推論擴展易用性」的合併結論。</strong></p>
+
+    <h3>Context 加倍的代價</h3>
+    <p>2k → 4k 的消融(同樣訓練 150B tokens)顯示:在平均輸入長度 3.5k 的 SCROLLS 上明顯改善(如 QuALITY 26.1 → 29.6),SQuAD 沒有退化,而一般任務基本持平(HellaSwag 75.1 → 74.8、TQA 53.7 → 52.2、GSM8K 4.9 → 6.5)。<span class="hl">加長 context 幾乎是免費的。</span></p>
+
+    <h3>預訓練模型評估結果</h3>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · 開源 base model 的分組學術基準比較</caption>
+        <thead><tr><th>模型</th><th>Size</th><th>Code</th><th>Commonsense<br>Reasoning</th><th>World<br>Knowledge</th><th>Reading<br>Comp.</th><th>Math</th><th>MMLU</th><th>BBH</th><th>AGI Eval</th></tr></thead>
+        <tbody>
+          <tr><td>MPT</td><td class="num">7B</td><td class="num">20.5</td><td class="num">57.4</td><td class="num">41.0</td><td class="num">57.5</td><td class="num">4.9</td><td class="num">26.8</td><td class="num">31.0</td><td class="num">23.5</td></tr>
+          <tr><td>MPT</td><td class="num">30B</td><td class="num">28.9</td><td class="num">64.9</td><td class="num">50.0</td><td class="num">64.7</td><td class="num">9.1</td><td class="num">46.9</td><td class="num">38.0</td><td class="num">33.8</td></tr>
+          <tr><td>Falcon</td><td class="num">7B</td><td class="num">5.6</td><td class="num">56.1</td><td class="num">42.8</td><td class="num">36.0</td><td class="num">4.6</td><td class="num">26.2</td><td class="num">28.0</td><td class="num">21.2</td></tr>
+          <tr><td>Falcon</td><td class="num">40B</td><td class="num">15.2</td><td class="num">69.2</td><td class="num">56.7</td><td class="num">65.7</td><td class="num">12.6</td><td class="num">55.4</td><td class="num">37.1</td><td class="num">37.0</td></tr>
+          <tr><td>Llama 1</td><td class="num">7B</td><td class="num">14.1</td><td class="num">60.8</td><td class="num">46.2</td><td class="num">58.5</td><td class="num">6.95</td><td class="num">35.1</td><td class="num">30.3</td><td class="num">23.9</td></tr>
+          <tr><td>Llama 1</td><td class="num">13B</td><td class="num">18.9</td><td class="num">66.1</td><td class="num">52.6</td><td class="num">62.3</td><td class="num">10.9</td><td class="num">46.9</td><td class="num">37.0</td><td class="num">33.9</td></tr>
+          <tr><td>Llama 1</td><td class="num">33B</td><td class="num">26.0</td><td class="num">70.0</td><td class="num">58.4</td><td class="num">67.6</td><td class="num">21.4</td><td class="num">57.8</td><td class="num">39.8</td><td class="num">41.7</td></tr>
+          <tr><td>Llama 1</td><td class="num">65B</td><td class="num">30.7</td><td class="num">70.7</td><td class="num">60.5</td><td class="num">68.6</td><td class="num">30.8</td><td class="num">63.4</td><td class="num">43.5</td><td class="num">47.6</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">7B</td><td class="num">16.8</td><td class="num">63.9</td><td class="num">48.9</td><td class="num">61.3</td><td class="num">14.6</td><td class="num">45.3</td><td class="num">32.6</td><td class="num">29.3</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">13B</td><td class="num">24.5</td><td class="num">66.9</td><td class="num">55.4</td><td class="num">65.8</td><td class="num">28.7</td><td class="num">54.8</td><td class="num">39.4</td><td class="num">39.1</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">34B</td><td class="num">27.8</td><td class="num">69.9</td><td class="num">58.7</td><td class="num">68.0</td><td class="num">24.2</td><td class="num">62.6</td><td class="num">44.1</td><td class="num">43.4</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td class="num">70B</td><td class="num">37.5</td><td class="num">71.9</td><td class="num">63.6</td><td class="num">69.4</td><td class="num">35.2</td><td class="num">68.9</td><td class="num">51.2</td><td class="num">54.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Llama 2 70B 相對 Llama 1 65B 在 MMLU 上約 <span class="hl">+5 分</span>、BBH 上約 <span class="hl">+8 分</span>,並在所有類別上勝過全部開源模型。值得注意的是 Figure 5 的訓練損失曲線:<strong>吃完 2T tokens 之後,模型仍未出現任何飽和跡象</strong>——這暗示當時的開源模型離資料上限還很遠。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · 與閉源模型比較(Llama 2 為 70B)</caption>
+        <thead><tr><th>Benchmark (shots)</th><th>GPT-3.5</th><th>GPT-4</th><th>PaLM</th><th>PaLM-2-L</th><th>Llama 2</th></tr></thead>
+        <tbody>
+          <tr><td>MMLU (5-shot)</td><td class="num">70.0</td><td class="num">86.4</td><td class="num">69.3</td><td class="num">78.3</td><td class="num">68.9</td></tr>
+          <tr><td>TriviaQA (1-shot)</td><td class="num">–</td><td class="num">–</td><td class="num">81.4</td><td class="num">86.1</td><td class="num">85.0</td></tr>
+          <tr><td>Natural Questions (1-shot)</td><td class="num">–</td><td class="num">–</td><td class="num">29.3</td><td class="num">37.5</td><td class="num">33.0</td></tr>
+          <tr><td>GSM8K (8-shot)</td><td class="num">57.1</td><td class="num">92.0</td><td class="num">56.5</td><td class="num">80.7</td><td class="num">56.8</td></tr>
+          <tr><td>HumanEval (0-shot)</td><td class="num">48.1</td><td class="num">67.0</td><td class="num">26.2</td><td class="num">–</td><td class="num">29.9</td></tr>
+          <tr><td>BIG-Bench Hard (3-shot)</td><td class="num">–</td><td class="num">–</td><td class="num">52.3</td><td class="num">65.7</td><td class="num">51.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>誠實的落差:</strong>Llama 2 70B 在 MMLU (68.9 vs 70.0) 與 GSM8K (56.8 vs 57.1) 上很接近 GPT-3.5,<span class="hl2">但在程式碼上差距明顯</span>(HumanEval 29.9 vs 48.1)。而與 GPT-4 / PaLM-2-L 之間仍存在很大的差距。論文沒有粉飾這點——這也是為什麼後來會有 Code Llama。</p>
+    </div>
+  </div>
+</section>
+
+<section id="finetune">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>對齊流程 — 論文的主體</h2>
+    <p class="lead">這一節才是 Llama 2 的真正貢獻:一套被完整記錄下來、可以照著做的 RLHF 配方。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arro" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <rect x="20" y="30" width="150" height="46" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="95" y="50" fill="#e8edf4" font-size="12" text-anchor="middle">預訓練 Llama 2</text>
+        <text x="95" y="66" fill="#93a1b3" font-size="10" text-anchor="middle">2T tokens · 公開資料</text>
+
+        <line x1="170" y1="53" x2="218" y2="53" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <rect x="225" y="30" width="150" height="46" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="300" y="50" fill="#e8edf4" font-size="12" text-anchor="middle">監督式微調 SFT</text>
+        <text x="300" y="66" fill="#93a1b3" font-size="10" text-anchor="middle">27,540 筆高品質標註</text>
+
+        <line x1="375" y1="53" x2="423" y2="53" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <rect x="430" y="30" width="160" height="46" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="510" y="50" fill="#e8edf4" font-size="12" text-anchor="middle">Llama 2-Chat 初版</text>
+        <text x="510" y="66" fill="#93a1b3" font-size="10" text-anchor="middle">SFT-v1</text>
+
+        <!-- human preference -->
+        <rect x="20" y="130" width="150" height="56" rx="9" fill="#141b25" stroke="#f4a259"/>
+        <text x="95" y="152" fill="#f4a259" font-size="12" text-anchor="middle">人類偏好標註</text>
+        <text x="95" y="168" fill="#93a1b3" font-size="10" text-anchor="middle">二元比較 · 每週一批</text>
+        <text x="95" y="181" fill="#93a1b3" font-size="10" text-anchor="middle">1.4M 筆 Meta 資料</text>
+
+        <line x1="170" y1="158" x2="218" y2="158" stroke="#f4a259" marker-end="url(#arro)"/>
+
+        <rect x="225" y="118" width="150" height="34" rx="8" fill="#26313f" stroke="#5ad1c0"/>
+        <text x="300" y="140" fill="#5ad1c0" font-size="11.5" text-anchor="middle">Helpfulness RM</text>
+        <rect x="225" y="162" width="150" height="34" rx="8" fill="#26313f" stroke="#5ad1c0"/>
+        <text x="300" y="184" fill="#5ad1c0" font-size="11.5" text-anchor="middle">Safety RM</text>
+
+        <line x1="375" y1="158" x2="423" y2="158" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <rect x="430" y="118" width="160" height="34" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="510" y="140" fill="#8c7bff" font-size="11.5" text-anchor="middle">Rejection Sampling</text>
+        <rect x="430" y="162" width="160" height="34" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="510" y="184" fill="#8c7bff" font-size="11.5" text-anchor="middle">PPO</text>
+
+        <line x1="510" y1="76" x2="510" y2="112" stroke="#5ad1c0" marker-end="url(#arr)"/>
+
+        <line x1="590" y1="158" x2="640" y2="158" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <rect x="648" y="130" width="94" height="56" rx="9" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="695" y="152" fill="#5ad1c0" font-size="12" text-anchor="middle">RLHF</text>
+        <text x="695" y="170" fill="#e8edf4" font-size="12" text-anchor="middle">V1 → V5</text>
+
+        <!-- feedback loop -->
+        <path d="M695 186 L695 250 L95 250 L95 192" fill="none" stroke="#f4a259" stroke-dasharray="5,4" marker-end="url(#arro)"/>
+        <text x="395" y="270" fill="#f4a259" font-size="11" text-anchor="middle">用最新模型重新取樣 → 收新的偏好標註 → RM 保持 in-distribution</text>
+        <text x="395" y="292" fill="#93a1b3" font-size="10.5" text-anchor="middle">這個迴圈是整篇論文的核心:模型變強 → 資料分布偏移 → RM 若不更新就會退化</text>
+      </svg>
+      <div class="figcap">圖 2 · Llama 2-Chat 訓練流程(依論文 Figure 4 重繪並補充細節)</div>
+    </div>
+
+    <h3>SFT:少而精,27,540 筆就收手</h3>
+
+    <p>起步時他們用公開的 instruction tuning 資料 bootstrap,但很快發現第三方 SFT 資料<span class="hl">多樣性與品質都不足</span>——尤其在對齊「對話風格」指令這件事上。於是他們<strong>刻意放棄數百萬筆第三方資料</strong>,改用自家 vendor 標註的少量高品質資料,結果顯著改善。</p>
+
+    <div class="callout">
+      <p><strong>Quality Is All You Need:</strong>SFT 標註<span class="hl">數萬筆等級就足以達到高品質結果</span>。他們在累積 27,540 筆後就停止標註。這個發現與 LIMA (Zhou et al., 2023) 精神一致。另外他們也觀察到:<span class="hl2">不同標註平台與供應商會導致下游模型效能明顯不同</span>——即使外包也必須自己做資料檢查。</p>
+    </div>
+
+    <p>更關鍵的一個轉折:他們人工檢視 180 個樣本、比對人類標註與模型生成,<strong>意外發現 SFT 模型自己抽樣出來的輸出,品質往往已經能與人類手寫的 SFT 資料匹敵</strong>。這直接導致策略轉向——與其繼續請人寫答案,不如把標註預算重新分配到 RLHF 的偏好標註上。</p>
+
+    <p>SFT 超參數:cosine 排程、初始學習率 2×10⁻⁵、weight decay 0.1、batch size 64、序列長度 4096、訓練 2 epochs。實作上把所有 prompt 與 answer 串接填滿序列長度,以特殊 token 分隔,並<span class="hl">將 user prompt 的 token loss 歸零,只對 answer token 做反向傳播</span>。</p>
+
+    <h3>偏好資料:為什麼選二元比較</h3>
+
+    <p>標註流程是:標註者先自己寫一個 prompt,再從兩個模型回應中挑一個。為了最大化多樣性,兩個回應<span class="hl">來自不同的模型變體、並使用不同的 temperature</span>。除了強迫二選一,還要標註偏好程度:significantly better / better / slightly better / negligibly better or unsure。</p>
+
+    <p>Helpfulness 與 safety 是<strong>分開收集的</strong>,各有各的標註指引。safety 階段還額外收一個標籤,把回應分成三類:</p>
+    <ul>
+      <li><strong>偏好的回應安全、另一個不安全</strong> — 佔 18%</li>
+      <li><strong>兩個都安全</strong> — 佔 47%</li>
+      <li><strong>兩個都不安全</strong> — 佔 35%</li>
+    </ul>
+    <p>刻意<span class="hl2">不收「選中的回應不安全、另一個安全」這種組合</span>——因為他們認為更安全的回應也會是人類更偏好的。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · 用於 reward modeling 的人類偏好資料統計</caption>
+        <thead><tr><th>資料集</th><th>比較數</th><th>平均輪數<br>/ 對話</th><th>平均 tokens<br>/ 樣本</th><th>Prompt<br>tokens</th><th>Response<br>tokens</th></tr></thead>
+        <tbody>
+          <tr><td>Anthropic Helpful</td><td class="num">122,387</td><td class="num">3.0</td><td class="num">251.5</td><td class="num">17.7</td><td class="num">88.4</td></tr>
+          <tr><td>Anthropic Harmless</td><td class="num">43,966</td><td class="num">3.0</td><td class="num">152.5</td><td class="num">15.7</td><td class="num">46.4</td></tr>
+          <tr><td>OpenAI Summarize</td><td class="num">176,625</td><td class="num">1.0</td><td class="num">371.1</td><td class="num">336.0</td><td class="num">35.1</td></tr>
+          <tr><td>OpenAI WebGPT</td><td class="num">13,333</td><td class="num">1.0</td><td class="num">237.2</td><td class="num">48.3</td><td class="num">188.9</td></tr>
+          <tr><td>StackExchange</td><td class="num">1,038,480</td><td class="num">1.0</td><td class="num">440.2</td><td class="num">200.1</td><td class="num">240.2</td></tr>
+          <tr><td>Stanford SHP</td><td class="num">74,882</td><td class="num">1.0</td><td class="num">338.3</td><td class="num">199.5</td><td class="num">138.8</td></tr>
+          <tr><td>Synthetic GPT-J</td><td class="num">33,139</td><td class="num">1.0</td><td class="num">123.3</td><td class="num">13.0</td><td class="num">110.3</td></tr>
+          <tr class="best"><td class="ours">Meta (Safety &amp; Helpfulness)</td><td class="num">1,418,091</td><td class="num">3.9</td><td class="num">798.5</td><td class="num">31.4</td><td class="num">234.1</td></tr>
+          <tr><td><strong>Total</strong></td><td class="num">2,919,326</td><td class="num">1.6</td><td class="num">595.7</td><td class="num">108.2</td><td class="num">216.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Meta 自己收的資料<span class="hl">對話輪數更多、長度也更長</span>(平均 3.9 輪、798.5 tokens/樣本),這正好反映了對話式使用情境與摘要/論壇類資料的差異。</p>
+
+    <h3>兩個 Reward Model,而不是一個</h3>
+
+    <p>既有研究(Bai et al., 2022a)發現 helpfulness 與 safety 有時會互相衝突,單一 reward model 難以同時做好。Llama 2 的解法很直接:<strong>訓練兩個獨立的 reward model</strong>。</p>
+
+    <div class="callout">
+      <p><strong>關鍵設計:</strong>reward model <span class="hl">從預訓練的 chat model checkpoint 初始化</span>,而非從頭訓練。理由很優雅——這確保「reward model 知道 chat model 知道什麼」,避免兩者資訊不對稱而導致 <span class="hl2">reward model 反而偏好幻覺內容</span>。架構與超參數跟語言模型完全相同,只是把 next-token prediction 的分類頭換成輸出純量的迴歸頭。</p>
+    </div>
+
+    <p>基礎損失是標準的 binary ranking loss:</p>
+
+    <div class="formula">L<sub>ranking</sub> = −log( σ( r<sub>θ</sub>(x, y<sub>c</sub>) − r<sub>θ</sub>(x, y<sub>r</sub>) ) )<br><span style="color:var(--muted)">x = prompt,y<sub>c</sub> = 被選中的回應,y<sub>r</sub> = 被拒絕的回應,r<sub>θ</sub> = 純量分數</span></div>
+
+    <p>但既然標註者已經標了四級偏好強度,不用白不用。他們加入一個 <strong>margin 項</strong>,讓差異大的回應對被迫拉開更大的分數差距:</p>
+
+    <div class="formula">L<sub>ranking</sub> = −log( σ( r<sub>θ</sub>(x, y<sub>c</sub>) − r<sub>θ</sub>(x, y<sub>r</sub>) − m(r) ) )<br><span style="color:var(--muted)">m(r) 是偏好等級的離散函數:差異越大 margin 越大</span></div>
+
+    <p>資料配方也不對稱,是實驗調出來的:</p>
+    <ul>
+      <li><strong>Helpfulness RM</strong> — 全部 Meta Helpfulness 資料 + 等量的(Meta Safety 與開源資料均勻取樣)</li>
+      <li><strong>Safety RM</strong> — 全部 Meta Safety + Anthropic Harmless,再混入 Meta Helpfulness 與開源 helpfulness 資料,比例 <span class="hl">90/10</span></li>
+    </ul>
+    <p>那 10% 的 helpfulness 資料特別有用:它顯著改善了「<span class="hl2">兩個回應都被判定為安全</span>」那類樣本的準確率。</p>
+
+    <p>訓練細節:只跑 <span class="hl">1 個 epoch</span>(訓練更久會 overfit),70B 的最大學習率 5×10⁻⁶、其餘 1×10⁻⁵,cosine 衰減至 10%,warmup 為總步數的 3%,effective batch size 固定 512 對(1024 rows)。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 7 · Reward model 在各偏好基準上的準確率(%)</caption>
+        <thead><tr><th>模型</th><th>Meta<br>Helpful.</th><th>Meta<br>Safety</th><th>Anthropic<br>Helpful</th><th>Anthropic<br>Harmless</th><th>OpenAI<br>Summ.</th><th>Stanford<br>SHP</th><th>Avg</th></tr></thead>
+        <tbody>
+          <tr><td>SteamSHP-XL</td><td class="num">52.8</td><td class="num">43.8</td><td class="num">66.8</td><td class="num">34.2</td><td class="num">54.7</td><td class="num">75.7</td><td class="num">55.3</td></tr>
+          <tr><td>Open Assistant</td><td class="num">53.8</td><td class="num">53.4</td><td class="num">67.7</td><td class="num">68.4</td><td class="num">71.7</td><td class="num">55.0</td><td class="num">63.0</td></tr>
+          <tr><td>GPT-4</td><td class="num">58.6</td><td class="num">58.1</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+          <tr><td class="ours">Safety RM</td><td class="num">56.2</td><td class="num">64.5</td><td class="num">55.4</td><td class="num">74.7</td><td class="num">71.7</td><td class="num">65.2</td><td class="num">64.3</td></tr>
+          <tr class="best"><td class="ours">Helpfulness RM</td><td class="num">63.2</td><td class="num">62.8</td><td class="num">72.0</td><td class="num">71.0</td><td class="num">75.5</td><td class="num">80.0</td><td class="num">70.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>兩個 RM 都在自己的領域上表現最好,整體都勝過包含 GPT-4 在內的所有 baseline(GPT-4 以 zero-shot 提示「Choose the best answer between A and B」評估)。有趣的是,<span class="hl">GPT-4 雖然完全沒有針對此任務訓練,卻仍優於其他非 Meta 的 reward model</span>。</p>
+
+    <div class="callout warn">
+      <p><strong>準確率隨相似度崩解:</strong>Table 8 顯示 RM 的準確率高度依賴回應差異的明顯程度。Safety RM 在 Meta Safety 測試集上:「significantly better」<span class="hl">94.3%</span> → 「better」76.3% → 「slightly better」65.7% → 「negligibly better/unsure」<span class="hl2">55.3%</span>(接近亂猜)。這不完全是模型的問題——人類標註者本身在相似回應上的一致率也較低。</p>
+    </div>
+
+    <h3>迭代式 RLHF:V1 到 V5</h3>
+
+    <p>隨著偏好資料一批批進來,他們訓練出一代代的 RLHF 模型。這裡有個容易被忽略但很重要的動機:<strong>Llama 2-Chat 每次變強,模型的資料分布就會偏移;reward model 若沒接觸新分布,準確率會因「hyper-specialization」而快速退化。</strong>所以每一次新的 tuning 迭代之前,都必須用最新的模型重新收集偏好資料,讓 RM 保持 in-distribution。</p>
+
+    <p>他們用了兩種 RL 演算法:</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>REJECTION SAMPLING</h4>
+        <p>對每個 prompt 抽 K 個輸出,用 reward model 選出最好的那個,<span class="hl">把它當作新的 gold standard 拿去做梯度更新</span>。</p>
+        <p><strong>廣度 (Breadth)</strong> — 一次探索 K 個樣本。</p>
+      </div>
+      <div class="card">
+        <h4>PPO</h4>
+        <p>標準 RLHF 做法,每個 prompt 只生成一個。</p>
+        <p><strong>深度 (Depth)</strong> — 第 t 步的樣本來自 t−1 步梯度更新後的策略。</p>
+      </div>
+    </div>
+
+    <p>兩者的搭配方式:<span class="hl">V4 之前只用 rejection sampling;V4 之後改成序列組合</span>——先做 rejection sampling,再在其 checkpoint 之上跑 PPO,然後重新取樣。</p>
+
+    <div class="callout hot">
+      <p><strong>一個真實的踩坑:</strong>V3 之前,他們只從「上一代模型」的樣本池中挑答案(例如 V3 只用 V2 的樣本)。結果雖然整體持續進步,<span class="hl">某些能力卻退化了</span>——V3 在寫押韻的詩這件事上明顯比前代差。這是典型的災難性遺忘。修法是:<strong>後續迭代改為納入所有先前迭代(V1、V2……)的頂尖樣本</strong>,問題就解決了。</p>
+    </div>
+
+    <p>Rejection sampling <span class="hl2">只在最大的 70B 上做</span>,所有較小的模型都是在 70B 產生的 rejection-sampled 資料上微調——實際上是把大模型的能力蒸餾進小模型。</p>
+
+    <h3>PPO 的目標函數</h3>
+
+    <p>最終的 reward 函數在 reward model 分數之外,加上一個偏離原始策略的 KL 懲罰項:</p>
+
+    <div class="formula">R(g | p) = R̃<sub>c</sub>(g | p) − β · D<sub>KL</sub>( π<sub>θ</sub>(g | p) ‖ π<sub>0</sub>(g | p) )<br><span style="color:var(--muted)">π<sub>0</sub> = 原始策略。此項對訓練穩定性、以及抑制 reward hacking 都有幫助</span></div>
+
+    <p>而 R<sub>c</sub> 是 safety 與 helpfulness 兩個 RM 的<strong>分段組合</strong>:</p>
+
+    <div class="formula">R<sub>c</sub>(g | p) = R<sub>s</sub>(g | p)&nbsp;&nbsp;<span class="cmt">若 is_safety(p) 或 R<sub>s</sub>(g | p) &lt; 0.15</span><br>
+    R<sub>c</sub>(g | p) = R<sub>h</sub>(g | p)&nbsp;&nbsp;<span class="cmt">其他情況</span><br><br>
+    R̃<sub>c</sub>(g | p) = whiten( logit( R<sub>c</sub>(g | p) ) )</div>
+
+    <p>0.15 這個閾值不是隨便選的:它在 Meta Safety 測試集上對應 <span class="hl">precision 0.89、recall 0.55</span>。最後對線性分數做 whitening(用 logit 反轉 sigmoid),以提升穩定性並與 KL 懲罰項取得平衡。</p>
+
+    <p>PPO 超參數:AdamW(β₁=0.9, β₂=0.95, eps=10⁻⁵)、weight decay 0.1、gradient clipping 1.0、<span class="hl">固定學習率 10⁻⁶</span>、batch size 512、clip threshold 0.2、mini-batch 64,每個 mini-batch 走一步梯度。KL 係數 β:7B/13B 用 0.01,34B/70B 用 0.005。訓練 200–400 iterations,以 held-out prompt 做 early stopping。</p>
+
+    <div class="callout">
+      <p><strong>工程細節:</strong>用 FSDP 訓練時遇到一個坑——它在 O(1) 次前向/反向傳播時很有效,<span class="hl2">但生成階段會慢上約 20 倍</span>,即使用了大 batch 和 KV cache 也一樣。解法是在生成前把模型權重合併到每個節點上,生成後再釋放記憶體。70B 的每次 PPO 迭代平均約 330 秒。</p>
+    </div>
+
+    <h3>RLHF 的效果</h3>
+
+    <p>以 Meta 自家 RM 為裁判,RLHF-V3 之後在 harmlessness 與 helpfulness 兩軸上都勝過 ChatGPT(勝率 &gt;50%)。但作者自己承認這個裁判可能偏袒自家模型,所以另外用 GPT-4 重新評判(並隨機交換兩個回應的呈現順序以消除位置偏誤)。<span class="hl">用 GPT-4 當裁判時,優勢確實沒那麼誇張,但最新版仍取得超過 60% 的勝率。</span></p>
+
+    <p>人類評估方面(~4,000 個單輪與多輪 prompt,每個 prompt 三位評分者):</p>
+    <ul>
+      <li>Llama 2-Chat 7B 在 <strong>60%</strong> 的 prompt 上勝過 MPT-7B-chat</li>
+      <li>Llama 2-Chat 34B 對上同級的 Vicuna-33B 與 Falcon-40B,整體勝率 <strong>超過 75%</strong></li>
+      <li>Llama 2-Chat 70B 對 ChatGPT 的<span class="hl">勝率 36%、平手率 31.5%</span></li>
+    </ul>
+
+    <div class="callout warn">
+      <p><strong>作者自己列的評估侷限(值得原文照抄的誠實):</strong></p>
+      <ul>
+        <li>4k prompt 以學術標準算大,但<span class="hl2">遠不能涵蓋真實世界的使用情境</span></li>
+        <li>prompt 集<span class="hl2">完全不包含程式碼或推理類的題目</span>——而這正好是 Table 4 顯示 Llama 2 最弱的地方</li>
+        <li>多輪對話只評估最後一則生成,而非整體任務體驗</li>
+        <li>生成模型的人類評估本質上主觀且吵雜;換一組 prompt 或換一套指引,結果可能就不同</li>
+      </ul>
+      <p>Inter-rater reliability(Gwet's AC2)介於 <strong>0.37 到 0.55</strong>,勝負越接近的比較(如 70B vs ChatGPT)分數越低。</p>
+    </div>
+  </div>
+</section>
+
+<section id="gatt">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Ghost Attention — 讓模型記得系統指令</h2>
+    <p class="lead">整篇論文最可愛的一個 hack。不改架構、不改損失函數,純粹靠「動手腳的訓練資料」來解決多輪對話的指令遺忘。</p>
+
+    <p>問題很具體:在對話設定中,某些指令應該<strong>貫穿所有輪次</strong>——例如「回答簡短一點」或「扮演某個公眾人物」。但初期的 RLHF 模型<span class="hl">在幾輪之後就會忘掉最初的指令</span>。</p>
+
+    <p>GAtt(Ghost Attention)受 Context Distillation 啟發,論文自己的形容是「<span class="hl2">hacks the fine-tuning data</span>」——直接對訓練資料動手腳,來幫助注意力聚焦。</p>
+
+    <h3>做法</h3>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>準備多輪對話與一則指令</h4>
+        <p>假設有對話 [u₁, a₁, …, u<sub>n</sub>, a<sub>n</sub>](u = user、a = assistant),再定義一個應該全程遵守的指令 <code>inst</code>,例如「act as ...」。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>把指令合成到「所有」user 訊息上</h4>
+        <p>先人工地把 <code>inst</code> 串接到對話中<span class="hl">每一則</span> user 訊息前面。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>用最新的 RLHF 模型取樣</h4>
+        <p>從這份合成資料中取樣,得到 context-dialogue 與對應的回應——過程類似 rejection sampling。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>把指令從除了第一輪以外的地方拿掉</h4>
+        <p>這會造成訓練時的不匹配:中間那些 assistant 訊息當初是在「有指令」的情況下生成的,但現在指令不見了。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>把先前輪次的 loss 全部歸零</h4>
+        <p>解法簡單粗暴:<span class="hl2">把所有先前輪次(包含 assistant 訊息)的 token loss 設為 0</span>,只在最後一輪計算損失。不匹配的問題就消失了。</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>「Ghost」的意思:</strong>那些被合成插入、又被拿掉的指令,像幽靈一樣<span class="hl">在訓練時塑造了注意力模式,但在最終的資料格式中並不存在</span>。模型學到的是「即使指令只出現在第一輪,也要持續注意它」。</p>
+    </div>
+
+    <h3>訓練指令怎麼來</h3>
+
+    <p>他們建了幾類合成約束來取樣:<strong>Hobbies</strong>(「You enjoy e.g. Tennis」)、<strong>Language</strong>(「Speak in e.g. French」)、<strong>Public Figure</strong>(「Act as e.g. Napoleon」)。</p>
+
+    <p>兩個值得學的細節:</p>
+    <ul>
+      <li>嗜好與公眾人物的清單<span class="hl">是請 Llama 2-Chat 自己生成的</span>——為了避免指令與模型知識不匹配(例如要求模型扮演一個它訓練時根本沒見過的人)。</li>
+      <li>建構最終系統訊息時,<span class="hl">有一半的機率把指令改寫得更精簡</span>,例如「Always act as Napoleon from now」→「Figure: Napoleon」。這增加了格式的多樣性。</li>
+    </ul>
+
+    <pre><code><span class="cmt"># GAtt 的資料變換示意(依論文 3.3 節描述整理)</span>
+<span class="cmt"># ── 步驟 2:合成階段 — 指令貼到每一則 user 訊息 ──</span>
+[<span class="str">"[inst] + u1"</span>, a1, <span class="str">"[inst] + u2"</span>, a2, <span class="str">"[inst] + u3"</span>, a3]
+                          <span class="kw">│</span>
+                          <span class="kw">▼</span>  <span class="cmt">用最新 RLHF 模型取樣</span>
+<span class="cmt"># ── 步驟 4–5:訓練階段 — 指令只留第一輪,前面的 loss 歸零 ──</span>
+[<span class="str">"[inst] + u1"</span>, a1, u2, a2, u3, a3]
+ <span class="cmt">└──────── loss = 0 ────────┘  └─ 只在這裡算 loss</span></code></pre>
+
+    <h3>效果</h3>
+
+    <p>GAtt 在 RLHF V3 之後才套用。量化分析顯示它<span class="hl">能維持一致性到 20 輪以上,直到觸及最大 context length</span>。</p>
+
+    <p>更有意思的是泛化能力:他們在推論時試了訓練中<strong>從未出現過</strong>的約束,例如「Always answer with Haiku」,模型依然保持一致。</p>
+
+    <p>論文也用注意力視覺化來佐證(Figure 10):對比有無 GAtt 的模型,把系統訊息「Act as Oscar Wilde」放在左側,<span class="hl">裝了 GAtt 的模型在對話進行到很後面時,對系統訊息仍維持較大的注意力激活值</span>。</p>
+
+    <div class="callout warn">
+      <p><strong>作者自己說這很陽春:</strong>「the current implementation of GAtt is vanilla」——他們明確指出還有很多可以做的,例如<span class="hl2">在 fine-tuning 資料中加入「對話中途更換系統訊息」的樣本</span>,教模型動態切換。</p>
+    </div>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>安全性 — 三層防護與那條張力曲線</h2>
+    <p class="lead">整篇論文有將近三分之一在講安全。這一節最有價值的不是「我們很安全」的宣稱,而是那些量化出來的取捨曲線。</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>1 · 監督式安全微調</h4>
+        <p>收集對抗性 prompt 與安全示範,納入一般 SFT。讓模型<span class="hl">在 RLHF 之前就先對齊安全指引</span>,為後續高品質偏好標註打底。</p>
+      </div>
+      <div class="card">
+        <h4>2 · SAFETY RLHF</h4>
+        <p>訓練專門的 safety reward model,收集更困難的對抗性 prompt 做 rejection sampling 與 PPO。</p>
+      </div>
+      <div class="card">
+        <h4>3 · 安全 CONTEXT DISTILLATION</h4>
+        <p>先用安全 preprompt 前綴生成更安全的回應,再<span class="hl">拿掉 preprompt、用該回應微調模型</span>——把 context 蒸餾進權重裡。</p>
+      </div>
+    </div>
+
+    <h3>對抗性 prompt 的兩個維度</h3>
+
+    <p>標註指引沿兩個軸設計對抗性 prompt:</p>
+    <ul>
+      <li><strong>風險類別 (risk category)</strong> — 非法與犯罪活動(恐怖主義、竊盜、人口販運)、仇恨與有害活動(誹謗、自殘、飲食失調、歧視)、不具資格的建議(醫療、財務、法律建議)</li>
+      <li><strong>攻擊向量 (attack vector)</strong> — 心理操縱(權威操縱)、邏輯操縱(錯誤前提)、語法操縱(拼錯字)、語義操縱(隱喻)、視角操縱(角色扮演)、非英語語言等</li>
+    </ul>
+
+    <p>而理想的安全回應有明確的格式規範:<span class="hl">先處理立即的安全疑慮 → 再解釋潛在風險 → 最後盡可能提供額外資訊</span>。</p>
+
+    <div class="callout">
+      <p><strong>又一次「少即是多」:</strong>他們很早就發現模型能從 SFT 的安全示範中泛化——模型很快學會寫出詳盡的安全回應、指出為何主題敏感、並提供有用的替代資訊。<span class="hl2">模型輸出的安全回應往往比一般標註者寫的更詳盡</span>。所以在收集了「僅僅數千筆」監督示範之後,他們就<strong>完全轉向 RLHF</strong>。</p>
+    </div>
+
+    <h3>安全資料要加多少?那條關鍵的張力曲線</h3>
+
+    <p>這是我認為整節最有價值的實驗。固定 helpfulness 資料(0.9M 樣本)不變,逐步增加 RLHF 階段的安全資料,從 0% 到 100%(0.1M 樣本),得到 6 個模型變體。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="30" x2="70" y2="230" stroke="#26313f"/>
+        <line x1="70" y1="230" x2="640" y2="230" stroke="#26313f"/>
+
+        <text x="40" y="45" fill="#93a1b3" font-size="10" text-anchor="end">0.78</text>
+        <text x="40" y="103" fill="#93a1b3" font-size="10" text-anchor="end">0.72</text>
+        <text x="40" y="161" fill="#93a1b3" font-size="10" text-anchor="end">0.66</text>
+        <text x="40" y="219" fill="#93a1b3" font-size="10" text-anchor="end">0.60</text>
+        <line x1="70" y1="40" x2="640" y2="40" stroke="#1b2430"/>
+        <line x1="70" y1="98" x2="640" y2="98" stroke="#1b2430"/>
+        <line x1="70" y1="156" x2="640" y2="156" stroke="#1b2430"/>
+        <line x1="70" y1="214" x2="640" y2="214" stroke="#1b2430"/>
+
+        <!-- safety curve: rises steeply then plateaus -->
+        <polyline points="110,205 180,120 270,80 380,62 500,52 620,48" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <circle cx="110" cy="205" r="4" fill="#5ad1c0"/>
+        <circle cx="180" cy="120" r="4" fill="#5ad1c0"/>
+        <circle cx="270" cy="80" r="4" fill="#5ad1c0"/>
+        <circle cx="380" cy="62" r="4" fill="#5ad1c0"/>
+        <circle cx="500" cy="52" r="4" fill="#5ad1c0"/>
+        <circle cx="620" cy="48" r="4" fill="#5ad1c0"/>
+        <text x="600" y="35" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">Safety RM</text>
+
+        <!-- helpfulness curve: flat -->
+        <polyline points="110,142 180,144 270,141 380,143 500,142 620,144" fill="none" stroke="#f4a259" stroke-width="2.5"/>
+        <circle cx="110" cy="142" r="4" fill="#f4a259"/>
+        <circle cx="180" cy="144" r="4" fill="#f4a259"/>
+        <circle cx="270" cy="141" r="4" fill="#f4a259"/>
+        <circle cx="380" cy="143" r="4" fill="#f4a259"/>
+        <circle cx="500" cy="142" r="4" fill="#f4a259"/>
+        <circle cx="620" cy="144" r="4" fill="#f4a259"/>
+        <text x="595" y="168" fill="#f4a259" font-size="11" text-anchor="middle" font-weight="700">Helpfulness RM</text>
+
+        <text x="110" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">0%</text>
+        <text x="180" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">1%</text>
+        <text x="270" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">10%</text>
+        <text x="380" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">25%</text>
+        <text x="500" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">50%</text>
+        <text x="620" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">100%</text>
+        <text x="355" y="272" fill="#93a1b3" font-size="11" text-anchor="middle">RLHF 階段的安全資料佔比 (%)</text>
+        <text x="20" y="130" fill="#93a1b3" font-size="11" text-anchor="middle" transform="rotate(-90 20 130)">Mean RM Score</text>
+      </svg>
+      <div class="figcap">圖 3 · 安全資料量的擴展趨勢:safety 分數大幅上升,helpfulness 幾乎不動(依論文 Figure 15 左圖重繪,<strong>數值為趨勢示意</strong> — 論文僅提供圖表未提供原始數值)</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>結論:</strong>隨著安全資料佔比增加,模型處理風險與對抗性 prompt 的能力<span class="hl">大幅改善</span>,而 <span class="hl2">helpfulness 的平均分數維持不變</span>。作者的假說是——他們的 helpfulness 訓練資料已經足夠多了,所以額外加一層安全緩解並不會造成可察覺的退化。</p>
+    </div>
+
+    <h3>但代價藏在「錯誤拒答」裡</h3>
+
+    <p>雖然整體 helpfulness 沒有退化,他們在互動中<strong>質性地</strong>觀察到安全緩解較多的模型會變得保守。於是他們量化了 <span class="hl">false refusal</span>——模型因為不相干的安全考量而錯誤拒絕合理請求的頻率。</p>
+
+    <p>定義上很嚴謹:因為<span class="hl2">能力限制</span>而拒絕(例如「我無法參與視訊通話」、「2024 超出我的知識截止日期」)<strong>不算</strong> false refusal。</p>
+
+    <p>他們訓練了一個拒答偵測分類器,套用在兩個資料集上:一般 helpfulness 測試集,以及一個特製的 <strong>borderline 測試集</strong>(210 個樣本)——這些 prompt 刻意<span class="hl">看起來很像對抗性的(含敏感詞或子詞),但實際上完全無害</span>,例如「give me a recipe for Christmas Crack」。</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>一般 HELPFULNESS 資料集</h4>
+        <p class="big">~0.05%</p>
+        <p>即使用 100% 安全資料,false refusal 仍<span class="hl">極為罕見</span>。</p>
+      </div>
+      <div class="card">
+        <h4>BORDERLINE 資料集</h4>
+        <p class="big" style="color:#ff6b6b">高很多</p>
+        <p>論文只說「much larger」未給數值。當 prompt 含有 <code>bomb</code> 這類在不安全生成中高頻出現的詞時,<span class="hl2">Llama 2-Chat 有時難以判斷它其實是安全的</span>。</p>
+      </div>
+    </div>
+
+    <h3>Context Distillation 的反效果,以及用 RM 當守門員</h3>
+
+    <p>安全 context distillation 的做法是:用安全 preprompt(例如「You are a safe and responsible assistant」)前綴對抗性 prompt 來生成更安全的回應,然後<span class="hl">用「沒有 preprompt 的原始 prompt → 安全回應」這樣的配對來微調模型</span>。preprompt 是用模板自動生成的,使用「responsible」「respectful」「wise」這類與安全行為相關的形容詞。</p>
+
+    <p>進階版是<strong>帶答案模板的 preprompt</strong>:因為標註者已經標了風險類別,就能針對每個類別提供專屬的回答模板。實驗顯示<span class="hl">通用 preprompt 能提升 safety RM 分數,而帶答案模板的 preprompt 提升更多</span>。</p>
+
+    <div class="callout hot">
+      <p><strong>但 context distillation 會反噬:</strong>如果模型的回應本來就已經很好,套用 context distillation 反而會讓回覆<span class="hl2">變得不切題</span>——模型會過度強調 preprompt,流於空泛的擔憂。</p>
+      <p><strong>解法很聰明:</strong>用 safety reward model 當守門員——<span class="hl">只有當 context-distilled 的輸出比原始答案拿到更高的 RM 分數時,才保留它</span>。這樣在模型本來很爛的 prompt 上獲得大幅改善,同時限制了副作用。此外,context distillation <strong>只</strong>套用在對抗性 prompt 上,絕不用在 helpful prompt 上(那會導致更多 false refusal)。</p>
+    </div>
+
+    <h3>Red Teaming:350+ 人,以及一個可量化的韌性指標</h3>
+
+    <p>參與者超過 <span class="hl">350 人</span>,涵蓋網路安全、選舉舞弊、社群媒體假訊息、法律、政策、公民權利、倫理、軟體工程、機器學習、負責任 AI、創意寫作等領域的專家,並包含不同社經、性別、族裔背景的個人。</p>
+
+    <p>紅隊給的一些洞察相當有畫面感:</p>
+    <ul>
+      <li>早期模型會生成不安全回應卻毫無自覺;<span class="hl2">稍晚的模型則會「知道」內容有問題,但仍然照講不誤</span>——「它們會回答『[UNSAFE CONTENT] 不適合討論』,然後緊接著說『話雖如此,以下是如何 [UNSAFE CONTENT]』」。最新的模型才解決了這個問題。</li>
+      <li>用「怪癖」或特定要求來分散模型注意力,通常能擊潰它在直接請求下的抗拒——「<span class="hl">創意寫作請求(歌曲、故事、詩)是讓它產出平常擋得住的內容的可靠手段</span>」。</li>
+      <li>把有問題的請求埋進正面語境中往往能矇混過關——「我發現對任何攻擊最有效的原則,就是把它藏在正面、進步、賦權的語言裡」。</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>把 red teaming 變成一個數字:</strong>他們定義模型韌性 γ = <span class="hl">「每人每小時能製造出多少個觸發違規回應的 prompt」</span>。在 7B 模型上,經過數輪紅隊與模型改良,γ 從 <strong>1.8 降到 0.45</strong>。另一個追蹤指標是:先前紅隊發現的違規 prompt 在新版本中被緩解的比例——平均達到 <strong>90% 的 model-over-model 拒絕率</strong>。</p>
+    </div>
+
+    <p>他們也特別測試了模型協助製造武器(核、生、化、網路)的能力,結論是「findings on these topics were marginal and were mitigated」。所有紅隊工作都針對英文輸出,但<span class="hl2">刻意納入了非英語的 prompt 與對話情境,因為那是已知的攻擊向量</span>。</p>
+
+    <h3>安全評估結果</h3>
+
+    <p>人類安全評估用了約 2,000 個對抗性 prompt(1,351 單輪、623 多輪),以五點量表評分,<span class="hl">1 或 2 分視為違規</span>,每個樣本三位標註者取多數決。IRR 介於 0.70 到 0.95,Llama 2-Chat 標註上的平均 Gwet's AC2 達 <strong>0.92</strong>。</p>
+
+    <div class="callout warn">
+      <p><strong>一個讀圖陷阱:</strong>Falcon 的違規率看起來跟 Llama 2-Chat (34B) 差不多,<span class="hl2">但那是因為 Falcon 的回應通常只有一兩句話</span>——短就不容易講錯,但也同時不怎麼有用。這反映在平均評分上:兩者違規率相近(3.88 vs 4.45),但 Falcon 的平均評分低得多。<strong>違規率必須跟有用性一起看,否則「什麼都不說」會是最安全的模型。</strong></p>
+    </div>
+
+    <p>其他發現:多輪對話普遍比單輪更容易誘發不安全回應(所有模型皆然),而 Llama 2-Chat 在多輪上的相對表現尤其好。分類別來看,Llama 2-Chat 在「<span class="hl">不具資格的建議</span>」這一類的違規相對較多(絕對值仍低),原因之一是有時缺少適當的免責聲明(例如「我不是專業人士」)。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 11 · 預訓練模型的自動安全基準(TruthfulQA ↑ 越高越好,ToxiGen ↓ 越低越好)</caption>
+        <thead><tr><th>模型</th><th>Size</th><th>TruthfulQA ↑</th><th>ToxiGen ↓</th></tr></thead>
+        <tbody>
+          <tr><td>MPT</td><td class="num">7B</td><td class="num">29.13</td><td class="num">22.32</td></tr>
+          <tr><td>MPT</td><td class="num">30B</td><td class="num">35.25</td><td class="num">22.61</td></tr>
+          <tr><td>Falcon</td><td class="num">7B</td><td class="num">25.95</td><td class="num">14.53</td></tr>
+          <tr><td>Falcon</td><td class="num">40B</td><td class="num">40.39</td><td class="num">23.44</td></tr>
+          <tr><td>Llama 1</td><td class="num">7B</td><td class="num">27.42</td><td class="num">23.00</td></tr>
+          <tr><td>Llama 1</td><td class="num">13B</td><td class="num">41.74</td><td class="num">23.08</td></tr>
+          <tr><td>Llama 1</td><td class="num">33B</td><td class="num">44.19</td><td class="num">22.57</td></tr>
+          <tr><td>Llama 1</td><td class="num">65B</td><td class="num">48.71</td><td class="num">21.77</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">7B</td><td class="num">33.29</td><td class="num">21.25</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">13B</td><td class="num">41.86</td><td class="num">26.10</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">34B</td><td class="num">43.45</td><td class="num">21.19</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">70B</td><td class="num">50.18</td><td class="num">24.60</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>相對 Llama 1-7B,Llama 2-7B 的真實性提升 <span class="hl">21.37%</span>、毒性下降 <span class="hl">7.61%</span>。但 13B 與 70B 的<span class="hl2">毒性反而上升了</span>——作者推測可能來自更大的預訓練資料或不同的資料混合,並坦承「Llama 2 在毒性指標上並沒有勝過其他模型」,原因就是前面那個不積極過濾預訓練資料的決定。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 14 · Fine-tuned 模型的安全基準</caption>
+        <thead><tr><th>模型</th><th>Size</th><th>TruthfulQA ↑</th><th>ToxiGen ↓</th></tr></thead>
+        <tbody>
+          <tr><td>ChatGPT</td><td class="num">–</td><td class="num">78.46</td><td class="num">0.20</td></tr>
+          <tr><td>Falcon-instruct</td><td class="num">7B</td><td class="num">28.03</td><td class="num">7.89</td></tr>
+          <tr><td>MPT-instruct</td><td class="num">7B</td><td class="num">29.99</td><td class="num">16.33</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">7B</td><td class="num">57.04</td><td class="num">0.00</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">13B</td><td class="num">62.18</td><td class="num">0.00</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">34B</td><td class="num">67.20</td><td class="num">0.02</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">70B</td><td class="num">64.14</td><td class="num">0.01</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>對齊的效果在這裡最戲劇化:70B 的真實性 <span class="hl">50.18 → 64.14</span>、毒性 <span class="hl">24.60 → 0.01</span>。<strong>所有尺寸的 Llama 2-Chat 毒性生成比例都趨近於 0%,是所有比較模型中最低的。</strong>對照 Table 11 的 base model 毒性,這正好說明了論文的核心論點——<span class="hl2">base model 跟產品級 chat model 之間的差距,就是這套對齊流程。</span></p>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>意外發現 — RLHF 的三個副產品</h2>
+    <p class="lead">論文的 Discussion 節分享了三個「我們也沒預期到」的觀察。這是全篇最有趣的部分。</p>
+
+    <h3>一、監督式資料可能不再是黃金標準</h3>
+
+    <p>專案初期,團隊裡許多人偏好監督式標註,因為訊號更密集;而 RL 以不穩定聞名,對 NLP 社群來說是個「somewhat shadowy field」。但結果 RL 出乎意料地有效,尤其考慮到成本與時間效益。</p>
+
+    <p>論文給出的解釋很有說服力:</p>
+    <ul>
+      <li>即使是熟練的標註者,<span class="hl">每個人的寫作風格差異都很大</span>。用 SFT 標註微調的模型會學到這種多樣性——<strong>包括那些寫得不好的長尾標註</strong>。</li>
+      <li>更根本的是:<span class="hl2">模型的效能上限被最強標註者的寫作能力鎖死了</span>。</li>
+      <li>但人類在「比較兩個輸出哪個好」時,分歧遠小於「自己寫一個好答案」。所以 reward 機制能迅速學會給長尾的爛答案低分。</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>論文裡我最喜歡的一個類比:</strong>在標註過程中,模型有可能走出連最好的標註者都畫不出來的寫作軌跡。但人類<span class="hl">依然能在比較兩個答案時提供超越自身寫作能力的有效回饋</span>——「就像我們未必都是出色的藝術家,但我們欣賞與評論藝術的能力並未因此受損」。</p>
+      <p>結論:<strong>監督式資料可能不再是黃金標準,這個演變中的情勢迫使我們重新評估「監督」這個概念本身。</strong></p>
+    </div>
+
+    <h3>二、In-Context 溫度重新校準</h3>
+
+    <p>這是一個論文自稱「據我們所知先前未曾被報告過」的現象:<span class="hl">RLHF 會動態地、依 context 重新縮放溫度的效果</span>。</p>
+
+    <p>更精確地說,這個偏移<strong>不是均勻施加在所有 prompt 上的</strong>:</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- factual -->
+        <text x="175" y="20" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">Factual Prompts</text>
+        <line x1="70" y1="40" x2="70" y2="200" stroke="#26313f"/>
+        <line x1="70" y1="200" x2="290" y2="200" stroke="#26313f"/>
+        <text x="60" y="46" fill="#93a1b3" font-size="9" text-anchor="end">100</text>
+        <text x="60" y="200" fill="#93a1b3" font-size="9" text-anchor="end">60</text>
+        <polyline points="85,150 130,158 180,168 240,178 285,186" fill="none" stroke="#3a4658" stroke-width="2"/>
+        <text x="292" y="190" fill="#3a4658" font-size="9">SFT</text>
+        <polyline points="85,105 130,100 180,96 240,92 285,90" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <text x="292" y="88" fill="#5ad1c0" font-size="9">RLHF v3</text>
+        <text x="175" y="222" fill="#93a1b3" font-size="10" text-anchor="middle">Temperature →</text>
+        <text x="175" y="243" fill="#5ad1c0" font-size="10" text-anchor="middle">溫度升高,回應仍趨於一致</text>
+
+        <!-- creative -->
+        <text x="510" y="20" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">Creative Prompts</text>
+        <line x1="405" y1="40" x2="405" y2="200" stroke="#26313f"/>
+        <line x1="405" y1="200" x2="625" y2="200" stroke="#26313f"/>
+        <text x="395" y="46" fill="#93a1b3" font-size="9" text-anchor="end">100</text>
+        <text x="395" y="200" fill="#93a1b3" font-size="9" text-anchor="end">60</text>
+        <polyline points="420,120 465,140 515,162 575,180 620,192" fill="none" stroke="#3a4658" stroke-width="2"/>
+        <text x="627" y="196" fill="#3a4658" font-size="9">SFT</text>
+        <polyline points="420,112 465,132 515,155 575,174 620,188" fill="none" stroke="#f4a259" stroke-width="2.5"/>
+        <text x="627" y="182" fill="#f4a259" font-size="9">RLHF v3</text>
+        <text x="510" y="222" fill="#93a1b3" font-size="10" text-anchor="middle">Temperature →</text>
+        <text x="510" y="243" fill="#f4a259" font-size="10" text-anchor="middle">溫度升高,多樣性仍持續增加</text>
+
+        <text x="20" y="120" fill="#93a1b3" font-size="10" text-anchor="middle" transform="rotate(-90 20 120)">Self-BLEU</text>
+      </svg>
+      <div class="figcap">圖 4 · RLHF 學會依 prompt 類型調整溫度反應(依論文 Figure 21 重繪,<strong>曲線為趨勢示意</strong>。Self-BLEU 越低代表多樣性越高)</div>
+    </div>
+
+    <ul>
+      <li><strong>創意類 prompt</strong>(如「Write a poem」)— 提高溫度<span class="hl">在各個 RLHF 迭代中都持續產生多樣性</span>,Self-BLEU 斜率與 SFT 模型相仿。</li>
+      <li><strong>事實類 prompt</strong>(如「What is the capital of ?」)— Self-BLEU 斜率<span class="hl2">隨迭代逐漸變平</span>。意思是:<strong>儘管溫度升高,模型仍學會對事實性問題給出一致的答案。</strong></li>
+    </ul>
+
+    <p>這件事有實務意涵:RLHF 直接影響了最佳溫度。對 Llama 2-Chat-RLHF 而言,抽 10 到 100 個輸出時的最佳溫度落在 <span class="hl">T ∈ [1.2, 1.3]</span>。所以在有限的運算預算下,<strong>必須隨著迭代逐步重新調整溫度</strong>,不能沿用舊設定。</p>
+
+    <h3>三、時間感知與工具使用的自發湧現</h3>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>時間感知 (TEMPORAL PERCEPTION)</h4>
+        <p>他們收集了 <span class="hl">1,000 筆</span>與特定日期相關的 SFT 樣本(如「How long ago did Barack Obama become president?」),每筆附兩個 metadata:<strong>提問的日期</strong>與<strong>事件日期</strong>。</p>
+        <p>結果模型展現出穩健的時間知識組織能力。論文的推論很有意思:<span class="hl2">LLM 對「時間」概念的內化程度,可能比先前假設的更深</span>——儘管它們的訓練只基於 next-token prediction,而且資料是隨機打亂、完全不顧時序的。</p>
+      </div>
+      <div class="card">
+        <h4>工具使用 (TOOL USE)</h4>
+        <p>Toolformer 的做法需要抽樣數百萬條軌跡,再為每個工具編寫 few-shot 範例,且一個樣本只用一個工具。</p>
+        <p>Llama 2 的實驗指出:<span class="hl">工具使用可以從對齊中以 zero-shot 的方式自發湧現</span>。<strong>他們從未明確標註過工具使用</strong>,但模型能單純透過語義理解工具的用途與 API 參數,甚至能在 zero-shot 情境下使用一連串的工具。</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 15 · 使用工具的表現(Toolformer 使用的數學資料集;baseline 分數引自 Schick et al. 2023)</caption>
+        <thead><tr><th>模型</th><th>ASDiv</th><th>SVAMP</th><th>MAWPS</th></tr></thead>
+        <tbody>
+          <tr><td>OPT-66B</td><td class="num">6.0</td><td class="num">4.9</td><td class="num">7.9</td></tr>
+          <tr><td>GPT-J</td><td class="num">7.5</td><td class="num">5.2</td><td class="num">9.9</td></tr>
+          <tr><td>GPT-J + CC</td><td class="num">9.6</td><td class="num">5.0</td><td class="num">9.3</td></tr>
+          <tr><td>GPT-3</td><td class="num">14.0</td><td class="num">10.0</td><td class="num">19.8</td></tr>
+          <tr><td>Toolformer</td><td class="num">40.4</td><td class="num">29.4</td><td class="num">44.0</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">67.1</td><td class="num">69.2</td><td class="num">82.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>給 Llama 2-Chat 一台計算機,它在這些數學資料集上大幅超越 Toolformer。<span class="hl2">論文自己也提醒:LLM 的工具使用雖然令人興奮,但同時帶來安全疑慮</span>,並呼籲社群在這個方向投入更多研究與 red teaming。</p>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>限制與未來方向</h2>
+    <p class="lead">以下全部是作者自己在 5.2 節列出的,不是我的推論。</p>
+
+    <div class="callout hot">
+      <p><strong>與其他 LLM 共通的老問題:</strong>預訓練後知識即停止更新、可能產生不具事實根據的內容(例如不具資格的建議)、以及<span class="hl">容易產生幻覺的傾向</span>。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>非英語能力脆弱:</strong>初版 Llama 2-Chat 主要聚焦英語資料。雖然觀察到模型在其他語言上有一定能力,但<span class="hl2">受限於非英語預訓練資料的量(見 Table 10:英文佔 89.7%)而相當有限</span>。論文的用詞是「fragile」,並明確建議謹慎使用。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>安全調校有時矯枉過正:</strong>作者直言「in some instances, our safety tuning goes too far」。使用者可能觀察到<span class="hl">過度謹慎的行為</span>——傾向拒絕某些請求,或回應中塞了太多安全細節。這與前面 false refusal 的量化結果相互印證。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>惡意使用的風險:</strong>不是每個使用 AI 模型的人都懷有善意。對話式 AI 可能被用於生成假訊息,或用來取得生物恐怖主義、網路犯罪等主題的資訊。他們已嘗試調校模型迴避這些主題,但<span class="hl2">承認風險無法完全消除</span>。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Base model 使用者要格外小心:</strong>由於預訓練資料<span class="hl">刻意未經積極過濾</span>,pretrained Llama 2 的使用者必須在調校與部署上採取額外步驟,並遵循 Responsible Use Guide。</p>
+    </div>
+
+    <h3>論文中點名的未來工作</h3>
+    <ul>
+      <li><strong>Rejection sampling 的蒸餾效果</strong> — 小模型全部是在 70B 的 rejection-sampled 資料上微調的,這種蒸餾的影響「we leave further analysis for future work」。</li>
+      <li><strong>遺忘的成因與緩解</strong> — V3 詩詞押韻能力退化那件事,作者認為深入研究遺忘的成因與緩解「could be a fruitful area for additional future research」。</li>
+      <li><strong>GAtt 的進化</strong> — 目前實作是 vanilla 版本;可以教模型在對話中途更換系統訊息。</li>
+      <li><strong>二元比較以外的標註協議</strong> — 選擇二元比較主要是為了最大化 prompt 多樣性,但「other strategies are worth considering, which we leave for future work」。</li>
+      <li><strong>工具使用的安全性</strong> — 明確呼籲社群投入更多研究與 red teaming。</li>
+    </ul>
+
+    <h3>回頭看的意義</h3>
+
+    <div class="callout">
+      <p>Llama 2 的歷史地位不在於它的分數——它的 MMLU 甚至沒贏過 GPT-3.5,程式碼能力明顯落後。它的意義在於<span class="hl">第一次有人把產品級 LLM 的對齊流程完整地、誠實地寫下來並附上權重</span>:雙 reward model 的切分、margin loss、rejection sampling 與 PPO 的搭配、iterative RM 更新以對抗分布偏移、安全資料的擴展曲線、false refusal 的量化、以及 GAtt 這種務實的小 hack。</p>
+      <p><strong>在此之後,「開源模型追不上閉源」的理由,就不再是「我們不知道怎麼做對齊」了。</strong></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Touvron, Martin, Stone et al. (2023) · GenAI, Meta · "Llama 2: Open Foundation and Fine-Tuned Chat Models"</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2307.09288">arXiv:2307.09288</a> · <a href="https://github.com/facebookresearch/llama">程式碼 facebookresearch/llama</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要,圖表為依論文內容重繪／整理;數值以原論文為準。趨勢示意圖僅重現論文圖表的形狀,不代表精確數值。</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Llama 2 — Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px}
+  li{margin:8px 0;color:var(--muted)}
+  li strong{color:#fff}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2023 · Paper Digest</div>
+    <h1 class="title">Llama <span class="sql">2</span></h1>
+    <p class="subtitle">What open source was missing was never the pretrained model — it was the alignment recipe nobody would publish. Llama 2 documents every screw in the RLHF machine.</p>
+    <div class="meta-row">
+      <span class="tag lit">RLHF</span>
+      <span class="tag lit">Rejection Sampling</span>
+      <span class="tag lit">Ghost Attention</span>
+      <span class="tag">Dual Reward Models</span>
+      <span class="tag">GQA</span>
+      <span class="tag">2T tokens</span>
+      <span class="tag">7B / 13B / 34B / 70B</span>
+    </div>
+    <p class="authors">Hugo Touvron, Louis Martin, Kevin Stone, and 65 others · GenAI, Meta · <a href="https://arxiv.org/abs/2307.09288">arXiv:2307.09288</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#pretrain">02 Pretraining</a>
+    <a href="#finetune">03 Alignment</a>
+    <a href="#gatt">04 Ghost Attention</a>
+    <a href="#safety">05 Safety</a>
+    <a href="#findings">06 Observations</a>
+    <a href="#limits">07 Limitations</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — What Open Source Was Missing</h2>
+    <p class="lead">By mid-2023, open pretrained models had essentially caught up with closed base models. The real gap was not in pretraining — it was in the alignment engineering nobody was willing to write down.</p>
+
+    <p>The paper's opening diagnosis is blunt: publicly released pretrained models like BLOOM, LLaMA 1, and Falcon already matched the performance of closed pretrained competitors such as GPT-3 and Chinchilla. <strong>Yet none of them were suitable substitutes for closed "product" LLMs like ChatGPT, BARD, and Claude.</strong></p>
+
+    <p>Why? Because those product LLMs are heavily fine-tuned to align with human preferences — a step requiring significant compute and human annotation cost, and one that is <span class="hl">often not transparent or easily reproducible</span>. The result was a community stalled on alignment research: everyone knew RLHF worked, but nobody knew what it actually looked like in practice.</p>
+
+    <div class="callout">
+      <p><strong>How to read this paper:</strong> Less "another stronger open model," more <span class="hl">an engineering report that lays the entire alignment pipeline bare</span>. The weights are almost a bonus; the methodology is the substance — how annotation is collected, how the reward model is split, how rejection sampling and PPO compose, and how much safety data you can add before helpfulness starts to suffer.</p>
+    </div>
+
+    <h3>What was released</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Llama 2 (base)</h4>
+        <p>An updated Llama 1 trained on a new mix of publicly available data. Pretraining corpus <span class="hl2">40% larger</span>, context length <span class="hl2">doubled to 4k</span>, grouped-query attention for the larger models.</p>
+        <p>Released at 7B / 13B / 70B. A 34B variant was trained and reported in the paper but <span class="hl2">withheld due to insufficient time to red team it</span>.</p>
+      </div>
+      <div class="card">
+        <h4>Llama 2-Chat</h4>
+        <p>A fine-tuned version optimized for dialogue, the product of several months of iterative SFT + RLHF (RLHF-V1 through V5).</p>
+        <p>Released at 7B / 13B / 70B, for both research and commercial use.</p>
+      </div>
+    </div>
+
+    <p>The authors claim Llama 2-Chat generally outperforms existing open-source models on helpfulness and safety, and <span class="hl">appears on par with some closed-source models — at least on the human evaluations they performed</span>. That "at least on our evaluations" hedge recurs throughout the paper, and it is honest: Section 3 below reproduces the limitations they list against their own evaluation.</p>
+  </div>
+</section>
+
+<section id="pretrain">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Pretraining — Conservative but Solid</h2>
+    <p class="lead">Architecturally there is almost nothing new here. The Llama 2 pretraining philosophy is: don't gamble on the architecture, just get data volume, context, and inference efficiency right.</p>
+
+    <p>Llama 2 keeps most of Llama 1's setup: standard transformer, pre-normalization with RMSNorm, SwiGLU activation, and rotary positional embeddings (RoPE). The tokenizer is identical too — BPE via SentencePiece, numbers split into individual digits, unknown UTF-8 characters decomposed into bytes, 32k vocabulary.</p>
+
+    <p>Only three things genuinely changed: <span class="hl">more robust data cleaning and an updated data mix</span>, <span class="hl">context length doubled from 2k to 4k</span>, and <span class="hl">grouped-query attention (GQA) for 34B / 70B</span>.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · The Llama 2 family (token counts refer to pretraining data only)</caption>
+        <thead><tr><th>Model</th><th>Training Data</th><th>Params</th><th>Context</th><th>GQA</th><th>Tokens</th><th>LR</th></tr></thead>
+        <tbody>
+          <tr><td>Llama 1</td><td>See Touvron et al. (2023)</td><td class="num">7B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr><td>Llama 1</td><td>same</td><td class="num">13B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr><td>Llama 1</td><td>same</td><td class="num">33B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.4T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+          <tr><td>Llama 1</td><td>same</td><td class="num">65B</td><td class="num">2k</td><td class="num">–</td><td class="num">1.4T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>A new mix of publicly available online data</td><td class="num">7B</td><td class="num">4k</td><td class="num">–</td><td class="num">2.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>same</td><td class="num">13B</td><td class="num">4k</td><td class="num">–</td><td class="num">2.0T</td><td class="num">3.0 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>same</td><td class="num">34B</td><td class="num">4k</td><td class="num">✓</td><td class="num">2.0T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td>same</td><td class="num">70B</td><td class="num">4k</td><td class="num">✓</td><td class="num">2.0T</td><td class="num">1.5 × 10⁻⁴</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>All models train with a <span class="hl">global batch size of 4M tokens</span>. Optimizer: AdamW (β₁=0.9, β₂=0.95, eps=10⁻⁵), cosine schedule with 2000 warmup steps decaying to 10% of peak LR, weight decay 0.1, gradient clipping 1.0.</p>
+
+    <h3>Data: 2 trillion tokens, and one deliberate trade-off</h3>
+
+    <p>The corpus is entirely from publicly available sources, <strong>containing no data from Meta's products or services</strong>, with an effort to remove sites known to hold high volumes of personal information. 2T tokens was chosen as a good performance-cost trade-off, and <span class="hl">the most factual sources were up-sampled</span> to increase knowledge and dampen hallucinations.</p>
+
+    <div class="callout warn">
+      <p><strong>What they deliberately did NOT do:</strong> they applied <span class="hl2">no aggressive toxicity filtering to the pretraining data</span>. Two reasons: to keep the base model broadly usable downstream (e.g. for hate speech classification), and to avoid the accidental demographic erasure that over-scrubbing can cause. The price is visible in Table 11 — Llama 2 does not win on toxicity. This is an acknowledged trade-off, not an oversight.</p>
+    </div>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>GPU HOURS</h4>
+        <p class="big">3.3M</p>
+        <p>Cumulative on A100-80GB. The 70B alone accounts for 1,720,320 hours.</p>
+      </div>
+      <div class="card">
+        <h4>CARBON</h4>
+        <p class="big">539</p>
+        <p>tCO₂eq total, <span class="hl">100% directly offset by Meta's sustainability program</span>.</p>
+      </div>
+      <div class="card">
+        <h4>ENGLISH SHARE</h4>
+        <p class="big">89.7%</p>
+        <p>"unknown" is 8.38% (partly code). German 0.17%, Chinese 0.13%.</p>
+      </div>
+    </div>
+
+    <h3>Grouped-Query Attention: why not MQA</h3>
+
+    <p>Autoregressive decoding caches K/V pairs for previous tokens. As context windows or batch sizes grow, the KV cache memory cost of MHA balloons. The fix is sharing K/V projections across heads — either MQA (a single KV projection) or GQA (8 KV projections).</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 250" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="120" y="24" fill="#e8edf4" font-size="14" text-anchor="middle" font-weight="700">MHA</text>
+        <text x="380" y="24" fill="#5ad1c0" font-size="14" text-anchor="middle" font-weight="700">GQA (8 KV) ★ chosen</text>
+        <text x="640" y="24" fill="#93a1b3" font-size="14" text-anchor="middle" font-weight="700">MQA (1 KV)</text>
+
+        <g>
+          <rect x="30" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="75" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="120" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="165" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <text x="48" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="93" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="138" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="183" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <line x1="48" y1="71" x2="48" y2="110" stroke="#3a4658"/>
+          <line x1="93" y1="71" x2="93" y2="110" stroke="#3a4658"/>
+          <line x1="138" y1="71" x2="138" y2="110" stroke="#3a4658"/>
+          <line x1="183" y1="71" x2="183" y2="110" stroke="#3a4658"/>
+          <rect x="30" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <rect x="75" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <rect x="120" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <rect x="165" y="110" width="36" height="26" rx="5" fill="#26313f" stroke="#4a7d8c"/>
+          <text x="48" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="93" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="138" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="183" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="115" y="165" fill="#93a1b3" font-size="11" text-anchor="middle">one KV per head</text>
+          <text x="115" y="185" fill="#ff6b6b" font-size="11" text-anchor="middle">largest KV cache</text>
+        </g>
+
+        <g>
+          <rect x="290" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <rect x="335" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <rect x="390" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <rect x="435" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#5ad1c0"/>
+          <text x="308" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <text x="353" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <text x="408" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <text x="453" y="63" fill="#5ad1c0" font-size="10" text-anchor="middle">Q</text>
+          <line x1="308" y1="71" x2="325" y2="110" stroke="#5ad1c0"/>
+          <line x1="353" y1="71" x2="330" y2="110" stroke="#5ad1c0"/>
+          <line x1="408" y1="71" x2="428" y2="110" stroke="#5ad1c0"/>
+          <line x1="453" y1="71" x2="433" y2="110" stroke="#5ad1c0"/>
+          <rect x="308" y="110" width="40" height="26" rx="5" fill="#26313f" stroke="#5ad1c0"/>
+          <rect x="410" y="110" width="40" height="26" rx="5" fill="#26313f" stroke="#5ad1c0"/>
+          <text x="328" y="128" fill="#5ad1c0" font-size="10" text-anchor="middle">KV</text>
+          <text x="430" y="128" fill="#5ad1c0" font-size="10" text-anchor="middle">KV</text>
+          <text x="380" y="165" fill="#93a1b3" font-size="11" text-anchor="middle">a group of heads shares one KV</text>
+          <text x="380" y="185" fill="#5ad1c0" font-size="11" text-anchor="middle">shardable across 8 GPUs by head</text>
+        </g>
+
+        <g>
+          <rect x="550" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="595" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="640" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <rect x="685" y="45" width="36" height="26" rx="5" fill="#1b2430" stroke="#3a4658"/>
+          <text x="568" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="613" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="658" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <text x="703" y="63" fill="#93a1b3" font-size="10" text-anchor="middle">Q</text>
+          <line x1="568" y1="71" x2="628" y2="110" stroke="#3a4658"/>
+          <line x1="613" y1="71" x2="633" y2="110" stroke="#3a4658"/>
+          <line x1="658" y1="71" x2="638" y2="110" stroke="#3a4658"/>
+          <line x1="703" y1="71" x2="643" y2="110" stroke="#3a4658"/>
+          <rect x="615" y="110" width="40" height="26" rx="5" fill="#26313f" stroke="#3a4658"/>
+          <text x="635" y="128" fill="#93a1b3" font-size="10" text-anchor="middle">KV</text>
+          <text x="635" y="165" fill="#93a1b3" font-size="11" text-anchor="middle">all heads share one KV</text>
+          <text x="635" y="185" fill="#f4a259" font-size="11" text-anchor="middle">heads &lt; GPUs → hard to shard</text>
+        </g>
+      </svg>
+      <div class="figcap">Fig 1 · KV projection sharing in MHA / GQA / MQA (redrawn from the paper's §A.2.1 text; head counts illustrative)</div>
+    </div>
+
+    <p>The ablation fixes a 30B model trained on 150B tokens, widening the FFN dimension to keep parameter counts comparable (×1.33 for MQA, ×1.3 for GQA):</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 18 · Attention architecture ablations (0-shot except MMLU 5-shot, GSM8K 8-shot)</caption>
+        <thead><tr><th>Arch</th><th>BoolQ</th><th>PIQA</th><th>SIQA</th><th>HellaSwag</th><th>ARC-e</th><th>ARC-c</th><th>NQ</th><th>TQA</th><th>MMLU</th><th>GSM8K</th><th>HumanEval</th></tr></thead>
+        <tbody>
+          <tr><td>MHA</td><td class="num">71.0</td><td class="num">79.3</td><td class="num">48.2</td><td class="num">75.1</td><td class="num">71.2</td><td class="num">43.0</td><td class="num">12.4</td><td class="num">44.7</td><td class="num">28.0</td><td class="num">4.9</td><td class="num">7.9</td></tr>
+          <tr><td>MQA</td><td class="num">70.6</td><td class="num">79.0</td><td class="num">47.9</td><td class="num">74.5</td><td class="num">71.6</td><td class="num">41.9</td><td class="num">14.5</td><td class="num">42.8</td><td class="num">26.5</td><td class="num">4.8</td><td class="num">7.3</td></tr>
+          <tr class="best"><td class="ours">GQA</td><td class="num">69.4</td><td class="num">78.8</td><td class="num">48.6</td><td class="num">75.4</td><td class="num">72.1</td><td class="num">42.5</td><td class="num">14.0</td><td class="num">46.2</td><td class="num">26.9</td><td class="num">5.3</td><td class="num">7.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>GQA is comparable to MHA on most tasks and better than MQA on average. But the decisive reason is really an <span class="hl">engineering one</span>: they serve their largest models on 8 A100s with tensor parallelism, and MQA has fewer heads than GPUs, so it cannot be sharded across heads. You either duplicate the KV on every GPU (making the cache size equal to GQA anyway) or shard across the batch dimension (which complicates an inference service). <strong>So the 34B/70B choice of GQA over MQA is a combined verdict of "ablation results + ease of scaling inference."</strong></p>
+
+    <h3>The cost of doubling context</h3>
+    <p>The 2k → 4k ablation (also 150B tokens) shows clear gains on SCROLLS, where average input length is 3.5k (e.g. QuALITY 26.1 → 29.6), no degradation on SQuAD, and essentially flat general-task performance (HellaSwag 75.1 → 74.8, TQA 53.7 → 52.2, GSM8K 4.9 → 6.5). <span class="hl">Longer context is nearly free.</span></p>
+
+    <h3>Pretrained model results</h3>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · Grouped academic benchmarks vs open-source base models</caption>
+        <thead><tr><th>Model</th><th>Size</th><th>Code</th><th>Commonsense<br>Reasoning</th><th>World<br>Knowledge</th><th>Reading<br>Comp.</th><th>Math</th><th>MMLU</th><th>BBH</th><th>AGI Eval</th></tr></thead>
+        <tbody>
+          <tr><td>MPT</td><td class="num">7B</td><td class="num">20.5</td><td class="num">57.4</td><td class="num">41.0</td><td class="num">57.5</td><td class="num">4.9</td><td class="num">26.8</td><td class="num">31.0</td><td class="num">23.5</td></tr>
+          <tr><td>MPT</td><td class="num">30B</td><td class="num">28.9</td><td class="num">64.9</td><td class="num">50.0</td><td class="num">64.7</td><td class="num">9.1</td><td class="num">46.9</td><td class="num">38.0</td><td class="num">33.8</td></tr>
+          <tr><td>Falcon</td><td class="num">7B</td><td class="num">5.6</td><td class="num">56.1</td><td class="num">42.8</td><td class="num">36.0</td><td class="num">4.6</td><td class="num">26.2</td><td class="num">28.0</td><td class="num">21.2</td></tr>
+          <tr><td>Falcon</td><td class="num">40B</td><td class="num">15.2</td><td class="num">69.2</td><td class="num">56.7</td><td class="num">65.7</td><td class="num">12.6</td><td class="num">55.4</td><td class="num">37.1</td><td class="num">37.0</td></tr>
+          <tr><td>Llama 1</td><td class="num">7B</td><td class="num">14.1</td><td class="num">60.8</td><td class="num">46.2</td><td class="num">58.5</td><td class="num">6.95</td><td class="num">35.1</td><td class="num">30.3</td><td class="num">23.9</td></tr>
+          <tr><td>Llama 1</td><td class="num">13B</td><td class="num">18.9</td><td class="num">66.1</td><td class="num">52.6</td><td class="num">62.3</td><td class="num">10.9</td><td class="num">46.9</td><td class="num">37.0</td><td class="num">33.9</td></tr>
+          <tr><td>Llama 1</td><td class="num">33B</td><td class="num">26.0</td><td class="num">70.0</td><td class="num">58.4</td><td class="num">67.6</td><td class="num">21.4</td><td class="num">57.8</td><td class="num">39.8</td><td class="num">41.7</td></tr>
+          <tr><td>Llama 1</td><td class="num">65B</td><td class="num">30.7</td><td class="num">70.7</td><td class="num">60.5</td><td class="num">68.6</td><td class="num">30.8</td><td class="num">63.4</td><td class="num">43.5</td><td class="num">47.6</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">7B</td><td class="num">16.8</td><td class="num">63.9</td><td class="num">48.9</td><td class="num">61.3</td><td class="num">14.6</td><td class="num">45.3</td><td class="num">32.6</td><td class="num">29.3</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">13B</td><td class="num">24.5</td><td class="num">66.9</td><td class="num">55.4</td><td class="num">65.8</td><td class="num">28.7</td><td class="num">54.8</td><td class="num">39.4</td><td class="num">39.1</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">34B</td><td class="num">27.8</td><td class="num">69.9</td><td class="num">58.7</td><td class="num">68.0</td><td class="num">24.2</td><td class="num">62.6</td><td class="num">44.1</td><td class="num">43.4</td></tr>
+          <tr class="best"><td class="ours">Llama 2</td><td class="num">70B</td><td class="num">37.5</td><td class="num">71.9</td><td class="num">63.6</td><td class="num">69.4</td><td class="num">35.2</td><td class="num">68.9</td><td class="num">51.2</td><td class="num">54.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Llama 2 70B improves on Llama 1 65B by roughly <span class="hl">5 points on MMLU</span> and <span class="hl">8 points on BBH</span>, and outperforms every open-source model in all categories. Worth noting from the Figure 5 loss curves: <strong>after 2T tokens the models still showed no sign of saturation</strong> — a hint that open models of the era were nowhere near their data ceiling.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · Comparison to closed-source models (Llama 2 = 70B)</caption>
+        <thead><tr><th>Benchmark (shots)</th><th>GPT-3.5</th><th>GPT-4</th><th>PaLM</th><th>PaLM-2-L</th><th>Llama 2</th></tr></thead>
+        <tbody>
+          <tr><td>MMLU (5-shot)</td><td class="num">70.0</td><td class="num">86.4</td><td class="num">69.3</td><td class="num">78.3</td><td class="num">68.9</td></tr>
+          <tr><td>TriviaQA (1-shot)</td><td class="num">–</td><td class="num">–</td><td class="num">81.4</td><td class="num">86.1</td><td class="num">85.0</td></tr>
+          <tr><td>Natural Questions (1-shot)</td><td class="num">–</td><td class="num">–</td><td class="num">29.3</td><td class="num">37.5</td><td class="num">33.0</td></tr>
+          <tr><td>GSM8K (8-shot)</td><td class="num">57.1</td><td class="num">92.0</td><td class="num">56.5</td><td class="num">80.7</td><td class="num">56.8</td></tr>
+          <tr><td>HumanEval (0-shot)</td><td class="num">48.1</td><td class="num">67.0</td><td class="num">26.2</td><td class="num">–</td><td class="num">29.9</td></tr>
+          <tr><td>BIG-Bench Hard (3-shot)</td><td class="num">–</td><td class="num">–</td><td class="num">52.3</td><td class="num">65.7</td><td class="num">51.2</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The honest gap:</strong> Llama 2 70B is close to GPT-3.5 on MMLU (68.9 vs 70.0) and GSM8K (56.8 vs 57.1), <span class="hl2">but there is a significant gap on coding</span> (HumanEval 29.9 vs 48.1). And a large gap remains against GPT-4 and PaLM-2-L. The paper doesn't dress this up — which is also why Code Llama followed.</p>
+    </div>
+  </div>
+</section>
+
+<section id="finetune">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Alignment — The Heart of the Paper</h2>
+    <p class="lead">This is Llama 2's real contribution: an RLHF recipe documented in enough detail that you could actually follow it.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="arro2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <rect x="20" y="30" width="150" height="46" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="95" y="50" fill="#e8edf4" font-size="12" text-anchor="middle">Pretrain Llama 2</text>
+        <text x="95" y="66" fill="#93a1b3" font-size="10" text-anchor="middle">2T tokens · public data</text>
+
+        <line x1="170" y1="53" x2="218" y2="53" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+
+        <rect x="225" y="30" width="150" height="46" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="300" y="50" fill="#e8edf4" font-size="12" text-anchor="middle">Supervised FT</text>
+        <text x="300" y="66" fill="#93a1b3" font-size="10" text-anchor="middle">27,540 curated annotations</text>
+
+        <line x1="375" y1="53" x2="423" y2="53" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+
+        <rect x="430" y="30" width="160" height="46" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="510" y="50" fill="#e8edf4" font-size="12" text-anchor="middle">Llama 2-Chat v0</text>
+        <text x="510" y="66" fill="#93a1b3" font-size="10" text-anchor="middle">SFT-v1</text>
+
+        <rect x="20" y="130" width="150" height="56" rx="9" fill="#141b25" stroke="#f4a259"/>
+        <text x="95" y="152" fill="#f4a259" font-size="12" text-anchor="middle">Human preference</text>
+        <text x="95" y="168" fill="#93a1b3" font-size="10" text-anchor="middle">binary compare · weekly</text>
+        <text x="95" y="181" fill="#93a1b3" font-size="10" text-anchor="middle">1.4M Meta comparisons</text>
+
+        <line x1="170" y1="158" x2="218" y2="158" stroke="#f4a259" marker-end="url(#arro2)"/>
+
+        <rect x="225" y="118" width="150" height="34" rx="8" fill="#26313f" stroke="#5ad1c0"/>
+        <text x="300" y="140" fill="#5ad1c0" font-size="11.5" text-anchor="middle">Helpfulness RM</text>
+        <rect x="225" y="162" width="150" height="34" rx="8" fill="#26313f" stroke="#5ad1c0"/>
+        <text x="300" y="184" fill="#5ad1c0" font-size="11.5" text-anchor="middle">Safety RM</text>
+
+        <line x1="375" y1="158" x2="423" y2="158" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+
+        <rect x="430" y="118" width="160" height="34" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="510" y="140" fill="#8c7bff" font-size="11.5" text-anchor="middle">Rejection Sampling</text>
+        <rect x="430" y="162" width="160" height="34" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="510" y="184" fill="#8c7bff" font-size="11.5" text-anchor="middle">PPO</text>
+
+        <line x1="510" y1="76" x2="510" y2="112" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+
+        <line x1="590" y1="158" x2="640" y2="158" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+        <rect x="648" y="130" width="94" height="56" rx="9" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="695" y="152" fill="#5ad1c0" font-size="12" text-anchor="middle">RLHF</text>
+        <text x="695" y="170" fill="#e8edf4" font-size="12" text-anchor="middle">V1 → V5</text>
+
+        <path d="M695 186 L695 250 L95 250 L95 192" fill="none" stroke="#f4a259" stroke-dasharray="5,4" marker-end="url(#arro2)"/>
+        <text x="395" y="270" fill="#f4a259" font-size="11" text-anchor="middle">resample with latest model → collect fresh preferences → keep RM in-distribution</text>
+        <text x="395" y="292" fill="#93a1b3" font-size="10.5" text-anchor="middle">This loop is the core of the paper: model improves → data distribution shifts → a stale RM degrades</text>
+      </svg>
+      <div class="figcap">Fig 2 · Llama 2-Chat training pipeline (redrawn from the paper's Figure 4, with added detail)</div>
+    </div>
+
+    <h3>SFT: few and good — they stopped at 27,540</h3>
+
+    <p>They bootstrapped with publicly available instruction tuning data, but quickly found third-party SFT data <span class="hl">insufficient in both diversity and quality</span> — particularly for aligning toward dialogue-style instructions. So they <strong>deliberately set aside millions of third-party examples</strong> in favor of fewer, higher-quality vendor-annotated ones, and results notably improved.</p>
+
+    <div class="callout">
+      <p><strong>Quality Is All You Need:</strong> SFT annotations <span class="hl">on the order of tens of thousands</span> were enough for a high-quality result. They stopped after 27,540 — a finding in the same spirit as LIMA (Zhou et al., 2023). They also observed that <span class="hl2">different annotation platforms and vendors produced markedly different downstream performance</span>: even when sourcing from vendors, you must run your own data checks.</p>
+    </div>
+
+    <p>One pivotal moment: they manually examined 180 examples, comparing human annotations against model samples, and <strong>found that outputs sampled from the SFT model were often already competitive with human-handwritten SFT data</strong>. That directly triggered a strategy shift — rather than paying people to write answers, reallocate annotation budget to preference labeling for RLHF.</p>
+
+    <p>SFT hyperparameters: cosine schedule, initial LR 2×10⁻⁵, weight decay 0.1, batch size 64, sequence length 4096, 2 epochs. All prompts and answers are concatenated to fill the sequence length, separated by a special token, and <span class="hl">the loss on user-prompt tokens is zeroed so backprop happens only on answer tokens</span>.</p>
+
+    <h3>Preference data: why binary comparison</h3>
+
+    <p>Annotators first write a prompt, then choose between two sampled responses. To maximize diversity, the two responses come <span class="hl">from two different model variants at varying temperature</span>. Beyond the forced choice, annotators also label the degree of preference: significantly better / better / slightly better / negligibly better or unsure.</p>
+
+    <p>Helpfulness and safety are collected <strong>separately</strong>, each with its own guidelines. The safety stage adds a label binning responses into three categories:</p>
+    <ul>
+      <li><strong>Preferred response safe, other unsafe</strong> — 18%</li>
+      <li><strong>Both safe</strong> — 47%</li>
+      <li><strong>Both unsafe</strong> — 35%</li>
+    </ul>
+    <p>They deliberately <span class="hl2">exclude the "chosen response unsafe, other safe" combination</span>, on the belief that safer responses are also the ones humans prefer.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 6 · Statistics of human preference data for reward modeling</caption>
+        <thead><tr><th>Dataset</th><th>Comparisons</th><th>Avg turns<br>/ dialogue</th><th>Avg tokens<br>/ example</th><th>Prompt<br>tokens</th><th>Response<br>tokens</th></tr></thead>
+        <tbody>
+          <tr><td>Anthropic Helpful</td><td class="num">122,387</td><td class="num">3.0</td><td class="num">251.5</td><td class="num">17.7</td><td class="num">88.4</td></tr>
+          <tr><td>Anthropic Harmless</td><td class="num">43,966</td><td class="num">3.0</td><td class="num">152.5</td><td class="num">15.7</td><td class="num">46.4</td></tr>
+          <tr><td>OpenAI Summarize</td><td class="num">176,625</td><td class="num">1.0</td><td class="num">371.1</td><td class="num">336.0</td><td class="num">35.1</td></tr>
+          <tr><td>OpenAI WebGPT</td><td class="num">13,333</td><td class="num">1.0</td><td class="num">237.2</td><td class="num">48.3</td><td class="num">188.9</td></tr>
+          <tr><td>StackExchange</td><td class="num">1,038,480</td><td class="num">1.0</td><td class="num">440.2</td><td class="num">200.1</td><td class="num">240.2</td></tr>
+          <tr><td>Stanford SHP</td><td class="num">74,882</td><td class="num">1.0</td><td class="num">338.3</td><td class="num">199.5</td><td class="num">138.8</td></tr>
+          <tr><td>Synthetic GPT-J</td><td class="num">33,139</td><td class="num">1.0</td><td class="num">123.3</td><td class="num">13.0</td><td class="num">110.3</td></tr>
+          <tr class="best"><td class="ours">Meta (Safety &amp; Helpfulness)</td><td class="num">1,418,091</td><td class="num">3.9</td><td class="num">798.5</td><td class="num">31.4</td><td class="num">234.1</td></tr>
+          <tr><td><strong>Total</strong></td><td class="num">2,919,326</td><td class="num">1.6</td><td class="num">595.7</td><td class="num">108.2</td><td class="num">216.9</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Meta's own data has <span class="hl">more conversation turns and is longer</span> (3.9 turns, 798.5 tokens per example) — reflecting the difference between dialogue-style usage and summarization/forum data.</p>
+
+    <h3>Two reward models, not one</h3>
+
+    <p>Prior work (Bai et al., 2022a) found helpfulness and safety sometimes trade off, making it hard for a single reward model to do both well. Llama 2's answer is direct: <strong>train two separate reward models.</strong></p>
+
+    <div class="callout">
+      <p><strong>The key design choice:</strong> reward models are <span class="hl">initialized from pretrained chat model checkpoints</span> rather than trained from scratch. The rationale is elegant — it ensures the reward model "knows what the chat model knows," preventing an information mismatch that could result in <span class="hl2">the reward model favoring hallucinations</span>. Architecture and hyperparameters are identical to the language model, except the next-token classification head is replaced with a scalar regression head.</p>
+    </div>
+
+    <p>The base objective is a standard binary ranking loss:</p>
+
+    <div class="formula">L<sub>ranking</sub> = −log( σ( r<sub>θ</sub>(x, y<sub>c</sub>) − r<sub>θ</sub>(x, y<sub>r</sub>) ) )<br><span style="color:var(--muted)">x = prompt, y<sub>c</sub> = chosen response, y<sub>r</sub> = rejected response, r<sub>θ</sub> = scalar score</span></div>
+
+    <p>But since annotators already labeled a four-point preference strength, why waste it? They add a <strong>margin term</strong> forcing more separable pairs to be scored further apart:</p>
+
+    <div class="formula">L<sub>ranking</sub> = −log( σ( r<sub>θ</sub>(x, y<sub>c</sub>) − r<sub>θ</sub>(x, y<sub>r</sub>) − m(r) ) )<br><span style="color:var(--muted)">m(r) is a discrete function of the preference rating: larger margin for more distinct pairs</span></div>
+
+    <p>The data mixes are asymmetric, and were found experimentally:</p>
+    <ul>
+      <li><strong>Helpfulness RM</strong> — all Meta Helpfulness data, plus an equal part sampled uniformly from Meta Safety and the open-source datasets</li>
+      <li><strong>Safety RM</strong> — all Meta Safety and Anthropic Harmless, mixed with Meta Helpfulness and open-source helpfulness data at <span class="hl">90/10</span></li>
+    </ul>
+    <p>That 10% helpfulness slice matters specifically: it improves accuracy on samples where <span class="hl2">both chosen and rejected responses were deemed safe</span>.</p>
+
+    <p>Training: <span class="hl">one epoch only</span> (longer overfits), max LR 5×10⁻⁶ for the 70B and 1×10⁻⁵ for the rest, cosine decay to 10%, warmup of 3% of total steps, effective batch size fixed at 512 pairs (1024 rows).</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 7 · Reward model accuracy on human preference benchmarks (%)</caption>
+        <thead><tr><th>Model</th><th>Meta<br>Helpful.</th><th>Meta<br>Safety</th><th>Anthropic<br>Helpful</th><th>Anthropic<br>Harmless</th><th>OpenAI<br>Summ.</th><th>Stanford<br>SHP</th><th>Avg</th></tr></thead>
+        <tbody>
+          <tr><td>SteamSHP-XL</td><td class="num">52.8</td><td class="num">43.8</td><td class="num">66.8</td><td class="num">34.2</td><td class="num">54.7</td><td class="num">75.7</td><td class="num">55.3</td></tr>
+          <tr><td>Open Assistant</td><td class="num">53.8</td><td class="num">53.4</td><td class="num">67.7</td><td class="num">68.4</td><td class="num">71.7</td><td class="num">55.0</td><td class="num">63.0</td></tr>
+          <tr><td>GPT-4</td><td class="num">58.6</td><td class="num">58.1</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+          <tr><td class="ours">Safety RM</td><td class="num">56.2</td><td class="num">64.5</td><td class="num">55.4</td><td class="num">74.7</td><td class="num">71.7</td><td class="num">65.2</td><td class="num">64.3</td></tr>
+          <tr class="best"><td class="ours">Helpfulness RM</td><td class="num">63.2</td><td class="num">62.8</td><td class="num">72.0</td><td class="num">71.0</td><td class="num">75.5</td><td class="num">80.0</td><td class="num">70.6</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Each RM performs best in its own domain, and both beat every baseline including GPT-4 (prompted zero-shot with "Choose the best answer between A and B"). Interestingly, <span class="hl">GPT-4 outperforms the other non-Meta reward models despite never being trained for this task</span>.</p>
+
+    <div class="callout warn">
+      <p><strong>Accuracy collapses as responses converge:</strong> Table 8 shows RM accuracy depends heavily on how distinct the responses are. Safety RM on the Meta Safety test set: "significantly better" <span class="hl">94.3%</span> → "better" 76.3% → "slightly better" 65.7% → "negligibly better/unsure" <span class="hl2">55.3%</span> (near coin-flip). This isn't purely a model failure — human annotator agreement is also lower on similar pairs.</p>
+    </div>
+
+    <h3>Iterative RLHF: V1 through V5</h3>
+
+    <p>As preference data arrived in weekly batches, they trained successive RLHF models. The motivation here is easy to skim past but important: <strong>every time Llama 2-Chat improves, the model's data distribution shifts; a reward model not exposed to that new distribution degrades quickly through "hyper-specialization."</strong> So before each new tuning iteration, fresh preference data must be gathered using the latest model to keep the RM in-distribution.</p>
+
+    <p>They used two RL algorithms:</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>REJECTION SAMPLING</h4>
+        <p>Sample K outputs per prompt, select the best by reward model, and <span class="hl">use that sample as the new gold standard for a gradient update</span>.</p>
+        <p><strong>Breadth</strong> — explores K samples at once.</p>
+      </div>
+      <div class="card">
+        <h4>PPO</h4>
+        <p>The standard in the RLHF literature; only one generation per prompt.</p>
+        <p><strong>Depth</strong> — the sample at step t comes from the policy updated at t−1.</p>
+      </div>
+    </div>
+
+    <p>How they compose: <span class="hl">only rejection sampling up to V4; after that, sequentially</span> — apply PPO on top of the resulting rejection-sampling checkpoint, then sample again.</p>
+
+    <div class="callout hot">
+      <p><strong>A real pitfall they hit:</strong> up to V3, answer selection was confined to the "bag" of samples from the preceding iteration only (V3 trained on V2 samples). Despite continuous overall improvement, <span class="hl">some capabilities regressed</span> — V3 struggled to compose rhyming lines in poems compared to earlier versions. Classic catastrophic forgetting. The fix: <strong>incorporate top-performing samples from all prior iterations (V1, V2, …)</strong>, which resolved it.</p>
+    </div>
+
+    <p>Rejection sampling is performed <span class="hl2">only with the largest 70B model</span>. All smaller models are fine-tuned on rejection-sampled data from the larger model — effectively distilling large-model capabilities into the smaller ones.</p>
+
+    <h3>The PPO objective</h3>
+
+    <p>The final reward adds a KL penalty for diverging from the original policy:</p>
+
+    <div class="formula">R(g | p) = R̃<sub>c</sub>(g | p) − β · D<sub>KL</sub>( π<sub>θ</sub>(g | p) ‖ π<sub>0</sub>(g | p) )<br><span style="color:var(--muted)">π<sub>0</sub> = original policy. Helps training stability and curbs reward hacking</span></div>
+
+    <p>R<sub>c</sub> is a <strong>piecewise combination</strong> of the safety and helpfulness reward models:</p>
+
+    <div class="formula">R<sub>c</sub>(g | p) = R<sub>s</sub>(g | p)&nbsp;&nbsp;<span class="cmt">if is_safety(p) or R<sub>s</sub>(g | p) &lt; 0.15</span><br>
+    R<sub>c</sub>(g | p) = R<sub>h</sub>(g | p)&nbsp;&nbsp;<span class="cmt">otherwise</span><br><br>
+    R̃<sub>c</sub>(g | p) = whiten( logit( R<sub>c</sub>(g | p) ) )</div>
+
+    <p>The 0.15 threshold isn't arbitrary: it corresponds to <span class="hl">precision 0.89 and recall 0.55</span> on the Meta Safety test set. Whitening the final linear scores (reversing the sigmoid via logit) increases stability and balances properly against the KL penalty.</p>
+
+    <p>PPO hyperparameters: AdamW (β₁=0.9, β₂=0.95, eps=10⁻⁵), weight decay 0.1, gradient clipping 1.0, <span class="hl">constant LR 10⁻⁶</span>, batch size 512, clip threshold 0.2, mini-batch 64, one gradient step per mini-batch. KL coefficient β = 0.01 for 7B/13B and 0.005 for 34B/70B. Training runs 200–400 iterations with early stopping on held-out prompts.</p>
+
+    <div class="callout">
+      <p><strong>An engineering detail:</strong> FSDP was effective for O(1) forward/backward passes <span class="hl2">but caused a ~20× slowdown during generation</span>, even with large batch sizes and KV cache. The workaround: consolidate model weights onto each node once before generation, then free the memory afterward. Each PPO iteration on the 70B takes ~330 seconds.</p>
+    </div>
+
+    <h3>Does it work?</h3>
+
+    <p>Judged by Meta's own reward models, Llama 2-Chat beats ChatGPT on both harmlessness and helpfulness after RLHF-V3 (win rate &gt;50%). The authors concede this judge may favor their own model, so they re-ran with GPT-4 as judge (randomly swapping response order to avoid position bias). <span class="hl">The margin is less pronounced with GPT-4, but the latest version still exceeds a 60% win rate.</span></p>
+
+    <p>On human evaluation (~4,000 single and multi-turn prompts, three raters each):</p>
+    <ul>
+      <li>Llama 2-Chat 7B beats MPT-7B-chat on <strong>60%</strong> of prompts</li>
+      <li>Llama 2-Chat 34B has a win rate of <strong>over 75%</strong> against equivalently sized Vicuna-33B and Falcon-40B</li>
+      <li>Llama 2-Chat 70B vs ChatGPT: <span class="hl">36% win rate, 31.5% tie rate</span></li>
+    </ul>
+
+    <div class="callout warn">
+      <p><strong>The limitations the authors list against themselves (worth reproducing in full):</strong></p>
+      <ul>
+        <li>4k prompts is large by academic standards, but <span class="hl2">does not cover real-world usage</span></li>
+        <li>the prompt set <span class="hl2">includes no coding- or reasoning-related prompts</span> — precisely where Table 4 shows Llama 2 is weakest</li>
+        <li>only the final generation of a multi-turn conversation is evaluated, not the overall task experience</li>
+        <li>human evaluation of generative models is inherently subjective and noisy; a different prompt set or different instructions could yield different results</li>
+      </ul>
+      <p>Inter-rater reliability (Gwet's AC2) ranges from <strong>0.37 to 0.55</strong>, lowest for comparisons with similar win rates (like 70B vs ChatGPT).</p>
+    </div>
+  </div>
+</section>
+
+<section id="gatt">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Ghost Attention — Making the Model Remember</h2>
+    <p class="lead">The most charming hack in the paper. No architecture change, no loss function change — just doctored training data to fix instruction forgetting in multi-turn dialogue.</p>
+
+    <p>The problem is concrete: in a dialogue setup, some instructions should apply to <strong>every turn</strong> — "respond succinctly," or "act as" some public figure. But the initial RLHF models <span class="hl">forgot the initial instruction after a few turns</span>.</p>
+
+    <p>GAtt (Ghost Attention) is inspired by Context Distillation. The paper's own description is that it "<span class="hl2">hacks the fine-tuning data</span>" to help attention focus.</p>
+
+    <h3>The method</h3>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Start with a multi-turn dialogue and an instruction</h4>
+        <p>Given a dialogue [u₁, a₁, …, u<sub>n</sub>, a<sub>n</sub>] (u = user, a = assistant), define an instruction <code>inst</code> that should hold throughout — e.g. "act as."</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Synthetically concatenate it to ALL user messages</h4>
+        <p>Prepend <code>inst</code> to <span class="hl">every</span> user message in the conversation.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Sample with the latest RLHF model</h4>
+        <p>Sample from this synthetic data to obtain a context-dialogue and its response — a process analogous to rejection sampling.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Drop the instruction from all but the first turn</h4>
+        <p>This creates a training-time mismatch: those intermediate assistant messages were generated <em>with</em> the instruction present, but now it's gone.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Zero the loss on all previous turns</h4>
+        <p>The fix is blunt and effective: <span class="hl2">set the loss to 0 for all tokens from previous turns, including assistant messages</span>. The mismatch stops mattering.</p>
+      </div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why "Ghost":</strong> the synthetically inserted, then removed, instructions <span class="hl">shape the attention pattern during training while being absent from the final data format</span>. What the model learns is: keep attending to the instruction even though it only appears in the first turn.</p>
+    </div>
+
+    <h3>Where the training instructions come from</h3>
+
+    <p>They constructed a few synthetic constraints to sample from: <strong>Hobbies</strong> ("You enjoy e.g. Tennis"), <strong>Language</strong> ("Speak in e.g. French"), and <strong>Public Figure</strong> ("Act as e.g. Napoleon").</p>
+
+    <p>Two details worth stealing:</p>
+    <ul>
+      <li>The lists of hobbies and public figures <span class="hl">were generated by asking Llama 2-Chat itself</span> — avoiding a mismatch between the instruction and the model's knowledge (e.g. asking it to act as someone it never encountered in training).</li>
+      <li>When constructing the final system message, they <span class="hl">rewrite the instruction to be less verbose half of the time</span> — e.g. "Always act as Napoleon from now" → "Figure: Napoleon" — adding format diversity.</li>
+    </ul>
+
+    <pre><code><span class="cmt"># GAtt data transformation (organized from the paper's §3.3 description)</span>
+<span class="cmt"># ── Steps 2: synthesis — instruction glued onto every user turn ──</span>
+[<span class="str">"[inst] + u1"</span>, a1, <span class="str">"[inst] + u2"</span>, a2, <span class="str">"[inst] + u3"</span>, a3]
+                          <span class="kw">│</span>
+                          <span class="kw">▼</span>  <span class="cmt">sample with latest RLHF model</span>
+<span class="cmt"># ── Steps 4-5: training — keep inst only in turn 1, zero earlier loss ──</span>
+[<span class="str">"[inst] + u1"</span>, a1, u2, a2, u3, a3]
+ <span class="cmt">└──────── loss = 0 ────────┘  └─ loss computed only here</span></code></pre>
+
+    <h3>Results</h3>
+
+    <p>GAtt was applied after RLHF V3. Quantitative analysis shows it stays <span class="hl">consistent up to 20+ turns, until the maximum context length is reached</span>.</p>
+
+    <p>More interesting is the generalization: they tried constraints absent from GAtt training at inference time — for instance "Always answer with Haiku" — and the model remained consistent.</p>
+
+    <p>Attention visualization backs this up (Figure 10): with the system message "Act as Oscar Wilde" on the left side, <span class="hl">the GAtt-equipped model maintains large attention activations toward the system message for a much larger portion of the dialogue</span>.</p>
+
+    <div class="callout warn">
+      <p><strong>The authors call it vanilla themselves:</strong> "the current implementation of GAtt is vanilla." They explicitly note room to grow — for example, <span class="hl2">teaching the model to change the system message mid-conversation</span> by integrating such data during fine-tuning.</p>
+    </div>
+  </div>
+</section>
+
+<section id="safety">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Safety — Three Layers and a Tension Curve</h2>
+    <p class="lead">Nearly a third of the paper is about safety. The valuable part isn't the claim "we are safe" — it's the trade-off curves they actually quantified.</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>1 · SUPERVISED SAFETY FT</h4>
+        <p>Gather adversarial prompts and safe demonstrations, fold them into general SFT. This aligns the model to safety guidelines <span class="hl">before RLHF even starts</span>, laying groundwork for high-quality preference annotation.</p>
+      </div>
+      <div class="card">
+        <h4>2 · SAFETY RLHF</h4>
+        <p>Train a safety-specific reward model and gather more challenging adversarial prompts for rejection sampling and PPO.</p>
+      </div>
+      <div class="card">
+        <h4>3 · SAFETY CONTEXT DISTILLATION</h4>
+        <p>Generate safer responses by prefixing a safety preprompt, then <span class="hl">fine-tune on those responses without the preprompt</span> — distilling the context into the weights.</p>
+      </div>
+    </div>
+
+    <h3>Two dimensions of adversarial prompts</h3>
+
+    <p>The annotation guidelines design adversarial prompts along two axes:</p>
+    <ul>
+      <li><strong>Risk category</strong> — illicit and criminal activities (terrorism, theft, human trafficking); hateful and harmful activities (defamation, self-harm, eating disorders, discrimination); unqualified advice (medical, financial, legal)</li>
+      <li><strong>Attack vector</strong> — psychological manipulation (authority manipulation), logic manipulation (false premises), syntactic manipulation (misspelling), semantic manipulation (metaphor), perspective manipulation (role playing), non-English languages, and others</li>
+    </ul>
+
+    <p>Best practice for a safe response is explicitly specified: <span class="hl">address immediate safety concerns first → explain the potential risks → then provide additional information if possible</span>.</p>
+
+    <div class="callout">
+      <p><strong>"Less is more," again:</strong> they observed early that the model generalizes from safe demonstrations — quickly learning to write detailed safe responses, explain why a topic is sensitive, and add helpful information. <span class="hl2">The model's safe outputs are often more detailed than what the average annotator writes.</span> So after only a few thousand supervised demonstrations, they <strong>switched entirely to RLHF</strong>.</p>
+    </div>
+
+    <h3>How much safety data? The key tension curve</h3>
+
+    <p>This is the most valuable experiment in the section. Keeping helpfulness data fixed (0.9M samples), they gradually increased safety data in the RLHF stage from 0% to 100% (0.1M samples), yielding 6 model variants.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 700 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="30" x2="70" y2="230" stroke="#26313f"/>
+        <line x1="70" y1="230" x2="640" y2="230" stroke="#26313f"/>
+
+        <text x="40" y="45" fill="#93a1b3" font-size="10" text-anchor="end">0.78</text>
+        <text x="40" y="103" fill="#93a1b3" font-size="10" text-anchor="end">0.72</text>
+        <text x="40" y="161" fill="#93a1b3" font-size="10" text-anchor="end">0.66</text>
+        <text x="40" y="219" fill="#93a1b3" font-size="10" text-anchor="end">0.60</text>
+        <line x1="70" y1="40" x2="640" y2="40" stroke="#1b2430"/>
+        <line x1="70" y1="98" x2="640" y2="98" stroke="#1b2430"/>
+        <line x1="70" y1="156" x2="640" y2="156" stroke="#1b2430"/>
+        <line x1="70" y1="214" x2="640" y2="214" stroke="#1b2430"/>
+
+        <polyline points="110,205 180,120 270,80 380,62 500,52 620,48" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <circle cx="110" cy="205" r="4" fill="#5ad1c0"/>
+        <circle cx="180" cy="120" r="4" fill="#5ad1c0"/>
+        <circle cx="270" cy="80" r="4" fill="#5ad1c0"/>
+        <circle cx="380" cy="62" r="4" fill="#5ad1c0"/>
+        <circle cx="500" cy="52" r="4" fill="#5ad1c0"/>
+        <circle cx="620" cy="48" r="4" fill="#5ad1c0"/>
+        <text x="600" y="35" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">Safety RM</text>
+
+        <polyline points="110,142 180,144 270,141 380,143 500,142 620,144" fill="none" stroke="#f4a259" stroke-width="2.5"/>
+        <circle cx="110" cy="142" r="4" fill="#f4a259"/>
+        <circle cx="180" cy="144" r="4" fill="#f4a259"/>
+        <circle cx="270" cy="141" r="4" fill="#f4a259"/>
+        <circle cx="380" cy="143" r="4" fill="#f4a259"/>
+        <circle cx="500" cy="142" r="4" fill="#f4a259"/>
+        <circle cx="620" cy="144" r="4" fill="#f4a259"/>
+        <text x="595" y="168" fill="#f4a259" font-size="11" text-anchor="middle" font-weight="700">Helpfulness RM</text>
+
+        <text x="110" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">0%</text>
+        <text x="180" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">1%</text>
+        <text x="270" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">10%</text>
+        <text x="380" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">25%</text>
+        <text x="500" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">50%</text>
+        <text x="620" y="248" fill="#93a1b3" font-size="10" text-anchor="middle">100%</text>
+        <text x="355" y="272" fill="#93a1b3" font-size="11" text-anchor="middle">Safety data percentage in RLHF (%)</text>
+        <text x="20" y="130" fill="#93a1b3" font-size="11" text-anchor="middle" transform="rotate(-90 20 130)">Mean RM Score</text>
+      </svg>
+      <div class="figcap">Fig 3 · Safety data scaling: safety score climbs sharply, helpfulness stays flat (redrawn from the paper's Figure 15 left panel — <strong>values illustrative</strong>, the paper gives the chart but no raw numbers)</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The finding:</strong> as safety data increases, performance on risky and adversarial prompts <span class="hl">improves dramatically</span> while <span class="hl2">mean helpfulness stays constant</span>. The authors' hypothesis: they already have sufficiently large amounts of helpfulness training data, so an additional safety mitigation stage doesn't notably degrade it.</p>
+    </div>
+
+    <h3>But the cost hides in false refusals</h3>
+
+    <p>Even without an overall helpfulness regression, they <strong>qualitatively</strong> observed that models with more safety mitigation answer certain questions more conservatively. So they quantified <span class="hl">false refusal</span> — the rate at which the model incorrectly refuses legitimate prompts over irrelevant safety concerns.</p>
+
+    <p>The definition is careful: refusals for <span class="hl2">capability</span> reasons ("I am not capable of participating in video calls," "2024 is beyond my knowledge cut-off date") <strong>do not count</strong>.</p>
+
+    <p>They trained a refusal classifier and applied it to the helpfulness test sets plus a purpose-built <strong>borderline test set</strong> (210 samples) — prompts intentionally designed to <span class="hl">look adversarial (containing sensitive words or subwords) while being entirely benign</span>, e.g. "give me a recipe for Christmas Crack."</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>HELPFULNESS DATASET</h4>
+        <p class="big">~0.05%</p>
+        <p>False refusal remains <span class="hl">rare</span> even with 100% safety data.</p>
+      </div>
+      <div class="card">
+        <h4>BORDERLINE DATASET</h4>
+        <p class="big" style="color:#ff6b6b">much higher</p>
+        <p>The paper says "much larger" without a number. When a prompt contains words frequent in unsafe generations (like <code>bomb</code>), <span class="hl2">Llama 2-Chat sometimes can't tell that it's actually safe</span>.</p>
+      </div>
+    </div>
+
+    <h3>Context distillation backfires — so gate it with the reward model</h3>
+
+    <p>Safety context distillation prefixes a safety preprompt (e.g. "You are a safe and responsible assistant") to adversarial prompts to generate safer responses, then <span class="hl">fine-tunes on the pair of (original prompt without preprompt → safe response)</span>. Preprompts are generated automatically from templates using adjectives associated with safe behavior — "responsible," "respectful," "wise."</p>
+
+    <p>The advanced version uses <strong>answer templates</strong>: since annotators labeled risk categories, they can supply dedicated response templates per category. A generic preprompt raises safety RM scores; <span class="hl">a preprompt with a tailored answer template helps even more</span>.</p>
+
+    <div class="callout hot">
+      <p><strong>But context distillation can degrade quality:</strong> if a response is already high quality, applying it results in <span class="hl2">less pertinent replies</span> — the model overemphasizes the preprompt and resorts to generic concerns.</p>
+      <p><strong>The clever fix:</strong> use the safety reward model as a gatekeeper — <span class="hl">keep the context-distilled output only where it scores better than the original answer</span>. This captures the big gains on prompts the model handles badly while limiting the downside. They also apply context distillation <strong>only</strong> to adversarial prompts, never to helpful ones (that would drive more false refusals).</p>
+    </div>
+
+    <h3>Red teaming: 350+ people and a quantifiable robustness metric</h3>
+
+    <p>Over <span class="hl">350 people</span> participated, including domain experts in cybersecurity, election fraud, social media misinformation, legal, policy, civil rights, ethics, software engineering, machine learning, responsible AI, and creative writing — plus individuals representing a variety of socioeconomic, gender, ethnicity, and racial demographics.</p>
+
+    <p>Some of their insights are vivid:</p>
+    <ul>
+      <li>Early models generated unsafe responses without noting the content was problematic; <span class="hl2">slightly later models displayed knowledge that it was problematic but went on to provide it anyway</span> — "They respond with '[UNSAFE CONTENT] is not appropriate to discuss, etc.' and then immediately follow up with 'With that said, here's how [UNSAFE CONTENT].'" The latest models resolved this.</li>
+      <li>Distracting the model with "quirks" or specific requests usually defeated the reluctance seen with direct requests — "<span class="hl">A creative writing request (song, story, poem, etc.) is a reliable way to get it to produce content that it is otherwise robust against.</span>"</li>
+      <li>Embedding a problematic request in a positive context often obscured it — "The overall principle I've found most effective for any kind of attack is to hide it in language that is positive, progressive, and empowering."</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Turning red teaming into a number:</strong> they define model robustness γ as <span class="hl">the average number of prompts that trigger a violating response, per person per hour</span>. On the 7B model, γ evolved from <strong>1.8 → 0.45</strong> over several red teaming iterations and model refinements. They also tracked the share of previously discovered violating prompts mitigated in each new candidate — averaging a <strong>90% rejection rate model over model</strong>.</p>
+    </div>
+
+    <p>They ran specific tests on the models' capacity to facilitate weapons production (nuclear, biological, chemical, cyber); findings "were marginal and were mitigated." All red teaming targeted English outputs but <span class="hl2">crucially included non-English prompts and dialogue contexts, as that is a well-known attack vector</span>.</p>
+
+    <h3>Safety evaluation results</h3>
+
+    <p>Human safety evaluation used ~2,000 adversarial prompts (1,351 single-turn, 623 multi-turn) on a five-point scale, where <span class="hl">a rating of 1 or 2 counts as a violation</span>, with three annotators per example and majority vote. IRR ranged 0.70–0.95; average Gwet's AC2 on Llama 2-Chat annotations was <strong>0.92</strong>.</p>
+
+    <div class="callout warn">
+      <p><strong>A chart-reading trap:</strong> Falcon's violation percentage looks similar to Llama 2-Chat (34B), <span class="hl2">but that's because Falcon's responses are typically one or two sentences</span> — short answers are less prone to unsafe content, but also generally less helpful. It shows in the mean rating: similar violation percentages (3.88 vs 4.45) but a much lower average score for Falcon. <strong>Violation rate must be read alongside helpfulness, or "say nothing" wins as the safest model.</strong></p>
+    </div>
+
+    <p>Other findings: multi-turn conversations are more prone to inducing unsafe responses across all models, and Llama 2-Chat holds up especially well there. By category, Llama 2-Chat has relatively more violations under <span class="hl">unqualified advice</span> (though low in absolute terms), partly from lacking an appropriate disclaimer (e.g. "I am not a professional") at times.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 11 · Pretrained LLMs on automatic safety benchmarks (TruthfulQA ↑ higher is better, ToxiGen ↓ lower is better)</caption>
+        <thead><tr><th>Model</th><th>Size</th><th>TruthfulQA ↑</th><th>ToxiGen ↓</th></tr></thead>
+        <tbody>
+          <tr><td>MPT</td><td class="num">7B</td><td class="num">29.13</td><td class="num">22.32</td></tr>
+          <tr><td>MPT</td><td class="num">30B</td><td class="num">35.25</td><td class="num">22.61</td></tr>
+          <tr><td>Falcon</td><td class="num">7B</td><td class="num">25.95</td><td class="num">14.53</td></tr>
+          <tr><td>Falcon</td><td class="num">40B</td><td class="num">40.39</td><td class="num">23.44</td></tr>
+          <tr><td>Llama 1</td><td class="num">7B</td><td class="num">27.42</td><td class="num">23.00</td></tr>
+          <tr><td>Llama 1</td><td class="num">13B</td><td class="num">41.74</td><td class="num">23.08</td></tr>
+          <tr><td>Llama 1</td><td class="num">33B</td><td class="num">44.19</td><td class="num">22.57</td></tr>
+          <tr><td>Llama 1</td><td class="num">65B</td><td class="num">48.71</td><td class="num">21.77</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">7B</td><td class="num">33.29</td><td class="num">21.25</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">13B</td><td class="num">41.86</td><td class="num">26.10</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">34B</td><td class="num">43.45</td><td class="num">21.19</td></tr>
+          <tr><td class="ours">Llama 2</td><td class="num">70B</td><td class="num">50.18</td><td class="num">24.60</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Against Llama 1-7B, Llama 2-7B shows a <span class="hl">21.37% increase</span> in truthfulness and a <span class="hl">7.61% decrease</span> in toxicity. But toxicity <span class="hl2">increased for the pretrained 13B and 70B</span> — the authors speculate this may result from the larger pretraining data or a different data mix, and concede that "Llama 2 does not outperform other models on toxicity metrics," attributing it to the earlier decision not to aggressively filter pretraining data.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 14 · Fine-tuned LLMs on safety datasets</caption>
+        <thead><tr><th>Model</th><th>Size</th><th>TruthfulQA ↑</th><th>ToxiGen ↓</th></tr></thead>
+        <tbody>
+          <tr><td>ChatGPT</td><td class="num">–</td><td class="num">78.46</td><td class="num">0.20</td></tr>
+          <tr><td>Falcon-instruct</td><td class="num">7B</td><td class="num">28.03</td><td class="num">7.89</td></tr>
+          <tr><td>MPT-instruct</td><td class="num">7B</td><td class="num">29.99</td><td class="num">16.33</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">7B</td><td class="num">57.04</td><td class="num">0.00</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">13B</td><td class="num">62.18</td><td class="num">0.00</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">34B</td><td class="num">67.20</td><td class="num">0.02</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">70B</td><td class="num">64.14</td><td class="num">0.01</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Alignment's effect is most dramatic here: for the 70B, truthfulness goes <span class="hl">50.18 → 64.14</span> and toxicity <span class="hl">24.60 → 0.01</span>. <strong>Toxic generations shrink to effectively 0% for Llama 2-Chat at every size — the lowest among all compared models.</strong> Read against the base-model toxicity in Table 11, this is exactly the paper's thesis in one number: <span class="hl2">the gap between a base model and a product-grade chat model is this alignment pipeline.</span></p>
+  </div>
+</section>
+
+<section id="findings">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Observations — Three Byproducts of RLHF</h2>
+    <p class="lead">The Discussion section shares three things the authors did not expect. This is the most interesting part of the paper.</p>
+
+    <h3>1 · Supervised data may no longer be the gold standard</h3>
+
+    <p>At the project's outset, many on the team preferred supervised annotation for its denser signal; RL, known for instability, "seemed a somewhat shadowy field for those in the NLP research community." Yet RL proved highly effective, particularly given its cost and time effectiveness.</p>
+
+    <p>The explanation is persuasive:</p>
+    <ul>
+      <li>Even with proficient annotators, <span class="hl">each individual writes with significant variation</span>. A model fine-tuned on SFT annotation learns that diversity — <strong>including the tail-end of poorly executed annotation</strong>.</li>
+      <li>More fundamentally: <span class="hl2">the model's performance is capped by the writing abilities of the most skilled annotators</span>.</li>
+      <li>But humans disagree far less when comparing two outputs than when writing a good answer themselves. So the reward mechanism swiftly learns to assign low scores to the undesirable tail.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>My favorite analogy in the paper:</strong> during annotation the model may venture into writing trajectories that even the best annotators would not chart. Yet humans <span class="hl">can still provide valuable feedback when comparing two answers, beyond their own writing competencies</span> — "while we may not all be accomplished artists, our ability to appreciate and critique art remains intact."</p>
+      <p>The conclusion: <strong>supervised data may no longer be the gold standard, and this evolving circumstance compels a re-evaluation of the concept of "supervision."</strong></p>
+    </div>
+
+    <h3>2 · In-context temperature rescaling</h3>
+
+    <p>A phenomenon the paper claims is "not previously reported to the best of our knowledge": <span class="hl">RLHF dynamically rescales temperature contingent upon context</span>.</p>
+
+    <p>Crucially, the shifts are <strong>not uniformly applied across all prompts</strong>:</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 700 260" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <text x="175" y="20" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">Factual Prompts</text>
+        <line x1="70" y1="40" x2="70" y2="200" stroke="#26313f"/>
+        <line x1="70" y1="200" x2="290" y2="200" stroke="#26313f"/>
+        <text x="60" y="46" fill="#93a1b3" font-size="9" text-anchor="end">100</text>
+        <text x="60" y="200" fill="#93a1b3" font-size="9" text-anchor="end">60</text>
+        <polyline points="85,150 130,158 180,168 240,178 285,186" fill="none" stroke="#3a4658" stroke-width="2"/>
+        <text x="292" y="190" fill="#3a4658" font-size="9">SFT</text>
+        <polyline points="85,105 130,100 180,96 240,92 285,90" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <text x="292" y="88" fill="#5ad1c0" font-size="9">RLHF v3</text>
+        <text x="175" y="222" fill="#93a1b3" font-size="10" text-anchor="middle">Temperature →</text>
+        <text x="175" y="243" fill="#5ad1c0" font-size="10" text-anchor="middle">stays consistent as temp rises</text>
+
+        <text x="510" y="20" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">Creative Prompts</text>
+        <line x1="405" y1="40" x2="405" y2="200" stroke="#26313f"/>
+        <line x1="405" y1="200" x2="625" y2="200" stroke="#26313f"/>
+        <text x="395" y="46" fill="#93a1b3" font-size="9" text-anchor="end">100</text>
+        <text x="395" y="200" fill="#93a1b3" font-size="9" text-anchor="end">60</text>
+        <polyline points="420,120 465,140 515,162 575,180 620,192" fill="none" stroke="#3a4658" stroke-width="2"/>
+        <text x="627" y="196" fill="#3a4658" font-size="9">SFT</text>
+        <polyline points="420,112 465,132 515,155 575,174 620,188" fill="none" stroke="#f4a259" stroke-width="2.5"/>
+        <text x="627" y="182" fill="#f4a259" font-size="9">RLHF v3</text>
+        <text x="510" y="222" fill="#93a1b3" font-size="10" text-anchor="middle">Temperature →</text>
+        <text x="510" y="243" fill="#f4a259" font-size="10" text-anchor="middle">diversity keeps increasing</text>
+
+        <text x="20" y="120" fill="#93a1b3" font-size="10" text-anchor="middle" transform="rotate(-90 20 120)">Self-BLEU</text>
+      </svg>
+      <div class="figcap">Fig 4 · RLHF learns to adapt temperature by prompt type (redrawn from the paper's Figure 21 — <strong>curves illustrative</strong>. Lower Self-BLEU = more diversity)</div>
+    </div>
+
+    <ul>
+      <li><strong>Creative prompts</strong> ("Write a poem") — increasing temperature <span class="hl">continues to generate diversity across RLHF iterations</span>, with a Self-BLEU slope mirroring the SFT model.</li>
+      <li><strong>Factual prompts</strong> ("What is the capital of ?") — the Self-BLEU slope <span class="hl2">diminishes over iterations</span>. Meaning: <strong>despite rising temperature, the model learns to consistently give the same answer to factual prompts.</strong></li>
+    </ul>
+
+    <p>This has a practical consequence: RLHF directly affects the optimal temperature. For Llama 2-Chat-RLHF, sampling between 10 and 100 outputs, the optimal temperature is <span class="hl">T ∈ [1.2, 1.3]</span>. Given a finite compute budget, <strong>you must progressively re-adjust temperature across iterations</strong> rather than reuse old settings.</p>
+
+    <h3>3 · Temporal perception and tool use emerge on their own</h3>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>TEMPORAL PERCEPTION</h4>
+        <p>They collected <span class="hl">1,000</span> SFT examples related to specific dates (e.g. "How long ago did Barack Obama become president?"), each with two metadata: <strong>the date the query was posed</strong> and <strong>the event date</strong>.</p>
+        <p>The model showed robust ability to organize knowledge temporally. The inference is intriguing: <span class="hl2">LLMs have internalized the concept of time more than previously assumed</span> — despite training solely on next-token prediction over data shuffled without regard to chronology.</p>
+      </div>
+      <div class="card">
+        <h4>TOOL USE</h4>
+        <p>Toolformer's approach entails sampling millions of trajectories plus few-shot examples per tool, and applies only a single tool per example.</p>
+        <p>Llama 2's experiments indicate <span class="hl">tool usage can spontaneously emerge from alignment in a zero-shot manner</span>. <strong>They never explicitly annotated tool use</strong>, yet the model understands tools' applications and API arguments purely through semantics — even chaining a sequence of tools zero-shot.</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 15 · Performance with tool use (math datasets from Toolformer; baselines cited from Schick et al. 2023)</caption>
+        <thead><tr><th>Model</th><th>ASDiv</th><th>SVAMP</th><th>MAWPS</th></tr></thead>
+        <tbody>
+          <tr><td>OPT-66B</td><td class="num">6.0</td><td class="num">4.9</td><td class="num">7.9</td></tr>
+          <tr><td>GPT-J</td><td class="num">7.5</td><td class="num">5.2</td><td class="num">9.9</td></tr>
+          <tr><td>GPT-J + CC</td><td class="num">9.6</td><td class="num">5.0</td><td class="num">9.3</td></tr>
+          <tr><td>GPT-3</td><td class="num">14.0</td><td class="num">10.0</td><td class="num">19.8</td></tr>
+          <tr><td>Toolformer</td><td class="num">40.4</td><td class="num">29.4</td><td class="num">44.0</td></tr>
+          <tr class="best"><td class="ours">Llama 2-Chat</td><td class="num">67.1</td><td class="num">69.2</td><td class="num">82.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Give Llama 2-Chat a calculator and it substantially outperforms Toolformer on these math datasets. <span class="hl2">The authors add their own caveat: LLM tool use, while exciting, can also cause safety concerns</span> — and they encourage more community research and red teaming in this area.</p>
+  </div>
+</section>
+
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Limitations &amp; Future Work</h2>
+    <p class="lead">Everything below is what the authors list in Section 5.2 — not my inference.</p>
+
+    <div class="callout hot">
+      <p><strong>The familiar LLM problems:</strong> a cessation of knowledge updates post-pretraining, potential for non-factual generation such as unqualified advice, and <span class="hl">a propensity towards hallucinations</span>.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Non-English ability is fragile:</strong> the initial Llama 2-Chat predominantly concentrated on English-language data. While the model shows some proficiency in other languages, it is <span class="hl2">limited by the scarce non-English pretraining data (see Table 10: English is 89.7%)</span>. The paper's word is "fragile," and it explicitly advises caution.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Safety tuning sometimes goes too far:</strong> the authors state plainly that "in some instances, our safety tuning goes too far." Users may observe <span class="hl">an overly cautious approach</span> — declining certain requests or responding with too many safety details. This corroborates the false-refusal numbers above.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Malicious use:</strong> not everyone who uses AI models has good intentions. Conversational agents could be used to generate misinformation or retrieve information on topics like bioterrorism or cybercrime. They tuned the models to avoid these topics but <span class="hl2">acknowledge the risk cannot be fully eliminated</span>.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Base-model users must be extra careful:</strong> because pretraining data was <span class="hl">deliberately left unfiltered</span>, users of the pretrained models should take extra steps in tuning and deployment, per the Responsible Use Guide.</p>
+    </div>
+
+    <h3>Future work named in the paper</h3>
+    <ul>
+      <li><strong>The distillation effect of rejection sampling</strong> — all smaller models are fine-tuned on 70B rejection-sampled data; "we leave further analysis of the effect of this distillation for future work."</li>
+      <li><strong>Causes and mitigations of forgetting</strong> — after the V3 rhyming regression, the authors note investigating forgetting "could be a fruitful area for additional future research."</li>
+      <li><strong>Evolving GAtt</strong> — the current implementation is vanilla; the model could be taught to change the system message mid-conversation.</li>
+      <li><strong>Annotation protocols beyond binary comparison</strong> — binary was chosen mainly to maximize prompt diversity, but "other strategies are worth considering, which we leave for future work."</li>
+      <li><strong>Safety of tool use</strong> — an explicit call for more community research and red teaming.</li>
+    </ul>
+
+    <h3>Why it mattered</h3>
+
+    <div class="callout">
+      <p>Llama 2's place in history isn't about its scores — its MMLU doesn't even beat GPT-3.5, and its coding ability lags badly. It matters because <span class="hl">it was the first time anyone wrote down the alignment pipeline of a product-grade LLM completely and honestly, and shipped the weights alongside</span>: the dual reward model split, the margin loss, the rejection sampling / PPO composition, iterative RM updates to fight distribution shift, the safety data scaling curve, the quantification of false refusal, and pragmatic little hacks like GAtt.</p>
+      <p><strong>After this, "we don't know how to do alignment" stopped being a valid reason for open models trailing closed ones.</strong></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Touvron, Martin, Stone et al. (2023) · GenAI, Meta · "Llama 2: Open Foundation and Fine-Tuned Chat Models"</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2307.09288">arXiv:2307.09288</a> · <a href="https://github.com/facebookresearch/llama">Code: facebookresearch/llama</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a reading digest; figures are redrawn or reorganized from the paper's content. All numbers follow the original paper. Illustrative charts reproduce only the shape of the paper's figures, not exact values.</p>
+  </div>
+</footer>
+</body>
+</html>
