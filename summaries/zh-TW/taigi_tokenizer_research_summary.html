@@ -1,0 +1,468 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>台語 Tokenizer：研究、開源工具與未來方向</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --paper:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --accent:#5ad1c0;
+  --accent2:#f4a259;
+  --accent3:#8c7bff;
+  --green:#4bd486;
+  --amber:#f4a259;
+  --red:#ff6b6b;
+  --shadow:0 14px 36px rgba(0,0,0,.35);
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.8;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 16%,rgba(140,123,255,.08),transparent 42%)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.hero{padding:84px 24px 56px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 85% -10%,rgba(244,162,89,.12),transparent 46%);pointer-events:none}
+.wrap{max-width:1120px;margin:auto;position:relative;z-index:1}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.26em;color:var(--accent);text-transform:uppercase;margin-bottom:20px}
+.hero h1{font-family:var(--disp);font-weight:700;font-size:clamp(34px,5vw,60px);line-height:1.06;margin:0 0 20px;letter-spacing:-.02em;color:#fff}
+.hero p{max-width:820px;font-family:var(--serif);font-size:19px;color:var(--muted);margin:0}
+.badges{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.badge{padding:6px 13px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--muted);font-family:var(--mono);font-size:12.5px}
+.layout{display:grid;grid-template-columns:250px 1fr;gap:28px;max-width:1180px;margin:28px auto;padding:0 20px}
+nav{position:sticky;top:18px;align-self:start;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+nav strong{display:block;margin-bottom:10px;font-family:var(--disp);color:#fff;letter-spacing:.02em}
+nav a{display:block;padding:7px 9px;color:var(--muted);border-radius:8px;font-size:14px}
+nav a:hover{background:var(--panel2);text-decoration:none;color:var(--accent)}
+main{min-width:0}
+section{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:30px 32px;margin-bottom:24px;box-shadow:var(--shadow)}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(24px,3.4vw,34px);margin:0 0 18px;letter-spacing:-.01em;color:#fff;line-height:1.14}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;margin:28px 0 8px;color:var(--accent2)}
+h4{font-family:var(--disp);font-size:16px;margin:16px 0 6px;color:var(--accent)}
+p{margin:10px 0;color:var(--ink)}
+.lead{font-family:var(--serif);font-size:18px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--accent);background:var(--panel2);padding:17px 22px;border-radius:0 12px 12px 0;margin:20px 0}
+.callout.green{border-color:var(--green)}
+.callout.amber{border-color:var(--amber)}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card{border:1px solid var(--line);border-radius:14px;padding:20px;background:var(--panel2)}
+.card h3,.card h4{margin-top:0}
+.tag{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:700;margin:0 5px 5px 0;font-family:var(--mono);background:rgba(140,123,255,.14);color:var(--accent3)}
+.tag.green{background:rgba(75,212,134,.15);color:var(--green)}
+.tag.amber{background:rgba(244,162,89,.16);color:var(--accent2)}
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14px}
+th,td{border:1px solid var(--line);padding:11px 12px;vertical-align:top;text-align:left}
+th{background:var(--panel2);font-family:var(--disp);color:var(--accent);font-weight:700;font-size:13px;letter-spacing:.02em}
+td{color:var(--muted)}
+td a{color:var(--accent)}
+tr:nth-child(even) td{background:rgba(255,255,255,.02)}
+code{background:var(--panel2);border-radius:5px;padding:2px 6px;font-family:var(--mono);font-size:.88em;color:var(--accent)}
+pre{background:#0a0e14;color:#c8d3e0;border:1px solid var(--line);padding:18px 20px;border-radius:12px;overflow:auto;line-height:1.6;font-family:var(--mono);font-size:13px;margin:18px 0}
+.kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.kpi div{padding:16px 18px;border-radius:13px;background:var(--panel2);border:1px solid var(--line)}
+.kpi strong{font-family:var(--disp);font-size:20px;display:block;color:#fff;margin-bottom:4px}
+.small{font-size:14px;color:var(--muted)}
+ol.refs li{margin-bottom:12px}
+ol.refs a{color:var(--accent)}
+ul{padding-left:22px}
+.footer{padding:40px 20px 70px;color:var(--muted);text-align:center;font-family:var(--mono);font-size:13px}
+@media(max-width:850px){
+ .layout{display:block}.layout nav{position:relative;top:auto;margin-bottom:24px}
+ .grid,.kpi{grid-template-columns:1fr}.hero{padding-top:52px}
+ section{padding:22px} table{display:block;overflow-x:auto}
+}
+@media print{
+ nav{display:none}.layout{display:block;max-width:none}.hero{padding:35px}
+ section{box-shadow:none;break-inside:avoid}.layout{margin:0}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Research Summary · Taiwanese Hokkien NLP · 2026</div>
+    <h1>台語 Tokenizer<br>研究、開源工具與未來方向</h1>
+    <p>系統整理 Taiwanese Hokkien／Taigi 的文字斷詞、羅馬字處理、LLM subword tokenization、code-mixing 與語音模型相關工作，並比較現有方法的適用情境與研究缺口。</p>
+    <div class="badges">
+      <span class="badge">Word Segmentation</span>
+      <span class="badge">BPE / SentencePiece</span>
+      <span class="badge">Hanji・POJ・Tâi-lô・Hanlo</span>
+      <span class="badge">Code-mixing</span>
+      <span class="badge">Low-resource NLP</span>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+<nav>
+  <strong>內容</strong>
+  <a href="#summary">執行摘要</a>
+  <a href="#taxonomy">Tokenizer 類型</a>
+  <a href="#papers">相關論文</a>
+  <a href="#opensource">開源工具與模型</a>
+  <a href="#comparison">系統性比較</a>
+  <a href="#challenges">台語特有挑戰</a>
+  <a href="#research">潛力研究方向</a>
+  <a href="#proposal">建議研究藍圖</a>
+  <a href="#references">參考資料</a>
+</nav>
+
+<main>
+<section id="summary">
+<h2>1. 執行摘要</h2>
+<p class="lead">答案是：<strong>有人做台語斷詞、轉寫、code-mixing 與台語 LLM，但目前尚未形成一個像日文 MeCab／Sudachi 那樣成熟、標準化且廣泛採用的台語 tokenizer 生態。</strong></p>
+
+<div class="kpi">
+  <div><strong>已有</strong><span class="small">字典式斷詞、羅馬字轉換、語料與翻譯模型</span></div>
+  <div><strong>不足</strong><span class="small">大規模金標斷詞資料與統一評測</span></div>
+  <div><strong>缺口</strong><span class="small">專為台語 LLM 最佳化的公開 tokenizer</span></div>
+</div>
+
+<div class="callout green">
+<strong>最重要的判斷：</strong>Taibun 是可直接使用的台語文字 tokeniser／transliterator；TW-Hokkien-LLM 是重要的台語 LLM 與多書寫系統資源；EMNLP 2022 的工作提出語言學規則導向的台語斷詞工具。這些資源都很有價值，但它們並不等於「經完整 benchmark 驗證、專為台語 LLM 設計的 tokenizer」。
+</div>
+
+<p>此外，2026 年的 PangolinTokenizer 證明「依臺灣在地語料重新訓練 tokenizer」能顯著提升 token efficiency 與 downstream performance；然而該工作主要針對<strong>臺灣華語及中英 code-switching</strong>，不能直接視為台語專用 tokenizer。它比較像是台語 tokenizer 研究可以借鏡的方法論。</p>
+</section>
+
+<section id="taxonomy">
+<h2>2. 先釐清：這裡的 Tokenizer 有三種</h2>
+<div class="grid">
+ <div class="card">
+  <h3>文字斷詞器</h3>
+  <span class="tag">Linguistic tokenizer</span>
+  <p>將句子切成語言學上的「詞」或語素，類似中文斷詞、日文 MeCab。</p>
+  <pre>伊咧食飯
+→ 伊｜咧｜食飯</pre>
+  <p class="small">適合 POS tagging、dependency parsing、辭典查詢與語料標註。</p>
+ </div>
+ <div class="card">
+  <h3>LLM subword tokenizer</h3>
+  <span class="tag green">BPE</span><span class="tag green">Unigram</span>
+  <p>將文字轉成模型 vocabulary 裡的 token ID，不一定對應完整詞。</p>
+  <pre>彼个囡仔真𠢕
+→ [彼, 个, 囡, 仔, 真, ...]</pre>
+  <p class="small">目標是控制 vocabulary、降低 token 數、提升模型學習與推論效率。</p>
+ </div>
+ <div class="card">
+  <h3>語音模型 tokenizer</h3>
+  <span class="tag amber">ASR / TTS</span>
+  <p>可能是文字 token、音素、音節、聲調或 acoustic codec token。</p>
+  <p class="small">Whisper 的 multilingual tokenizer 屬文字端；神經 codec token 則是聲音端離散表示。</p>
+ </div>
+ <div class="card">
+  <h3>正規化與轉寫工具</h3>
+  <span class="tag">Normalization</span>
+  <p>處理漢字、台羅、白話字、漢羅混寫、Unicode combining marks 與標點。</p>
+  <p class="small">它不必然是 tokenizer，卻是台語 tokenizer pipeline 的必要前處理。</p>
+ </div>
+</div>
+</section>
+
+<section id="papers">
+<h2>3. 相關論文與總結</h2>
+
+<h3>3.1 Exploring Methods for Building Dialects-Mandarin Code-Mixing Corpora: A Case Study in Taiwanese Hokkien</h3>
+<p><strong>Lu et al., Findings of EMNLP 2022</strong></p>
+<p>這篇是最直接與台語文字斷詞相關的研究之一。作者面對台語—華語 code-mixing 語料稀少、書寫系統不統一與形態切分困難等問題，建立 code-mixing corpus，並提出<strong>結合語言學知識、規則與語言標籤的 Hokkien word segmentation toolkit</strong>。後續再以 XLM 做翻譯實驗。</p>
+<ul>
+ <li><strong>貢獻：</strong>不只做模型，也處理斷詞與 code-mixing 資料建構。</li>
+ <li><strong>價值：</strong>說明台語 tokenizer 不能只照搬華語斷詞器，必須理解台語詞彙與混語現象。</li>
+ <li><strong>限制：</strong>重點是 corpus construction 與 translation，不是大規模 LLM tokenizer benchmark。</li>
+</ul>
+
+<h3>3.2 The Application of Chinese Word Segmentation to Less-Resourced Language Processing</h3>
+<p><strong>Meng-Hsien Shih, CLSW 2023／LNCS 2024</strong></p>
+<p>研究探討如何把較成熟的華語斷詞方法遷移到低資源語言，案例包含 Taiwanese Hokkien。核心價值在於：利用既有中文斷詞技術與台語語言資源，可較低成本建立可用的台語斷詞 pipeline。</p>
+<ul>
+ <li><strong>貢獻：</strong>將高資源語言技術轉移至台語。</li>
+ <li><strong>價值：</strong>適合作為低成本 baseline。</li>
+ <li><strong>風險：</strong>華語與台語雖共享漢字，但詞彙邊界、功能詞、語法與語義不完全相同，容易造成負遷移。</li>
+</ul>
+
+<h3>3.3 Construction of Large Language Models for Taigi and Hakka Using Transfer Learning</h3>
+<p><strong>Lai et al., O-COCOSDA 2024</strong></p>
+<p>研究以 transfer learning 建立台語與客語 LLM。論文的重要訊號是：低資源語言模型通常不會完全從零開始，而會從現有模型出發，加入語言特定字元或詞彙，再做持續預訓練與任務微調。</p>
+<ul>
+ <li><strong>貢獻：</strong>驗證 transfer learning 能建立具一定能力的台語／客語模型。</li>
+ <li><strong>Tokenizer 關聯：</strong>顯示 vocabulary adaptation 是低資源語言模型建置的一環。</li>
+ <li><strong>限制：</strong>研究焦點是 LLM 建置，不是對多種 tokenizer 演算法做嚴格消融。</li>
+</ul>
+
+<h3>3.4 Enhancing Taiwanese Hokkien Dual Translation by Large Language Model</h3>
+<p><strong>Lu et al., LREC-COLING 2024</strong></p>
+<p>此工作建立 Taigi-Llama-2 與台語雙向翻譯模型，涵蓋漢字、POJ、漢羅等多種台語書寫形式。作者以約 78MB 台語單語資料持續預訓練 Traditional Chinese LLaMA-2，再以平行資料訓練翻譯模型。</p>
+<ul>
+ <li><strong>貢獻：</strong>把多書寫系統納入同一個台語 LLM pipeline。</li>
+ <li><strong>Tokenizer 意義：</strong>同一語音內容可能有不同字形表示，tokenizer coverage 與 normalization 會直接影響資料利用率。</li>
+ <li><strong>限制：</strong>沿用既有 LLaMA tokenizer／模型框架，並非從零探索台語最佳 tokenizer。</li>
+</ul>
+
+<h3>3.5 Breeze Taigi: Benchmarks and Models for Taiwanese Hokkien Speech Recognition and Synthesis</h3>
+<p><strong>Lan et al., arXiv 2026</strong></p>
+<p>這篇聚焦台語 ASR／TTS benchmark、正規化與 baseline 模型。ASR 使用 Whisper 架構及其 multilingual tokenizer，並以大量合成台語語音微調。</p>
+<ul>
+ <li><strong>貢獻：</strong>提供可重現的語音評測流程與 baseline。</li>
+ <li><strong>Tokenizer 意義：</strong>語音系統也需要穩定的文字正規化與 tokenization，否則 CER 比較不公平。</li>
+ <li><strong>限制：</strong>使用通用 Whisper tokenizer，不代表其對台語 token efficiency 最佳。</li>
+</ul>
+
+<h3>3.6 BlueMagpie-TTS 與 PangolinTokenizer</h3>
+<p><strong>Chung et al., arXiv 2026</strong></p>
+<p>這不是台語專用研究，而是臺灣華語、繁體中文與中英 code-switching。研究提出以臺灣情境語料訓練的 byte-level BPE tokenizer，並在九種 tokenizer 中達到最低 token rate；其結果支持一個重要假說：<strong>在地語料導向的 tokenizer 重訓，可能同時改善效率與下游模型表現。</strong></p>
+<div class="callout amber">
+<strong>使用時要避免誤解：</strong>PangolinTokenizer 可作為台語研究的強力方法學參考，但它針對的是臺灣華語／在地用語與中英混用，不是 Taiwanese Hokkien tokenizer。
+</div>
+</section>
+
+<section id="opensource">
+<h2>4. Open-source packages、模型與資料資源</h2>
+<table>
+<thead><tr><th>資源</th><th>類型</th><th>主要功能</th><th>優點</th><th>注意事項</th></tr></thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/andreihar/taibun">Taibun</a></td>
+<td>Python package</td>
+<td>台語 transliteration、發音資訊與 word tokeniser</td>
+<td>可直接安裝使用；支援台語文字處理流程</td>
+<td>其 Tokeniser 類似 word/punctuation tokenization，不能直接等同 LLM BPE tokenizer</td>
+</tr>
+<tr>
+<td><a href="https://pypi.org/project/taibun/">taibun on PyPI</a></td>
+<td>套件發佈</td>
+<td>提供 Python 安裝與 API 使用方式</td>
+<td>容易整合資料清理與 preprocessing</td>
+<td>需自行用真實台語 corpus 驗證斷詞品質</td>
+</tr>
+<tr>
+<td><a href="https://github.com/lbh0830/TW-Hokkien-LLM">TW-Hokkien-LLM</a></td>
+<td>模型＋語料 pipeline</td>
+<td>Taigi-Llama-2、翻譯模型、多書寫系統資源</td>
+<td>與台語 LLM 最直接相關的開源專案之一</td>
+<td>重點是持續預訓練與翻譯，不是 tokenizer library</td>
+</tr>
+<tr>
+<td><a href="https://huggingface.co/Bohanlu/Taigi-Llama-2-Translator-7B">Taigi-Llama-2-Translator-7B</a></td>
+<td>Hugging Face 模型</td>
+<td>繁中／英文與台語漢字、POJ、漢羅之間翻譯</td>
+<td>適合檢驗多 script 輸入輸出</td>
+<td>模型 tokenizer 仍承襲 base model 限制</td>
+</tr>
+<tr>
+<td><a href="https://github.com/mhshih/Taiwanese-Corpora.github.io">Taiwanese Corpora</a></td>
+<td>語料資源入口</td>
+<td>台語語料與斷詞研究相關資源</td>
+<td>適合建 tokenizer corpus 與字典</td>
+<td>需逐一確認資料授權與格式</td>
+</tr>
+<tr>
+<td><a href="https://chhoe.taigi.info/">ChhoeTaigi</a></td>
+<td>辭典整合平台</td>
+<td>跨多部台語辭典查詢</td>
+<td>可用於詞表建構、別名與多字形對齊</td>
+<td>網站查詢資源不代表資料可任意重發佈</td>
+</tr>
+<tr>
+<td><a href="https://sutian.moe.edu.tw/">教育部臺灣台語常用詞辭典</a></td>
+<td>官方辭典</td>
+<td>詞條、讀音、釋義與例句</td>
+<td>高品質詞彙與標準台羅來源</td>
+<td>模型訓練前應確認下載方式與授權</td>
+</tr>
+<tr>
+<td><a href="https://github.com/t108368084/Taiwanese-Speech-Recognition-Recipe">Taiwanese Speech Recognition Recipe</a></td>
+<td>ASR recipe</td>
+<td>台語語音辨識訓練流程</td>
+<td>有助研究文字正規化與語音 tokenizer</td>
+<td>主要不是文字斷詞器</td>
+</tr>
+</tbody>
+</table>
+
+<h3>Taibun 基本示意</h3>
+<pre>from taibun import Tokeniser
+
+tokeniser = Tokeniser()
+tokens = tokeniser.tokenise("朋友，你好！")
+print(tokens)</pre>
+<p class="small">實際輸出與細節應以套件目前版本文件為準；不同寫法、罕見字及漢羅混寫仍需另外測試。</p>
+</section>
+
+<section id="comparison">
+<h2>5. 系統性比較</h2>
+<table>
+<thead>
+<tr><th>方法</th><th>核心單位</th><th>需要資料</th><th>優點</th><th>缺點</th><th>適合任務</th></tr>
+</thead>
+<tbody>
+<tr>
+<td>字元級</td><td>Unicode character</td><td>低</td><td>零 OOV、簡單穩定</td><td>序列長；組合附加符號與罕見漢字處理複雜</td><td>小型 baseline、標註工具</td>
+</tr>
+<tr>
+<td>字典最長匹配</td><td>詞</td><td>詞典</td><td>可解釋、容易加入專有詞</td><td>歧義與新詞能力弱</td><td>辭典查詢、規則系統</td>
+</tr>
+<tr>
+<td>統計／神經斷詞</td><td>詞邊界</td><td>金標斷詞 corpus</td><td>能學上下文歧義</td><td>台語金標資料少，annotation guideline 尚不統一</td><td>POS、parsing、IR</td>
+</tr>
+<tr>
+<td>Byte-level BPE</td><td>byte subword</td><td>大型原始 corpus</td><td>不會 OOV，適合混語與罕見字</td><td>可能把羅馬字變音符號與台語常見詞切碎</td><td>LLM、TTS text frontend</td>
+</tr>
+<tr>
+<td>SentencePiece BPE</td><td>subword</td><td>大型 corpus</td><td>語言無關、成熟、易重訓</td><td>正規化設定會影響 POJ／台羅</td><td>LLM、MT</td>
+</tr>
+<tr>
+<td>SentencePiece Unigram</td><td>subword probability</td><td>大型 corpus</td><td>可保留多種切分候選，常適合低資源語言</td><td>訓練與分析較不直觀</td><td>多 script LLM、MT</td>
+</tr>
+<tr>
+<td>Morpheme-aware + subword</td><td>詞／語素後再切 subword</td><td>詞典＋語料</td><td>語言學邊界與 LLM efficiency 可兼顧</td><td>pipeline error propagation；規則維護成本高</td><td>研究型台語 LLM tokenizer</td>
+</tr>
+<tr>
+<td>Vocabulary expansion</td><td>新增 token</td><td>台語詞表</td><td>可沿用既有 LLM 權重，成本較低</td><td>新增 embedding 初始品質與舊 tokenizer 相容性問題</td><td>continual pretraining</td>
+</tr>
+</tbody>
+</table>
+
+<h3>建議評估指標</h3>
+<div class="grid">
+ <div class="card"><h4>效率</h4><p>tokens / character、tokens / word、平均序列長度、推論 latency、KV-cache 使用量。</p></div>
+ <div class="card"><h4>覆蓋</h4><p>漢字、台羅、POJ、漢羅、罕見字、Unicode combining mark 與 code-switching coverage。</p></div>
+ <div class="card"><h4>語言品質</h4><p>詞邊界 F1、morpheme boundary F1、fertility、完整詞保留率。</p></div>
+ <div class="card"><h4>下游任務</h4><p>perplexity、translation、ASR CER、QA、classification、instruction following。</p></div>
+</div>
+</section>
+
+<section id="challenges">
+<h2>6. 台語 Tokenization 的特有挑戰</h2>
+<h3>6.1 多書寫系統對應同一語言</h3>
+<p>台語可能使用漢字、白話字（POJ）、臺羅（Tâi-lô）、漢羅混寫，甚至同一句中切換表示方式。若不先做 mapping 或 canonicalization，模型會把語義相同的形式視為完全不同 token。</p>
+
+<h3>6.2 Unicode 與聲調符號</h3>
+<p>羅馬字母加聲調可使用預組字元或 base letter＋combining mark。視覺上相同的字串，Unicode code point sequence 可能不同。一般 NFKC/NFC 正規化也可能破壞語言所需差異，因此必須設計台語專屬 normalization tests。</p>
+
+<h3>6.3 漢字並不代表華語詞界</h3>
+<p>台語與華語共享大量漢字，但詞彙、讀音、語法功能和 lexicalization 不同。直接套華語 jieba 類斷詞器，可能把台語功能詞、慣用語與複合詞切錯。</p>
+
+<h3>6.4 漢羅與多語 code-switching</h3>
+<p>真實文本可能同時含台語漢字、羅馬字、華語、英文、數字與 emoji。Tokenizer 除了辨識語言邊界，也要避免在切換點產生過度碎片化。</p>
+
+<h3>6.5 資料分布與代表性</h3>
+<p>宗教文本、辭典例句、新聞字幕、社群文本與口語轉錄的風格差距很大。只用單一來源訓練 tokenizer，可能對其他 domain 失效。</p>
+</section>
+
+<section id="research">
+<h2>7. 最有潛力的研究方向</h2>
+
+<h3>方向 A：建立第一個公開、可重現的 Taigi Tokenizer Benchmark</h3>
+<p>建立涵蓋漢字、POJ、臺羅、漢羅、台華混語與台英混語的 evaluation suite。除了 token efficiency，也納入詞界、語素界、Unicode robustness 與 downstream task。</p>
+
+<h3>方向 B：多書寫系統共同 tokenizer</h3>
+<p>比較三種策略：</p>
+<ul>
+ <li>所有書寫系統直接混合訓練。</li>
+ <li>先轉為統一音韻表示，再 tokenize。</li>
+ <li>共享 semantic token，同時保留 script-specific surface token。</li>
+</ul>
+
+<h3>方向 C：Morpheme-aware SentencePiece</h3>
+<p>先由辭典／斷詞模型提供候選詞界，再在邊界約束下訓練 Unigram 或 BPE。研究問題是：語言學約束是否能降低 token fertility，同時改善 perplexity 與翻譯品質。</p>
+
+<h3>方向 D：從現有 LLM 做 Vocabulary Adaptation</h3>
+<p>比較「完全重訓 tokenizer」與「保留 base tokenizer、加入台語 token」兩條路徑。後者可降低 continual pretraining 成本，但需要處理 embedding 初始化、token collision 與 checkpoint 相容性。</p>
+
+<h3>方向 E：Tokenizer 與資料配比共同最佳化</h3>
+<p>把 tokenizer vocabulary allocation 視為 optimization problem：在固定 vocabulary budget 下，決定漢字、羅馬字、英文、華語及台語 token 各占多少比例。</p>
+
+<h3>方向 F：Speech–Text Joint Tokenization</h3>
+<p>利用音節、聲調或音素作為中介表示，讓同一台語詞的漢字、POJ 與台羅共享 pronunciation-aware representation，特別適合 ASR、TTS 與 speech LLM。</p>
+
+<h3>方向 G：Code-switching-aware Boundary Model</h3>
+<p>明確預測 language ID 與切換邊界，再進行子詞切分；評估是否能減少中英、台華或台英切換處的錯誤發音與 token 爆炸。</p>
+</section>
+
+<section id="proposal">
+<h2>8. 建議的研究實作藍圖</h2>
+<div class="callout">
+<strong>可投稿的核心題目：</strong><br>
+<em>Toward a Script-Aware and Morpheme-Aware Tokenizer for Taiwanese Hokkien Large Language Models</em>
+</div>
+
+<h3>研究問題</h3>
+<ol>
+ <li>通用 LLM tokenizer 對台語各書寫系統的 token fertility 有多差？</li>
+ <li>台語專用 BPE／Unigram 是否優於 vocabulary expansion？</li>
+ <li>morpheme-aware 約束能否改善語言品質，而不犧牲通用字元 coverage？</li>
+ <li>多 script 對齊是否能讓模型共享更多語義表示？</li>
+</ol>
+
+<h3>Baseline</h3>
+<ul>
+ <li>Llama／Qwen／Gemma 原生 tokenizer</li>
+ <li>Byte-level BPE</li>
+ <li>SentencePiece BPE</li>
+ <li>SentencePiece Unigram</li>
+ <li>Base tokenizer＋台語 vocabulary expansion</li>
+ <li>Taibun／詞典斷詞＋SentencePiece hybrid</li>
+</ul>
+
+<h3>資料切片</h3>
+<table>
+<tr><th>Slice</th><th>內容</th><th>主要測試</th></tr>
+<tr><td>Hanji</td><td>純台語漢字</td><td>與華語 tokenizer 的混淆</td></tr>
+<tr><td>POJ</td><td>白話字與 combining marks</td><td>Unicode robustness</td></tr>
+<tr><td>Tâi-lô</td><td>教育部臺羅</td><td>音節與聲調完整性</td></tr>
+<tr><td>Hanlo</td><td>漢羅混寫</td><td>script switching</td></tr>
+<tr><td>Taigi–Mandarin</td><td>台華混語</td><td>language boundary</td></tr>
+<tr><td>Taigi–English</td><td>台英混語</td><td>code-switch fertility</td></tr>
+<tr><td>Speech transcripts</td><td>口語轉錄、停頓詞</td><td>ASR/TTS downstream</td></tr>
+</table>
+
+<h3>預期貢獻</h3>
+<ul>
+ <li>第一套多書寫系統台語 tokenizer benchmark。</li>
+ <li>公開 tokenizer、訓練 recipe、normalization library 與 evaluation toolkit。</li>
+ <li>系統證明 tokenizer efficiency 與模型品質之間的關係。</li>
+ <li>可推廣至客語、粵語與其他漢語族低資源語言的方法。</li>
+</ul>
+</section>
+
+<section id="references">
+<h2>9. 參考資料</h2>
+<ol class="refs">
+<li>Sin-En Lu, Bo-Han Lu, Chao-Yi Lu, Richard Tzong-Han Tsai. <a href="https://aclanthology.org/2022.findings-emnlp.469/">Exploring Methods for Building Dialects-Mandarin Code-Mixing Corpora: A Case Study in Taiwanese Hokkien</a>. Findings of EMNLP, 2022.</li>
+<li>Meng-Hsien Shih. <a href="https://link.springer.com/chapter/10.1007/978-981-97-0586-3_14">The Application of Chinese Word Segmentation to Less-Resourced Language Processing</a>. Chinese Lexical Semantics / LNCS 14515, 2024.</li>
+<li>Yen-Chun Lai et al. <a href="https://ieeexplore.ieee.org/document/10800470/">Construction of Large Language Models for Taigi and Hakka Using Transfer Learning</a>. O-COCOSDA, 2024.</li>
+<li>Bo-Han Lu et al. <a href="https://aclanthology.org/2024.lrec-main.538/">Enhancing Taiwanese Hokkien Dual Translation by Large Language Model</a>. LREC-COLING, 2024.</li>
+<li>Yu-Siang Lan et al. <a href="https://arxiv.org/abs/2603.19259">Breeze Taigi: Benchmarks and Models for Taiwanese Hokkien Speech Recognition and Synthesis</a>. arXiv, 2026.</li>
+<li>Ho Lam Chung et al. <a href="https://arxiv.org/abs/2607.06054">BlueMagpie-TTS: A Token-Efficient Tokenizer, Language Model, and TTS for Taiwanese-Accent Code-Switching Speech</a>. arXiv, 2026.</li>
+<li><a href="https://github.com/andreihar/taibun">Taibun: Taiwanese Hokkien Transliterator and Tokeniser</a>. GitHub.</li>
+<li><a href="https://pypi.org/project/taibun/">taibun</a>. Python Package Index.</li>
+<li><a href="https://github.com/lbh0830/TW-Hokkien-LLM">TW-Hokkien-LLM</a>. GitHub.</li>
+<li><a href="https://huggingface.co/Bohanlu/Taigi-Llama-2-Translator-7B">Taigi-Llama-2-Translator-7B</a>. Hugging Face.</li>
+<li><a href="https://github.com/mhshih/Taiwanese-Corpora.github.io">Taiwanese Corpora</a>. GitHub.</li>
+<li><a href="https://chhoe.taigi.info/">ChhoeTaigi 台語辭典⁺</a>.</li>
+<li><a href="https://sutian.moe.edu.tw/">教育部臺灣台語常用詞辭典</a>.</li>
+<li>Yi-Hui Chou et al. <a href="https://arxiv.org/abs/2312.06668">Evaluating Self-supervised Speech Models on a Taiwanese Hokkien Corpus</a>. arXiv, 2023.</li>
+</ol>
+<p class="small">資料核對日期：2026-07-16。部分 2026 論文仍為 arXiv preprint；套件功能、授權與模型連結可能持續更新，正式使用前應再次查看各專案 README 與 LICENSE。</p>
+</section>
+</main>
+</div>
+
+<footer class="footer">
+台語 Tokenizer Research Summary · Traditional Chinese (Taiwan)
+</footer>
+</body>
+</html>
