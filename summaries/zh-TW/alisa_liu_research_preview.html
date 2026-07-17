@@ -1,0 +1,749 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Alisa Liu 的 Tokenizer 研究主線：論文、開源專案、公開演講與未來方向</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;--paper:#141b25;--panel2:#1b2430;--ink:#e8edf4;--muted:#93a1b3;--line:#26313f;
+  --navy:#0a0e14;--blue:#5ea0ff;--cyan:#5ad1c0;--purple:#a78bff;--orange:#f4a259;
+  --green:#4bd486;--red:#ff6b6b;
+  --soft-blue:rgba(94,160,255,.12);--soft-cyan:rgba(90,209,192,.12);
+  --soft-purple:rgba(167,139,255,.14);--soft-orange:rgba(244,162,89,.14);--soft-green:rgba(75,212,134,.14);
+  --accent:#5ad1c0;
+  --shadow:0 14px 36px rgba(0,0,0,.36);
+  --serif:'Noto Serif TC',serif;--sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;--disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--ink);
+  font-family:var(--sans);line-height:1.8;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 16%,rgba(167,139,255,.09),transparent 42%);
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.hero{
+  color:#fff;padding:74px 24px 56px;border-bottom:1px solid var(--line);position:relative;overflow:hidden;
+  background:
+    radial-gradient(circle at 82% 8%,rgba(90,209,192,.16),transparent 30%),
+    radial-gradient(circle at 12% -5%,rgba(167,139,255,.20),transparent 32%),
+    linear-gradient(135deg,#0b1220 0%,#111c33 60%,#0c2230 120%);
+}
+.wrap{max-width:1140px;margin:auto;position:relative;z-index:1}
+.kicker{font-family:var(--mono);font-size:.8rem;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(2.15rem,5vw,4.2rem);line-height:1.06;margin:.3em 0 .25em;max-width:970px;letter-spacing:-.02em}
+.hero p{font-family:var(--serif);font-size:1.12rem;color:#c7d3e6;max-width:860px}
+.hero-meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.pill{
+  display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.06);padding:7px 12px;border-radius:999px;
+  font-family:var(--mono);font-size:.82rem;color:#dbe8ff
+}
+main{padding:28px 20px 80px}
+nav.toc{
+  position:sticky;top:0;z-index:10;background:rgba(13,17,23,.86);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line);margin:0 -20px 28px;
+}
+.toc-inner{max-width:1140px;margin:auto;display:flex;gap:8px;overflow:auto;padding:10px 20px}
+.toc a{white-space:nowrap;font-family:var(--mono);font-size:.82rem;font-weight:600;color:var(--muted);padding:6px 10px;border-radius:999px}
+.toc a:hover{background:var(--panel2);color:var(--accent);text-decoration:none}
+section{scroll-margin-top:74px;margin:46px 0}
+h2{font-family:var(--disp);font-weight:700;font-size:1.75rem;line-height:1.25;margin:0 0 18px;color:#fff;letter-spacing:-.01em}
+h3{font-family:var(--serif);font-weight:600;font-size:1.18rem;line-height:1.35;margin:0 0 9px;color:var(--orange)}
+.lede{font-family:var(--serif);font-size:1.08rem;color:var(--muted);max-width:900px}
+strong{color:#fff}
+.card{
+  background:var(--paper);border:1px solid var(--line);border-radius:18px;
+  padding:24px;box-shadow:var(--shadow)
+}
+.card h3{color:#fff}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:18px}
+.span-12{grid-column:span 12}.span-8{grid-column:span 8}.span-7{grid-column:span 7}
+.span-6{grid-column:span 6}.span-5{grid-column:span 5}.span-4{grid-column:span 4}
+@media(max-width:820px){.span-8,.span-7,.span-6,.span-5,.span-4{grid-column:span 12}.hero{padding-top:50px}}
+.notice{
+  border-left:5px solid var(--orange);background:var(--soft-orange);
+  padding:18px 20px;border-radius:12px;margin:16px 0
+}
+.good{border-left-color:var(--green);background:var(--soft-green)}
+.note{border-left-color:var(--blue);background:var(--soft-blue)}
+.status{
+  display:grid;grid-template-columns:42px 1fr;gap:14px;align-items:start
+}
+.icon{
+  width:38px;height:38px;border-radius:11px;display:grid;place-items:center;
+  font-weight:900;background:var(--soft-blue);color:var(--blue)
+}
+.small{font-size:.89rem;color:var(--muted)}
+.tag{
+  display:inline-block;padding:4px 9px;border-radius:999px;font-family:var(--mono);font-size:.72rem;font-weight:600;
+  background:var(--panel2);color:var(--muted);margin:2px 3px 2px 0
+}
+.tag.first{background:var(--soft-purple);color:var(--purple)}
+.tag.infer{background:var(--soft-orange);color:var(--orange)}
+.tag.code{background:var(--soft-green);color:var(--green)}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.metric{padding:13px;border-radius:12px;background:var(--panel2);border:1px solid var(--line)}
+.metric strong{display:block;font-family:var(--disp);font-size:1.35rem;line-height:1.15;color:var(--accent)}
+.metric span{font-size:.78rem;color:var(--muted)}
+@media(max-width:580px){.metrics{grid-template-columns:1fr}}
+.arc{
+  position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-top:23px
+}
+.arc:before{content:"";position:absolute;top:25px;left:5%;right:5%;height:3px;background:linear-gradient(90deg,var(--orange),var(--blue),var(--purple),var(--cyan),var(--green));z-index:0}
+.arc-step{position:relative;z-index:1;text-align:center}
+.arc-dot{width:50px;height:50px;border-radius:50%;margin:0 auto 8px;display:grid;place-items:center;color:#fff;font-family:var(--disp);font-weight:700;background:var(--blue);border:5px solid var(--paper);box-shadow:0 2px 9px rgba(0,0,0,.4)}
+.arc-step:nth-child(1) .arc-dot{background:var(--orange)}
+.arc-step:nth-child(2) .arc-dot{background:var(--blue)}
+.arc-step:nth-child(3) .arc-dot{background:var(--purple)}
+.arc-step:nth-child(4) .arc-dot{background:#7c81e0}
+.arc-step:nth-child(5) .arc-dot{background:var(--cyan)}
+.arc-step:nth-child(6) .arc-dot{background:var(--green)}
+.arc-step b{display:block;font-size:.87rem;line-height:1.25;color:var(--ink)}
+.arc-step span{font-size:.73rem;color:var(--muted)}
+@media(max-width:850px){
+  .arc{grid-template-columns:repeat(2,1fr)}
+  .arc:before{display:none}
+}
+.paper{height:100%;display:flex;flex-direction:column}
+.paper-head{display:flex;justify-content:space-between;gap:12px;align-items:start}
+.paper-num{font-family:var(--disp);font-size:.75rem;font-weight:700;letter-spacing:.07em;color:var(--accent);background:var(--navy);border:1px solid var(--line);padding:5px 8px;border-radius:8px}
+.paper p{margin:.35em 0}
+.paper ul{margin:.35em 0 .8em;padding-left:1.15em}
+.paper .links{margin-top:auto;padding-top:12px;border-top:1px solid var(--line)}
+.paper .links a{font-size:.84rem;font-weight:600;margin-right:10px}
+.label{font-family:var(--mono);font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.compare{width:100%;border-collapse:separate;border-spacing:0;background:var(--paper);border:1px solid var(--line);border-radius:15px;overflow:hidden}
+.compare th,.compare td{padding:13px 14px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left}
+.compare th{background:var(--panel2);font-family:var(--disp);font-size:.8rem;color:var(--accent);font-weight:700}
+.compare td{color:var(--muted)}
+.compare tr:last-child td{border-bottom:none}
+.compare td:first-child{font-weight:700;min-width:150px;color:var(--ink)}
+@media(max-width:700px){
+  .compare,.compare tbody,.compare tr,.compare td{display:block}
+  .compare thead{display:none}
+  .compare tr{border-bottom:1px solid var(--line);padding:8px 0}
+  .compare td{border:0;padding:7px 14px}
+  .compare td:before{content:attr(data-label);display:block;font-size:.7rem;text-transform:uppercase;color:var(--muted);font-weight:900}
+}
+.direction{border-top:5px solid var(--blue)}
+.direction:nth-child(2){border-top-color:var(--purple)}
+.direction:nth-child(3){border-top-color:var(--cyan)}
+.direction:nth-child(4){border-top-color:var(--orange)}
+.direction:nth-child(5){border-top-color:var(--green)}
+.confidence{font-family:var(--mono);font-size:.7rem;font-weight:700;border-radius:999px;padding:4px 8px;background:var(--panel2);color:var(--muted)}
+.repo{display:flex;gap:14px}
+.repo .repo-icon{flex:0 0 40px;height:40px;border-radius:11px;background:var(--navy);border:1px solid var(--line);color:var(--accent);display:grid;place-items:center;font-family:var(--mono);font-weight:bold}
+.repo code{font-family:var(--mono);font-size:.9rem;background:var(--panel2);color:var(--accent);padding:2px 6px;border-radius:6px}
+.refs{counter-reset:ref;list-style:none;padding:0;margin:0}
+.refs li{counter-increment:ref;padding:11px 0 11px 42px;border-bottom:1px solid var(--line);position:relative;word-break:break-word}
+.refs li:before{content:"[" counter(ref) "]";position:absolute;left:0;font-family:var(--mono);font-weight:700;color:var(--accent)}
+.refs .type{font-family:var(--mono);font-size:.7rem;color:var(--muted);background:var(--panel2);padding:2px 6px;border-radius:5px;margin-right:6px}
+.footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);font-size:.82rem;color:var(--muted)}
+.quote{font-family:var(--serif);font-size:1.1rem;padding:20px 22px;border-radius:16px;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--accent)}
+.quote strong{color:#fff}
+summary{cursor:pointer;font-weight:700;color:var(--ink)}
+details{border-top:1px solid var(--line);padding-top:12px;margin-top:12px}
+.btn{
+  display:inline-block;background:var(--blue);color:#0b1220!important;padding:9px 13px;border-radius:10px;
+  font-weight:700;font-size:.85rem;margin:4px 5px 4px 0
+}
+.btn.secondary{background:var(--panel2);color:var(--ink)!important;border:1px solid var(--line)}
+@media print{
+  nav.toc{display:none}.hero{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .card{box-shadow:none;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Research Brief · Tokenization for Language Models</div>
+    <h1>Alisa Liu 的 Tokenizer 研究主線</h1>
+    <p>從 tokenizer 洩漏訓練資料、跨越空白的 SuperBPE、非標準切詞的推理介入，
+       到 byte-level 介面、partial-token failure 與 compute-optimal scaling laws。</p>
+    <div class="hero-meta">
+      <span class="pill">繁體中文系統整理</span>
+      <span class="pill">6 篇核心論文</span>
+      <span class="pill">6 組開源資源</span>
+      <span class="pill">資料查核：2026-07-16</span>
+    </div>
+  </div>
+</header>
+
+<main>
+<div class="wrap">
+<nav class="toc" aria-label="目錄">
+  <div class="toc-inner">
+    <a href="#answer">Job talk 搜尋結論</a>
+    <a href="#thesis">研究主線</a>
+    <a href="#papers">核心論文</a>
+    <a href="#comparison">系統性比較</a>
+    <a href="#oss">開源專案</a>
+    <a href="#future">未來方向</a>
+    <a href="#takeaways">研究啟示</a>
+    <a href="#references">參考資料</a>
+  </div>
+</nav>
+
+<section id="answer">
+  <h2>一、是否找到她的 job talk deck 或 video？</h2>
+  <div class="grid">
+    <div class="card span-7">
+      <div class="status">
+        <div class="icon">✓</div>
+        <div>
+          <h3>找到高度相關、可重建 job talk 主線的公開材料</h3>
+          <p>最接近完整 job talk 的材料，是 <strong>Alisa Liu 與 Jonathan Hayase
+          於 Microsoft Translator 在 2025-04-16 發表的 82 頁 SuperBPE 投影片</strong>。
+          合作者 Sewoong Oh 的論文頁明確標示這份 slides 是由 Alisa 與 Jon 在 Microsoft 發表。</p>
+          <p>
+            <a class="btn" href="https://homes.cs.washington.edu/~sewoong/slides_superBPE.pdf">開啟 Microsoft SuperBPE deck</a>
+            <a class="btn secondary" href="https://slideslive.com/s/alisa-liu-146883">Alisa 的 SlidesLive 頁面</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="card span-5">
+      <div class="status">
+        <div class="icon" style="background:var(--soft-orange);color:var(--orange)">?</div>
+        <div>
+          <h3>但未找到明確標註為「她求職時使用的 job talk」</h3>
+          <p>公開搜尋中，沒有發現標題或說明直接寫明 <em>industry job talk</em>、
+          且能確認就是她在 2025–2026 求職流程中使用的版本。因此不應把 Microsoft deck
+          直接斷言為求職 deck。</p>
+          <span class="tag infer">查無精確版本</span>
+          <span class="tag">有可信近似材料</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="notice note">
+    <strong>最合理的推論：</strong>她在求職文章中說，job talk 主要講一篇第一作者工作，
+    再短暫串連數篇第二作者與進行中的研究。依她的公開 tokenization publication list，
+    <strong>SuperBPE 是最可能的主論文</strong>；Microsoft 的 82 頁 deck 因此很可能是
+    job talk 的「內容近似版本」或重要前身。但這是高可信推論，不是她本人明確證實。
+  </div>
+
+  <div class="grid">
+    <div class="card span-4">
+      <h3>公開錄影：Data Mixture Inference</h3>
+      <p>NeurIPS 2024 的 SlidesLive 頁面，主題是利用 BPE merge order 推回 tokenizer
+      訓練資料的語言、程式碼與資料來源比例。</p>
+      <a href="https://slideslive.com/39026771/data-mixture-inference-what-do-bpe-tokenizers-reveal-about-their-training-data">觀看 SlidesLive</a>
+    </div>
+    <div class="card span-4">
+      <h3>公開錄影：Future of Tokenization Panel</h3>
+      <p>ICML 2025 TokShop panel，Alisa 與其他研究者討論 BPE tooling lock-in、
+      superword、byte/character models、dynamic hierarchy、跨語言與 scaling laws。</p>
+      <a href="https://slideslive.com/39044254/panel-future-of-tokenization">觀看 panel</a>
+    </div>
+    <div class="card span-4">
+      <h3>其他可用影片入口</h3>
+      <p>搜尋結果也找到 Cohere For AI 的 Alisa Liu community talk，以及
+      SuperBPE 的公開影片。它們適合搭配投影片理解口頭敘事。</p>
+      <a href="https://www.youtube.com/watch?v=jJq6dieCZ_4">Cohere talk</a> ·
+      <a href="https://www.youtube.com/watch?v=Bzk1FupfyE8">SuperBPE video</a>
+    </div>
+  </div>
+</section>
+
+<section id="thesis">
+  <h2>二、她的 tokenizer 研究究竟在研究什麼？</h2>
+  <div class="quote">
+    <strong>一句話總結：</strong>Tokenizer 不是中性的文字前處理工具，而是
+    <strong>控制資料可見性、模型表示、計算效率、推理行為與模型互通性的一層隱藏介面</strong>；
+    因此它既可以被稽核、重新設計，也可以在 inference time 被動態介入。
+  </div>
+
+  <div class="arc" aria-label="研究演進圖">
+    <div class="arc-step"><div class="arc-dot">1</div><b>稽核</b><span>Data Mixture</span></div>
+    <div class="arc-step"><div class="arc-dot">2</div><b>重新設計</b><span>SuperBPE</span></div>
+    <div class="arc-step"><div class="arc-dot">3</div><b>鬆綁 canonical</b><span>Broken Tokens</span></div>
+    <div class="arc-step"><div class="arc-dot">4</div><b>統一介面</b><span>Byte Sampler</span></div>
+    <div class="arc-step"><div class="arc-dot">5</div><b>修復邊界</b><span>Partial Token</span></div>
+    <div class="arc-step"><div class="arc-dot">6</div><b>納入 scaling</b><span>Compute Optimal</span></div>
+  </div>
+
+  <div class="grid" style="margin-top:24px">
+    <div class="card span-4">
+      <h3>Tokenizer 作為資料指紋</h3>
+      <p>詞彙表與 BPE merge 的順序不是無害 metadata；它們記錄了訓練語料中哪些 byte pair
+      常見，因而可能洩漏 corpus mixture。</p>
+    </div>
+    <div class="card span-4">
+      <h3>Tokenizer 作為模型架構選擇</h3>
+      <p>token 的資訊粒度會影響序列長度、embedding vocabulary、每一步預測難度、
+      訓練 scaling 與 inference cost，而不只是「切字方式」。</p>
+    </div>
+    <div class="card span-4">
+      <h3>Tokenizer 作為推理控制面</h3>
+      <p>模型不一定被 canonical tokenization 綁死。改變 segmentation、改用 byte-level
+      sampling，可能修復 prompt boundary、提升特定任務，並讓不同 tokenizer 的模型互相組合。</p>
+    </div>
+  </div>
+</section>
+
+<section id="papers">
+  <h2>三、六篇核心 tokenizer 論文</h2>
+  <p class="lede">以下依「研究問題 → 方法 → 結果 → 研究意義 → 限制」整理。數字均來自論文摘要、
+  project page 或正式 proceedings；不同 benchmark 與模型設定不可直接橫向比較。</p>
+
+  <div class="grid">
+    <article class="card paper span-6">
+      <div class="paper-head">
+        <div>
+          <span class="tag">NeurIPS 2024</span><span class="tag">共同第一作者</span>
+          <h3>Data Mixture Inference: What do BPE Tokenizers Reveal about their Training Data?</h3>
+        </div><span class="paper-num">01</span>
+      </div>
+      <p><span class="label">問題</span><br>開放權重模型通常仍不公開 pretraining corpus 的
+      語言、程式碼、書籍或資料來源比例；能否只從 tokenizer 反推全域資料組成？</p>
+      <p><span class="label">方法</span><br>BPE 的早期 merge 對應當時最常見的 byte pair。
+      給定 tokenizer merge list 與各候選類別的樣本，建立線性規劃，估計各類別在 tokenizer
+      訓練資料中的相對比例。</p>
+      <ul>
+        <li>在已知混合比例的自然語言、程式語言與資料來源上做 controlled recovery。</li>
+        <li>再套用到公開 tokenizer，推測多語、code 與 books 的 mixture。</li>
+      </ul>
+      <p><span class="label">意義</span><br>把 tokenizer 從 preprocessing artifact
+      重新定義成 <strong>可被攻擊與稽核的資料指紋</strong>，開啟 corpus transparency 與
+      privacy leakage 的交叉研究。</p>
+      <p><span class="label">限制</span><br>直接推回的是 tokenizer-training mixture。
+      只有在 tokenizer corpus 能代表 LM pretraining corpus 時，才可間接推論後者；類別樣本、
+      tokenizer algorithm 與 identifiability 都會影響估計。</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2407.16607">Paper</a>
+        <a href="https://github.com/alisawuffles/tokenizer-attack">Code</a>
+        <a href="https://slideslive.com/39026771/data-mixture-inference-what-do-bpe-tokenizers-reveal-about-their-training-data">Talk</a>
+      </div>
+    </article>
+
+    <article class="card paper span-6">
+      <div class="paper-head">
+        <div>
+          <span class="tag">COLM 2025</span><span class="tag first">第一作者</span>
+          <span class="tag">Top 0.2%</span>
+          <h3>SuperBPE: Space Travel for Language Models</h3>
+        </div><span class="paper-num">02</span>
+      </div>
+      <p><span class="label">問題</span><br>主流 BPE 幾乎都先用 whitespace pretokenization，
+      把 token 限制在 word boundary 內。但多詞片語、中文與跨語言差異顯示：
+      空白不一定是語意邊界。</p>
+      <p><span class="label">方法</span><br>兩階段 curriculum：
+      先保留空白限制學 subwords，再取消限制，繼續 merge 出能跨越空白的
+      <strong>superwords</strong>。例如把常見多詞表達視為一個單元。</p>
+      <div class="metrics">
+        <div class="metric"><strong>≤33%</strong><span>同 vocab 下更少 tokens</span></div>
+        <div class="metric"><strong>+4.0%</strong><span>30 tasks 平均絕對提升</span></div>
+        <div class="metric"><strong>−27%</strong><span>inference compute</span></div>
+      </div>
+      <p><span class="label">實驗控制</span><br>從頭訓練 8B Transformer，固定 model size、
+      vocabulary size 與 training compute，只改 tokenizer vocabulary-learning algorithm；
+      MMLU 報告 +8.2 個百分點。</p>
+      <p><span class="label">意義</span><br>證明 tokenizer design 在不改 Transformer
+      架構的情況下，也能同時改善表示效率、下游表現與部署成本。</p>
+      <p><span class="label">限制</span><br>更長 token 可能提高 embedding/softmax 成本、
+      產生稀疏或 domain-specific superword；跨語言、code 與不同 compute scale
+      仍需更完整的 tokenizer selection 原則。</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2503.13423">Paper</a>
+        <a href="https://superbpe.github.io/">Project</a>
+        <a href="https://github.com/PythonNut/superbpe">Code</a>
+        <a href="https://homes.cs.washington.edu/~sewoong/slides_superBPE.pdf">Microsoft deck</a>
+      </div>
+    </article>
+
+    <article class="card paper span-6">
+      <div class="paper-head">
+        <div>
+          <span class="tag">NeurIPS 2025 Spotlight</span>
+          <h3>Broken Tokens? Your Language Model Can Secretly Handle Non-Canonical Tokenizations</h3>
+        </div><span class="paper-num">03</span>
+      </div>
+      <p><span class="label">問題</span><br>同一段文字其實可由許多 token sequence 表示，
+      但 tokenizer 永遠回傳唯一的 canonical segmentation。LM 是否只能理解訓練時看過的那一種？</p>
+      <p><span class="label">方法</span><br>在 20 個 benchmark 中，以 random、
+      character-level 等 non-canonical tokenizations 重編碼同一文字，再比較 instruction-tuned
+      與 base models。</p>
+      <div class="metrics">
+        <div class="metric"><strong>93.4%</strong><span>random segmentation 保留表現</span></div>
+        <div class="metric"><strong>90.8%</strong><span>character segmentation 保留表現</span></div>
+        <div class="metric"><strong>&gt;33%</strong><span>大數算術提升</span></div>
+      </div>
+      <p><span class="label">重要發現</span><br>character segmentation 對字串操作與 code
+      understanding 可提升約 15%；右對齊數字 grouping 對 large-number arithmetic 提升超過 33%。
+      robustness 主要在 instruction tuning 階段出現。</p>
+      <p><span class="label">意義</span><br>canonical tokenizer 不是不可動的模型契約；
+      segmentation 可以成為 task-aware inference intervention。</p>
+      <p><span class="label">限制</span><br>重編碼會改變序列長度、latency 與 KV-cache 使用；
+      並非所有任務都受益，且不同模型對 non-canonical distance 的容忍度不同。</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2506.19004">Paper</a>
+        <a href="https://github.com/Brianzhengca/Tokenizer-Robustness">Code</a>
+        <a href="https://proceedings.neurips.cc/paper_files/paper/2025/hash/2b5c5689fae6fa9a4883e73e511d52c8-Abstract-Conference.html">Proceedings</a>
+      </div>
+    </article>
+
+    <article class="card paper span-6">
+      <div class="paper-head">
+        <div>
+          <span class="tag">ICML 2026</span>
+          <h3>Sampling from Your Language Model One Byte at a Time</h3>
+        </div><span class="paper-num">04</span>
+      </div>
+      <p><span class="label">問題</span><br>token boundary 會扭曲 prompt continuation；
+      而不同 tokenizer 的 vocabulary 不同，使 ensemble、proxy-tuning 與模型組合難以直接進行。</p>
+      <p><span class="label">方法</span><br>提出 inference-time algorithm，把任何
+      autoregressive BPE LM 轉換成 character/byte-level LM，並在文字層級
+      <strong>保持原模型的生成分布不變</strong>。</p>
+      <ul>
+        <li>精確處理 prompt boundary problem。</li>
+        <li>把不同 tokenizer 的模型投影到共同 byte vocabulary。</li>
+        <li>因此可做 cross-tokenizer ensemble 與 proxy-tuning。</li>
+      </ul>
+      <p><span class="label">意義</span><br>byte 不只是一種替代 tokenizer，而可以成為
+      <strong>tokenizer-agnostic interoperability layer</strong>：保留既有模型，
+      但移除外部 API 對其 tokenizer vocabulary 的依賴。</p>
+      <p><span class="label">限制</span><br>exact marginalization/conditional sampling
+      可能增加每輸出 byte 的運算與工程複雜度；實際部署需看 cache、batching、speculation
+      與高吞吐 serving 的整合。</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2506.14123">Paper</a>
+        <a href="https://github.com/SewoongLab/byte-sampler">Code</a>
+        <a href="https://openreview.net/forum?id=COQV7D1dAW">OpenReview</a>
+      </div>
+    </article>
+
+    <article class="card paper span-6">
+      <div class="paper-head">
+        <div>
+          <span class="tag">2026 Preprint</span>
+          <h3>Are You Going to Finish That? A Practical Study of the Partial Token Problem</h3>
+        </div><span class="paper-num">05</span>
+      </div>
+      <p><span class="label">問題</span><br>使用者輸入的是文字，但模型條件化在 token sequence。
+      若 prompt 結尾恰好位於「模型期待的下一個 token」內部，next-token distribution
+      會被嚴重扭曲。</p>
+      <p><span class="label">情境</span><br>不使用空白的語言、複合詞豐富的語言與 code，
+      都會自然出現 word/syntax boundary 與 token boundary 不對齊；中文研究中，
+      最多約 25% 的 word boundaries 不與 token boundary 對齊。</p>
+      <div class="metrics">
+        <div class="metric"><strong>≈25%</strong><span>中文邊界可能錯位</span></div>
+        <div class="metric"><strong>≈10³×</strong><span>正確 continuation 機率下降</span></div>
+        <div class="metric"><strong>不隨規模消失</strong><span>大模型有時更嚴重</span></div>
+      </div>
+      <p><span class="label">意義</span><br>把原本常被視為「不要在空白後結束 prompt」的
+      小技巧，提升為多語與 code serving 的系統性 correctness 問題，並評估 exact
+      inference-time solutions。</p>
+      <p><span class="label">限制</span><br>嚴重度依 tokenizer、prompt distribution 與 API
+      行為而異；production provider 仍需要低延遲檢測、fallback 與可觀測性。</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2601.23223">Paper</a>
+      </div>
+    </article>
+
+    <article class="card paper span-6">
+      <div class="paper-head">
+        <div>
+          <span class="tag">2026 Preprint</span>
+          <h3>Compute Optimal Tokenization</h3>
+        </div><span class="paper-num">06</span>
+      </div>
+      <p><span class="label">問題</span><br>既有 scaling laws 通常把「token 數」當作資料量，
+      但 token 的 bytes-per-token 會隨 tokenizer 改變；因此 token 並不是穩定的跨模型計量單位。</p>
+      <p><span class="label">方法</span><br>訓練 988 個 BLT/latent-tokenized models，
+      規模從 50M 到 7B，系統性控制 compression rate，並檢查不同 compute budget、
+      tokenization family 與語言。</p>
+      <ul>
+        <li>compute-optimal parameter count 與資料的 <strong>bytes</strong> 成比例，而非 tokens。</li>
+        <li>最佳 compression rate 與常見 BPE 不同。</li>
+        <li>compute 增加時，最佳 compression rate 反而下降。</li>
+      </ul>
+      <p><span class="label">意義</span><br>tokenization 不應在模型 scaling 前被固定；
+      model size、資料 bytes、compression rate 與 compute budget 應聯合設計。</p>
+      <p><span class="label">限制</span><br>BLT 與 subword 的實作成本不同；理論上的
+      compute optimum 不一定等於特定 GPU、serving stack、context limit 與產品 latency
+      下的總成本 optimum。</p>
+      <div class="links">
+        <a href="https://arxiv.org/abs/2605.01188">Paper</a>
+        <a href="https://co-tok.github.io/">Project</a>
+        <a href="https://github.com/facebookresearch/compute-optimal-tokenization">Code</a>
+      </div>
+    </article>
+  </div>
+</section>
+
+<section id="comparison">
+  <h2>四、系統性比較：六篇工作各自改變哪一層？</h2>
+  <table class="compare">
+    <thead><tr>
+      <th>工作</th><th>主要層次</th><th>核心 intervention</th><th>主要價值</th><th>主要風險／未解問題</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td data-label="工作">Data Mixture Inference</td>
+        <td data-label="主要層次">Tokenizer training / auditing</td>
+        <td data-label="核心 intervention">讀取 BPE merge order，以 LP 回推 mixture</td>
+        <td data-label="主要價值">透明度、forensics、資料治理</td>
+        <td data-label="風險／未解">representativeness、identifiability、privacy leakage</td>
+      </tr>
+      <tr>
+        <td data-label="工作">SuperBPE</td>
+        <td data-label="主要層次">Vocabulary learning / pretraining</td>
+        <td data-label="核心 intervention">subword → superword curriculum</td>
+        <td data-label="主要價值">壓縮、accuracy、inference cost</td>
+        <td data-label="風險／未解">跨 domain/語言泛化、vocab cost、tooling</td>
+      </tr>
+      <tr>
+        <td data-label="工作">Broken Tokens</td>
+        <td data-label="主要層次">Inference input representation</td>
+        <td data-label="核心 intervention">non-canonical / task-aware segmentation</td>
+        <td data-label="主要價值">robustness 與特定任務提升</td>
+        <td data-label="風險／未解">選擇策略、sequence inflation、模型差異</td>
+      </tr>
+      <tr>
+        <td data-label="工作">Byte Sampler</td>
+        <td data-label="主要層次">Inference distribution / interoperability</td>
+        <td data-label="核心 intervention">exact byte-level sampling interface</td>
+        <td data-label="主要價值">邊界正確性、cross-tokenizer composition</td>
+        <td data-label="風險／未解">serving overhead、cache 與 batching</td>
+      </tr>
+      <tr>
+        <td data-label="工作">Partial Token</td>
+        <td data-label="主要層次">Prompt/API correctness</td>
+        <td data-label="核心 intervention">偵測 boundary mismatch，使用 backoff/exact mitigation</td>
+        <td data-label="主要價值">多語、code 與 autocomplete reliability</td>
+        <td data-label="風險／未解">低延遲 provider integration、監控指標</td>
+      </tr>
+      <tr>
+        <td data-label="工作">Compute Optimal</td>
+        <td data-label="主要層次">Scaling laws / system design</td>
+        <td data-label="核心 intervention">聯合搜尋 compression × model × bytes × compute</td>
+        <td data-label="主要價值">更正確的 compute allocation</td>
+        <td data-label="風險／未解">硬體與 end-to-end cost model、跨 modality</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="notice good">
+    <strong>整體脈絡非常一致：</strong>前兩篇回答「tokenizer 洩漏什麼、應該怎麼學」；
+    中間三篇回答「已訓練模型是否能擺脫固定 segmentation、如何在推理時修復與互通」；
+    最後一篇把 token granularity 提升到 scaling-law 與 compute allocation 的層次。
+  </div>
+</section>
+
+<section id="oss">
+  <h2>五、相關開源專案與可重現資源</h2>
+  <div class="grid">
+    <div class="card repo span-6">
+      <div class="repo-icon">git</div><div>
+        <h3><code>alisawuffles/tokenizer-attack</code></h3>
+        <p>Data Mixture Inference 的官方實作。適合研究 BPE merge statistics、建立候選資料類別樣本，
+        並重現 mixture recovery / tokenizer auditing 流程。</p>
+        <a href="https://github.com/alisawuffles/tokenizer-attack">GitHub</a>
+      </div>
+    </div>
+    <div class="card repo span-6">
+      <div class="repo-icon">rs</div><div>
+        <h3><code>alisawuffles/tokenizers-superbpe</code></h3>
+        <p>基於 Hugging Face tokenizers v0.20.1 的 patched Rust fork，
+        是 SuperBPE 能跳過 whitespace pretokenization、續訓 merges 的底層支援。</p>
+        <a href="https://github.com/alisawuffles/tokenizers-superbpe">GitHub</a>
+      </div>
+    </div>
+    <div class="card repo span-6">
+      <div class="repo-icon">py</div><div>
+        <h3><code>PythonNut/superbpe</code></h3>
+        <p>SuperBPE 官方 release：兩階段 tokenizer training scripts、analysis notebooks、
+        pretraining configs、tokenizer JSON 與 128K English tokenizer。README 明確將訓練拆成
+       「先 subword、再取消空白限制學 superword」。</p>
+        <a href="https://github.com/PythonNut/superbpe">GitHub</a> ·
+        <a href="https://superbpe.github.io/">Project</a>
+      </div>
+    </div>
+    <div class="card repo span-6">
+      <div class="repo-icon">↯</div><div>
+        <h3><code>Brianzhengca/Tokenizer-Robustness</code></h3>
+        <p>Broken Tokens 的官方程式碼，用於產生 non-canonical tokenizations、
+        評估 random/character segmentations，以及測試字串、程式碼和數字任務。</p>
+        <a href="https://github.com/Brianzhengca/Tokenizer-Robustness">GitHub</a>
+      </div>
+    </div>
+    <div class="card repo span-6">
+      <div class="repo-icon">0x</div><div>
+        <h3><code>SewoongLab/byte-sampler</code></h3>
+        <p>把現有 BPE LM 包裝成 byte-level sampler，支援 prompt-boundary 修復，
+        並示範跨 tokenizer ensemble 與 proxy-tuning。</p>
+        <a href="https://github.com/SewoongLab/byte-sampler">GitHub</a>
+      </div>
+    </div>
+    <div class="card repo span-6">
+      <div class="repo-icon">Σ</div><div>
+        <h3><code>facebookresearch/compute-optimal-tokenization</code></h3>
+        <p>Compute Optimal Tokenization 的 raw results、scaling-law fitting 與 visualization code；
+        適合研究 bytes/token、模型規模和 compute budget 的聯合關係。</p>
+        <a href="https://github.com/facebookresearch/compute-optimal-tokenization">GitHub</a> ·
+        <a href="https://co-tok.github.io/">Project</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="future">
+  <h2>六、未來最有潛力的研究方向</h2>
+  <p class="lede">以下是根據上述論文、開源專案與 ICML Tokenization panel 所做的研究推演，
+  <strong>不是 Alisa Liu 已公開宣布的個人 research agenda</strong>。</p>
+
+  <div class="grid">
+    <div class="card direction span-6">
+      <div class="paper-head"><h3>1. Tokenizer-aware serving layer</h3><span class="confidence">近期可落地</span></div>
+      <p>在 serving gateway 自動偵測 partial-token endings、CJK/code boundary risk，
+      並依成本選擇 canonical decoding、token-aligned backoff 或 exact byte sampler。</p>
+      <p><strong>研究問題：</strong>如何在不犧牲 batch throughput 的情況下做 exact correction？
+      哪些 prompt 需要修復？如何定義 production metrics，例如 boundary-risk rate、
+      probability recovery 與 latency overhead？</p>
+    </div>
+    <div class="card direction span-6">
+      <div class="paper-head"><h3>2. Adaptive / task-aware tokenization</h3><span class="confidence">高潛力</span></div>
+      <p>結合 SuperBPE 與 Broken Tokens：不再為整個模型固定唯一 segmentation，
+      而是按 span、語言、任務或 uncertainty 選擇 superword、subword、character 或 byte。</p>
+      <p><strong>研究問題：</strong>selection policy 要由規則、small router 還是 LM 自己學？
+      動態長度如何配合 positional encoding、KV cache 與 speculative decoding？
+      可否用 reward 同時最佳化 accuracy、tokens/sec 與成本？</p>
+    </div>
+    <div class="card direction span-6">
+      <div class="paper-head"><h3>3. Cross-tokenizer model composition</h3><span class="confidence">基礎模型生態</span></div>
+      <p>以 byte-level distribution 作共同介面，進一步發展跨 tokenizer ensemble、
+      proxy-tuning、Mixture-of-Experts routing、verifier aggregation 與 model merging。</p>
+      <p><strong>研究問題：</strong>如何減少 byte marginalization 成本？
+      不同 tokenizer 模型的 probability calibration 是否相容？
+      能否把各模型在特定語言或 domain 的 tokenizer 優勢轉化為可路由的專長？</p>
+    </div>
+    <div class="card direction span-6">
+      <div class="paper-head"><h3>4. Joint tokenizer–model–hardware scaling laws</h3><span class="confidence">高影響力</span></div>
+      <p>從「參數量 × token 數」升級為「參數 × 資料 bytes × compression × vocab × context × hardware」，
+      並加入 training 與 serving 的總生命週期成本。</p>
+      <p><strong>研究問題：</strong>optimal compression 為何隨 compute 改變？
+      embedding/softmax、attention、memory bandwidth 與 sequence length 如何共同決定 optimum？
+      針對 GPU、TPU、edge NPU 是否有不同 tokenizer frontier？</p>
+    </div>
+    <div class="card direction span-6">
+      <div class="paper-head"><h3>5. Multilingual fairness 與 tokenizer audit cards</h3><span class="confidence">社會與產品價值</span></div>
+      <p>建立標準化 tokenizer card：公開每種語言的 bytes/token、word-boundary mismatch、
+      canonical robustness、token cost、training-mixture inference uncertainty 與 code coverage。</p>
+      <p><strong>研究問題：</strong>token-based billing 與 context budget 是否對某些語言不公平？
+      如何避免 tokenizer 洩漏資料組成，同時保有透明度？對台語、低資源語言與非空白語言，
+      morphology、phonology 和 byte-level 方法應如何整合？</p>
+    </div>
+    <div class="card direction span-6">
+      <div class="paper-head"><h3>6. 從 static vocabulary 走向 learned hierarchy</h3><span class="confidence">長期方向</span></div>
+      <p>在固定 BPE 與純 byte models 之間，學習可變長度、內容依賴的 latent chunks：
+      底層保留 byte correctness，上層動態形成 reusable semantic/computational units。</p>
+      <p><strong>研究問題：</strong>如何避免 sequence variability 破壞高效 kernel？
+      hierarchical units 是否具可解釋性？能否同時處理文字、程式碼、數學與 multimodal streams？
+      何種 intrinsic evaluation 能預測 downstream 與 system-level gain？</p>
+    </div>
+  </div>
+</section>
+
+<section id="takeaways">
+  <h2>七、對 tokenizer 研究者最重要的啟示</h2>
+  <div class="grid">
+    <div class="card span-4">
+      <h3>不要只用 fertility 評估 tokenizer</h3>
+      <p>平均 token 數很重要，但還需評估 per-token difficulty、boundary alignment、
+      downstream accuracy、推理成本、跨語言公平性與 interoperability。</p>
+    </div>
+    <div class="card span-4">
+      <h3>把 byte 當成共同「真實單位」</h3>
+      <p>token 數會受 tokenizer 定義影響；資料 scaling、文字分布等價性與跨模型組合，
+      以 byte/character 層級推理通常更穩健。</p>
+    </div>
+    <div class="card span-4">
+      <h3>訓練完成後仍可研究 tokenization</h3>
+      <p>Broken Tokens 與 Byte Sampler 顯示，tokenization 不是 pretraining 前一次性決策；
+      inference-time segmentation 和 distribution conversion 本身就是豐富的演算法空間。</p>
+    </div>
+  </div>
+
+  <details class="card" style="margin-top:18px">
+    <summary>一個可用於你自己 research talk 的敘事模板</summary>
+    <ol>
+      <li><strong>破除假設：</strong>大家把 tokenizer 當固定 preprocessing，但它其實控制模型看到的世界。</li>
+      <li><strong>證明它留下痕跡：</strong>Data Mixture Inference 顯示 tokenizer 洩漏 corpus composition。</li>
+      <li><strong>證明它可以更好：</strong>SuperBPE 僅改 vocabulary learning 就改善效率與能力。</li>
+      <li><strong>證明模型沒被綁死：</strong>Broken Tokens 顯示 post-trained LM 能理解多種 segmentation。</li>
+      <li><strong>建立統一介面：</strong>Byte Sampler 移除 prompt boundary 與 vocabulary mismatch。</li>
+      <li><strong>連到真實產品問題：</strong>Partial Token 在中文與 code 中造成嚴重 probability distortion。</li>
+      <li><strong>提升到 scaling law：</strong>Compute Optimal 說明 token granularity 應與 model/data/compute 聯合設計。</li>
+    </ol>
+  </details>
+</section>
+
+<section id="references">
+  <h2>八、參考資料</h2>
+  <ol class="refs">
+    <li><span class="type">Blog</span>Alisa Liu, “Notes on the Industry Job Search,” 2026-06-20.
+      <a href="https://alisawuffles.github.io/blog/job-search/">alisawuffles.github.io/blog/job-search/</a></li>
+    <li><span class="type">Profile</span>Alisa Liu personal website and publication list.
+      <a href="https://alisawuffles.github.io/">alisawuffles.github.io</a></li>
+    <li><span class="type">Slides</span>Alisa Liu & Jonathan Hayase, “SuperBPE: Space Travel for Language Models,”
+      Microsoft Translator, 2025-04-16, 82 slides.
+      <a href="https://homes.cs.washington.edu/~sewoong/slides_superBPE.pdf">PDF</a></li>
+    <li><span class="type">Index</span>Sewoong Oh publication page, including the note
+      “presented by Alisa and Jon at Microsoft.”
+      <a href="https://homes.cs.washington.edu/~sewoong/papers.html">papers.html</a></li>
+    <li><span class="type">Video</span>Alisa Liu speaker page, SlidesLive.
+      <a href="https://slideslive.com/s/alisa-liu-146883">Speaker page</a></li>
+    <li><span class="type">Video</span>“Data Mixture Inference: What do BPE Tokenizers Reveal about their Training Data?”
+      NeurIPS 2024.
+      <a href="https://slideslive.com/39026771/data-mixture-inference-what-do-bpe-tokenizers-reveal-about-their-training-data">SlidesLive</a></li>
+    <li><span class="type">Panel</span>“Panel: Future of Tokenization,” ICML 2025 Tokenization Workshop.
+      <a href="https://slideslive.com/39044254/panel-future-of-tokenization">SlidesLive</a></li>
+    <li><span class="type">Paper</span>Hayase et al., “Data Mixture Inference: What do BPE Tokenizers Reveal about their Training Data?”
+      NeurIPS 2024. <a href="https://arxiv.org/abs/2407.16607">arXiv</a> ·
+      <a href="https://github.com/alisawuffles/tokenizer-attack">Code</a></li>
+    <li><span class="type">Paper</span>Liu et al., “SuperBPE: Space Travel for Language Models,” COLM 2025.
+      <a href="https://arxiv.org/abs/2503.13423">arXiv</a> ·
+      <a href="https://superbpe.github.io/">Project</a> ·
+      <a href="https://github.com/PythonNut/superbpe">Code</a></li>
+    <li><span class="type">Paper</span>Zheng et al., “Broken Tokens? Your Language Model Can Secretly Handle Non-Canonical Tokenizations,”
+      NeurIPS 2025 Spotlight. <a href="https://arxiv.org/abs/2506.19004">arXiv</a> ·
+      <a href="https://github.com/Brianzhengca/Tokenizer-Robustness">Code</a></li>
+    <li><span class="type">Paper</span>Hayase et al., “Sampling from Your Language Model One Byte at a Time,” ICML 2026.
+      <a href="https://arxiv.org/abs/2506.14123">arXiv</a> ·
+      <a href="https://github.com/SewoongLab/byte-sampler">Code</a></li>
+    <li><span class="type">Paper</span>Xu et al., “Are You Going to Finish That? A Practical Study of the Partial Token Problem,”
+      2026. <a href="https://arxiv.org/abs/2601.23223">arXiv</a></li>
+    <li><span class="type">Paper</span>Limisiewicz et al., “Compute Optimal Tokenization,” 2026.
+      <a href="https://arxiv.org/abs/2605.01188">arXiv</a> ·
+      <a href="https://co-tok.github.io/">Project</a> ·
+      <a href="https://github.com/facebookresearch/compute-optimal-tokenization">Code</a></li>
+    <li><span class="type">Repo</span>Alisa Liu, patched Hugging Face tokenizer fork for SuperBPE.
+      <a href="https://github.com/alisawuffles/tokenizers-superbpe">GitHub</a></li>
+    <li><span class="type">Video</span>Cohere For AI – Community Talks: Alisa Liu.
+      <a href="https://www.youtube.com/watch?v=jJq6dieCZ_4">YouTube</a></li>
+    <li><span class="type">Video</span>“SuperBPE: Space Travel for Language Models.”
+      <a href="https://www.youtube.com/watch?v=Bzk1FupfyE8">YouTube</a></li>
+  </ol>
+</section>
+
+<div class="footer">
+  <p><strong>查核方法：</strong>搜尋個人網站、求職文章、公開 publication list、arXiv/OpenReview、
+  NeurIPS proceedings、SlidesLive、YouTube、GitHub repositories、project pages 與合作者的 publication page。
+  「未找到 exact job talk」只表示在本次公開網頁搜尋中未定位到可確認的版本，不代表它一定不存在或未以未列名方式分享。</p>
+  <p>本報告中的「未來方向」為基於公開成果的分析性推論；論文數字應以原文最新版與正式評測設定為準。</p>
+</div>
+</div>
+</main>
+</body>
+</html>
