@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SLiCE / Schema Lineage Extraction 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117; --panel:#141b25; --panel2:#1b2430; --ink:#e8edf4; --muted:#93a1b3;
+  --line:#26313f; --acc:#5ad1c0; --acc2:#f4a259; --acc3:#8c7bff; --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace; --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.85;font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul,ol{margin:16px 0 16px 22px;color:var(--ink)}
+li{margin:8px 0}
+li::marker{color:var(--acc)}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:2}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.num{color:var(--acc);font-weight:700}
+tr.dim td{opacity:.6}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+.qa{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px 24px;margin:18px 0}
+.qa .q{font-family:var(--disp);font-size:15.5px;color:var(--acc2);font-weight:700;margin-bottom:10px}
+.qa .a{font-size:15px;color:var(--muted);margin:8px 0}
+.qa .a strong{color:var(--ink)}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">NeurIPS 2025 Workshop · 論文導讀</div>
+    <h1 class="title">SLiCE<span class="sql">.</span></h1>
+    <p class="subtitle">從多語言企業資料管線中自動抽取 schema lineage，並用一個可拆解的複合指標同時衡量「結構正確」與「語意忠實」。1,700 筆人工標註、12 個語言模型、50,000+ 次抽取實驗。</p>
+    <div class="meta-row">
+      <span class="tag lit">Schema Lineage</span>
+      <span class="tag lit">Composite Evaluation</span>
+      <span class="tag">Semantic Drift</span>
+      <span class="tag">SLM Benchmark</span>
+      <span class="tag">Multi-AST Similarity</span>
+      <span class="tag">CoT Prompting</span>
+    </div>
+    <p class="authors">Jiaqi Yin · <strong>Yi-Wei Chen</strong> · Meng-Lung Lee · Xiya Liu　—　Microsoft Redmond / Antra Inc.　·　<a href="https://arxiv.org/abs/2508.07179">arXiv:2508.07179</a>　·　<a href="https://github.com/microsoft/SLiCE">github.com/microsoft/SLiCE</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#definition">02 Schema Lineage 定義</a>
+    <a href="#dataset">03 資料集</a>
+    <a href="#slice">04 SLiCE 指標</a>
+    <a href="#prompting">05 Prompting 策略</a>
+    <a href="#results">06 實驗結果</a>
+    <a href="#discussion">07 討論與限制</a>
+  </div>
+</nav>
+
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — Semantic Drift</h2>
+    <p class="lead">企業資料倉儲最初都有完整的 metadata：schema 定義、欄位語意、business context。但資料一旦流經多階段、跨語言的處理管線，這份 metadata 就迅速失效。</p>
+
+    <p>論文把這個現象命名為 <span class="hl2">semantic drift</span>（語意漂移，引用 Müller &amp; Stein 2016）。實務上的樣貌是：一個 dashboard 上的 <code>MAU</code>、<code>churn rate</code>、<code>revenue</code> 指標，沒有人能準確說出它究竟從哪些原始欄位、經過哪些轉換與聚合而來。知識只存在於少數寫過那段 pipeline 的工程師腦中，或散落在過期的手工文件裡。</p>
+
+    <div class="callout hot">
+      <p><strong>為什麼這件事在 LLM 時代更要緊：</strong>semantic drift 直接傷害兩個下游應用 —— <span class="hl">RAG</span>（知識庫裡的 schema 描述是錯的，檢索出來的 context 就是錯的）與 <span class="hl">text-to-SQL</span>（模型不知道欄位真正的語意，就會生出語法對、語意錯的 SQL）。這是本篇把 lineage 抽取當成「AI 基礎建設問題」而非「資料治理問題」來寫的原因。</p>
+    </div>
+
+    <h3>為什麼既有方法不夠</h3>
+    <p>論文在 Related Work 把前人方法分兩類，並各自指出斷點：</p>
+    <ul>
+      <li><strong>傳統程式分析</strong>（AST parsing、metadata mapping、runtime analysis，如 <code>sqlparse</code>、<code>sqlfluff</code>、Purview）：在<em>單一語言、靜態</em>環境可靠，但面對多階段跨語言管線就崩潰，而且每次 codebase 演進都要重寫規則。</li>
+      <li><strong>LLM-based 抽取</strong>（Li et al. 2025；Cyberhaven LLiM）：把 lineage 抽取重構成 code understanding 任務確實有效，但既有 CoT 方法<em>把 table-level 與 operation-level lineage 分開生成</em>，拿不到完整的組合語意；而 fine-tune 型方案（LLiM）依賴企業內部的正/負事件標籤，泛化性差。</li>
+    </ul>
+    <p>本篇的定位是 <span class="hl">no-fine-tuning paradigm</span>：一次 query 同時生出 table-level 與 operation-level lineage，且資料集是為「資料理解」而非「異常偵測」策展的。</p>
+
+    <h3>四項貢獻</h3>
+    <div class="grid g4">
+      <div class="card"><h4>01 形式化定義</h4><p>針對多語言企業管線的 schema lineage 形式定義，涵蓋 source-to-output 語意、轉換邏輯與聚合。</p></div>
+      <div class="card"><h4>02 Benchmark</h4><p>50 支真實生產腳本、<strong>1,700</strong> 筆人工標註 lineage。</p></div>
+      <div class="card"><h4>03 SLiCE 指標</h4><p>可拆解的複合評估框架，兼顧結構正確與語意忠實。</p></div>
+      <div class="card"><h4>04 大規模實驗</h4><p>12 個語言模型 × 7 種 prompting 策略 × 6 個隨機種子。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="definition">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Schema Lineage 的四元組定義</h2>
+    <p class="lead">論文把 schema lineage 定義成一個恰含四個 key 的結構化字典。這個「剛好四個 key」的設計不只是表示法，它同時是 evaluation 介面與 downstream parsing 介面。</p>
+
+    <div class="formula">
+      L = {<br>
+      &nbsp;&nbsp;source_schema&nbsp;&nbsp;: C&nbsp;&nbsp;<span style="color:var(--muted)">// 來源欄位集合</span><br>
+      &nbsp;&nbsp;source_table&nbsp;&nbsp;&nbsp;: T&nbsp;&nbsp;<span style="color:var(--muted)">// 來源資料表集合</span><br>
+      &nbsp;&nbsp;transformation&nbsp;: F&nbsp;&nbsp;<span style="color:var(--muted)">// 轉換邏輯（程式碼片段）</span><br>
+      &nbsp;&nbsp;aggregation&nbsp;&nbsp;&nbsp;&nbsp;: A&nbsp;&nbsp;<span style="color:var(--muted)">// 聚合運算</span><br>
+      }
+    </div>
+
+    <p>任務設定：給定一支資料管線腳本 <span class="hl">S</span>（可能是 SQL、Python、PySpark、C# 的混合）與輸出表中的一個目標 schema <span class="hl">σ</span>，抽出對應的 lineage <span class="hl">L</span>。</p>
+
+    <div class="grid g2">
+      <div class="card"><h4>Source Schemas (C)</h4><p>lineage 起源的原始欄位。多個來源欄位以逗號分隔。</p></div>
+      <div class="card"><h4>Source Tables (T)</h4><p>含有那些來源欄位的原始資料表，是資料的根源頭。</p></div>
+      <div class="card"><h4>Transformation (F)</h4><p>把來源欄位轉成目標 schema 的程式碼片段。多段轉換以 <code>&lt;CODEEND&gt;</code> 分隔。</p></div>
+      <div class="card"><h4>Aggregation (A)</h4><p><code>GROUP BY</code> / <code>SUM</code> / <code>COUNT</code> / <code>MAX</code> / <code>MIN</code> 及其 grouping key，同樣用 <code>&lt;CODEEND&gt;</code> 分隔。</p></div>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <rect x="12" y="26" width="250" height="248" rx="10" fill="#0a0e14" stroke="#26313f"/>
+        <text x="137" y="50" fill="#8c7bff" font-size="12" text-anchor="middle" font-weight="700">Python + SQL 管線腳本</text>
+        <text x="26" y="78" fill="#93a1b3" font-size="10">def clean_transactions(df):</text>
+        <text x="26" y="95" fill="#93a1b3" font-size="10">  df.withColumn("amount", ...)</text>
+        <text x="26" y="112" fill="#93a1b3" font-size="10">  .cast(DecimalType(18,2))</text>
+        <text x="26" y="136" fill="#5b6675" font-size="10">&gt;&gt;&gt;&gt;&gt; 語言切換分隔符</text>
+        <text x="26" y="160" fill="#f4a259" font-size="10">SELECT C.customer_id,</text>
+        <text x="26" y="177" fill="#f4a259" font-size="10">  SUM(T.amount) AS</text>
+        <text x="26" y="194" fill="#f4a259" font-size="10">  TotalAmountSpent</text>
+        <text x="26" y="211" fill="#93a1b3" font-size="10">FROM Customers AS C</text>
+        <text x="26" y="228" fill="#93a1b3" font-size="10">INNER JOIN Transactions ...</text>
+        <text x="26" y="252" fill="#ff6b6b" font-size="10">GROUP BY C.customer_id</text>
+
+        <line x1="268" y1="150" x2="330" y2="150" stroke="#5ad1c0" stroke-width="2" marker-end="url(#arr)"/>
+        <text x="299" y="140" fill="#5ad1c0" font-size="9" text-anchor="middle">LM</text>
+
+        <rect x="340" y="26" width="408" height="248" rx="10" fill="#0a0e14" stroke="#5ad1c0"/>
+        <text x="544" y="50" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">Schema Lineage（目標: TotalAmountSpent）</text>
+        <text x="356" y="82" fill="#93a1b3" font-size="10">"source_schema":</text>
+        <text x="356" y="99" fill="#5ad1c0" font-size="10">   "customer_id, amount"</text>
+        <text x="356" y="123" fill="#93a1b3" font-size="10">"source_table":</text>
+        <text x="356" y="140" fill="#5ad1c0" font-size="10">   "abfss://.../raw_customers,</text>
+        <text x="356" y="157" fill="#5ad1c0" font-size="10">    abfss://.../raw_transactions"</text>
+        <text x="356" y="181" fill="#93a1b3" font-size="10">"transformation":</text>
+        <text x="356" y="198" fill="#f4a259" font-size="10">   "C.customer_id AS CustomerId</text>
+        <text x="356" y="215" fill="#f4a259" font-size="10">    &lt;CODEEND&gt; .cast(Decimal(18,2))"</text>
+        <text x="356" y="239" fill="#93a1b3" font-size="10">"aggregation":</text>
+        <text x="356" y="256" fill="#ff6b6b" font-size="10">   "SUM() GROUP BY C.customer_id"</text>
+      </svg>
+      <div class="figcap">圖 1 · schema lineage 標註示意（依論文 Figure 1 重繪）</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>設計要點：</strong>注意 lineage 追的是<span class="hl">「一個欄位」</span>而不是「一張表」。50 支腳本卻有 1,700 筆標註，就是因為每支腳本的輸出表有多個欄位，每個欄位各有一條獨立 lineage（平均 34 條／腳本）。</p>
+    </div>
+  </div>
+</section>
+
+<section id="dataset">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>資料集 — 50 支真實腳本、1,700 筆標註</h2>
+    <p class="lead">這是本篇最難複製、也最有價值的資產：全部來自 Microsoft 內部實際部署的生產管線，涵蓋 SQL、C#、Python（含 PySpark），用途橫跨 business metrics、marketing analytics、product insights、user experience。</p>
+
+    <h3>難度分級規則（Appendix A.1）</h3>
+    <p>論文用一個 0–3 分的三維度評分把腳本分級，每個維度符合就 +1 分：</p>
+    <div class="grid g3">
+      <div class="card"><h4>Data Sources</h4><p>存取 <strong>≥ 3</strong> 個不同資料來源 → +1</p></div>
+      <div class="card"><h4>Transformation</h4><p>存在<strong>轉換鏈</strong>（一個運算的輸出是另一個的輸入）→ +1</p></div>
+      <div class="card"><h4>Aggregation</h4><p>含任何聚合函數（<code>SUM</code>/<code>COUNT</code>/<code>PIVOT</code>）→ +1</p></div>
+    </div>
+    <p>總分 0–1 為 Easy、2 為 Medium、3 為 Hard。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · 資料集組成（token 數與 schema 數統計）</caption>
+        <thead><tr><th>難度</th><th>腳本數</th><th>Token 平均</th><th>Token 最小</th><th>Token 最大</th><th>Schema 總數</th><th>Schema 平均</th><th>Schema 最大</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">All</td><td class="num">50</td><td class="num">1,988.52</td><td class="num">139</td><td class="num">17,447</td><td class="num">1,700</td><td class="num">34.00</td><td class="num">391</td></tr>
+          <tr><td>Easy</td><td class="num">19</td><td class="num">921.26</td><td class="num">139</td><td class="num">2,153</td><td class="num">488</td><td class="num">25.68</td><td class="num">118</td></tr>
+          <tr><td>Medium</td><td class="num">22</td><td class="num">1,806.23</td><td class="num">274</td><td class="num">6,882</td><td class="num">610</td><td class="num">27.73</td><td class="num">109</td></tr>
+          <tr><td>Hard</td><td class="num">9</td><td class="num">4,687.22</td><td class="num">751</td><td class="num">17,447</td><td class="num">602</td><td class="num">66.89</td><td class="num">391</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>值得注意的分佈特性：</strong>Hard 只有 9 支腳本（18%），卻貢獻 602 筆 schema（35.4%），單支平均 66.89 個欄位、4,687 個 token，最長 17,447 token。也就是說 <span class="hl2">benchmark 的難度重心壓在少數幾支超長腳本上</span> —— 這既是它貼近真實的地方，也是 reviewer 會質疑 variance 的地方（見 §08）。</p>
+    </div>
+
+    <p>由於原始腳本含敏感商業邏輯，論文只在 Appendix A.2 放了一支<em>合成</em>的 hard 範例（PySpark <code>clean_customers</code> / <code>clean_accounts</code> / <code>clean_transactions</code> + SQL），保留原始的結構與邏輯特徵但抽換商業內容。多語言切換用 <code>&gt;&gt;&gt;&gt;&gt;</code> 分隔符標記，lineage 追蹤採<span class="hl">自底向上（bottom-up）</span>traversal：從指定的目標欄位出發，沿計算圖往上游傳播。</p>
+
+    <p>另外，資料專家為每支腳本額外撰寫了<span class="hl2">人工 reasoning traces</span>以支援 CoT prompting：easy 腳本 1 條、medium 2 條、hard 3 條。</p>
+  </div>
+</section>
+
+<section id="slice">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>SLiCE — Schema Lineage Composite Evaluation</h2>
+    <p class="lead">論文的方法論核心。SLiCE 把「結構有效性」與「語意正確性」壓成 [0,1] 的單一分數，同時保留五個 component-level 診斷維度（format、source schema、tables、transformation、aggregation）。</p>
+
+    <h3>總式：兩個 binary gate × 三項加權和</h3>
+    <div class="formula">
+      SLiCE(L̂, L*) = M<sub>FMT</sub>(L̂) · M<sub>SRC</sub>(L̂,L*) · [ ω<sub>TBL</sub>·M<sub>TBL</sub> + ω<sub>TRF</sub>·M<sub>TRF</sub> + ω<sub>AGG</sub>·M<sub>AGG</sub> ]<br>
+      <span style="color:var(--muted)">ω_TBL + ω_TRF + ω_AGG = 1　·　論文設定 ω_TBL = 0.4, ω_TRF = 0.4, ω_AGG = 0.2</span>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>這條式子最關鍵的性質：前兩項是「乘法閘」而非加權項。</strong>M<sub>FMT</sub> 與 M<sub>SRC</sub> 都是 binary（0 或 1）。只要輸出格式跑掉、或 source schema 集合沒有<em>完全</em>命中，整條 lineage 直接歸零，後面三項算再好都沒用。論文的說法是這反映了「基礎結構錯誤會在真實系統中向下游傳播」。這個設計解釋了 Table 2 裡 DeepSeek-Coder-1.3B base 分數是精確的 <code>0.000</code>。</p>
+    </div>
+
+    <h3>M<sub>FMT</sub> — 格式正確性（binary）</h3>
+    <p>依 prompting 策略要求兩種格式之一：</p>
+    <pre><code><span class="cmt"># 有 reasoning trace 時</span>
+<span class="kw">&lt;think&gt;</span> ... reasoning trace ... <span class="kw">&lt;/think&gt;</span>
+<span class="kw">&lt;answer&gt;</span> ... schema lineage dictionary ... <span class="kw">&lt;/answer&gt;</span>
+
+<span class="cmt"># 無 reasoning trace 時</span>
+<span class="kw">&lt;answer&gt;</span> ... schema lineage dictionary ... <span class="kw">&lt;/answer&gt;</span></code></pre>
+    <p><code>&lt;answer&gt;</code> 內必須是嚴格 key-value 字典、<strong>恰好四個 key</strong>。任何 tag 畸形、key 名錯誤、欄位缺漏 → 直接判 0。</p>
+
+    <h3>M<sub>SRC</sub> — 來源欄位（binary，精確集合相等）</h3>
+    <div class="formula">M<sub>SRC</sub>(L̂,L*) = 1 &nbsp;if&nbsp; Ĉ = C*　　otherwise 0<br><span style="color:var(--muted)">大小寫敏感、順序不敏感的集合比對</span></div>
+
+    <h3>M<sub>TBL</sub> — 來源資料表（exact F1 + fuzzy 混合）</h3>
+    <p>因為表名有 <code>database.schema.table</code> vs <code>table</code> 這類命名慣例差異，純 exact match 太嚴苛：</p>
+    <div class="formula">
+      M<sub>TBL</sub> = w<sub>1</sub><sup>TBL</sup> · F1(T̂,T*) + w<sub>2</sub><sup>TBL</sup> · F<sub>u</sub>(T̂,T*)<br>
+      <span style="color:var(--muted)">論文設定 w₁ = 0.7（exact F1）, w₂ = 0.3（fuzzy）</span><br><br>
+      F<sub>u</sub>(T̂,T*) = ½ [ (1/|T̂|)·Σ max FuzzyMatch(t<sub>i</sub>,t<sub>j</sub>) + (1/|T*|)·Σ max FuzzyMatch(t<sub>i</sub>,t<sub>j</sub>) ]<br>
+      <span style="color:var(--muted)">FuzzyMatch = 基於 Levenshtein 距離的正規化相似度；前項為 fuzzy precision，後項為 fuzzy recall</span>
+    </div>
+
+    <h3>M<sub>TRF</sub> / M<sub>AGG</sub> — 轉換與聚合（CodeBLEU 變體 + Multi-AST）</h3>
+    <p>這兩項的難點在於<span class="hl2">語法不同但邏輯等價</span>的程式碼。論文提出 <span class="hl">Multi-AST similarity</span> 來支援多語言比對：</p>
+    <div class="formula">
+      AST<sub>multi</sub>(x̂,x*) = Σ<sub>l∈L</sub> w<sub>l</sub> · AST<sub>l</sub>(x̂,x*)<br>
+      <span style="color:var(--muted)">w_l = x 屬於語言 l 的信心值，由「語言專屬關鍵字的正規化比例」估計，Σ w_l = 1</span><br><br>
+      M<sub>TRF</sub> = w<sub>1</sub>·BLEU + w<sub>2</sub>·BLEU<sub>weight</sub> + w<sub>3</sub>·AST<sub>multi</sub><br>
+      M<sub>AGG</sub> = w<sub>1</sub>·BLEU + w<sub>2</sub>·BLEU<sub>weight</sub> + w<sub>3</sub>·AST<sub>multi</sub><br>
+      <span style="color:var(--muted)">論文設定（TRF 與 AGG 相同）：w₁ = 0.5, w₂ = 0.3, w₃ = 0.2</span>
+    </div>
+
+    <div class="callout">
+      <p><strong>與 CodeBLEU 的差異（面試必答）：</strong>SLiCE 保留了 CodeBLEU 的 n-gram BLEU、weighted BLEU、AST similarity 三項基礎，但做了兩個關鍵改動 ——（1）把單語言 AST 擴展成<span class="hl">語言感知的加權聚合</span>，處理一段程式碼混雜多語言的情況；（2）<span class="hl2">刻意移除 data-flow matching 項</span>，理由是 schema lineage 的 transformation 常常是<em>部分且不可執行</em>的程式碼片段，跑不了 data-flow 分析。同理，<code>pass@k</code> 這類 execution-based 指標在此完全不適用。</p>
+    </div>
+
+    <h3>評估協定：schema-level → script-level → corpus-level</h3>
+    <div class="formula">
+      M<sub>SCR</sub>(s<sub>i</sub>,Θ) = (1/K<sub>i</sub>) · Σ<sub>k=1..K<sub>i</sub></sub> SLiCE(L̂<sub>ik</sub>, L*<sub>ik</sub>)　<span style="color:var(--muted)">// 單腳本內 K_i 個 schema 取平均</span><br>
+      M<sub>MOD</sub>(Θ) = (1/I) · Σ<sub>i=1..I</sub> M<sub>SCR</sub>(s<sub>i</sub>,Θ)　<span style="color:var(--muted)">// 跨 50 支腳本取平均</span>
+    </div>
+    <p>注意這是<span class="hl2">先腳本內平均、再跨腳本平均</span>的 macro-average：每支腳本權重相同，不會因為 hard 腳本欄位多就主導總分。</p>
+  </div>
+</section>
+
+<section id="prompting">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Prompting 策略 — 三大類、七種變體</h2>
+    <p class="lead">論文設計了三個階層式的 prompting 類別，用來系統性檢驗「context 豐富程度」對抽取品質的影響。</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Base Prompting（zero-shot）</h4>
+        <p>只給管線腳本 + 明確的抽取指令（目標輸出格式與各 component 定義）。作為「最小必要 context」的基準線。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Few-Shot Prompting（one/two/three-shot）</h4>
+        <p>在 base 之上加入具體的 input-output 範例對。範例數量<strong>依腳本複雜度縮放</strong>：easy 給 1 個、medium 最多 2 個、hard 最多 3 個。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Chain-of-Thought（CoT-1 / CoT-2 / CoT-3）</h4>
+        <p>在 few-shot 之上，把範例換成<strong>人工撰寫的詳細 reasoning trace</strong>，逐步演示如何從管線程式碼推導出 lineage。</p>
+      </div></div>
+    </div>
+
+    <p>三大類展開成 7 種具體策略：<code>base</code>、<code>one-shot</code>、<code>two-shot</code>、<code>three-shot</code>、<code>CoT-1</code>、<code>CoT-2</code>、<code>CoT-3</code>。</p>
+
+    <div class="callout">
+      <p><strong>工程細節（值得在面試提，顯示 system 面的掌握）：</strong>對開源 SLM 採用 <span class="hl">PagedAttention</span>（vLLM 的 KV cache 虛擬化機制）。關鍵觀察是 —— <em>同一支腳本內、不同目標 schema 的 prompt 前綴是完全相同的</em>（腳本本身 + 抽取指令 + 範例都不變，只有目標欄位名在變）。因此 KV pair <span class="hl2">每支 pipeline 只算並快取一次</span>，而不是每個 schema 重算一次。以平均 34 個 schema／腳本、hard 腳本最多 391 個 schema 來算，這省下的重複計算非常可觀。</p>
+    </div>
+  </div>
+</section>
+
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>實驗結果</h2>
+    <p class="lead">最初評估 18 個模型（2 個 LLM + 16 個 SLM），因推論時間過長或表現持續過差，剔除 6 個，最終呈現 12 個。</p>
+
+    <h3>模型選擇與剔除</h3>
+    <p><strong>保留（12）：</strong>GPT-4.1、GPT-4o；Qwen2.5-Coder（1.5B / 3B / 7B / 14B / 32B）、Mistral-7B、Codestral-22B、DeepSeek-Coder（1.3B / 6.7B）、Phi-4（14B）。</p>
+    <p><strong>剔除（6）：</strong>CodeLlama（7B / 13B / 34B）、Phi-4-mini、Phi-4-reasoning-14B、Qwen2.5-Coder 其一變體。</p>
+    <p>實驗規模：12 模型 × 50 腳本 × 7 策略 × <strong>6 個隨機種子</strong>，合計 <span class="hl2">50,000+ 次抽取任務</span>。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Corpus-level SLiCE 分數（6 seeds 之 mean ± std，依模型大小排序）</caption>
+        <thead><tr><th>Model</th><th>Size</th><th>Base</th><th>One-Shot</th><th>CoT-1</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">GPT-4.1</td><td class="num">–</td><td class="num">0.418 ±.005</td><td class="num">0.673 ±.008</td><td class="num">0.767 ±.007</td></tr>
+          <tr><td>GPT-4o</td><td class="num">–</td><td class="num">0.284 ±.003</td><td class="num">0.654 ±.007</td><td class="num">0.759 ±.008</td></tr>
+          <tr class="dim"><td>DeepSeek-Coder</td><td class="num">1.3B</td><td class="num">0.000 ±.000</td><td class="num">0.054 ±.015</td><td class="num">0.038 ±.017</td></tr>
+          <tr class="dim"><td>Qwen2.5-Coder</td><td class="num">1.5B</td><td class="num">0.014 ±.002</td><td class="num">0.309 ±.006</td><td class="num">0.304 ±.017</td></tr>
+          <tr><td>Qwen2.5-Coder</td><td class="num">3B</td><td class="num">0.100 ±.004</td><td class="num">0.391 ±.015</td><td class="num">0.445 ±.010</td></tr>
+          <tr><td>DeepSeek-Coder</td><td class="num">6.7B</td><td class="num">0.003 ±.003</td><td class="num">0.084 ±.018</td><td class="num">0.509 ±.007</td></tr>
+          <tr class="dim"><td>Mistral</td><td class="num">7B</td><td class="num">0.026 ±.003</td><td class="num">0.331 ±.005</td><td class="num">0.227 ±.009</td></tr>
+          <tr><td>Qwen2.5-Coder</td><td class="num">7B</td><td class="num">0.167 ±.005</td><td class="num">0.487 ±.018</td><td class="num">0.556 ±.009</td></tr>
+          <tr><td>Phi-4</td><td class="num">14B</td><td class="num">0.016 ±.003</td><td class="num">0.511 ±.005</td><td class="num">0.648 ±.005</td></tr>
+          <tr><td>Qwen2.5-Coder</td><td class="num">14B</td><td class="num">0.286 ±.004</td><td class="num">0.547 ±.005</td><td class="num">0.646 ±.007</td></tr>
+          <tr><td>Codestral</td><td class="num">22B</td><td class="num">0.126 ±.004</td><td class="num">0.511 ±.005</td><td class="num">0.662 ±.008</td></tr>
+          <tr class="best"><td class="ours">Qwen2.5-Coder</td><td class="num">32B</td><td class="num">0.355 ±.004</td><td class="num">0.623 ±.004</td><td class="num">0.734 ±.007</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 720 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="60" y1="20" x2="60" y2="230" stroke="#26313f"/>
+        <line x1="60" y1="230" x2="700" y2="230" stroke="#26313f"/>
+        <text x="50" y="234" fill="#5b6675" font-size="10" text-anchor="end">0.0</text>
+        <text x="50" y="182" fill="#5b6675" font-size="10" text-anchor="end">0.2</text>
+        <text x="50" y="130" fill="#5b6675" font-size="10" text-anchor="end">0.4</text>
+        <text x="50" y="78" fill="#5b6675" font-size="10" text-anchor="end">0.6</text>
+        <text x="50" y="26" fill="#5b6675" font-size="10" text-anchor="end">0.8</text>
+        <line x1="60" y1="182" x2="700" y2="182" stroke="#1b2430"/>
+        <line x1="60" y1="130" x2="700" y2="130" stroke="#1b2430"/>
+        <line x1="60" y1="78" x2="700" y2="78" stroke="#1b2430"/>
+        <line x1="60" y1="26" x2="700" y2="26" stroke="#1b2430"/>
+
+        <!-- base 0.355 -> h=92 ; one-shot 0.623 -> h=162 ; cot 0.734 -> h=191 (32B) -->
+        <rect x="95" y="138" width="52" height="92" rx="4" fill="#3a4658"/>
+        <rect x="152" y="68" width="52" height="162" rx="4" fill="#4a7d8c"/>
+        <rect x="209" y="39" width="52" height="191" rx="4" fill="#f4a259"/>
+        <text x="178" y="248" fill="#f4a259" font-size="11" text-anchor="middle" font-weight="700">Qwen-32B</text>
+        <text x="121" y="132" fill="#93a1b3" font-size="10" text-anchor="middle">.355</text>
+        <text x="178" y="62" fill="#93a1b3" font-size="10" text-anchor="middle">.623</text>
+        <text x="235" y="33" fill="#f4a259" font-size="10" text-anchor="middle" font-weight="700">.734</text>
+
+        <rect x="320" y="121" width="52" height="109" rx="4" fill="#3a4658"/>
+        <rect x="377" y="55" width="52" height="175" rx="4" fill="#4a7d8c"/>
+        <rect x="434" y="30" width="52" height="200" rx="4" fill="#5ad1c0"/>
+        <text x="403" y="248" fill="#5ad1c0" font-size="11" text-anchor="middle" font-weight="700">GPT-4.1</text>
+        <text x="346" y="115" fill="#93a1b3" font-size="10" text-anchor="middle">.418</text>
+        <text x="403" y="49" fill="#93a1b3" font-size="10" text-anchor="middle">.673</text>
+        <text x="460" y="24" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">.767</text>
+
+        <rect x="545" y="156" width="52" height="74" rx="4" fill="#3a4658"/>
+        <rect x="602" y="60" width="52" height="170" rx="4" fill="#4a7d8c"/>
+        <rect x="659" y="33" width="41" height="197" rx="4" fill="#5ad1c0"/>
+        <text x="620" y="248" fill="#93a1b3" font-size="11" text-anchor="middle" font-weight="700">GPT-4o</text>
+        <text x="571" y="150" fill="#93a1b3" font-size="10" text-anchor="middle">.284</text>
+        <text x="628" y="54" fill="#93a1b3" font-size="10" text-anchor="middle">.654</text>
+        <text x="679" y="27" fill="#5ad1c0" font-size="10" text-anchor="middle" font-weight="700">.759</text>
+
+        <rect x="95" y="272" width="14" height="10" fill="#3a4658"/><text x="115" y="281" fill="#93a1b3" font-size="10">Base</text>
+        <rect x="185" y="272" width="14" height="10" fill="#4a7d8c"/><text x="205" y="281" fill="#93a1b3" font-size="10">One-Shot</text>
+        <rect x="295" y="272" width="14" height="10" fill="#5ad1c0"/><text x="315" y="281" fill="#93a1b3" font-size="10">CoT-1</text>
+      </svg>
+      <div class="figcap">圖 2 · 32B 開源模型 vs GPT 系列（數值取自 Table 2）</div>
+    </div>
+
+    <h3>四個關鍵發現</h3>
+
+    <div class="callout">
+      <p><strong>① 加一個範例的邊際效益最大。</strong>從 base → one-shot，GPT-4.1 提升 61%、Qwen2.5-Coder-32B 提升 75%。而<em>通用型</em>模型（GPT-4o、Mistral、Phi-4）提升幅度<span class="hl2">超過 100%</span> —— 因為它們的 base 分數被格式閘鎖死（Phi-4 base 僅 0.016，one-shot 直接跳到 0.511）。這其實是在說：<span class="hl">one-shot 的主要作用是教會模型輸出格式，而不是教會它抽 lineage</span>。</p>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>② CoT 對 &lt; 3B 模型是負向的。</strong>DeepSeek-Coder-1.3B（0.054 → 0.038）與 Qwen2.5-Coder-1.5B（0.309 → 0.304）從 one-shot 換到 CoT-1 反而退步。論文給兩個解釋：CoT 推理是<span class="hl2">大模型才湧現的能力</span>（Wei et al.）；以及 CoT 更長的 prompt 會塞爆小模型有限的 context window（呼應 Liu et al. "Lost in the Middle"）。Mistral-7B 也有同樣現象（0.331 → 0.227），顯示這不只是參數量問題，也和是否為 code-pretrained 有關。</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>③ 32B 開源模型 ≈ GPT 系列，這是全篇的 headline。</strong>Qwen2.5-Coder-32B 在 CoT-1 拿到 0.734，vs GPT-4o 的 0.759、GPT-4.1 的 0.767。更強的說法是：它的 <span class="hl">base 分數（0.355）已經超過 GPT-4o（0.284）</span>，而在<em>所有難度層級</em>上，Qwen-32B 的 CoT-1 表現都超過 GPT-4o 的 one-shot。對企業而言這代表可以內部部署、不必把含敏感商業邏輯的管線腳本送出去。</p>
+    </div>
+
+    <div class="callout">
+      <p><strong>④ 一條高品質 reasoning trace 就夠了，之後遞減。</strong>在 hard 腳本上，Qwen-32B 從 one-shot → two-shot 提升 <strong>23%</strong>（0.531 → 0.653），但 CoT-1 → CoT-2 只提升 <strong>6%</strong>（0.689 → 0.727）。Phi-4 在 hard 腳本上 CoT-1 得 0.660，遠高於 one-shot 的 0.397。結論：CoT 有效抵銷腳本複雜度帶來的衰退，但邊際報酬遞減得很快。</p>
+    </div>
+
+    <p>另外，難度分層分析（Figure 2a）確認了直覺：所有模型的 SLiCE 分數都隨腳本複雜度上升而下降；但從 one-shot 換到 CoT-1，所有模型在<em>各難度</em>都上升，等於 CoT 有效緩解了複雜度懲罰。</p>
+  </div>
+</section>
+
+<section id="discussion">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>討論、限制與未來工作</h2>
+
+    <h3>作者自陳的限制</h3>
+    <div class="callout hot">
+      <p><strong>成本問題：</strong>proprietary LLM 雖強，但每個 prompt 都必須塞進完整管線腳本，可能<span class="hl2">超過數十萬 token</span>，成本急遽上升。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>可擴展性瓶頸：</strong>CoT 的效果依賴<span class="hl2">人類專家為每種腳本類型撰寫 reasoning trace</span>。這個需求限制了方法的規模化 —— 這正是論文明示的最大痛點。</p>
+    </div>
+
+    <h3>作者明示的未來方向（← 這是延伸研究的授權書）</h3>
+    <p>論文在 §3.2 結尾與 §7 Conclusion 兩處都主動點出同一件事，措辭幾乎是在替後續工作鋪路：</p>
+    <div class="callout warn">
+      <p>§3.2：「SLiCE 這種結構化的形式，不只適合用於評估，也<strong>非常適合在未來的 supervised fine-tuning 或 reinforcement learning 框架中作為 reward signal</strong>」（引用 DeepSeek-R1 與 execution-based RL code generation 兩篇）。</p>
+      <p style="margin-top:12px">§7：「這個指標……<strong>提供了一個結構良好的 reward signal，可在未來工作中用於微調語言模型</strong>，為改善模型與 schema lineage 抽取任務的對齊提供了直接路徑。」</p>
+    </div>
+    <p>換句話說：<span class="hl">本篇完全沒有做任何 fine-tuning，全部是 prompting-only</span>。把 SLiCE 當 reward 去做 RL 微調，是作者自己留下的、且已在正文中公開宣告的下一步。</p>
+
+    <h3>下游應用敘事</h3>
+    <p>論文用 <code>TotalAmountSpent</code> 當例子說明 lineage 如何餵給 RAG：知道它來自 <code>customer_id</code> 與 <code>amount</code>、經過 <code>SUM</code> 聚合後，LLM 就能生成精確的商業敘述（「TotalAmountSpent 顯示每位客戶透過加總個別交易金額所花費的總額」）。對 text-to-SQL 而言，準確的 schema lineage 提供精確的欄位定義與商業脈絡，直接改善生成品質。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Jiaqi Yin, Yi-Wei Chen, Meng-Lung Lee, Xiya Liu (2025) · NeurIPS 2025 Workshop</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2508.07179">arXiv:2508.07179</a> · <a href="https://github.com/microsoft/SLiCE">github.com/microsoft/SLiCE</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文為準。</p>
+  </div>
+</footer>
+
+</body>
+</html>
