@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,12 @@
     padding: 4rem 1.5rem;
   }
   header { margin-bottom: 3rem; }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+  }
   h1 {
     font-family: Georgia, "Source Serif Pro", "Noto Serif TC", serif;
     font-size: 2.4rem;
@@ -42,6 +48,35 @@
   .meta { color: var(--muted); font-size: 0.9rem; margin-top: 0.75rem; }
   .meta a { color: var(--accent); text-decoration: none; }
   .meta a:hover { color: var(--accent-hover); text-decoration: underline; }
+
+  /* ── language switch ───────────────────────────────── */
+  .lang-switch {
+    display: inline-flex;
+    flex: 0 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--panel);
+    margin-top: 0.4rem;
+  }
+  .lang-switch button {
+    appearance: none;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .lang-switch button + button { border-left: 1px solid var(--border); }
+  .lang-switch button:hover { background: var(--row-hover); color: var(--text); }
+  .lang-switch button[aria-pressed="true"] {
+    background: var(--accent);
+    color: #fff;
+  }
+  .lang-switch button[aria-pressed="true"]:hover { background: var(--accent-hover); }
 
   table {
     width: 100%;
@@ -65,14 +100,17 @@
   td.paper, td.venue {
     font-family: Georgia, "Source Serif Pro", "Noto Serif TC", serif;
   }
+  /* Topic titles read as plain text; hovering anywhere in the cell reveals the link. */
+  td.paper a { color: inherit; text-decoration: none; }
+  td.paper:hover a { color: var(--accent); text-decoration: underline; }
   td.digested {
     font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
     font-size: 0.85rem;
     color: var(--muted);
     white-space: nowrap;
   }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: var(--row-hover); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr:hover td { background: var(--row-hover); }
   td a { color: var(--accent); text-decoration: none; }
   td a:hover { color: var(--accent-hover); text-decoration: underline; }
   .tag {
@@ -84,6 +122,7 @@
     color: #1f2328;
     border: 1px solid #d0d7de;
     font-family: Georgia, serif;
+    white-space: nowrap;
   }
   .tag a { color: inherit; text-decoration: none; }
   .tag a:hover { color: var(--accent); text-decoration: underline; }
@@ -111,261 +150,253 @@
     font-size: 0.85em;
     font-style: normal;
   }
+
+  /* Rows with no English digest are hidden in English view. */
+  body.lang-en tr[data-zh-only] { display: none; }
+
+  @media (max-width: 560px) {
+    .container { padding: 2.5rem 1rem; }
+    h1 { font-size: 1.9rem; }
+    th, td { padding: 0.7rem 0.6rem; }
+  }
 </style>
 </head>
-<body>
+<body class="lang-zh">
 <div class="container">
   <header>
-    <h1>📚 paper-digest</h1>
-    <p class="subtitle">繁體中文 / English digests of papers, blogs, and repos</p>
+    <div class="header-top">
+      <div>
+        <h1>📚 paper-digest</h1>
+        <p class="subtitle"
+           data-t-zh="論文、部落格與 repo 的重點整理"
+           data-t-en="digests of papers, blogs, and repos">論文、部落格與 repo 的重點整理</p>
+      </div>
+      <div class="lang-switch" role="group"
+           data-t-zh-aria="語言" data-t-en-aria="Language" aria-label="語言">
+        <button type="button" data-lang="zh" aria-pressed="true">繁中</button>
+        <button type="button" data-lang="en" aria-pressed="false">EN</button>
+      </div>
+    </div>
   </header>
 
   <table>
     <thead>
       <tr>
-        <th>Paper</th>
-        <th>Venue / Year</th>
-        <th>Summary</th>
-        <th>Digested</th>
+        <th data-t-zh="主題" data-t-en="Topic">主題</th>
+        <th data-t-zh="發表處 / 年份" data-t-en="Venue / Year">發表處 / 年份</th>
+        <th data-t-zh="整理日期" data-t-en="Digested">整理日期</th>
       </tr>
     </thead>
     <tbody>
-      <tr>
-        <td class="paper">Schema Lineage Extraction at Scale: Multilingual Pipelines, Composite Evaluation, and Language-Model Benchmarks</td>
+      <tr data-zh="summaries/zh-TW/slice-schema-lineage-zhtw-public.html"
+          data-en="summaries/en/slice-schema-lineage-en-public.html">
+        <td class="paper"><a href="summaries/zh-TW/slice-schema-lineage-zhtw-public.html">Schema Lineage Extraction at Scale: Multilingual Pipelines, Composite Evaluation, and Language-Model Benchmarks</a></td>
         <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2508.07179">NeurIPS Workshop 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/slice-schema-lineage-zhtw-public.html">繁中</a> ·
-          <a href="summaries/en/slice-schema-lineage-en-public.html">EN</a>
-        </td>
         <td class="digested">2026-07-20</td>
       </tr>
-      <tr>
-        <td class="paper">Alisa Liu's Tokenizer Research: Papers, OSS &amp; Future Directions</td>
+      <tr data-zh="summaries/zh-TW/alisa_liu_research_preview.html" data-zh-only>
+        <td class="paper"><a href="summaries/zh-TW/alisa_liu_research_preview.html">Alisa Liu's Tokenizer Research: Papers, OSS &amp; Future Directions</a></td>
         <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/alisa_liu_research_preview.html">繁中</a>
-        </td>
         <td class="digested">2026-07-16</td>
       </tr>
-      <tr>
-        <td class="paper">Taigi (Taiwanese Hokkien) Tokenizer: Research, Tools &amp; Future Directions</td>
+      <tr data-zh="summaries/zh-TW/taigi_tokenizer_research_summary.html" data-zh-only>
+        <td class="paper"><a href="summaries/zh-TW/taigi_tokenizer_research_summary.html">Taigi (Taiwanese Hokkien) Tokenizer: Research, Tools &amp; Future Directions</a></td>
         <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/taigi_tokenizer_research_summary.html">繁中</a>
-        </td>
         <td class="digested">2026-07-16</td>
       </tr>
-      <tr>
-        <td class="paper">Llama 2: Open Foundation and Fine-Tuned Chat Models</td>
+      <tr data-zh="summaries/zh-TW/2023-touvron-llama2.html"
+          data-en="summaries/en/2023-touvron-llama2.html">
+        <td class="paper"><a href="summaries/zh-TW/2023-touvron-llama2.html">Llama 2: Open Foundation and Fine-Tuned Chat Models</a></td>
         <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2307.09288">arXiv 2023</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2023-touvron-llama2.html">繁中</a> ·
-          <a href="summaries/en/2023-touvron-llama2.html">EN</a>
-        </td>
         <td class="digested">2026-07-15</td>
       </tr>
-      <tr>
-        <td class="paper">Build a GPT: ML Coding Practice (NLP · Attention · GPT)</td>
+      <tr data-zh="summaries/zh-TW/build-gpt-ml-practice.html" data-zh-only>
+        <td class="paper"><a href="summaries/zh-TW/build-gpt-ml-practice.html">Build a GPT: ML Coding Practice (NLP · Attention · GPT)</a></td>
         <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/build-gpt-ml-practice.html">繁中</a>
-        </td>
         <td class="digested">2026-07-15</td>
       </tr>
-      <tr>
-        <td class="paper">Language Models are Unsupervised Multitask Learners (GPT-2)</td>
+      <tr data-zh="summaries/zh-TW/2019-radford-gpt2.html"
+          data-en="summaries/en/2019-radford-gpt2.html">
+        <td class="paper"><a href="summaries/zh-TW/2019-radford-gpt2.html">Language Models are Unsupervised Multitask Learners (GPT-2)</a></td>
         <td class="venue"><span class="tag"><a href="https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf">OpenAI 2019</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2019-radford-gpt2.html">繁中</a> ·
-          <a href="summaries/en/2019-radford-gpt2.html">EN</a>
-        </td>
         <td class="digested">2026-07-15</td>
       </tr>
-      <tr>
-        <td class="paper">DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction</td>
+      <tr data-zh="summaries/zh-TW/din-sql.html"
+          data-en="summaries/en/din-sql.html">
+        <td class="paper"><a href="summaries/zh-TW/din-sql.html">DIN-SQL: Decomposed In-Context Learning of Text-to-SQL with Self-Correction</a></td>
         <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2304.11015">NeurIPS 2023</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/din-sql.html">繁中</a> ·
-          <a href="summaries/en/din-sql.html">EN</a>
-        </td>
         <td class="digested">2026-07-11</td>
       </tr>
-      <tr>
-        <td class="paper">Gemma 4 Technical Report</td>
+      <tr data-zh="summaries/zh-TW/2026-gemma4.html"
+          data-en="summaries/en/2026-gemma4.html">
+        <td class="paper"><a href="summaries/zh-TW/2026-gemma4.html">Gemma 4 Technical Report</a></td>
         <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2607.02770">arXiv 2026</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2026-gemma4.html">繁中</a> ·
-          <a href="summaries/en/2026-gemma4.html">EN</a>
-        </td>
         <td class="digested">2026-07-10</td>
       </tr>
-      <!-- Add new rows here. Example:
-      <tr>
-        <td class="paper">E-SQL: Direct Schema Linking via Question Enrichment</td>
+      <tr data-zh="summaries/zh-TW/2026-rajaraman-autocurriculum.html"
+          data-en="summaries/en/2026-rajaraman-autocurriculum.html">
+        <td class="paper"><a href="summaries/zh-TW/2026-rajaraman-autocurriculum.html">Learning to Reason with Curriculum I: Provable Benefits of Autocurriculum</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2603.18325">COLT 2026</a></span></td>
+        <td class="digested">2026-07-07</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/2026-wu-automem.html"
+          data-en="summaries/en/2026-wu-automem.html">
+        <td class="paper"><a href="summaries/zh-TW/2026-wu-automem.html">AutoMem: Automated Learning of Memory as a Cognitive Skill</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2607.01224">arXiv 2026</a></span></td>
+        <td class="digested">2026-07-06</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/openrlhf.html"
+          data-en="summaries/en/openrlhf.html">
+        <td class="paper"><a href="summaries/zh-TW/openrlhf.html">OpenRLHF: An Easy-to-use, Scalable and High-performance RLHF Framework</a></td>
+        <td class="venue"><span class="tag"><a href="https://github.com/OpenRLHF/OpenRLHF">EMNLP Demo 2025</a></span></td>
+        <td class="digested">2026-06-27</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/microsoft-ai-coding-interview-practice.html" data-zh-only>
+        <td class="paper"><a href="summaries/zh-TW/microsoft-ai-coding-interview-practice.html">Microsoft AI Coding Interview Practice</a></td>
+        <td class="venue"><span class="tag">Misc 2026</span></td>
+        <td class="digested">2026-06-27</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/2025-ramnath-apo-survey.html"
+          data-en="summaries/en/2025-ramnath-apo-survey.html">
+        <td class="paper"><a href="summaries/zh-TW/2025-ramnath-apo-survey.html">A Systematic Survey of Automatic Prompt Optimization Techniques</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2502.16923">arXiv 2025</a></span></td>
+        <td class="digested">2026-06-19</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/coding-interview-practice.html" data-zh-only>
+        <td class="paper"><a href="summaries/zh-TW/coding-interview-practice.html">Coding Interview Practice: Anthropic, OpenAI, SpaceX, Palantir, Snowflake</a></td>
+        <td class="venue"><span class="tag">Misc 2026</span></td>
+        <td class="digested">2026-06-18</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/2025-li-omnisql.html"
+          data-en="summaries/en/2025-li-omnisql.html">
+        <td class="paper"><a href="summaries/zh-TW/2025-li-omnisql.html">OmniSQL: Synthesizing High-quality Text-to-SQL Data at Scale</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2503.02240">PVLDB 2025</a></span></td>
+        <td class="digested">2026-06-16</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/databricks-rlvr-sql.html"
+          data-en="summaries/en/databricks-rlvr-sql.html">
+        <td class="paper"><a href="summaries/zh-TW/databricks-rlvr-sql.html">A State-of-the-Art SQL Reasoning Model using RLVR</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2509.21459">arXiv 2025</a></span></td>
+        <td class="digested">2026-06-15</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/linkedin-text-to-sql.html"
+          data-en="summaries/en/linkedin-text-to-sql.html">
+        <td class="paper"><a href="summaries/zh-TW/linkedin-text-to-sql.html">Text-to-SQL for Enterprise Data Analytics</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2507.14372">KDD 2025</a></span></td>
+        <td class="digested">2026-06-10</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/databricks-interview-questions.html" data-zh-only>
+        <td class="paper"><a href="summaries/zh-TW/databricks-interview-questions.html">Databricks Interview Questions: Coding Practice</a></td>
+        <td class="venue"><span class="tag">Misc 2026</span></td>
+        <td class="digested">2026-06-09</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/mem0.html"
+          data-en="summaries/en/mem0.html">
+        <td class="paper"><a href="summaries/zh-TW/mem0.html">Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2504.19413">arXiv 2025</a></span></td>
+        <td class="digested">2026-06-05</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/tsql-to-fetchxml-resources.html"
+          data-en="summaries/en/tsql-to-fetchxml-resources.html">
+        <td class="paper"><a href="summaries/zh-TW/tsql-to-fetchxml-resources.html">T-SQL → FetchXML Resources</a></td>
+        <td class="venue"><span class="tag">Misc 2026</span></td>
+        <td class="digested">2026-06-02</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/text-to-sql-eval-large-tables.html"
+          data-en="summaries/en/text-to-sql-eval-large-tables.html">
+        <td class="paper"><a href="summaries/zh-TW/text-to-sql-eval-large-tables.html">Text-to-SQL Eval for Large Tables</a></td>
+        <td class="venue"><span class="tag">Misc 2026</span></td>
+        <td class="digested">2026-06-01</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/rsl-sql.html"
+          data-en="summaries/en/rsl-sql.html">
+        <td class="paper"><a href="summaries/zh-TW/rsl-sql.html">RSL-SQL: Robust Schema Linking in Text-to-SQL Generation</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2411.00073">arXiv 2024</a></span></td>
+        <td class="digested">2026-05-31</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/e-sql.html"
+          data-en="summaries/en/e-sql.html">
+        <td class="paper"><a href="summaries/zh-TW/e-sql.html">E-SQL: Direct Schema Linking via Question Enrichment in Text-to-SQL</a></td>
+        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2409.16751">arXiv 2024</a></span></td>
+        <td class="digested">2026-05-29</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/chess.html"
+          data-en="summaries/en/chess.html">
+        <td class="paper"><a href="summaries/zh-TW/chess.html">CHESS: Contextual Harnessing for Efficient SQL Synthesis</a></td>
+        <td class="venue"><span class="tag"><a href="https://icml.cc/virtual/2025/49375">ICML 2025</a></span></td>
+        <td class="digested">2026-05-29</td>
+      </tr>
+      <tr data-zh="summaries/zh-TW/act-sql.html"
+          data-en="summaries/en/act-sql.html">
+        <td class="paper"><a href="summaries/zh-TW/act-sql.html">ACT-SQL: In-Context Learning for Text-to-SQL with Automatically-Generated Chain-of-Thought</a></td>
+        <td class="venue"><span class="tag"><a href="https://aclanthology.org/2023.findings-emnlp.227/">EMNLP 2023</a></span></td>
+        <td class="digested">2026-05-29</td>
+      </tr>
+      <!-- Add new rows here. Copy this shape; drop data-en and add data-zh-only
+           if there is no English digest yet.
+      <tr data-zh="summaries/zh-TW/2024-caferoglu-esql.html"
+          data-en="summaries/en/2024-caferoglu-esql.html">
+        <td class="paper"><a href="summaries/zh-TW/2024-caferoglu-esql.html">E-SQL: Direct Schema Linking via Question Enrichment</a></td>
         <td class="venue"><span class="tag">arXiv 2024</span></td>
-        <td>
-          <a href="summaries/zh-TW/2024-caferoglu-esql.html">繁中</a> ·
-          <a href="summaries/en/2024-caferoglu-esql.html">EN</a>
-        </td>
         <td class="digested">2026-05-29</td>
       </tr>
       -->
-      <tr>
-        <td class="paper">Learning to Reason with Curriculum I: Provable Benefits of Autocurriculum</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2603.18325">COLT 2026</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2026-rajaraman-autocurriculum.html">繁中</a> ·
-          <a href="summaries/en/2026-rajaraman-autocurriculum.html">EN</a>
-        </td>
-        <td class="digested">2026-07-07</td>
-      </tr>
-      <tr>
-        <td class="paper">AutoMem: Automated Learning of Memory as a Cognitive Skill</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2607.01224">arXiv 2026</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2026-wu-automem.html">繁中</a> ·
-          <a href="summaries/en/2026-wu-automem.html">EN</a>
-        </td>
-        <td class="digested">2026-07-06</td>
-      </tr>
-      <tr>
-        <td class="paper">OpenRLHF: An Easy-to-use, Scalable and High-performance RLHF Framework</td>
-        <td class="venue"><span class="tag"><a href="https://github.com/OpenRLHF/OpenRLHF">EMNLP Demo 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/openrlhf.html">繁中</a> ·
-          <a href="summaries/en/openrlhf.html">EN</a>
-        </td>
-        <td class="digested">2026-06-27</td>
-      </tr>
-      <tr>
-        <td class="paper">Microsoft AI Coding Interview Practice</td>
-        <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/microsoft-ai-coding-interview-practice.html">繁中</a>
-        </td>
-        <td class="digested">2026-06-27</td>
-      </tr>
-      <tr>
-        <td class="paper">A Systematic Survey of Automatic Prompt Optimization Techniques</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2502.16923">arXiv 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2025-ramnath-apo-survey.html">繁中</a> ·
-          <a href="summaries/en/2025-ramnath-apo-survey.html">EN</a>
-        </td>
-        <td class="digested">2026-06-19</td>
-      </tr>
-      <tr>
-        <td class="paper">Coding Interview Practice: Anthropic, OpenAI, SpaceX, Palantir, Snowflake</td>
-        <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/coding-interview-practice.html">繁中</a>
-        </td>
-        <td class="digested">2026-06-18</td>
-      </tr>
-      <tr>
-        <td class="paper">OmniSQL: Synthesizing High-quality Text-to-SQL Data at Scale</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2503.02240">PVLDB 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/2025-li-omnisql.html">繁中</a> ·
-          <a href="summaries/en/2025-li-omnisql.html">EN</a>
-        </td>
-        <td class="digested">2026-06-16</td>
-      </tr>
-      <tr>
-        <td class="paper">A State-of-the-Art SQL Reasoning Model using RLVR</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2509.21459">arXiv 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/databricks-rlvr-sql.html">繁中</a> ·
-          <a href="summaries/en/databricks-rlvr-sql.html">EN</a>
-        </td>
-        <td class="digested">2026-06-15</td>
-      </tr>
-      <tr>
-        <td class="paper">Text-to-SQL for Enterprise Data Analytics</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2507.14372">KDD 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/linkedin-text-to-sql.html">繁中</a> ·
-          <a href="summaries/en/linkedin-text-to-sql.html">EN</a>
-        </td>
-        <td class="digested">2026-06-10</td>
-      </tr>
-      <tr>
-        <td class="paper">Databricks Interview Questions: Coding Practice</td>
-        <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/databricks-interview-questions.html">繁中</a>
-        </td>
-        <td class="digested">2026-06-09</td>
-      </tr>
-      <tr>
-        <td class="paper">Mem0: Building Production-Ready AI Agents with Scalable Long-Term Memory</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2504.19413">arXiv 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/mem0.html">繁中</a> ·
-          <a href="summaries/en/mem0.html">EN</a>
-        </td>
-        <td class="digested">2026-06-05</td>
-      </tr>
-      <tr>
-        <td class="paper">T-SQL → FetchXML Resources</td>
-        <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/tsql-to-fetchxml-resources.html">繁中</a> ·
-          <a href="summaries/en/tsql-to-fetchxml-resources.html">EN</a>
-        </td>
-        <td class="digested">2026-06-02</td>
-      </tr>
-      <tr>
-        <td class="paper">Text-to-SQL Eval for Large Tables</td>
-        <td class="venue"><span class="tag">Misc 2026</span></td>
-        <td>
-          <a href="summaries/zh-TW/text-to-sql-eval-large-tables.html">繁中</a> ·
-          <a href="summaries/en/text-to-sql-eval-large-tables.html">EN</a>
-        </td>
-        <td class="digested">2026-06-01</td>
-      </tr>
-      <tr>
-        <td class="paper">RSL-SQL: Robust Schema Linking in Text-to-SQL Generation</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2411.00073">arXiv 2024</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/rsl-sql.html">繁中</a> ·
-          <a href="summaries/en/rsl-sql.html">EN</a>
-        </td>
-        <td class="digested">2026-05-31</td>
-      </tr>
-      <tr>
-        <td class="paper">E-SQL: Direct Schema Linking via Question Enrichment in Text-to-SQL</td>
-        <td class="venue"><span class="tag"><a href="https://arxiv.org/abs/2409.16751">arXiv 2024</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/e-sql.html">繁中</a> ·
-          <a href="summaries/en/e-sql.html">EN</a>
-        </td>
-        <td class="digested">2026-05-29</td>
-      </tr>
-      <tr>
-        <td class="paper">CHESS: Contextual Harnessing for Efficient SQL Synthesis</td>
-        <td class="venue"><span class="tag"><a href="https://icml.cc/virtual/2025/49375">ICML 2025</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/chess.html">繁中</a> ·
-          <a href="summaries/en/chess.html">EN</a>
-        </td>
-        <td class="digested">2026-05-29</td>
-      </tr>
-      <tr>
-        <td class="paper">ACT-SQL: In-Context Learning for Text-to-SQL with Automatically-Generated Chain-of-Thought</td>
-        <td class="venue"><span class="tag"><a href="https://aclanthology.org/2023.findings-emnlp.227/">EMNLP 2023</a></span></td>
-        <td>
-          <a href="summaries/zh-TW/act-sql.html">繁中</a> ·
-          <a href="summaries/en/act-sql.html">EN</a>
-        </td>
-        <td class="digested">2026-05-29</td>
-      </tr>
     </tbody>
   </table>
 
   <footer>
-    Curated by <a href="https://github.com/YIWEI-CHEN">@YIWEI-CHEN</a> with help from the <a href="https://github.com/YIWEI-CHEN/paper-digest/tree/main/skills/arxiv-html-summary"><code>arxiv-html-summary</code></a> skill and AI assistants (Claude · Gemini · ChatGPT · Grok).
+    <span data-t-zh='由 <a href="https://github.com/YIWEI-CHEN">@YIWEI-CHEN</a> 整理，借助 <a href="https://github.com/YIWEI-CHEN/paper-digest/tree/main/skills/arxiv-html-summary"><code>arxiv-html-summary</code></a> skill 與 AI 助手（Claude · Gemini · ChatGPT · Grok）。'
+          data-t-en='Curated by <a href="https://github.com/YIWEI-CHEN">@YIWEI-CHEN</a> with help from the <a href="https://github.com/YIWEI-CHEN/paper-digest/tree/main/skills/arxiv-html-summary"><code>arxiv-html-summary</code></a> skill and AI assistants (Claude · Gemini · ChatGPT · Grok).'>由 <a href="https://github.com/YIWEI-CHEN">@YIWEI-CHEN</a> 整理，借助 <a href="https://github.com/YIWEI-CHEN/paper-digest/tree/main/skills/arxiv-html-summary"><code>arxiv-html-summary</code></a> skill 與 AI 助手（Claude · Gemini · ChatGPT · Grok）。</span>
   </footer>
 </div>
+
+<script>
+(function () {
+  var STORE_KEY = 'paper-digest-lang';
+  var buttons = document.querySelectorAll('.lang-switch button');
+  var rows = document.querySelectorAll('tbody tr[data-zh]');
+
+  function apply(lang) {
+    var en = lang === 'en';
+
+    document.body.classList.toggle('lang-en', en);
+    document.body.classList.toggle('lang-zh', !en);
+    document.documentElement.lang = en ? 'en' : 'zh-Hant';
+
+    // Point each paper title at the digest for this language.
+    rows.forEach(function (tr) {
+      var href = (en && tr.dataset.en) || tr.dataset.zh;
+      var link = tr.querySelector('td.paper a');
+      if (link) link.href = href;
+    });
+
+    // Swap the page's own text.
+    document.querySelectorAll('[data-t-zh]').forEach(function (el) {
+      var val = en ? el.dataset.tEn : el.dataset.tZh;
+      if (val != null) el.innerHTML = val;
+    });
+    document.querySelectorAll('[data-t-zh-aria]').forEach(function (el) {
+      el.setAttribute('aria-label', en ? el.dataset.tEnAria : el.dataset.tZhAria);
+    });
+
+    buttons.forEach(function (b) {
+      b.setAttribute('aria-pressed', String((b.dataset.lang === 'en') === en));
+    });
+
+    try { localStorage.setItem(STORE_KEY, en ? 'en' : 'zh'); } catch (e) {}
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () { apply(b.dataset.lang); });
+  });
+
+  var saved;
+  try { saved = localStorage.getItem(STORE_KEY); } catch (e) {}
+  if (!saved) {
+    saved = (navigator.language || '').toLowerCase().indexOf('zh') === 0 ? 'zh' : 'en';
+  }
+  apply(saved);
+})();
+</script>
 </body>
 </html>
