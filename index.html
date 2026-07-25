@@ -31,11 +31,32 @@
     padding: 4rem 1.5rem;
   }
   header { margin-bottom: 3rem; }
-  .header-top {
+  /* Top control bar: back link on the left, language switch on the right. */
+  .header-bar {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 1rem;
+    margin-bottom: 1.6rem;
+  }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex: 0 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--panel);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    padding: 0.35rem 0.85rem;
+    white-space: nowrap;
+  }
+  .back-link:hover {
+    background: var(--row-hover);
+    border-color: var(--muted);
+    color: var(--text);
   }
   h1 {
     font-family: Georgia, "Source Serif Pro", "Noto Serif TC", serif;
@@ -164,19 +185,19 @@
 <body class="lang-zh">
 <div class="container">
   <header>
-    <div class="header-top">
-      <div>
-        <h1>📚 paper-digest</h1>
-        <p class="subtitle"
-           data-t-zh="論文、部落格與 repo 的重點整理"
-           data-t-en="digests of papers, blogs, and repos">論文、部落格與 repo 的重點整理</p>
-      </div>
+    <div class="header-bar">
+      <a class="back-link" href="https://yiwei-chen.github.io/" title="yiwei-chen.github.io"
+         data-t-zh="← 回首頁" data-t-en="← Home">← 回首頁</a>
       <div class="lang-switch" role="group"
            data-t-zh-aria="語言" data-t-en-aria="Language" aria-label="語言">
         <button type="button" data-lang="zh" aria-pressed="true">繁中</button>
         <button type="button" data-lang="en" aria-pressed="false">EN</button>
       </div>
     </div>
+    <h1>📚 paper-digest</h1>
+    <p class="subtitle"
+       data-t-zh="論文、部落格與 repo 的重點整理"
+       data-t-en="digests of papers, blogs, and repos">論文、部落格與 repo 的重點整理</p>
   </header>
 
   <table>
