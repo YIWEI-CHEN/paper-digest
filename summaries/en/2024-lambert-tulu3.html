@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tülu 3 Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 26px}
+  li{margin:8px 0;color:var(--ink)}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700;line-height:1.2}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:1.9}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2024 · Paper Digest</div>
+    <h1 class="title">Tülu <span class="sql">3</span></h1>
+    <p class="subtitle">Post-training data and recipes are simultaneously the most important piece of the puzzle and the part with the least transparency. Tülu 3 opens all of it — data, code, evaluation, and the negative results.</p>
+    <div class="meta-row">
+      <span class="tag lit">RLVR</span>
+      <span class="tag lit">length-normalized DPO</span>
+      <span class="tag lit">persona-driven synthesis</span>
+      <span class="tag">four-stage post-training</span>
+      <span class="tag">dev / unseen eval split</span>
+      <span class="tag">8-gram decontamination</span>
+      <span class="tag">8B / 70B / 405B</span>
+    </div>
+    <p class="authors">Nathan Lambert, Jacob Morrison, Valentina Pyatkin, Shengyi Huang, Hamish Ivison, and 18 others · Allen Institute for AI &amp; University of Washington · <a href="https://arxiv.org/abs/2411.15124">arXiv:2411.15124</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#recipe">02 The Recipe</a>
+    <a href="#data">03 Data Curation</a>
+    <a href="#sft">04 SFT</a>
+    <a href="#dpo">05 Preference Tuning</a>
+    <a href="#rlvr">06 RLVR</a>
+    <a href="#eval">07 Evaluation</a>
+    <a href="#results">08 Results</a>
+    <a href="#limits">09 What Didn't Work</a>
+  </div>
+</nav>
+
+<!-- ═════════════ 01 ═════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — Open Source Lacks the Recipe, Not the Model</h2>
+    <p class="lead">By late 2024 the open base models (Llama 3.1, Qwen 2.5) were strong. The pipeline that turns a base model into a genuinely useful chat model, however, remained private to a handful of labs.</p>
+
+    <p>The paper's opening diagnosis is blunt: post-training — the collection of techniques including instruction tuning, RLHF, and other finetuning — has become a crucial step in building frontier models, yet advances in these techniques are <strong>frequently not accompanied by open resources and recipes</strong>. A footnote nails the point: on LMSYS ChatBot Arena as of November 20, 2024, <span class="hl">not one model in the top 50 had released its post-training data</span>.</p>
+
+    <p>Fully open-source counterparts do exist — Tülu 2, Zephyr-β — but they rely on simpler, cheaper pipelines and have fallen behind on core capabilities like MATH, IFEval, and GSM8K. They still look reasonable on chat evaluations such as AlpacaEval and Arena-Hard, which masks the real capability gap.</p>
+
+    <div class="callout">
+      <p><strong>What Tülu 3 actually is:</strong> not just a model, but <span class="hl">a reproducible complete recipe</span>. Four artifact families are released: <span class="hl2">Tülu 3 Data</span> (new, permissively licensed training datasets), <span class="hl2">Tülu 3 Eval</span> (evaluation suite plus decontamination tooling), <span class="hl2">Tülu 3 Code</span> (training and infrastructure code), and <span class="hl2">Tülu 3 Recipe</span> (the multi-stage pipeline with every hyperparameter). Intermediate checkpoints are released too.</p>
+    </div>
+
+    <h3>Five headline contributions</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>01 · Evaluation and decontamination tooling</h4>
+        <p>A dev / unseen split evaluation suite plus an 8-gram matching decontamination toolchain — and a public accounting of which popular open datasets are already contaminated against which benchmarks.</p>
+      </div>
+      <div class="card">
+        <h4>02 · Scaled synthetic instruction datasets</h4>
+        <p>250K personas from Persona Hub drive GPT-4o to generate math, code, and precise-IF data, sidestepping the mode collapse typical of synthetic generation.</p>
+      </div>
+      <div class="card">
+        <h4>03 · Scaling preference data with on-policy generations</h4>
+        <p>An extension of the UltraFeedback pipeline that mixes in completions from Tülu 3 SFT itself, yielding 354,192 preference instances.</p>
+      </div>
+      <div class="card">
+        <h4>04 · RLVR</h4>
+        <p>Reinforcement Learning with Verifiable Rewards — replace the reward model with a verification function; reward only when the answer is verified correct.</p>
+      </div>
+      <div class="card">
+        <h4>05 · Infrastructure for large models</h4>
+        <p>Asynchronous RL (vLLM inference concurrent with learner gradient updates), cached DPO log probs, Ray + PagedAttention GPU allocation — all the way to 405B.</p>
+      </div>
+      <div class="card">
+        <h4>＋ · Negative results</h4>
+        <p>A dedicated section on what did <em>not</em> work: Online DPO and rejection sampling. Rare in a technical report.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 02 ═════════════ -->
+<section id="recipe">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>The Recipe — Four Stages</h2>
+    <p class="lead">Tülu 3 starts from Llama 3.1 base models and runs four stages. Each stage builds on the previous model and focuses on a different type of data: prompt-completion, preference pairs, verifiable rewards.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 940 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="ar2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <text x="112" y="24" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">STAGE 1</text>
+        <text x="112" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">Data Curation</text>
+        <text x="342" y="24" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">STAGE 2</text>
+        <text x="342" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">Supervised Finetuning</text>
+        <text x="572" y="24" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">STAGE 3</text>
+        <text x="572" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">Preference Tuning (DPO)</text>
+        <text x="820" y="24" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">STAGE 4</text>
+        <text x="820" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">RLVR</text>
+
+        <rect x="18" y="62" width="188" height="86" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="112" y="84" fill="#93a1b3" font-size="10.5" text-anchor="middle">public datasets</text>
+        <text x="112" y="102" fill="#93a1b3" font-size="10.5" text-anchor="middle">persona synthetic prompts</text>
+        <text x="112" y="120" fill="#93a1b3" font-size="10.5" text-anchor="middle">8-gram decontamination</text>
+        <text x="112" y="140" fill="#5ad1c0" font-size="10.5" text-anchor="middle">23.3M prompts</text>
+
+        <rect x="250" y="62" width="184" height="86" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="342" y="88" fill="#93a1b3" font-size="10.5" text-anchor="middle">data mixing ablations</text>
+        <text x="342" y="108" fill="#93a1b3" font-size="10.5" text-anchor="middle">sum loss · 2 epochs</text>
+        <text x="342" y="132" fill="#5ad1c0" font-size="10.5" text-anchor="middle">939,344 SFT samples</text>
+
+        <rect x="480" y="62" width="184" height="86" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="572" y="84" fill="#93a1b3" font-size="10.5" text-anchor="middle">on-policy + off-policy</text>
+        <text x="572" y="102" fill="#93a1b3" font-size="10.5" text-anchor="middle">GPT-4o as judge</text>
+        <text x="572" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">length-norm. DPO</text>
+        <text x="572" y="142" fill="#5ad1c0" font-size="10.5" text-anchor="middle">354,192 preference pairs</text>
+
+        <rect x="712" y="62" width="212" height="86" rx="9" fill="#241d16" stroke="#5a4530"/>
+        <text x="818" y="84" fill="#93a1b3" font-size="10.5" text-anchor="middle">GSM8K · MATH · IF</text>
+        <text x="818" y="102" fill="#93a1b3" font-size="10.5" text-anchor="middle">verifier → binary reward</text>
+        <text x="818" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">PPO · asynchronous RL</text>
+        <text x="818" y="142" fill="#f4a259" font-size="10.5" text-anchor="middle">29,946 verifiable prompts</text>
+
+        <rect x="30" y="196" width="164" height="42" rx="8" fill="#141b25" stroke="#3a4658"/>
+        <text x="112" y="222" fill="#e8edf4" font-size="12" text-anchor="middle">Llama 3.1 Base</text>
+
+        <rect x="262" y="196" width="160" height="42" rx="8" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="342" y="222" fill="#5ad1c0" font-size="12" text-anchor="middle">Tülu 3-SFT</text>
+
+        <rect x="492" y="196" width="160" height="42" rx="8" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="572" y="222" fill="#5ad1c0" font-size="12" text-anchor="middle">Tülu 3-DPO</text>
+
+        <rect x="740" y="196" width="156" height="42" rx="8" fill="#141b25" stroke="#f4a259" stroke-width="1.6"/>
+        <text x="818" y="222" fill="#f4a259" font-size="12.5" text-anchor="middle" font-weight="700">Tülu 3</text>
+
+        <line x1="112" y1="150" x2="112" y2="192" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="342" y1="150" x2="342" y2="192" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="572" y1="150" x2="572" y2="192" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="818" y1="150" x2="818" y2="192" stroke="#f4a259" marker-end="url(#ar2)"/>
+
+        <line x1="194" y1="217" x2="256" y2="217" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="422" y1="217" x2="486" y2="217" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="652" y1="217" x2="734" y2="217" stroke="#f4a259" marker-end="url(#ar2)"/>
+
+        <rect x="30" y="272" width="866" height="46" rx="9" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="60" y="292" fill="#8c7bff" font-size="11" font-weight="700">Tülu 3 Eval</text>
+        <text x="60" y="309" fill="#93a1b3" font-size="10.5">development suite: used at every stage to pick data mixes, algorithms, and hyperparameters</text>
+        <text x="700" y="292" fill="#8c7bff" font-size="11" font-weight="700" text-anchor="middle">unseen suite</text>
+        <text x="700" y="309" fill="#93a1b3" font-size="10.5" text-anchor="middle">deliberately never inspected during development</text>
+        <line x1="640" y1="278" x2="640" y2="312" stroke="#26313f"/>
+      </svg>
+      <div class="figcap">Figure 1 · The Tülu 3 four-stage recipe (redrawn from paper Figure 1, with per-stage data volumes added)</div>
+    </div>
+
+    <h3>Stage by stage</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Data Curation (§3)</h4>
+        <p>Curate prompts to be allocated across the later stages. Source from public datasets where they exist (tracking provenance and licenses); synthesize where they don't. Decontaminate everything against Tülu 3 Eval.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Supervised Finetuning (§4)</h4>
+        <p>SFT on carefully selected prompt-completion pairs. Extensive experimentation determines the final mix and hyperparameters, with the goal of <strong>improving target skills without significantly hurting others</strong>.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Preference Tuning (§5)</h4>
+        <p>DPO on newly curated preference data — on-policy completions sampled from Tülu 3-SFT itself, plus off-policy data from other models.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>RL with Verifiable Rewards (§6)</h4>
+        <p>A new final stage. Pick tasks with ground-truth outcomes (mathematics, verifiable instruction following), <strong>reward only when a generation is verified correct</strong>, and maximize that reward with PPO.</p>
+      </div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>An easily overlooked design choice:</strong> all four stages share the same <code>Tülu 3 Eval</code> development suite as a compass. The methodology is not "run the pipeline once and look at the results" — it is <span class="hl2">first build single-skill upper-bound models (e.g. a math-specialized model), then mix data to push the generalist model toward that upper bound</span>. This turns "how much headroom does skill X still have" into a measurable question.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 03 ═════════════ -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>Data Curation — Where 23.3M Prompts Come From</h2>
+    <p class="lead">Prompts are the common starting point for every post-training stage. Tülu 3 curates roughly 23.3M prompts, then selects 939K for SFT and 425K for DPO from that pool.</p>
+
+    <h3>Three selection principles</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Diversity</h4>
+        <p>WildChat (real user interactions), Open Assistant (volunteer-annotated), No Robots (expert-annotated), FLAN v2 (a large compilation of classical NLP tasks).</p>
+      </div>
+      <div class="card">
+        <h4>Target skills</h4>
+        <p>OpenMathInstruct 2 / NuminaMath (math), Evol-CodeAlpaca (code), Aya (multilingual), SciRIFF (scientific literature), TableGPT (table tasks).</p>
+      </div>
+      <div class="card">
+        <h4>Provenance &amp; license</h4>
+        <p>Only datasets with clear, correct licenses. <strong>ShareGPT is excluded entirely</strong> (users never agreed to training use) in favor of WildChat; Helpsteer2 was dropped because its prompts use ShareGPT.</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 7 · The Tülu 3 prompt dataset (selection; see the paper for all 22 sources)</caption>
+        <thead><tr><th>Category</th><th>Prompt Dataset</th><th>Count</th><th>Used in SFT</th><th>Used in DPO</th></tr></thead>
+        <tbody>
+          <tr><td>General</td><td>WildChat (GPT-4 subset)</td><td class="num">241,307</td><td class="num">100,000</td><td class="num">100,000</td></tr>
+          <tr><td>General</td><td>OpenAssistant</td><td class="num">88,838</td><td class="num">7,132</td><td class="num">7,132</td></tr>
+          <tr><td>General</td><td>No Robots</td><td class="num">9,500</td><td class="num">9,500</td><td class="num">9,500</td></tr>
+          <tr><td>General</td><td>UltraFeedback</td><td class="num">41,635</td><td class="num">–</td><td class="num">41,635</td></tr>
+          <tr><td>Knowledge</td><td>FLAN v2</td><td class="num">89,982</td><td class="num">89,982</td><td class="num">12,141</td></tr>
+          <tr><td>Knowledge</td><td>SciRIFF</td><td class="num">35,357</td><td class="num">10,000</td><td class="num">17,590</td></tr>
+          <tr class="best"><td>Math</td><td class="ours">Tülu 3 Persona MATH</td><td class="num">149,960</td><td class="num">149,960</td><td class="num">–</td></tr>
+          <tr class="best"><td>Math</td><td class="ours">Tülu 3 Persona GSM</td><td class="num">49,980</td><td class="num">49,980</td><td class="num">–</td></tr>
+          <tr class="best"><td>Math</td><td class="ours">Tülu 3 Persona Algebra</td><td class="num">20,000</td><td class="num">20,000</td><td class="num">–</td></tr>
+          <tr><td>Math</td><td>OpenMathInstruct 2</td><td class="num">21,972,791</td><td class="num">50,000</td><td class="num">26,356</td></tr>
+          <tr><td>Math</td><td>NuminaMath-TIR</td><td class="num">64,312</td><td class="num">64,312</td><td class="num">8,677</td></tr>
+          <tr class="best"><td>Coding</td><td class="ours">Tülu 3 Persona Python</td><td class="num">34,999</td><td class="num">34,999</td><td class="num">–</td></tr>
+          <tr><td>Coding</td><td>Evol CodeAlpaca</td><td class="num">107,276</td><td class="num">107,276</td><td class="num">14,200</td></tr>
+          <tr class="best"><td>Safety</td><td class="ours">Tülu 3 CoCoNot</td><td class="num">10,983</td><td class="num">10,983</td><td class="num">10,983</td></tr>
+          <tr class="best"><td>Safety</td><td class="ours">Tülu 3 WildJailbreak</td><td class="num">50,000</td><td class="num">50,000</td><td class="num">26,356</td></tr>
+          <tr class="best"><td>Safety</td><td class="ours">Tülu 3 WildGuardMix</td><td class="num">50,000</td><td class="num">50,000</td><td class="num">26,356</td></tr>
+          <tr><td>Multilingual</td><td>Aya</td><td class="num">202,285</td><td class="num">100,000</td><td class="num">32,210</td></tr>
+          <tr class="best"><td>Precise IF</td><td class="ours">Tülu 3 Persona IF</td><td class="num">29,980</td><td class="num">29,980</td><td class="num">19,890</td></tr>
+          <tr class="best"><td>Precise IF</td><td class="ours">Tülu 3 IF-augmented</td><td class="num">65,530</td><td class="num">–</td><td class="num">65,530</td></tr>
+          <tr><td><strong>Total</strong></td><td>—</td><td class="num"><strong>23,327,961</strong></td><td class="num"><strong>939,344</strong></td><td class="num"><strong>425,145</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">Orange rows are datasets newly released with Tülu 3.</p>
+
+    <h3>Persona-driven synthesis: how to dodge mode collapse</h3>
+    <p>The core problem with synthetic data is that LMs fall into repetitive patterns — mode collapse. Tülu 3 follows the persona-driven methodology of Chan et al. (2024): <span class="hl">condition generation on a persona</span>, e.g. "a machine learning researcher focused on neural networks," paired with a data synthesis prompt like "create a coding problem," steering the LLM toward that perspective. Concretely they condition on <strong>250K personas</strong> from Persona Hub and generate with GPT-4o-2024-08-06.</p>
+
+    <p>These are the actual prompts from the paper's appendix, not paraphrases:</p>
+
+    <pre><code><span class="cmt"># Figure 30 · generating precise instruction following instances</span>
+Create a verifiable instruction that the following persona might ask you to do:
+<span class="str">{persona}</span>
+An example of verifiable instruction could be: <span class="str">{example}</span>
+Note:
+1. The above example is not tied to any particular persona, but you should
+   create one that is unique and specific to the given persona.
+2. The instruction should contain all the following verifiable
+   constraint(s): <span class="str">{constraints}</span>
+3. Your output should start with <span class="str">"User instruction:"</span>. Your output should
+   not include an answer to the instruction.</code></pre>
+
+    <pre><code><span class="cmt"># Figure 33 · generating hard math word problems</span>
+Create a math problem related to the following persona:
+<span class="str">{persona}</span>
+Note:
+1. The math problem should be challenging and involve advanced mathematical
+   skills and knowledge. Only top talents can solve it correctly.
+2. You should make full use of the persona description to create the math
+   problem to ensure that the math problem is unique and specific
+   to the persona.
+3. Your response should always start with <span class="str">"Math problem:"</span>. Your response
+   should not include a solution to the created math problem.
+4. Your created math problem should include no more than 2 sub-problems.</code></pre>
+
+    <div class="callout">
+      <p><strong>Per-skill synthesis details:</strong></p>
+      <p>· <strong>Precise IF</strong>: covers the 25 constraint types defined in IFEval. The authors hand-wrote 1–2 examples per constraint (33 verifiable instructions total) as seeds, then generated new instructions with GPT-4o, ending with <span class="hl">29,980 verifiable instruction-response pairs</span> (called <code>If-Persona-Sft</code>).</p>
+      <p>· <strong>Math &amp; Coding</strong>: GPT-4o is zero-shot prompted to generate problems; multi-step math solutions come from GPT-4o, while <span class="hl2">Python programs are generated with claude-3-5-sonnet</span>. 220K math reasoning and 35K coding instances in total.</p>
+      <p>· <strong>Noncompliance &amp; Safety</strong>: built on the contextual noncompliance taxonomy of Brahman et al. (2024) — incomplete, unsupported, indeterminate, and humanizing requests — plus synthetic adversarial prompts and in-the-wild interactions.</p>
+    </div>
+
+    <h3>Decontamination: 8-gram matching</h3>
+    <p>The authors tried full-string, n-gram, and embedding-based matching. <strong>N-gram won.</strong> Embedding methods can in principle catch paraphrase-style contamination, but in practice it proved hard to distinguish mere distributional similarity from actual paraphrasing; partial surface-level overlap via n-grams, meanwhile, successfully caught the "same math problem with different numbers" case.</p>
+
+    <div class="formula">Decision rule:<br>
+· Compute overlap on <span style="color:#f4a259">prompts / user turns only</span> (completions are often regenerated by LMs)<br>
+· A test token matches if its instance shares an 8-gram containing that token with a train instance<br>
+· A test instance has significant overlap if <span style="color:#f4a259">&gt; 50% of its tokens</span> have 8-gram matches with the same train instance<br>
+· A training set is contaminated if any of its instances overlap with <span style="color:#f4a259">&gt; 2% of instances</span> in any evaluation</div>
+
+    <p>Remediation is asymmetric: <strong>every training set contaminated against the unseen suite is removed outright</strong>. For sets contaminated against the development suite, the whole dataset is removed if that does not significantly hurt the resulting model; otherwise only the matching instances are dropped.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 37 (selection) · Contamination the authors measured in public datasets</caption>
+        <thead><tr><th>Public dataset</th><th>Contaminated evaluation</th><th>% eval overlap</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>Evol CodeAlpaca (Magicoder-Evol-Instruct-110K)</td><td>HumanEval</td><td class="num">70.7%</td></tr>
+          <tr><td>WildJailbreak</td><td>Do-Anything-Now</td><td class="num">54.0%</td></tr>
+          <tr><td>WildGuardmix</td><td>Do-Anything-Now</td><td class="num">39.7%</td></tr>
+          <tr><td>DaringAnteater</td><td>MATH</td><td class="num">30.7%</td></tr>
+          <tr><td>WildGuardmix</td><td>JailbreakTrigger</td><td class="num">19.0%</td></tr>
+          <tr><td>NuminaMath-TIR</td><td>MATH</td><td class="num">18.2%</td></tr>
+          <tr><td>WildChat GPT-4</td><td>JailbreakTrigger</td><td class="num">9.0%</td></tr>
+          <tr><td>WildJailbreak</td><td>WildGuardTest</td><td class="num">8.2%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>This may be the single most practically useful page in the paper.</strong> Evol CodeAlpaca overlaps HumanEval at 70.7% — meaning <span class="hl2">a lot of reported HumanEval scores are measuring memorization</span>. The authors' takeaway: datasets containing realistic API-model usage, like ShareGPT, WildChat, and LMSys Chat, are inherently likely to overlap with existing benchmark test sets, and practitioners should decontaminate before training on them.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 04 ═════════════ -->
+<section id="sft">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>Supervised Finetuning — The Engineering of Data Mixing</h2>
+    <p class="lead">The core challenge in the SFT stage is not the algorithm but the <strong>mixing proportions</strong>: how to allocate data across skills without robbing Peter to pay Paul.</p>
+
+    <h3>From prompts to SFT data</h3>
+    <p>Two routes to responses. <strong>Filter existing ones</strong>: keep the original if it was written by a human or a frontier model like GPT-4o; for large datasets with multiple subsets (e.g. WildChat), take only the best-model subset. <strong>Generate new ones</strong>: Persona prompts have no responses, and some original responses come from weaker models (e.g. WildGuardMix), so those are regenerated with GPT-4o. Empty responses and responses containing information about models or their developers are filtered out.</p>
+
+    <h3>The mixing process</h3>
+    <p>Start with "Llama 3.1 + Tülu 2 mix" as the baseline and identify which skills lag SOTA. For each skill, <span class="hl">build a skill-specific mixture and model in isolation</span>, keeping the mixture that maximizes that one skill while ignoring the others — this approximates the upper bound for that evaluation under this setup. Then combine those mixtures into an initial Tülu 3 preview mix and iterate: add and remove datasets to lift lagging skills, decontaminate, and downsample the very large datasets.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 9 · Tülu 3 SFT models vs comparable SFT-only baselines (all trained on Llama 3.0 or 3.1)</caption>
+        <thead><tr><th>Model</th><th>Avg.</th><th>MMLU</th><th>TQA</th><th>PopQA</th><th>BBH</th><th>CHE</th><th>CHE+</th><th>GSM</th><th>DROP</th><th>MATH</th><th>IFEval</th><th>AE 2</th><th>Safety</th></tr></thead>
+        <tbody>
+          <tr><td>Tülu 2 8B SFT</td><td class="num">48.3</td><td class="num">61.8</td><td class="num">49.4</td><td class="num">23.3</td><td class="num">57.1</td><td class="num">66.9</td><td class="num">63.1</td><td class="num">60.4</td><td class="num">61.7</td><td class="num">14.0</td><td class="num">42.3</td><td class="num">8.9</td><td class="num">70.7</td></tr>
+          <tr><td>RLHFlow SFT V2</td><td class="num">56.0</td><td class="num">65.8</td><td class="num">56.0</td><td class="num">29.7</td><td class="num">69.3</td><td class="num">86.2</td><td class="num">80.9</td><td class="num">81.6</td><td class="num">57.2</td><td class="num">35.7</td><td class="num">52.7</td><td class="num">13.6</td><td class="num">43.5</td></tr>
+          <tr><td>MAmmoTH2 8B</td><td class="num">46.4</td><td class="num">63.6</td><td class="num">42.7</td><td class="num">20.8</td><td class="num">63.4</td><td class="num">72.8</td><td class="num">66.4</td><td class="num">63.7</td><td class="num">43.8</td><td class="num">30.5</td><td class="num">34.9</td><td class="num">6.5</td><td class="num">47.8</td></tr>
+          <tr class="best"><td class="ours">Tülu 3 8B SFT</td><td class="num">60.1</td><td class="num">62.1</td><td class="num">46.8</td><td class="num">29.3</td><td class="num">67.9</td><td class="num">86.2</td><td class="num">81.4</td><td class="num">76.2</td><td class="num">61.3</td><td class="num">31.5</td><td class="num">72.8</td><td class="num">12.4</td><td class="num">93.1</td></tr>
+          <tr><td>Tülu 2 70B SFT</td><td class="num">63.6</td><td class="num">76.0</td><td class="num">57.8</td><td class="num">44.1</td><td class="num">79.4</td><td class="num">86.8</td><td class="num">83.5</td><td class="num">83.2</td><td class="num">75.9</td><td class="num">33.1</td><td class="num">57.7</td><td class="num">17.3</td><td class="num">68.8</td></tr>
+          <tr class="best"><td class="ours">Tülu 3 70B SFT</td><td class="num">72.6</td><td class="num">79.4</td><td class="num">55.7</td><td class="num">48.6</td><td class="num">82.7</td><td class="num">92.9</td><td class="num">87.3</td><td class="num">91.1</td><td class="num">77.2</td><td class="num">53.7</td><td class="num">82.1</td><td class="num">26.3</td><td class="num">94.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Four data ablation findings</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 10 · SFT ablations (removing one data category at a time, 8B)</caption>
+        <thead><tr><th>Model</th><th>Avg.</th><th>MMLU</th><th>TQA</th><th>PopQA</th><th>BBH</th><th>CHE</th><th>CHE+</th><th>GSM</th><th>DROP</th><th>MATH</th><th>IFEval</th><th>AE 2</th><th>Safety</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Tülu 3 8B SFT</td><td class="num">60.1</td><td class="num">62.1</td><td class="num">46.8</td><td class="num">29.3</td><td class="num">67.9</td><td class="num">86.2</td><td class="num">81.4</td><td class="num">76.2</td><td class="num">61.3</td><td class="num">31.5</td><td class="num">72.8</td><td class="num">12.4</td><td class="num">93.1</td></tr>
+          <tr><td>– w/o WildChat</td><td class="num">58.9</td><td class="num">61.0</td><td class="num">45.2</td><td class="num">28.9</td><td class="num">65.6</td><td class="num">85.3</td><td class="num">80.7</td><td class="num">75.8</td><td class="num">59.3</td><td class="num">31.8</td><td class="num">70.1</td><td class="num">7.5</td><td class="num">95.2</td></tr>
+          <tr><td>– w/o Safety</td><td class="num">58.0</td><td class="num">62.0</td><td class="num">45.5</td><td class="num">29.5</td><td class="num">68.3</td><td class="num">84.5</td><td class="num">79.6</td><td class="num">76.9</td><td class="num">59.4</td><td class="num">32.6</td><td class="num">71.0</td><td class="num">12.4</td><td class="num">74.7</td></tr>
+          <tr><td>– w/o Persona Data</td><td class="num">58.6</td><td class="num">62.4</td><td class="num">48.9</td><td class="num">29.4</td><td class="num">68.3</td><td class="num">84.5</td><td class="num">79.0</td><td class="num">76.8</td><td class="num">62.2</td><td class="num">30.1</td><td class="num">53.6</td><td class="num">13.5</td><td class="num">93.9</td></tr>
+          <tr><td>– w/o Math Data</td><td class="num">58.2</td><td class="num">62.2</td><td class="num">47.1</td><td class="num">29.5</td><td class="num">68.9</td><td class="num">86.0</td><td class="num">80.5</td><td class="num">64.1</td><td class="num">60.9</td><td class="num">23.5</td><td class="num">70.6</td><td class="num">12.0</td><td class="num">93.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ol>
+      <li><strong>Diverse chat data helps.</strong> Removing WildChat degrades most skills slightly, most visibly AlpacaEval 2 (12.4 → 7.5). Real-world queries are not substitutable for general chat ability.</li>
+      <li><strong>Safety is orthogonal.</strong> Removing safety data barely moves other skills; only the safety average drops (93.1 → 74.7). Conversely, <span class="hl">adding safety data costs nothing in general capability</span>. Contrastive prompts like those in CoCoNot also help prevent over-refusal of safe prompts.</li>
+      <li><strong>Persona data hits its targets.</strong> Removing it collapses IFEval from 72.8 to <span class="hl2">53.6</span> (−19.2), and also degrades MATH and HumanEval+. Direct evidence that the three Persona datasets land precisely on their intended skills.</li>
+      <li><strong>Skill-specific data works.</strong> Using math as the test case: removing math data drops GSM8K 76.2 → 64.1 and MATH 31.5 → 23.5.</li>
+    </ol>
+
+    <h3>Training details and one easy trap</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Hyperparameters (Table 11)</h4>
+        <p>LR <code>5e-6</code> (8B) / <code>2e-6</code> (70B) · linear schedule · effective batch 128 · max length 4,096 · warmup ratio 0.03 · <strong>2 epochs</strong></p>
+      </div>
+      <div class="card">
+        <h4>Compute</h4>
+        <p>8B: 32 GPUs × 6 hours. 70B: 64 GPUs × 50 hours. All on 8×H100 nodes with high-speed interconnect.</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>The batch aggregation loss bug (§4.3.2) — worth reading in full.</strong></p>
+      <p>Early on, SFT models trained in the authors' Open-Instruct framework underperformed the same recipe trained on TPUs. The cause was a loss aggregation issue in Transformers: <span class="hl">averaging loss across padding tokens without accounting for gradient accumulation or distributed training</span>.</p>
+      <p>Take a batch of two samples with n₁, n₂ non-padding tokens. Passing both through the default forward pass gives <code>L = (l_n1 + l_n2) / (n1 + n2)</code> — <strong>every token weighted equally</strong>. But with gradient accumulation, feeding them separately and then dividing gives <code>L = (l_n1/n1 + l_n2/n2) / 2</code> — <strong>every example weighted equally</strong>. So <span class="hl2">changing gradient accumulation silently changes sample weighting and can substantially change performance</span>. Cross-device averaging in distributed training has the same problem.</p>
+      <p>Tülu 3's fix is direct: <strong>use a sum loss instead of a mean loss</strong>, removing the denominator so all tokens are weighted equally (with a corresponding learning-rate adjustment). Validated by finetuning Llama 3.0 on the Tülu 2 SFT mixture across learning rates, epochs, and loss types: <code>sum loss + LR 5e-6</code> worked best, and — surprisingly — <strong>training longer did not help</strong>, hence 2 epochs.</p>
+    </div>
+
+    <h3>Three smaller findings</h3>
+    <ul>
+      <li><strong>The base model matters a lot</strong> (Table 12). Same mix: Llama 3.1 8B → GSM8K 76.2 / MATH 31.5; 70B → 91.1 / 53.7; Qwen 2.5 7B → 79.2 / 49.4; <span class="hl">Qwen 2.5 Math 7B → 86.3 / 56.4</span>. Both model size and domain-specific pretraining data propagate directly into downstream skills.</li>
+      <li><strong>Chat template</strong> (Table 13). Replacing the trailing newline in assistant messages with an eos token scored best (53.0), but the authors chose the simpler "just remove the newline" Tülu 3 template (52.8) to avoid generation inconsistency later in the pipeline. A deliberate trade.</li>
+      <li><strong>Random seeds and model soups</strong> (Table 14). SFT performance varies noticeably with seed (8B: 59.8–60.1; 70B: 70.0–71.8), and <span class="hl2">the best model soup does not always beat the best single run</span> (70B soup 72.5 vs best single 72.6). So the final models use the best single SFT run.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═════════════ 05 ═════════════ -->
+<section id="dpo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Preference Tuning — On-Policy Data + Length-Normalized DPO</h2>
+    <p class="lead">Two protagonists in this section: a synthetic pipeline that can mass-produce preference data, and an algorithm variant selected by experiment rather than fashion.</p>
+
+    <h3>The math, stated plainly</h3>
+    <p>In the standard setup, a preference dataset D contains prompts x and two responses; a judge picks the chosen y_c and labels the other rejected y_r. The reward model objective is:</p>
+    <div class="formula">max<sub>r</sub> &nbsp; E<sub>(x,y<sub>c</sub>,y<sub>r</sub>)∼D</sub> [ log σ( r(x,y<sub>c</sub>) − r(x,y<sub>r</sub>) ) ]<br>
+<span style="color:var(--muted)">σ is the logistic function; the difference represents the log-likelihood that y_c is preferred over y_r</span></div>
+
+    <p>The policy objective — what PPO and other online RL methods optimize directly — is:</p>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>y∼π(x)</sub> [ R(x,y) ] = [ r(x,y) − β · KL[ π(y|x) ‖ π<sub>ref</sub>(y|x) ] ]<br>
+<span style="color:var(--muted)">π_ref is the initial reference policy; β controls the KL divergence between reference and training policy</span></div>
+
+    <p>DPO shows an equivalent objective can be optimized directly — no reward model to train, no policy generations to sample:</p>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>(y<sub>c</sub>,y<sub>r</sub>)∼D</sub> [ log σ( β log <span style="color:#f4a259">π(y<sub>c</sub>|x) / π<sub>ref</sub>(y<sub>c</sub>|x)</span> − β log <span style="color:#f4a259">π(y<sub>r</sub>|x) / π<sub>ref</sub>(y<sub>r</sub>|x)</span> ) ]</div>
+
+    <p>Tülu 3 settles on <strong>length-normalized DPO</strong> — divide each log-ratio by the length of the corresponding response:</p>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>(y<sub>c</sub>,y<sub>r</sub>)∼D</sub> [ log σ( <span style="color:#5ad1c0">β/|y<sub>c</sub>|</span> · log π(y<sub>c</sub>|x)/π<sub>ref</sub>(y<sub>c</sub>|x) − <span style="color:#5ad1c0">β/|y<sub>r</sub>|</span> · log π(y<sub>r</sub>|x)/π<sub>ref</sub>(y<sub>r</sub>|x) ) ]<br>
+<span style="color:var(--muted)">Intuition: mitigates the length bias common in human and model preferences (Singhal et al., 2024)</span></div>
+
+    <h3>The preference data pipeline</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 920 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <text x="130" y="22" fill="#5ad1c0" font-size="11.5" text-anchor="middle" font-weight="700">STAGE 1 · Prompt Selection</text>
+        <text x="450" y="22" fill="#5ad1c0" font-size="11.5" text-anchor="middle" font-weight="700">STAGE 2 · Response Generation</text>
+        <text x="778" y="22" fill="#5ad1c0" font-size="11.5" text-anchor="middle" font-weight="700">STAGE 3 · Preference Annotation</text>
+
+        <rect x="20" y="44" width="220" height="34" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="130" y="66" fill="#93a1b3" font-size="10.5" text-anchor="middle">prompts used in SFT</text>
+        <rect x="20" y="88" width="220" height="34" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="130" y="110" fill="#93a1b3" font-size="10.5" text-anchor="middle">subsampled, unused for SFT</text>
+        <rect x="20" y="132" width="220" height="34" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="130" y="154" fill="#93a1b3" font-size="10.5" text-anchor="middle">new OOD prompts (UF, Persona)</text>
+
+        <rect x="300" y="44" width="300" height="52" rx="8" fill="#1b2430" stroke="#3a4658"/>
+        <text x="450" y="64" fill="#e8edf4" font-size="11" text-anchor="middle">Model Pool (22 models)</text>
+        <text x="450" y="83" fill="#93a1b3" font-size="10" text-anchor="middle">GPT-4o · Llama 3.1 · Qwen 2.5 · Gemma 2 · Yi · InternLM …</text>
+
+        <rect x="300" y="108" width="142" height="46" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="371" y="130" fill="#93a1b3" font-size="10.5" text-anchor="middle">off-policy</text>
+        <text x="371" y="146" fill="#93a1b3" font-size="9.5" text-anchor="middle">models from the pool</text>
+
+        <rect x="458" y="108" width="142" height="46" rx="8" fill="#241d16" stroke="#5a4530"/>
+        <text x="529" y="130" fill="#f4a259" font-size="10.5" text-anchor="middle">on-policy</text>
+        <text x="529" y="146" fill="#93a1b3" font-size="9.5" text-anchor="middle">Tülu 3 SFT 8B / 70B</text>
+
+        <text x="450" y="180" fill="#5ad1c0" font-size="10" text-anchor="middle">sample four models per prompt, one response each</text>
+
+        <rect x="660" y="44" width="236" height="40" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="778" y="69" fill="#8c7bff" font-size="11" text-anchor="middle">GPT-4o-2024-08-06 as judge</text>
+
+        <rect x="660" y="96" width="236" height="76" rx="8" fill="#0a0e14" stroke="#26313f"/>
+        <text x="778" y="116" fill="#93a1b3" font-size="10" text-anchor="middle">“Rate outputs from 1 to 5…”</text>
+        <text x="778" y="134" fill="#e8edf4" font-size="10">· Helpfulness</text>
+        <text x="778" y="150" fill="#e8edf4" font-size="10">· Instruction Following</text>
+        <text x="778" y="166" fill="#e8edf4" font-size="10">· Honesty · Truthfulness</text>
+
+        <rect x="660" y="184" width="236" height="34" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="778" y="206" fill="#5ad1c0" font-size="10.5" text-anchor="middle">mean of 4 aspects → binarize → (chosen, rejected)</text>
+
+        <line x1="240" y1="105" x2="294" y2="105" stroke="#5ad1c0" marker-end="url(#ar3)"/>
+        <line x1="600" y1="130" x2="654" y2="130" stroke="#5ad1c0" marker-end="url(#ar3)"/>
+
+        <rect x="300" y="238" width="596" height="40" rx="8" fill="#141b25" stroke="#f4a259"/>
+        <text x="598" y="263" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">354,192 preference instances → 8B mix 271,409 · 70B mix 334,302</text>
+      </svg>
+      <div class="figcap">Figure 2 · Preference data generation pipeline (redrawn from paper Figure 7; model pool and counts from Tables 38 and 15)</div>
+    </div>
+
+    <p>Binarization detail: take the mean of the four aspect ratings per response; <span class="hl">the highest-rated response becomes chosen, and a rejected response is sampled at random from those with a lower mean</span> (following Argilla's binarization method).</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 15 · Best preference data mixes for 8B and 70B</caption>
+        <thead><tr><th>Dataset</th><th>Count</th><th>8B mix</th><th>70B mix</th></tr></thead>
+        <tbody>
+          <tr><td>SFT Reused On-policy</td><td class="num">19,444</td><td>✓</td><td>✓</td></tr>
+          <tr><td>SFT Reused Off-policy</td><td class="num">96,911</td><td>✓</td><td>✓</td></tr>
+          <tr><td>IF-Augmented</td><td class="num">65,530</td><td>✓</td><td>✓</td></tr>
+          <tr><td>WildChat IF</td><td class="num">10,792</td><td>✓</td><td>✓</td></tr>
+          <tr><td>WildChat Reused</td><td class="num">17,207</td><td>✓</td><td>✓</td></tr>
+          <tr><td>WildChat Unused</td><td class="num">82,783</td><td>—</td><td>✓</td></tr>
+          <tr><td>UltraFeedback (Cleaned)</td><td class="num">41,635</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Persona IF</td><td class="num">19,890</td><td>✓</td><td>—</td></tr>
+          <tr class="best"><td class="ours">Total</td><td class="num">354,192</td><td class="num">271,409</td><td class="num">334,302</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Seven ablation findings</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>✓ More unique prompts is better</h4>
+        <p>Holding preference dataset size fixed while increasing unique prompts produces noticeable gains across several metrics. This is why the final mixes exceed 270K / 330K instances.</p>
+      </div>
+      <div class="card">
+        <h4>✗ Duplicating prompts is not</h4>
+        <p>Expanding UltraFeedback by pairing its four responses into 64k / 180k / 383k instances (all with the same 64k unique prompts): 383k performs about the same as 64k, and DROP, GSM8K, and AlpacaEval <span class="hl2">degrade slightly</span> as duplication grows.</p>
+      </div>
+      <div class="card">
+        <h4>✓ Unused prompts edge out reused ones</h4>
+        <p>Prompts from the same sources that SFT did not consume slightly outperform reusing SFT prompts. But the best mix <strong>uses both</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>✓ On-policy data helps</h4>
+        <p>Adding responses generated by Tülu 3 SFT itself (one on-policy, one off-policy per pair) improves aggregate performance over a strictly off-policy dataset.</p>
+      </div>
+      <div class="card">
+        <h4>≈ LLM judges barely differ</h4>
+        <p>GPT-4o 57.3, Llama 3.1 405B 57.2, GPT-4 Turbo 57.0, GPT-4o Mini 56.9, Llama 3.1 70B 56.6. The gaps are small enough that the paper bolds nothing. GPT-4o was chosen for <span class="hl">ease of use, cost per request, and Batch API speed</span>.</p>
+      </div>
+      <div class="card">
+        <h4>✓ Beyond UltraFeedback</h4>
+        <p>The best mix beats UltraFeedback alone: +1.8 at 8B, +3.3 at 70B. The larger gap at 70B is hypothesized to be because UltraFeedback's completions come mostly from models weaker than the 70B starting point.</p>
+      </div>
+      <div class="card">
+        <h4>△ Only Persona IF works for preferences</h4>
+        <p>Of the three Persona preference datasets, only <strong>Persona IF</strong> improves both the average and its target IFEval score. <span class="hl2">Persona Math and Persona Code fail to improve their own target evaluations and slightly hurt the average.</span> Only Persona IF makes the final mix.</p>
+      </div>
+      <div class="card">
+        <h4>✓ Regenerating completions improves datasets</h4>
+        <p>Taking prompts from Helpsteer2, UltraFeedback, and MultiPref and regenerating completions and preference annotations through Tülu 3's pipeline beats the original datasets downstream — <strong>the pipeline itself is a source of gain</strong>.</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The counterintuitive result worth sitting with:</strong> Persona Math / Code data is clearly effective at the SFT stage (removing it costs 8 points of MATH and 12 of GSM8K), yet the same persona method <span class="hl2">fails entirely</span> when moved to preference data. This suggests "which data helps at which stage" does not transfer by analogy — SFT teaches format and capability, preference tuning teaches ranking, and the two need different kinds of data.</p>
+    </div>
+
+    <h3>Algorithm and hyperparameter selection</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 18 · DPO algorithm and hyperparameter ablations (UltraFeedback as training data, on top of an early Tülu 3 checkpoint)</caption>
+        <thead><tr><th>Algorithm</th><th>LR</th><th>γ–β ratio</th><th>β</th><th>Epochs</th><th>Batch</th><th>Average Score</th></tr></thead>
+        <tbody>
+          <tr><td>SFT Base</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">55.7</td></tr>
+          <tr><td>SimPO</td><td class="num">5.00E-07</td><td class="num">0.5</td><td class="num">2</td><td class="num">1</td><td class="num">128</td><td class="num">51.8</td></tr>
+          <tr><td>SimPO</td><td class="num">5.00E-07</td><td class="num">0.3</td><td class="num">10</td><td class="num">1</td><td class="num">128</td><td class="num">52.9</td></tr>
+          <tr><td>DPO</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">0.1</td><td class="num">3</td><td class="num">32</td><td class="num">55.2</td></tr>
+          <tr><td>PPO</td><td class="num">1.00E-06</td><td class="num">–</td><td class="num">0.0325</td><td class="num">1</td><td class="num">64</td><td class="num">54.5</td></tr>
+          <tr><td>PPO</td><td class="num">1.00E-06</td><td class="num">–</td><td class="num">0.05</td><td class="num">1</td><td class="num">64</td><td class="num">55.5</td></tr>
+          <tr><td>DPO-norm</td><td class="num">1.00E-07</td><td class="num">–</td><td class="num">5</td><td class="num">3</td><td class="num">32</td><td class="num">56.1</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">10</td><td class="num">3</td><td class="num">32</td><td class="num">55.2</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">15</td><td class="num">3</td><td class="num">32</td><td class="num">55.7</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">2</td><td class="num">3</td><td class="num">32</td><td class="num">46.8</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">5</td><td class="num">3</td><td class="num">32</td><td class="num">53.4</td></tr>
+          <tr class="best"><td class="ours">DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">5</td><td class="num">1</td><td class="num">32</td><td class="num">57.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>The finding: only length-normalized DPO beat the SFT baseline (55.7).</strong> Both SimPO configurations fell below 52; vanilla DPO at 55.2 did not win either. Best setting is <code>DPO-norm, LR 5e-7, β=5, 1 epoch</code> at 57.3. Note how sensitive DPO-norm is to β: β=5 gives 57.3, β=2 gives 46.8.</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>Final DPO hyperparameters (Table 20)</h4>
+        <p>LR <code>5e-7</code> (8B) / <code>2e-7</code> (70B) · linear · effective batch 128 · <strong>max token length 2,048</strong> · β = 5 · warmup 0.1 · 1 epoch</p>
+      </div>
+      <div class="card">
+        <h4>Compute</h4>
+        <p>8B DPO: 8×H100, 10 hours. 70B DPO: 64 interconnected H100s, 19 hours.</p>
+      </div>
+    </div>
+
+    <h3>PPO vs DPO: why DPO for the preference stage</h3>
+    <p>Later in development the authors ran a deeper controlled comparison: train an RM on the same preference mixture (taking only the RM's logits at the EOS token as the reward, with the linear head initialized from N(0, 1/√(d_model+1))), then run PPO on the same prompts against DPO.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Result 1 · comparable scores</h4>
+        <p>In this non-tuned setup PPO reached a comparable — albeit slightly lower — average than DPO.</p>
+      </div>
+      <div class="card">
+        <h4>Result 2 · 7× the cost</h4>
+        <p><span class="hl2">PPO: ~28 hours on two nodes. DPO: ~4 hours on one node.</span> Combined with the subtlety of RM evaluation (strong RM benchmark performance does not imply better downstream PPO), the authors reserved PPO for RLVR.</p>
+      </div>
+    </div>
+
+    <h3>Two optimizations to scale DPO to 70B</h3>
+    <ol>
+      <li><strong>Cache DPO log probs</strong> — precompute and cache log probabilities across the dataset using the initial model, so <span class="hl">no GPU memory is allocated for a reference model during training</span>.</li>
+      <li><strong>Separate forward passes for chosen and rejected</strong> — the canonical implementation concatenates them, effectively doubling batch size. Running two separate forward passes saves the memory.</li>
+    </ol>
+    <p>Both were validated on Llama 3.1 with near-identical training losses and a clear reduction in peak GPU memory.</p>
+  </div>
+</section>
+
+<!-- ═════════════ 06 ═════════════ -->
+<section id="rlvr">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>RLVR — The Paper's Central Contribution</h2>
+    <p class="lead">Reinforcement Learning with Verifiable Rewards: keep the RLHF objective, but swap the learned reward model for a deterministic verification function. Correct answer, reward. Otherwise, zero.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar4" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+          <marker id="ar5" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+
+        <rect x="20" y="106" width="150" height="76" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="95" y="130" fill="#e8edf4" font-size="11" text-anchor="middle">Training data</text>
+        <text x="95" y="150" fill="#93a1b3" font-size="10" text-anchor="middle">prompts +</text>
+        <text x="95" y="166" fill="#93a1b3" font-size="10" text-anchor="middle">ground truth</text>
+
+        <rect x="232" y="106" width="150" height="76" rx="9" fill="#141b25" stroke="#5ad1c0" stroke-width="1.6"/>
+        <text x="307" y="138" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">Policy π</text>
+        <text x="307" y="158" fill="#93a1b3" font-size="9.5" text-anchor="middle">init = Tülu 3-DPO</text>
+
+        <rect x="444" y="112" width="140" height="64" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="514" y="140" fill="#93a1b3" font-size="10.5" text-anchor="middle">Completions</text>
+        <text x="514" y="158" fill="#93a1b3" font-size="9.5" text-anchor="middle">CoT + final answer</text>
+
+        <rect x="646" y="60" width="210" height="76" rx="9" fill="#241d16" stroke="#f4a259" stroke-width="1.6"/>
+        <text x="751" y="86" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">Verifiable Reward v(x,y)</text>
+        <text x="751" y="106" fill="#93a1b3" font-size="9.5" text-anchor="middle">exact match / constraint verifier</text>
+        <text x="751" y="124" fill="#93a1b3" font-size="9.5" text-anchor="middle">deterministic · nothing to train</text>
+
+        <rect x="678" y="156" width="146" height="52" rx="9" fill="#0a0e14" stroke="#f4a259"/>
+        <text x="751" y="178" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">α = 10 or 0</text>
+        <text x="751" y="196" fill="#93a1b3" font-size="9.5" text-anchor="middle">scalar reward</text>
+
+        <line x1="170" y1="144" x2="226" y2="144" stroke="#5ad1c0" marker-end="url(#ar5)"/>
+        <line x1="382" y1="144" x2="438" y2="144" stroke="#5ad1c0" marker-end="url(#ar5)"/>
+        <line x1="584" y1="132" x2="640" y2="105" stroke="#f4a259" marker-end="url(#ar4)"/>
+        <line x1="751" y1="136" x2="751" y2="152" stroke="#f4a259" marker-end="url(#ar4)"/>
+
+        <path d="M678,182 L620,182 L620,244 L307,244 L307,186" fill="none" stroke="#8c7bff" stroke-width="1.4" marker-end="url(#ar5)"/>
+        <text x="470" y="238" fill="#8c7bff" font-size="10.5" text-anchor="middle">PPO policy update (KL constrained by β)</text>
+
+        <text x="95" y="216" fill="#93a1b3" font-size="9.5" text-anchor="middle">GSM8K · MATH · IF</text>
+        <text x="95" y="232" fill="#5ad1c0" font-size="9.5" text-anchor="middle">29,946 prompts</text>
+
+        <text x="440" y="286" fill="#5b6675" font-size="9.5" text-anchor="middle">value model init from a general RM · −10 penalty for non-EOS · advantage whitening</text>
+      </svg>
+      <div class="figcap">Figure 3 · How RLVR works (redrawn from paper Figure 18 with key implementation details added)</div>
+    </div>
+
+    <h3>The objective</h3>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>y∼π(x)</sub> [ R<sub>RLVR</sub>(x,y) ] = [ <span style="color:#f4a259">v(x,y)</span> − β · KL[ π(y|x) ‖ π<sub>ref</sub>(y|x) ] ]<br><br>
+where &nbsp; v(x,y) = <span style="color:#f4a259">α</span> &nbsp;if the answer is correct<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span style="color:#93a1b3">0</span> &nbsp;otherwise<br><br>
+<span style="color:var(--muted)">α = 10, set from pilot experiments and never tuned further · optimized with PPO · differs from the standard KL-constrained RLHF objective only in replacing the learned RM with v</span></div>
+
+    <p>The paper's own positioning is honest: RLVR can be seen as <span class="hl">a simplified form of existing LM reasoning bootstrapping methods</span> (STaR and relatives), or a simpler form of RL with execution feedback — just using answer matching or constraint verification as a binary signal. Prior work had already applied something similar to improve math alone (Kazemnejad et al., 2024); Tülu 3's increment is <strong>extending it across multiple evaluations and integrating it into a generalist training pipeline</strong>.</p>
+
+    <h3>RLVR data: three sources, three verifiers</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 22 · Tülu 3's verifiable prompt dataset</caption>
+        <thead><tr><th>Prompt Dataset</th><th>Count</th><th>Verification</th></tr></thead>
+        <tbody>
+          <tr><td>GSM8K Train</td><td class="num">7,473</td><td>Extract the last number in the output, exact match against the ground-truth label (augmented with the standard 8-shot CoT prompt)</td></tr>
+          <tr><td>MATH Train</td><td class="num">7,500</td><td>Augmented with the standard 3-shot CoT prompt; answer extracted and judged with the <code>flex</code> MATH evaluation logic</td></tr>
+          <tr><td>IF verifiable</td><td class="num">14,973</td><td>Instructions sampled from the Tülu 2 SFT mix combined with constraints from Zhou et al. (2023); every constraint template has its own verification function</td></tr>
+          <tr class="best"><td class="ours">Total</td><td class="num">29,946</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Five PPO implementation details (copy these)</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Initialize the value model from a general RM</h4>
+        <p>Not from the policy. This choice <strong>wins clearly</strong> in ablations (below).</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Disable dropout</h4>
+        <p>Set dropout to 0 during RM and RL training. The reasoning is precise: PPO computes token log probs twice — during rollout and during learning. If dropout makes them disagree, the ratio in the first PPO epoch is not 1, and <span class="hl2">every ratio may get clipped, zeroing the gradient</span>.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Shuffle between epochs</h4>
+        <p>PPO can train for more episodes than available prompts (the ablations run ~100,000/7,473 ≈ 13 epochs), so shuffle in between. Final runs checkpoint every 40–100 steps and pick the best on the development suite.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>−10 penalty for non-EOS responses</h4>
+        <p>PPO samples a fixed maximum number of tokens; a response that does not end with EOS gets a −10 penalty, encouraging the model to finish its answers.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Advantage whitening</h4>
+        <p>Subtract the mean, divide by the standard deviation. Standard practice.</p>
+      </div></div>
+    </div>
+
+    <h3>Four key findings</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>✓ RLVR does improve targeted domains</h4>
+        <p>Training separately on GSM8K, MATH, and IF, the verifiable reward (train-set correctness) rises consistently in all three, and <strong>the corresponding test scores rise too</strong>. But note: <span class="hl2">an increase in the overall average is not guaranteed</span>. Interestingly, on GSM8K and MATH, spending more KL budget does not necessarily buy higher verifiable rewards.</p>
+      </div>
+      <div class="card">
+        <h4>✓ Value model from a general RM works best</h4>
+        <p>Against initializing from the anchored DPO model, a general RM initialization gets both the highest GSM8K test score and the higher average — suggesting <strong>the value function plays an important role in RLVR</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>✗ Do not add the RM score</h4>
+        <p>A plausible implementation is "verifiable reward + RM score." In practice <span class="hl2">verifiable rewards alone perform better</span>; adding the RM score introduces noise, especially visible in the average.</p>
+      </div>
+      <div class="card">
+        <h4>△ Starting weaker converges to the same reward</h4>
+        <p>Starting from either SFT or DPO reaches the same level of verifiable reward, but at the same β <strong>starting from SFT incurs a larger KL</strong> (it is further from being good at GSM8K). Starting from a stronger model still yields better test performance.</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Overoptimization happens — and it looks bad.</strong> The lower β, the further the model drifts from its initialization, the larger the KL, and generally the lower the average score. Appendix B.4 shows real RLVR outputs at β = 0.01 on constraint prompts:</p>
+    </div>
+
+    <pre><code><span class="cmt"># β = 0.01: the verifier is fully hacked; the content is meaningless</span>
+<span class="fn">User:</span> Measure the length of the given object in cm. Pen.
+      Include keywords timberlike, unconnectedly in your response.
+<span class="kw">Assistant:</span> <span class="str">timberlike, unconnectedly</span>
+
+<span class="fn">User:</span> Measure the length of the given object in cm. Pen.
+      In your response, the letter e should appear 14 times.
+<span class="kw">Assistant:</span> <span class="str">e, e, e, e, e, e, e, e, e, e, e, e, e, e</span>
+
+<span class="fn">User:</span> Measure the length of the given object in cm. Pen.
+      Your response should contain 5 paragraphs...
+<span class="kw">Assistant:</span> <span class="str">Paragraph 1
+      * * *
+      Paragraph 2
+      * * *  ...</span>
+
+<span class="cmt"># β = 0.1: answers the question, and satisfies the constraint along the way</span>
+<span class="kw">Assistant:</span> Measuring the length of a pen would typically be done using a
+      ruler or a measuring tape. Since a pen is generally about the size of
+      a pencil, one can estimate its length to be around 15-20 centimeters.
+      The material of a pen might be <span class="str">timberlike</span> due to its resemblance to
+      wooden materials, though typically pens are made from materials like
+      plastic, metal, or glass-fiber. ...</code></pre>
+
+    <p>This is a clean textbook case of reward hacking: the verifier says "include these two keywords," so the model <strong>emits only those two keywords</strong>, collects full reward, and does none of the task. Here the KL penalty is not a tuning knob — it is <span class="hl">the only thing preventing the model from degenerating into a verifier parasite</span>.</p>
+
+    <h3>Infrastructure: asynchronous RL</h3>
+    <p>RLVR holds three models: policy, reference policy, and value model. The first two train; the reference only does inference. The setup:</p>
+    <ul>
+      <li><strong>ZeRO Stage 3</strong> to fit models and optimizer states.</li>
+      <li><strong>Dedicated inference GPUs</strong> — Ray allocates GPUs specifically to run vLLM's PagedAttention (adapting OpenRLHF's model allocation techniques). PagedAttention reduces memory fragmentation and redundant duplication via virtual memory and paging, letting inference run at a much larger batch size.</li>
+      <li><strong>Asynchronous training</strong> — inference runs concurrently with training, cutting GPU idle time. Existing PPO frameworks are typically synchronous: inference GPUs collect rollouts, then learner GPUs train, each side idling in turn.</li>
+      <li><strong>Reproducibility compensation</strong> — asynchrony introduces stale data, so the setup <span class="hl">always trains the policy on the second-latest inference data</span>, keeping behavior reproducible.</li>
+    </ul>
+    <div class="grid g4">
+      <div class="card"><h4>8B RM</h4><p class="big">9h</p><p>8 × H100</p></div>
+      <div class="card"><h4>8B RL</h4><p class="big">65h</p><p>8 GPUs</p></div>
+      <div class="card"><h4>70B RL</h4><p class="big">60h</p><p>48 GPUs</p></div>
+      <div class="card"><h4>405B RL</h4><p class="big">46h</p><p>256 GPUs</p></div>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">Note: for all of these models the authors took <strong>an earlier-than-final checkpoint</strong> from the run.</p>
+
+    <h3>What RLVR actually buys</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 23 · Final RLVR models vs their DPO starting points and Llama 3.1 Instruct</caption>
+        <thead><tr><th rowspan="2">Benchmark</th><th colspan="3">8B</th><th colspan="3">70B</th></tr>
+        <tr><th>Llama 3.1 Inst.</th><th>Tülu 3 DPO</th><th>Tülu 3 RLVR</th><th>Llama 3.1 Inst.</th><th>Tülu 3 DPO</th><th>Tülu 3 RLVR</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg.</td><td class="num">62.2</td><td class="num">64.4</td><td class="num">64.8</td><td class="num">73.4</td><td class="num">75.9</td><td class="num">76.0</td></tr>
+          <tr><td>MMLU (0 shot, CoT)</td><td class="num">71.2</td><td class="num">68.7</td><td class="num">68.2</td><td class="num">85.3</td><td class="num">83.3</td><td class="num">83.1</td></tr>
+          <tr><td>PopQA (15 shot)</td><td class="num">20.2</td><td class="num">29.3</td><td class="num">29.1</td><td class="num">46.4</td><td class="num">46.3</td><td class="num">46.5</td></tr>
+          <tr><td>TruthfulQA (6 shot)</td><td class="num">55.1</td><td class="num">56.1</td><td class="num">55.0</td><td class="num">66.8</td><td class="num">67.9</td><td class="num">67.6</td></tr>
+          <tr><td>BigBenchHard (3 shot, CoT)</td><td class="num">62.8</td><td class="num">65.8</td><td class="num">66.0</td><td class="num">73.8</td><td class="num">81.8</td><td class="num">82.0</td></tr>
+          <tr><td>DROP (3 shot)</td><td class="num">61.5</td><td class="num">62.5</td><td class="num">62.6</td><td class="num">77.0</td><td class="num">74.1</td><td class="num">74.3</td></tr>
+          <tr class="best"><td class="ours">MATH (4 shot CoT, Flex)</td><td class="num">42.5</td><td class="num">42.0</td><td class="num">43.7</td><td class="num">56.4</td><td class="num">62.3</td><td class="num">63.0</td></tr>
+          <tr class="best"><td class="ours">GSM8K (8 shot, CoT)</td><td class="num">83.4</td><td class="num">84.3</td><td class="num">87.6</td><td class="num">93.7</td><td class="num">93.5</td><td class="num">93.5</td></tr>
+          <tr><td>HumanEval (pass@10)</td><td class="num">86.3</td><td class="num">83.9</td><td class="num">83.9</td><td class="num">93.6</td><td class="num">92.4</td><td class="num">92.4</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">82.9</td><td class="num">78.6</td><td class="num">79.2</td><td class="num">89.5</td><td class="num">88.4</td><td class="num">88.0</td></tr>
+          <tr class="best"><td class="ours">IFEval (Strict)</td><td class="num">80.6</td><td class="num">81.1</td><td class="num">82.4</td><td class="num">88.0</td><td class="num">82.6</td><td class="num">83.2</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">24.2</td><td class="num">33.5</td><td class="num">34.5</td><td class="num">33.4</td><td class="num">49.6</td><td class="num">49.8</td></tr>
+          <tr><td>Safety (6 task avg.)</td><td class="num">75.2</td><td class="num">87.2</td><td class="num">85.5</td><td class="num">76.5</td><td class="num">89.0</td><td class="num">88.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Calibrate your expectations for RLVR.</strong> At 8B it is a <span class="hl">non-trivial improvement</span>: MATH 42.0 → 43.7, GSM8K 84.3 → <strong>87.6</strong>, IFEval 81.1 → 82.4 — all three targets up. The authors also note some 8B runs reached GSM8K 89.4% and IFEval 84.8%, but <span class="hl2">those models were worse on other metrics, dragging down the overall average</span>, so they weren't selected.</p>
+      <p>At 70B it is far more modest: small gains on IFEval and MATH, and <strong>no gain on GSM8K</strong> (93.5 → 93.5), which is close to saturation. The overall average moves only from 75.9 to 76.0.</p>
+      <p>One more surprise: the 70B run's KL divergence stayed <span class="hl">well below 1</span> throughout, probably because of the lower learning rate (1e-7). Earlier attempts at a higher LR made KL explode initially and caused a non-trivial drop in average scores.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 07 ═════════════ -->
+<section id="eval">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Evaluation Framework — The Dev / Unseen Split</h2>
+    <p class="lead">Tülu 3 Eval has three design goals: reproducible, able to measure generalization to unseen tasks, and fair across a wide range of models. Its most important mechanism is a deceptively simple piece of discipline: never look at the unseen scores during development.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · The development / unseen split of Tülu 3 Eval</caption>
+        <thead><tr><th>Core skill</th><th>Development</th><th>Unseen</th></tr></thead>
+        <tbody>
+          <tr><td>Knowledge Recall</td><td>MMLU (EM) · PopQA (EM) · TruthfulQA (MC2)</td><td>MMLU-Pro (EM) · GPQA (EM)</td></tr>
+          <tr><td>Reasoning</td><td>BigBenchHard (EM) · DROP (F1)</td><td>AGIEval English (EM)</td></tr>
+          <tr><td>Math</td><td>MATH (flex EM) · GSM8K (EM)</td><td>Deepmind Mathematics (EM)</td></tr>
+          <tr><td>Coding</td><td>HumanEval (Pass@10) · HumanEval+ (Pass@10)</td><td>BigCodeBench-Hard (Pass@10)</td></tr>
+          <tr><td>Instruction Following</td><td>IFEval (EM) · AlpacaEval 2 (winrate)</td><td class="ours">IFEval-OOD (Pass@1) · HREF (winrate)</td></tr>
+          <tr><td>Safety</td><td>Tülu 3 Safety (average over 6 benchmarks)</td><td>— (no unseen safety evaluation)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why the split matters:</strong> Tülu 3's entire development process — data mixes, algorithms, hyperparameters — was steered by development scores. If only development scores were reported, you could not distinguish "the model actually got better" from "the development process overfit to these 13 benchmarks." <span class="hl">The unseen suite was deliberately never examined during development</span> and only brought out at the end as a ruler for overfitting. That is rare self-discipline in a technical report.</p>
+    </div>
+
+    <h3>OLMES: the evaluation toolchain</h3>
+    <p>The whole suite ships as <code>allenai/olmes</code>, built on the Eleuther AI LM Evaluation Harness. It supports flexible per-task configuration, direct access to the exact task formulations used here (and in earlier work such as OLMo and the OLMES standard), and instance-level output data for analyzing predictions and confidences. Reproducing the paper's Llama-3.1-8B-Instruct MMLU-Pro number is one line:</p>
+    <pre><code>olmes --task mmlu_pro::tulu3 --model llama3.1-8b-instruct</code></pre>
+
+    <h3>Key design decisions in the development suite</h3>
+    <ul>
+      <li><strong>MMLU uses zero-shot "implicit CoT."</strong> Rather than asking the model to think "step-by-step," it asks the model to "summarize" its reasoning before answering. Among the CoT settings tested, this prompt gave a <span class="hl">systematic improvement</span> over the standard 5-shot multiple-choice setting and maximized the number of benefiting subjects. Appendix data: on average <strong>78% of subjects improve with implicit CoT</strong> for Tülu 3 models, while explicit CoT caps at 53%. The final metric is a macro average over subjects.</li>
+      <li><strong>MATH uses flex answer extraction.</strong> Three attempts in order: (1) the Minerva format; (2) the last <code>&lt;ans&gt;</code>; (3) the text between the last two <code>$</code> delimiters. The reason: <span class="hl2">even with few-shot examples, models frequently do not follow the output format</span>. Moving from Minerva-only to flex can improve reported scores <strong>by up to 10 points</strong>.</li>
+      <li><strong>Multiturn ICL.</strong> PopQA, GSM8K, MATH, BBH and others present each few-shot example as a separate conversational turn rather than stuffing them all into one prompt.</li>
+      <li><strong>HumanEval samples at temperature 0.8 with pass@10.</strong> Generative evaluations cap output length at 4,096 tokens (8,192 for AlpacaEval 2).</li>
+    </ul>
+
+    <h3>Safety evaluation: an average over six benchmarks</h3>
+    <p>Tülu 3 Safety comprises six benchmarks, all judged for refusal / compliance by the WildGuard classifier and macro-averaged: <strong>XSTest</strong> (200 unsafe plus 250 safe-but-superficially-unsafe prompts, measuring over-refusal), <strong>HarmBench</strong> (321 harmful prompts across seven semantic categories: cybercrime, chem/bio weapons, copyright, misinformation, harassment, illegal activities, general harm), <strong>Do-Anything-Now</strong> (DAN jailbreak templates × HarmBench behaviors, 300 sampled), <strong>JailbreakTrigger</strong> (13 distinct jailbreak attack methods, 400 examples), <strong>WildJailbreakTest</strong> (210 adversarial benign + 2000 adversarial harmful), and <strong>WildGuardTest</strong> (1725 items, 55% vanilla / 45% adversarial).</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 25 · Safety score breakdown for 8B models</caption>
+        <thead><tr><th>Benchmark</th><th>Llama 3.1 8B Inst</th><th>Ministral 8B Inst</th><th>Qwen 2.5 7B Inst</th><th>Tülu 3 8B SFT</th><th>Tülu 3 8B DPO</th><th>Tülu 3 8B</th></tr></thead>
+        <tbody>
+          <tr><td>HarmBench</td><td class="num">82.8</td><td class="num">53.4</td><td class="num">84.1</td><td class="num">98.4</td><td class="num">94.4</td><td class="num">94.7</td></tr>
+          <tr><td>XSTest</td><td class="num">92.7</td><td class="num">85.6</td><td class="num">91.8</td><td class="num">90.4</td><td class="num">92.4</td><td class="num">93.3</td></tr>
+          <tr><td>WildGuardTest</td><td class="num">86.2</td><td class="num">68.1</td><td class="num">85.0</td><td class="num">99.2</td><td class="num">98.9</td><td class="num">98.5</td></tr>
+          <tr><td>JailbreakTrigger</td><td class="num">78.8</td><td class="num">63.3</td><td class="num">71.0</td><td class="num">95.8</td><td class="num">87.0</td><td class="num">85.5</td></tr>
+          <tr><td>DoAnythingNow</td><td class="num">45.0</td><td class="num">16.0</td><td class="num">61.7</td><td class="num">88.3</td><td class="num">69.7</td><td class="num">62.0</td></tr>
+          <tr><td>WildjailbreakTest</td><td class="num">65.6</td><td class="num">50.7</td><td class="num">56.2</td><td class="num">86.7</td><td class="num">81.1</td><td class="num">78.8</td></tr>
+          <tr class="best"><td class="ours">Overall</td><td class="num">75.2</td><td class="num">56.2</td><td class="num">75.0</td><td class="num">93.1</td><td class="num">87.2</td><td class="num">85.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Safety decays across the later stages.</strong> The 8B safety average goes 93.1 (SFT) → 87.2 (DPO) → 85.5 (RLVR), with the steepest fall on DoAnythingNow (88.3 → 69.7 → 62.0). The 70B follows the same pattern (94.4 → 89.0 → 88.3). This is a pipeline-level tension: <span class="hl2">neither DPO nor RLVR optimizes for safety, so the boundary established during SFT gets gradually worn away</span>. The paper does not argue around it; the numbers are simply there.</p>
+    </div>
+
+    <h3>Design principles for the unseen suite</h3>
+    <p>The unseen suite's task formulations came from a <strong>design process independent of the development suite</strong>, aiming to match how humans actually use models:</p>
+    <ul>
+      <li>Formulate tasks the way humans interact with models — <span class="hl">avoid few-shot examples presented as a dialog</span>, and avoid precise CoT examples that tell the model how it is "supposed" to think.</li>
+      <li>Give clear instructions that set the context, encourage concise reasoning, and specify the final answer format.</li>
+      <li>Apply reasonable heuristics for answer extraction, so models aren't penalized for not following an implied syntax exactly.</li>
+    </ul>
+    <p>The authors first validated these principles on development tasks using exploratory models predating Tülu 3, and found that <strong>being more aligned with human usage generally does not degrade performance and often lets most models do better</strong> — even after removing few-shot examples. But they deliberately <span class="hl2">did not go back and update the development task formulations</span>, carrying the principles only into the unseen tasks. This preserves the historical comparability of development scores.</p>
+
+    <p>A concrete illustration (Table 29, DeepMind Mathematics): switching from base-model-adapted in-context examples to a CoT prompt moves Gemma 2 9B Inst from 18.0 → <strong>45.9</strong>, Qwen 2.5 7B Inst from 21.2 → <strong>54.7</strong>, and Llama 3.1 8B Inst from 20.0 → <strong>39.4</strong>. The evaluation setup alone can be worth 20–30 points.</p>
+
+    <h3>Two new evaluations</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>IFEval-OOD</h4>
+        <p><strong>52 constraints across six categories</strong>, all disjoint from IFEval's original 25. Five categories combine a verifiable constraint with an unseen WildChat prompt, human-annotated for compatibility — e.g. "mention at least 23 different person names" cannot be paired with "paraphrase a one-sentence reference containing no names." The sixth, "custom," is hand-written verifiable prompts such as CSV generation.</p>
+      </div>
+      <div class="card">
+        <h4>HREF</h4>
+        <p>Human Reference-guided Evaluation of instruction Following. Covers <strong>11 instruction-following task categories</strong> (Brainstorming, Open QA, Closed QA, Extraction, Generation, Rewriting, Summarization, Classification, Numerical Reasoning, Multi-document Synthesis, Fact Checking), with prompts and references written by professional instruction-tuning data creators.</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 30 (selection) · Example IFEval-OOD constraints</caption>
+        <thead><tr><th>Instruction Group</th><th>Instruction</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>count</td><td>person_names</td><td>Mention at least {N} different person names in the response.</td></tr>
+          <tr><td>format</td><td>emoji</td><td>Please use an emoji at the end of every sentence.</td></tr>
+          <tr><td>ratio</td><td>stop_words</td><td>Ensure that stop words constitute no more than {percentage}% of the total words.</td></tr>
+          <tr><td>sentence</td><td>keyword</td><td>The response must include keyword {keyword} in the {N}-th sentence.</td></tr>
+          <tr><td>words</td><td>alphabet</td><td>Each word must start with the next letter of the alphabet, looping back to ‘A’ after ‘Z’.</td></tr>
+          <tr><td>custom</td><td>csv_special_character</td><td>Generate 14 rows of CSV with columns ["ProductID","Category","Brand","Price","Stock"], adding one field containing a special character enclosed in double quotes.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>HREF's evaluation methodology is itself a piece of research.</strong> The authors collected human judgments over responses from 16 models (four human judgments per response pair) and compared each win-rate computation setup against majority human judgment, per task category. The final setup is <span class="hl">a composite</span>:</p>
+    <ul>
+      <li>LM judge is <strong>Llama 3.1 70B Instruct</strong> (highest agreement with humans in the pool tested); the baseline model is <strong>Llama 3.1 405B Instruct</strong>.</li>
+      <li>Of the 11 subtasks, all use LM-as-a-judge except <strong>Open QA</strong> and <strong>Fact Checking</strong>, which instead compute win-rate via RoBERTa-Large embedding similarity to the human references.</li>
+      <li>Of the remaining 9, <strong>Brainstorming</strong> and <strong>Summarization</strong> did not benefit from human references, so only the other 7 pass references to the LM judge.</li>
+      <li>Result: this composite procedure reaches <span class="hl">69.4%</span> agreement with humans — <strong>higher than the 67% inter-human agreement</strong>.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═════════════ 08 ═════════════ -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>Results</h2>
+    <p class="lead">The headline: 70B and 405B clearly beat their open-weight peers and approach closed models. 8B substantially beats Llama 3.1 8B Instruct but does not win outright against Qwen 2.5 7B Instruct.</p>
+
+    <h3>Main table: 8B and 70B vs open and closed models</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Overview of results on the Tülu 3 Eval development suite</caption>
+        <thead><tr><th>Skill</th><th>Benchmark (eval)</th><th>Tülu 3 8B</th><th>Qwen 2.5 7B Inst</th><th>Llama 3.1 8B Inst</th><th>Tülu 3 70B</th><th>Qwen 2.5 72B Inst</th><th>Llama 3.1 70B Inst</th><th>GPT-3.5 Turbo</th><th>GPT-4o Mini</th><th>Claude 3.5 Haiku</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>—</td><td class="ours">Avg.</td><td class="num">65.1</td><td class="num">66.5</td><td class="num">62.9</td><td class="num">76.2</td><td class="num">72.8</td><td class="num">74.1</td><td class="num">64.7</td><td class="num">69.6</td><td class="num">75.3</td></tr>
+          <tr><td rowspan="3">Knowledge</td><td>MMLU (0 shot, CoT)</td><td class="num">68.2</td><td class="num">76.6</td><td class="num">71.2</td><td class="num">83.1</td><td class="num">85.5</td><td class="num">85.3</td><td class="num">70.2</td><td class="num">82.2</td><td class="num">81.8</td></tr>
+          <tr><td>PopQA (15 shot)</td><td class="num">29.1</td><td class="num">18.1</td><td class="num">20.2</td><td class="num">46.5</td><td class="num">30.6</td><td class="num">46.4</td><td class="num">45.0</td><td class="num">39.0</td><td class="num">42.5</td></tr>
+          <tr><td>TruthfulQA (6 shot)</td><td class="num">55.0</td><td class="num">63.1</td><td class="num">55.1</td><td class="num">67.6</td><td class="num">69.9</td><td class="num">66.8</td><td class="num">62.9</td><td class="num">64.8</td><td class="num">64.9</td></tr>
+          <tr><td rowspan="2">Reasoning</td><td>BigBenchHard (3 shot, CoT)</td><td class="num">69.0</td><td class="num">70.2</td><td class="num">71.9</td><td class="num">85.0</td><td class="num">80.4</td><td class="num">83.0</td><td class="num">66.6</td><td class="num">65.9</td><td class="num">73.7</td></tr>
+          <tr><td>DROP (3 shot)</td><td class="num">62.6</td><td class="num">54.4</td><td class="num">61.5</td><td class="num">74.3</td><td class="num">34.2</td><td class="num">77.0</td><td class="num">70.2</td><td class="num">36.3</td><td class="num">78.4</td></tr>
+          <tr><td rowspan="2">Math</td><td>MATH (4 shot CoT, Flex)</td><td class="num">43.7</td><td class="num">69.9</td><td class="num">42.5</td><td class="num">63.0</td><td class="num">75.9</td><td class="num">56.4</td><td class="num">41.2</td><td class="num">67.9</td><td class="num">68.0</td></tr>
+          <tr><td>GSM8K (8 shot, CoT)</td><td class="num">87.6</td><td class="num">83.8</td><td class="num">83.4</td><td class="num">93.5</td><td class="num">89.5</td><td class="num">93.7</td><td class="num">74.3</td><td class="num">83.0</td><td class="num">90.1</td></tr>
+          <tr><td rowspan="2">Coding</td><td>HumanEval (pass@10)</td><td class="num">83.9</td><td class="num">93.1</td><td class="num">86.3</td><td class="num">92.4</td><td class="num">94.0</td><td class="num">93.6</td><td class="num">87.1</td><td class="num">90.4</td><td class="num">90.8</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">79.2</td><td class="num">89.7</td><td class="num">82.9</td><td class="num">88.0</td><td class="num">90.8</td><td class="num">89.5</td><td class="num">84.0</td><td class="num">87.0</td><td class="num">88.1</td></tr>
+          <tr><td rowspan="2">IF &amp; chat</td><td>IFEval (prompt loose)</td><td class="num">82.4</td><td class="num">74.7</td><td class="num">80.6</td><td class="num">83.2</td><td class="num">87.6</td><td class="num">88.0</td><td class="num">66.9</td><td class="num">83.5</td><td class="num">86.3</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">34.5</td><td class="num">29.0</td><td class="num">24.2</td><td class="num">49.8</td><td class="num">47.7</td><td class="num">33.4</td><td class="num">38.7</td><td class="num">49.7</td><td class="num">47.3</td></tr>
+          <tr><td>Safety</td><td>Safety (6 task avg.)</td><td class="num">85.5</td><td class="num">75.0</td><td class="num">75.2</td><td class="num">88.3</td><td class="num">87.0</td><td class="num">76.5</td><td class="num">69.1</td><td class="num">84.9</td><td class="num">91.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">Closed model versions: GPT-3.5-Turbo-0125, GPT-4o-mini-2024-07-18, Claude 3.5 Haiku 20241022. Some closed scores are taken from model cards; others are interpolated with MICE (Multiple Imputation by Chained Equations) from the other scores in the table — those cells are marked in the original because they either hit substantial formatting errors in the authors' evaluation suite or were not found in other major technical reports.</p>
+
+    <div class="callout hot">
+      <p><strong>The easiest thing to misread: the 8B average does not beat Qwen 2.5 7B Instruct.</strong> Tülu 3 8B averages 65.1; Qwen 2.5 7B Instruct averages <span class="hl2">66.5</span>. Qwen leads substantially on MMLU (76.6 vs 68.2), MATH (69.9 vs 43.7), and HumanEval (93.1 vs 83.9) — which reflects the math and code content of Qwen's pretraining data, not a gap in the post-training recipe.</p>
+      <p>Where Tülu 3 8B wins: PopQA (29.1 vs 18.1), DROP (62.6 vs 54.4), GSM8K (87.6 vs 83.8), IFEval (82.4 vs 74.7), AlpacaEval 2 (34.5 vs 29.0), and Safety (85.5 vs 75.0). <strong>Against Llama 3.1 8B Instruct it is a clear win, 62.9 → 65.1</strong> — and that is the comparison that actually controls for the base model.</p>
+      <p>At 70B the problem disappears: Tülu 3 70B's 76.2 clearly beats Llama 3.1 70B Instruct (74.1) and Qwen 2.5 72B Instruct (72.8), and also surpasses GPT-3.5 Turbo (64.7) and GPT-4o Mini (69.6) while approaching Claude 3.5 Haiku (75.3).</p>
+    </div>
+
+    <h3>What each stage contributes</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="66" y1="24" x2="66" y2="256" stroke="#26313f"/>
+        <line x1="66" y1="256" x2="736" y2="256" stroke="#26313f"/>
+        <line x1="66" y1="198" x2="736" y2="198" stroke="#1b2430"/>
+        <line x1="66" y1="140" x2="736" y2="140" stroke="#1b2430"/>
+        <line x1="66" y1="82" x2="736" y2="82" stroke="#1b2430"/>
+        <line x1="66" y1="24" x2="736" y2="24" stroke="#1b2430"/>
+        <text x="56" y="260" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="56" y="202" fill="#5b6675" font-size="10" text-anchor="end">25</text>
+        <text x="56" y="144" fill="#5b6675" font-size="10" text-anchor="end">50</text>
+        <text x="56" y="86" fill="#5b6675" font-size="10" text-anchor="end">75</text>
+        <text x="56" y="28" fill="#5b6675" font-size="10" text-anchor="end">100</text>
+
+        <rect x="90" y="115.5" width="26" height="140.5" rx="3" fill="#3a4658"/>
+        <rect x="120" y="106.5" width="26" height="149.5" rx="3" fill="#4a7d8c"/>
+        <rect x="150" y="105.6" width="26" height="150.4" rx="3" fill="#f4a259"/>
+        <text x="133" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">Avg.</text>
+        <text x="103" y="110" fill="#5b6675" font-size="9" text-anchor="middle">60.6</text>
+        <text x="133" y="101" fill="#5b6675" font-size="9" text-anchor="middle">64.7</text>
+        <text x="163" y="100" fill="#f4a259" font-size="9" text-anchor="middle">65.1</text>
+
+        <rect x="212" y="182.9" width="26" height="73.1" rx="3" fill="#3a4658"/>
+        <rect x="242" y="158.6" width="26" height="97.4" rx="3" fill="#4a7d8c"/>
+        <rect x="272" y="154.6" width="26" height="101.4" rx="3" fill="#f4a259"/>
+        <text x="255" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">MATH</text>
+        <text x="225" y="177" fill="#5b6675" font-size="9" text-anchor="middle">31.5</text>
+        <text x="255" y="153" fill="#5b6675" font-size="9" text-anchor="middle">42.0</text>
+        <text x="285" y="149" fill="#f4a259" font-size="9" text-anchor="middle">43.7</text>
+
+        <rect x="334" y="79.2" width="26" height="176.8" rx="3" fill="#3a4658"/>
+        <rect x="364" y="60.4" width="26" height="195.6" rx="3" fill="#4a7d8c"/>
+        <rect x="394" y="52.7" width="26" height="203.3" rx="3" fill="#f4a259"/>
+        <text x="377" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">GSM8K</text>
+        <text x="347" y="74" fill="#5b6675" font-size="9" text-anchor="middle">76.2</text>
+        <text x="377" y="55" fill="#5b6675" font-size="9" text-anchor="middle">84.3</text>
+        <text x="407" y="47" fill="#f4a259" font-size="9" text-anchor="middle">87.6</text>
+
+        <rect x="456" y="87.1" width="26" height="168.9" rx="3" fill="#3a4658"/>
+        <rect x="486" y="67.8" width="26" height="188.2" rx="3" fill="#4a7d8c"/>
+        <rect x="516" y="64.8" width="26" height="191.2" rx="3" fill="#f4a259"/>
+        <text x="499" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">IFEval</text>
+        <text x="469" y="82" fill="#5b6675" font-size="9" text-anchor="middle">72.8</text>
+        <text x="499" y="63" fill="#5b6675" font-size="9" text-anchor="middle">81.1</text>
+        <text x="529" y="59" fill="#f4a259" font-size="9" text-anchor="middle">82.4</text>
+
+        <rect x="578" y="227.2" width="26" height="28.8" rx="3" fill="#3a4658"/>
+        <rect x="608" y="178.3" width="26" height="77.7" rx="3" fill="#4a7d8c"/>
+        <rect x="638" y="176" width="26" height="80" rx="3" fill="#f4a259"/>
+        <text x="621" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">AlpacaEval 2</text>
+        <text x="591" y="222" fill="#5b6675" font-size="9" text-anchor="middle">12.4</text>
+        <text x="621" y="173" fill="#5b6675" font-size="9" text-anchor="middle">33.5</text>
+        <text x="651" y="170" fill="#f4a259" font-size="9" text-anchor="middle">34.5</text>
+
+        <rect x="240" y="298" width="13" height="13" rx="2" fill="#3a4658"/>
+        <text x="259" y="309" fill="#93a1b3" font-size="10.5">SFT</text>
+        <rect x="310" y="298" width="13" height="13" rx="2" fill="#4a7d8c"/>
+        <text x="329" y="309" fill="#93a1b3" font-size="10.5">+ DPO</text>
+        <rect x="392" y="298" width="13" height="13" rx="2" fill="#f4a259"/>
+        <text x="411" y="309" fill="#f4a259" font-size="10.5">+ RLVR (final)</text>
+      </svg>
+      <div class="figcap">Figure 4 · Contribution of each training stage for Tülu 3 8B (values from paper Tables 6 and 23)</div>
+    </div>
+
+    <p>How to read it: <strong>DPO delivers most of the general improvement</strong> (Avg. 60.6 → 64.7; AlpacaEval 2 jumps from 12.4 to 33.5), while <strong>RLVR supplies the last mile in targeted domains</strong> (GSM8K +3.3, MATH +1.7, IFEval +1.3). If you want to replicate Tülu 3 on a compute budget, this chart is your priority order.</p>
+
+    <h3>Full 70B comparison</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Tülu 3 70B vs peer 70B models</caption>
+        <thead><tr><th>Benchmark (eval)</th><th>Llama 3.1 70B Inst</th><th>Qwen 2.5 72B Inst</th><th>Hermes 3 Llama 3.1 70B</th><th>Nemotron Llama 3.1 70B</th><th>Tülu 3 70B SFT</th><th>Tülu 3 70B DPO</th><th>Tülu 3 70B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg.</td><td class="num">74.1</td><td class="num">72.8</td><td class="num">68.5</td><td class="num">72.0</td><td class="num">72.6</td><td class="num">76.2</td><td class="num">76.2</td></tr>
+          <tr><td>MMLU (0 shot, CoT)</td><td class="num">85.3</td><td class="num">85.5</td><td class="num">80.4</td><td class="num">83.8</td><td class="num">78.9</td><td class="num">83.3</td><td class="num">83.1</td></tr>
+          <tr><td>PopQA (15 shot)</td><td class="num">46.4</td><td class="num">30.6</td><td class="num">48.1</td><td class="num">36.4</td><td class="num">48.6</td><td class="num">46.3</td><td class="num">46.5</td></tr>
+          <tr><td>TruthfulQA (6 shot)</td><td class="num">66.8</td><td class="num">69.9</td><td class="num">66.5</td><td class="num">62.6</td><td class="num">55.7</td><td class="num">67.9</td><td class="num">67.6</td></tr>
+          <tr><td>BigBenchHard (3 shot, CoT)</td><td class="num">83.0</td><td class="num">80.4</td><td class="num">83.6</td><td class="num">78.5</td><td class="num">82.6</td><td class="num">84.8</td><td class="num">85.0</td></tr>
+          <tr><td>DROP (3 shot)</td><td class="num">77.0</td><td class="num">34.2</td><td class="num">73.2</td><td class="num">68.8</td><td class="num">77.2</td><td class="num">74.1</td><td class="num">74.3</td></tr>
+          <tr><td>MATH (4 shot CoT, Flex)</td><td class="num">56.4</td><td class="num">75.9</td><td class="num">41.9</td><td class="num">55.0</td><td class="num">53.7</td><td class="num">62.3</td><td class="num">63.0</td></tr>
+          <tr><td>GSM8K (8 shot, CoT)</td><td class="num">93.7</td><td class="num">89.5</td><td class="num">90.0</td><td class="num">84.7</td><td class="num">91.1</td><td class="num">93.5</td><td class="num">93.5</td></tr>
+          <tr><td>HumanEval (pass@10)</td><td class="num">93.6</td><td class="num">94.0</td><td class="num">89.6</td><td class="num">94.1</td><td class="num">92.9</td><td class="num">92.4</td><td class="num">92.4</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">89.5</td><td class="num">90.8</td><td class="num">85.9</td><td class="num">85.5</td><td class="num">87.3</td><td class="num">88.4</td><td class="num">88.0</td></tr>
+          <tr><td>IFEval (prompt loose)</td><td class="num">88.0</td><td class="num">87.6</td><td class="num">76.0</td><td class="num">79.9</td><td class="num">82.1</td><td class="num">82.6</td><td class="num">83.2</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">33.4</td><td class="num">47.7</td><td class="num">28.4</td><td class="num">66.1</td><td class="num">26.3</td><td class="num">49.6</td><td class="num">49.8</td></tr>
+          <tr><td>Safety (6 task avg.)</td><td class="num">76.5</td><td class="num">87.0</td><td class="num">57.9</td><td class="num">69.0</td><td class="num">94.4</td><td class="num">89.0</td><td class="num">88.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">Nemotron Llama 3.1 70B is the only model here finetuned from an <strong>already post-trained model</strong> (Llama 3.1 70B Instruct); the rest start from their respective base models. The paper also cautions that many of the unusually low values come from models failing to follow the few-shot formatting required by the evaluation, or from repetitive errors — e.g. Qwen 2.5 72B Instruct scoring 34.2 on DROP.</p>
+
+    <h3>405B: against DeepSeek V3 and GPT-4o</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · Tülu 3 405B vs peer 405B models and leading closed models</caption>
+        <thead><tr><th>Benchmark (eval)</th><th>Llama 3.1 405B Inst</th><th>Nous Hermes 3 405B</th><th>DeepSeek V3</th><th>GPT-4o (11-24)</th><th>Tülu 3 405B SFT</th><th>Tülu 3 405B DPO</th><th>Tülu 3 405B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg w/o Safety</td><td class="num">78.1</td><td class="num">74.4</td><td class="num">79.0</td><td class="num">80.5</td><td class="num">76.3</td><td class="num">79.0</td><td class="num">80.0</td></tr>
+          <tr class="best"><td class="ours">Avg w/ Safety</td><td class="num">79.0</td><td class="num">73.5</td><td class="num">75.9</td><td class="num">81.6</td><td class="num">77.5</td><td class="num">79.6</td><td class="num">80.7</td></tr>
+          <tr><td>MMLU (5 shot, CoT)</td><td class="num">88.0</td><td class="num">84.9</td><td class="num">82.1</td><td class="num">87.9</td><td class="num">84.4</td><td class="num">86.6</td><td class="num">87.0</td></tr>
+          <tr><td>PopQA (3 shot)</td><td class="num">52.9</td><td class="num">54.2</td><td class="num">44.9</td><td class="num">53.6</td><td class="num">55.7</td><td class="num">55.4</td><td class="num">55.5</td></tr>
+          <tr><td>BigBenchHard (0 shot, CoT)</td><td class="num">87.1</td><td class="num">87.7</td><td class="num">89.5</td><td class="num">83.3</td><td class="num">88.0</td><td class="num">88.8</td><td class="num">88.6</td></tr>
+          <tr><td>MATH (4 shot, Flex)</td><td class="num">66.6</td><td class="num">58.4</td><td class="num">72.5</td><td class="num">68.8</td><td class="num">63.4</td><td class="num">59.9</td><td class="num">67.3</td></tr>
+          <tr><td>GSM8K (8 shot, CoT)</td><td class="num">95.4</td><td class="num">92.7</td><td class="num">94.1</td><td class="num">91.7</td><td class="num">93.6</td><td class="num">94.2</td><td class="num">95.5</td></tr>
+          <tr><td>HumanEval (pass@10)</td><td class="num">95.9</td><td class="num">92.3</td><td class="num">94.6</td><td class="num">97.0</td><td class="num">95.7</td><td class="num">97.2</td><td class="num">95.9</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">90.3</td><td class="num">86.9</td><td class="num">91.6</td><td class="num">92.7</td><td class="num">93.3</td><td class="num">93.9</td><td class="num">92.9</td></tr>
+          <tr><td>IFEval (loose prompt)</td><td class="num">88.4</td><td class="num">81.9</td><td class="num">88.0</td><td class="num">84.8</td><td class="num">82.4</td><td class="num">85.0</td><td class="num">86.0</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">38.5</td><td class="num">30.2</td><td class="num">53.5</td><td class="num">65.0</td><td class="num">30.4</td><td class="num">49.8</td><td class="num">51.4</td></tr>
+          <tr><td>Safety (6 task avg.)</td><td class="num">86.8</td><td class="num">65.8</td><td class="num">72.2</td><td class="num">90.9</td><td class="num">87.7</td><td class="num">85.5</td><td class="num">86.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">Note: TruthfulQA and MMLU multiple-choice numbers are incompatible with the authors' log-prob evaluation infrastructure and are therefore omitted.</p>
+
+    <h3>Did it generalize?</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 31 · Each stage on development (Dev.) and unseen (Uns.) evaluations</caption>
+        <thead><tr><th rowspan="2">Skill (Dev ↔ Unseen)</th><th colspan="2">8B SFT</th><th colspan="2">8B DPO</th><th colspan="2">8B Final</th><th colspan="2">70B SFT</th><th colspan="2">70B DPO</th><th colspan="2">70B Final</th></tr>
+        <tr><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg.</td><td class="num">64.9</td><td class="num">29.9</td><td class="num">68.3</td><td class="num">31.9</td><td class="num">68.8</td><td class="num">32.4</td><td class="num">78.1</td><td class="num">41.0</td><td class="num">80.5</td><td class="num">44.4</td><td class="num">80.7</td><td class="num">44.4</td></tr>
+          <tr><td>Knowledge (MMLU ↔ GPQA)</td><td class="num">65.9</td><td class="num">31.9</td><td class="num">68.7</td><td class="num">31.2</td><td class="num">68.2</td><td class="num">35.7</td><td class="num">78.9</td><td class="num">43.3</td><td class="num">83.3</td><td class="num">48.0</td><td class="num">83.1</td><td class="num">48.0</td></tr>
+          <tr><td>Reasoning (BBH ↔ AGIEval)</td><td class="num">67.9</td><td class="num">56.2</td><td class="num">65.8</td><td class="num">61.8</td><td class="num">66.0</td><td class="num">59.3</td><td class="num">82.7</td><td class="num">73.2</td><td class="num">81.8</td><td class="num">75.0</td><td class="num">82.0</td><td class="num">75.0</td></tr>
+          <tr><td>Math (MATH ↔ DM Math)</td><td class="num">31.5</td><td class="num">32.3</td><td class="num">42.0</td><td class="num">33.0</td><td class="num">43.7</td><td class="num">35.4</td><td class="num">53.7</td><td class="num">49.7</td><td class="num">62.3</td><td class="num">49.4</td><td class="num">63.0</td><td class="num">49.8</td></tr>
+          <tr><td>Coding (HumanEval ↔ BigCodeBench)</td><td class="num">86.2</td><td class="num">11.5</td><td class="num">83.9</td><td class="num">9.5</td><td class="num">83.9</td><td class="num">7.4</td><td class="num">92.9</td><td class="num">12.2</td><td class="num">92.4</td><td class="num">23.0</td><td class="num">92.4</td><td class="num">21.6</td></tr>
+          <tr><td>Inst. Following (IFEval ↔ IFEval-OOD)</td><td class="num">72.8</td><td class="num">17.6</td><td class="num">81.1</td><td class="num">23.9</td><td class="num">82.4</td><td class="num">24.3</td><td class="num">82.1</td><td class="num">26.8</td><td class="num">82.6</td><td class="num">26.4</td><td class="num">83.2</td><td class="num">27.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Broadly, yes</strong> — the final checkpoints get the best average on both dev and unseen. Reasoning and Coding are especially interesting: the SFT checkpoint is best on development, yet <span class="hl">the later stages still improve the harder unseen evaluations</span> (8B Reasoning unseen 56.2 → 61.8 → 59.3; 70B Coding unseen 12.2 → 23.0 → 21.6). In other words, the value of DPO and RLVR is <em>understated</em> by development scores.</p>
+
+    <div class="callout hot">
+      <p><strong>But overfitting is real, and the authors name it themselves.</strong></p>
+      <p>· <strong>Precise instruction following is the worst case.</strong> IFEval climbs from 72.8 all the way to 82.4, while IFEval-OOD only reaches 24.3. Every model shows a large gap between IFEval and IFEval-OOD — even though the latter was deliberately structured almost identically, just with a disjoint constraint set. The authors' read: <span class="hl2">models that do well on IFEval are likely overfitting to those 25 specific constraints</span>.</p>
+      <p>· <strong>MATH has some too.</strong> The DPO data-scaling trend on MATH does not fully transfer to DeepMind Mathematics. The hypothesized cause is formatting: MATH often expects LaTeX output while DeepMind Math does not, and <span class="hl2">the trained models habitually write both their chain-of-thought and final answers in LaTeX, which interferes with the intermediate reasoning and breaks the answer extraction logic</span>.</p>
+      <p>· The SFT data mixing choices also overfit slightly on Knowledge Recall and Reasoning.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 33 · Public models vs Tülu 3 on the unseen suite</caption>
+        <thead><tr><th>Skill</th><th>Benchmark (eval)</th><th>Llama 3.1 8B Inst</th><th>Hermes 3 Llama 3.1 8B</th><th>Tülu 3 8B</th><th>Llama 3.1 70B Inst</th><th>Hermes 3 Llama 3.1 70B</th><th>Tülu 3 70B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>—</td><td class="ours">Avg.</td><td class="num">36.4</td><td class="num">30.7</td><td class="num">34.2</td><td class="num">51.3</td><td class="num">43.1</td><td class="num">47.2</td></tr>
+          <tr><td rowspan="2">Knowledge</td><td>GPQA (0 shot, CoT)</td><td class="num">28.8</td><td class="num">32.8</td><td class="num">35.7</td><td class="num">43.8</td><td class="num">42.6</td><td class="num">48.0</td></tr>
+          <tr><td>MMLU Pro (0 shot, CoT)</td><td class="num">49.1</td><td class="num">40.9</td><td class="num">44.3</td><td class="num">68.3</td><td class="num">60.3</td><td class="num">65.8</td></tr>
+          <tr><td>Reasoning</td><td>AGIEval English (0 shot, CoT)</td><td class="num">64.2</td><td class="num">58.1</td><td class="num">59.3</td><td class="num">77.8</td><td class="num">73.3</td><td class="num">75.0</td></tr>
+          <tr><td>Math</td><td>DeepMind Math (0 shot, CoT)</td><td class="num">39.3</td><td class="num">28.3</td><td class="num">35.4</td><td class="num">62.4</td><td class="num">50.0</td><td class="num">49.8</td></tr>
+          <tr><td>Coding</td><td>BigCodeBench-Hard (Pass@10)</td><td class="num">15.5</td><td class="num">9.5</td><td class="num">7.4</td><td class="num">26.4</td><td class="num">14.2</td><td class="num">21.6</td></tr>
+          <tr><td rowspan="2">Inst. Following</td><td>IFEval OOD (Prompt loose)</td><td class="num">26.1</td><td class="num">19.4</td><td class="num">24.3</td><td class="num">34.5</td><td class="num">24.6</td><td class="num">27.8</td></tr>
+          <tr><td>HREF (Winrate)</td><td class="num">38.5</td><td class="num">26.2</td><td class="num">32.7</td><td class="num">45.6</td><td class="num">36.8</td><td class="num">42.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>Three observations the authors draw: <strong>(1)</strong> Tülu 3 generally lands between Llama 3.1 Instruct and Hermes 3, suggesting that "pick representative evaluations per core skill, then curate data targeting them" does produce models that generalize. <strong>(2)</strong> Generalization on knowledge recall may depend on the post-training recipe — MMLU and MMLU-Pro correlate as expected, but GPQA shows a different trend, and <span class="hl">all three models here are post-trained from the same base model</span>. <strong>(3)</strong> Relative performance on AlpacaEval differs from HREF, suggesting instruction following is a highly diverse task with differing distributions; Tülu 3 70B beats Llama 3.1 70B Instruct on 5 of HREF's 11 subtasks.</p>
+
+    <div class="callout warn">
+      <p><strong>A fairness caveat that has to be stated:</strong> the authors emphasize that because none of the other models released their training data, <span class="hl2">it is impossible to verify whether GPQA, MMLU-Pro, AGIEval, DeepMind Math, or BigCodeBench were used in developing them</span>. These evaluations are genuinely unseen for Tülu 3 but not necessarily for the comparisons. That asymmetry should temper how Table 33 is read — and likewise, the closed-model comparisons in Table 2 cannot rule out training on those benchmarks.</p>
+    </div>
+
+    <h3>Scaling engineering at 405B</h3>
+    <p>The 405B recipe follows the 8B / 70B one closely, but ran into three classes of problems:</p>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Compute and stability</h4>
+        <p>32 nodes (256 GPUs) in parallel. Most of the codebase scaled well, but <strong>NCCL timeouts and synchronization issues</strong> required meticulous monitoring and intervention, especially in RL training. More GPUs meant more hardware failures and semi-frequent run restarts.</p>
+      </div>
+      <div class="card">
+        <h4>RLVR time budget</h4>
+        <p>vLLM served inference with 16-way tensor parallelism; the remaining <strong>240 GPUs</strong> trained, with weights synced via NCCL broadcast after each update. Per iteration: <span class="hl">inference ~550s, weight transfer ~25s, training ~1,500s</span>. To cut cost, the value model was only <strong>8B</strong>.</p>
+      </div>
+      <div class="card">
+        <h4>Limited tuning</h4>
+        <p>Compute cost made hyperparameter tuning largely infeasible. Following prior Tülu and Llama practice, they <span class="hl2">lowered the learning rate for the larger model, training with a "lighter touch"</span> (SFT 2e-6, DPO 2e-7, RLVR 1e-7).</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The 405B RLVR data is different.</strong> Because SFT and DPO alone already saturated GSM8K, <span class="hl">the GSM8K data was removed entirely</span>; initial runs also showed IFEval data did not help much, so <strong>405B RLVR trained on the MATH train set only</strong>. Surprisingly, <span class="hl2">even 25 RLVR steps improved MATH by over 5 points</span>, and it kept climbing. Compute constraints capped training at 75 steps — fewer than the smaller models — and the authors state plainly that <strong>MATH performance had not saturated in either training or testing, so further training should help</strong>. They also suggest future work explore larger value models or value-model-free RL algorithms such as GRPO.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 09 ═════════════ -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>What Didn't Work, Limitations, and Future Work</h2>
+    <p class="lead">The paper has an entire section titled "Insights from the Unfruitful." In an environment where technical reports typically publish only good news, its information density may exceed that of the main results.</p>
+
+    <h3>Two methods tried but left out of the final recipe</h3>
+    <div class="callout hot">
+      <p><strong>Online DPO — no improvement, and MATH got worse.</strong></p>
+      <p>Standard DPO is offline: preference data is collected ahead of time, so the policy never gets feedback on its own generations during training. Online DPO (Guo et al., 2024) mitigates this distributional shift in three steps: (1) sample 2 responses to a prompt from the current policy; (2) obtain online feedback on the pair; (3) update the policy with standard DPO loss on that pairwise data. The original paper uses online AI feedback for step 2; Tülu 3 substituted a trained RM to scale experiments.</p>
+      <p>Both targets were tried: for general capability, an RM trained one epoch on Skywork's 82K preference points; for math reasoning, that same RM continued on the authors' synthetic on-policy math preference data. The result — training on top of a Tülu 3 DPO checkpoint for 200K episodes on math problems — was <span class="hl2">no or little improvement on GSM8K and degradation on MATH</span>, across various sampling temperatures and KL penalty coefficients. They did not pursue it further, and suggest future work investigate different sampling methods or RM architectures.</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Rejection sampling — the gains weren't worth the compute.</strong></p>
+      <p>The procedure: train an initial model on an SFT + preference mix, use it to generate n responses per SFT prompt, rank those (plus the original response) with an RM or LLM judge, keep the best; the rest can form chosen/rejected pairs for preference optimization. Rerun the whole post-training pipeline on the new data and repeat until performance converges.</p>
+      <p>Tülu 3 tried it and concluded that <span class="hl2">in their setup the gains were minimal for the compute required</span>, leaving deeper exploration to future work. Two qualitative findings worth recording: <strong>(1) strong judges are vital</strong> — publicly available models often struggle to pick the best of the candidates; <strong>(2) including the original response among the judge's options</strong> (choosing the best out of the n generations <em>plus</em> the original) performed much better than choosing only among new generations.</p>
+    </div>
+
+    <h3>Four limitations and directions the authors name</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Long context and multi-turn</h4>
+        <p>Tülu 3's data is relatively short and contains no long multi-turn conversations — <strong>the average is 2.4 turns and the majority of samples are under 2,048 tokens</strong>. Longer context enables new use cases and more in-context examples; a non-trivial share of real user conversations exceed 2 turns. Both need dedicated training and evaluation.</p>
+      </div>
+      <div class="card">
+        <h4>Multilinguality</h4>
+        <p>Tülu 3 focuses on English data and evaluations (the multilingual Aya dataset is included only for its quality). The authors note multilingual post-training may need different techniques — cross-lingual alignment, or careful data balancing strategies — making it an interesting and impactful direction.</p>
+      </div>
+      <div class="card">
+        <h4>Tool use and agents</h4>
+        <p>Tülu 3 is evaluated on its own, but LMs are increasingly deployed inside larger systems with tools or agent frameworks. The authors specifically note that <span class="hl">training models to use tools is a natural way to dramatically improve reasoning and math</span>, rather than trying to accomplish everything "in the weights."</p>
+      </div>
+      <div class="card">
+        <h4>More complex verifiers</h4>
+        <p>RLVR currently covers two domains (math, exact instruction following) and three evaluations, all with relatively straightforward verification. <strong>More complex verifiers are explicitly left to future work</strong> — a footnote points to recent success using code execution feedback for RL.</p>
+      </div>
+    </div>
+
+    <h3>In retrospect: what Tülu 3 actually changed</h3>
+    <div class="callout">
+      <p>Tülu 3's significance is not in any single score. Its 8B doesn't even win on average against Qwen 2.5 7B Instruct, and trails it by more than 25 points on MATH.</p>
+      <p>Its significance is that <span class="hl">for the first time, someone wrote down the complete modern post-training pipeline — every data mixing ablation, every hyperparameter, the methods that failed, and the actual contamination rates of public datasets — and shipped it with the weights, data, and code</span>. RLVR matters in its own right too: it demonstrates that RL on verifiable binary signals can be integrated into a generalist pipeline rather than just improving math in isolation, while honestly showing both its ceiling (near-zero gain at 70B) and its failure mode (too small a β turns the model into a verifier parasite).</p>
+      <p><strong>After this, "the open community can't do good post-training" can no longer be explained by "nobody knows how."</strong></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Lambert, Morrison, Pyatkin, Huang, Ivison et al. (2024) · Allen Institute for AI &amp; University of Washington</p>
+    <p style="margin-top:8px">“Tülu 3: Pushing Frontiers in Open Language Model Post-Training”</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2411.15124">arXiv:2411.15124</a> · <a href="https://github.com/allenai/open-instruct">code allenai/open-instruct</a> · <a href="https://github.com/allenai/olmes">eval allenai/olmes</a> · <a href="https://playground.allenai.org/">demo</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a reading digest. Figures are redrawn or reorganized from the paper's content; all numbers follow the original (arXiv v5, 2025-04-14).</p>
+  </div>
+</footer>
+</body>
+</html>

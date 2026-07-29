@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tülu 3 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 26px}
+  li{margin:8px 0;color:var(--ink)}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700;line-height:1.2}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:1.9}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  .ours{color:var(--acc2);font-weight:600}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">arXiv 2024 · 論文導讀</div>
+    <h1 class="title">Tülu <span class="sql">3</span></h1>
+    <p class="subtitle">post-training 的資料與配方，一直是拼圖裡最關鍵、也最不透明的那一塊。Tülu 3 把整套流程——資料、程式碼、評估、負面結果——全部攤開。</p>
+    <div class="meta-row">
+      <span class="tag lit">RLVR</span>
+      <span class="tag lit">length-normalized DPO</span>
+      <span class="tag lit">Persona 合成資料</span>
+      <span class="tag">四階段 post-training</span>
+      <span class="tag">dev / unseen 評估切分</span>
+      <span class="tag">8-gram 去污染</span>
+      <span class="tag">8B / 70B / 405B</span>
+    </div>
+    <p class="authors">Nathan Lambert, Jacob Morrison, Valentina Pyatkin, Shengyi Huang, Hamish Ivison 等 23 位作者 · Allen Institute for AI &amp; University of Washington · <a href="https://arxiv.org/abs/2411.15124">arXiv:2411.15124</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#recipe">02 配方總覽</a>
+    <a href="#data">03 資料策展</a>
+    <a href="#sft">04 SFT</a>
+    <a href="#dpo">05 偏好微調</a>
+    <a href="#rlvr">06 RLVR</a>
+    <a href="#eval">07 評估框架</a>
+    <a href="#results">08 實驗結果</a>
+    <a href="#limits">09 沒奏效的與未來工作</a>
+  </div>
+</nav>
+
+<!-- ═════════════ 01 ═════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — 開源缺的不是模型，是配方</h2>
+    <p class="lead">2024 年底的現實是：開源基礎模型（Llama 3.1、Qwen 2.5）已經很強，但把 base model 變成好用的 chat model 的那一段流程，仍然由少數幾間實驗室私有。</p>
+
+    <p>論文開場的診斷很直接：post-training——包含 instruction tuning、RLHF、以及各種 finetuning 技術的集合——已經成為打造前沿模型的關鍵步驟，但這些技術的進展<strong>幾乎不附帶開放的資源與配方</strong>。作者用一個腳註把問題釘死：在 LMSYS ChatBot Arena 上（截至 2024 年 11 月 20 日），<span class="hl">前 50 名的模型沒有任何一個公開過自己的 post-training 資料</span>。</p>
+
+    <p>完全開源的對照組——Tülu 2、Zephyr-β——確實存在，但它們依賴較簡單、較便宜的 pipeline，在 MATH、IFEval、GSM8K 這類核心能力上已經明顯落後。它們在 AlpacaEval、Arena-Hard 這類 chat 評估上看起來還可以，但那掩蓋了真正的能力缺口。</p>
+
+    <div class="callout">
+      <p><strong>Tülu 3 的定位：</strong>不只是一個模型，而是<span class="hl">一份可複製的完整配方</span>。作者釋出的東西包含四大塊：<span class="hl2">Tülu 3 Data</span>（新的、授權明確的訓練資料集）、<span class="hl2">Tülu 3 Eval</span>（評估套件 + 去污染工具）、<span class="hl2">Tülu 3 Code</span>（訓練與基礎設施程式碼）、<span class="hl2">Tülu 3 Recipe</span>（多階段訓練配方與所有調參細節）。連中間 checkpoint 都放出來了。</p>
+    </div>
+
+    <h3>五項主要貢獻</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>01 · 評估與去污染的完整工具</h4>
+        <p>dev / unseen 雙切分評估套件，加上 8-gram 比對的去污染工具鏈；並公開哪些流行的開放資料集其實已經污染了哪些 benchmark。</p>
+      </div>
+      <div class="card">
+        <h4>02 · 規模化的合成指令資料</h4>
+        <p>用 Persona Hub 的 250K personas 驅動 GPT-4o 生成 math、code、precise IF 資料，避開合成資料常見的 mode collapse。</p>
+      </div>
+      <div class="card">
+        <h4>03 · on-policy 偏好資料的規模化</h4>
+        <p>擴充 UltraFeedback pipeline，混入 Tülu 3 SFT 自己的生成結果，最終產出 354,192 筆偏好資料。</p>
+      </div>
+      <div class="card">
+        <h4>04 · RLVR</h4>
+        <p>Reinforcement Learning with Verifiable Rewards——把 reward model 換成驗證函式，只有答案被驗證正確時才給獎勵。</p>
+      </div>
+      <div class="card">
+        <h4>05 · 大模型的基礎設施細節</h4>
+        <p>非同步 RL（vLLM 推論與 learner 梯度更新並行）、DPO log-prob 快取、Ray + PagedAttention 的 GPU 配置，一路撐到 405B。</p>
+      </div>
+      <div class="card">
+        <h4>＋ · 負面結果</h4>
+        <p>論文專門有一節寫「沒奏效的東西」：Online DPO、rejection sampling。這在技術報告裡相當罕見。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 02 ═════════════ -->
+<section id="recipe">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>配方總覽 — 四個階段</h2>
+    <p class="lead">Tülu 3 從 Llama 3.1 base model 出發，經過四個階段。每個階段接著上一階段的模型，並專注在不同型態的資料上：prompt-completion、preference pair、verifiable reward。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 940 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar1" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+          <marker id="ar2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+        </defs>
+
+        <!-- stage headers -->
+        <text x="112" y="24" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">STAGE 1</text>
+        <text x="112" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">資料策展</text>
+        <text x="342" y="24" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">STAGE 2</text>
+        <text x="342" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">Supervised Finetuning</text>
+        <text x="572" y="24" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">STAGE 3</text>
+        <text x="572" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">Preference Tuning (DPO)</text>
+        <text x="820" y="24" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">STAGE 4</text>
+        <text x="820" y="42" fill="#e8edf4" font-size="12.5" text-anchor="middle">RLVR</text>
+
+        <!-- inputs row -->
+        <rect x="18" y="62" width="188" height="86" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="112" y="84" fill="#93a1b3" font-size="10.5" text-anchor="middle">public datasets</text>
+        <text x="112" y="102" fill="#93a1b3" font-size="10.5" text-anchor="middle">persona 合成指令</text>
+        <text x="112" y="120" fill="#93a1b3" font-size="10.5" text-anchor="middle">8-gram 去污染</text>
+        <text x="112" y="140" fill="#5ad1c0" font-size="10.5" text-anchor="middle">23.3M prompts</text>
+
+        <rect x="250" y="62" width="184" height="86" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="342" y="88" fill="#93a1b3" font-size="10.5" text-anchor="middle">data mixing 消融</text>
+        <text x="342" y="108" fill="#93a1b3" font-size="10.5" text-anchor="middle">sum loss · 2 epochs</text>
+        <text x="342" y="132" fill="#5ad1c0" font-size="10.5" text-anchor="middle">939,344 SFT 樣本</text>
+
+        <rect x="480" y="62" width="184" height="86" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="572" y="84" fill="#93a1b3" font-size="10.5" text-anchor="middle">on-policy + off-policy</text>
+        <text x="572" y="102" fill="#93a1b3" font-size="10.5" text-anchor="middle">GPT-4o as judge</text>
+        <text x="572" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">length-norm. DPO</text>
+        <text x="572" y="142" fill="#5ad1c0" font-size="10.5" text-anchor="middle">354,192 偏好對</text>
+
+        <rect x="712" y="62" width="212" height="86" rx="9" fill="#241d16" stroke="#5a4530"/>
+        <text x="818" y="84" fill="#93a1b3" font-size="10.5" text-anchor="middle">GSM8K · MATH · IF</text>
+        <text x="818" y="102" fill="#93a1b3" font-size="10.5" text-anchor="middle">verifier → 二元獎勵</text>
+        <text x="818" y="122" fill="#93a1b3" font-size="10.5" text-anchor="middle">PPO · 非同步 RL</text>
+        <text x="818" y="142" fill="#f4a259" font-size="10.5" text-anchor="middle">29,946 verifiable prompts</text>
+
+        <!-- model chain -->
+        <rect x="30" y="196" width="164" height="42" rx="8" fill="#141b25" stroke="#3a4658"/>
+        <text x="112" y="222" fill="#e8edf4" font-size="12" text-anchor="middle">Llama 3.1 Base</text>
+
+        <rect x="262" y="196" width="160" height="42" rx="8" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="342" y="222" fill="#5ad1c0" font-size="12" text-anchor="middle">Tülu 3-SFT</text>
+
+        <rect x="492" y="196" width="160" height="42" rx="8" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="572" y="222" fill="#5ad1c0" font-size="12" text-anchor="middle">Tülu 3-DPO</text>
+
+        <rect x="740" y="196" width="156" height="42" rx="8" fill="#141b25" stroke="#f4a259" stroke-width="1.6"/>
+        <text x="818" y="222" fill="#f4a259" font-size="12.5" text-anchor="middle" font-weight="700">Tülu 3</text>
+
+        <!-- vertical arrows input -> chain -->
+        <line x1="112" y1="150" x2="112" y2="192" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="342" y1="150" x2="342" y2="192" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="572" y1="150" x2="572" y2="192" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="818" y1="150" x2="818" y2="192" stroke="#f4a259" marker-end="url(#ar2)"/>
+
+        <!-- horizontal chain arrows -->
+        <line x1="194" y1="217" x2="256" y2="217" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="422" y1="217" x2="486" y2="217" stroke="#5ad1c0" marker-end="url(#ar1)"/>
+        <line x1="652" y1="217" x2="734" y2="217" stroke="#f4a259" marker-end="url(#ar2)"/>
+
+        <!-- eval bar -->
+        <rect x="30" y="272" width="866" height="46" rx="9" fill="#0a0e14" stroke="#26313f" stroke-dasharray="4 4"/>
+        <text x="60" y="292" fill="#8c7bff" font-size="11" font-weight="700">Tülu 3 Eval</text>
+        <text x="60" y="309" fill="#93a1b3" font-size="10.5">development 評估：每個階段都用它來選資料混合、演算法與超參數</text>
+        <text x="700" y="292" fill="#8c7bff" font-size="11" font-weight="700" text-anchor="middle">unseen 評估</text>
+        <text x="700" y="309" fill="#93a1b3" font-size="10.5" text-anchor="middle">開發期間刻意不看，只用於最終模型</text>
+        <line x1="640" y1="278" x2="640" y2="312" stroke="#26313f"/>
+      </svg>
+      <div class="figcap">圖 1 · Tülu 3 四階段配方總覽（依論文 Figure 1 重繪並補上各階段資料量）</div>
+    </div>
+
+    <h3>階段拆解</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Data Curation（§3）</h4>
+        <p>策展要分配到後續各階段的 prompts。有現成的就從公開資料集取（並追蹤 provenance 與授權），沒有的就合成。全部對 Tülu 3 Eval 做去污染。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Supervised Finetuning（§4）</h4>
+        <p>在精選的 prompt-completion 上做 SFT。透過大量實驗決定最終資料混合與超參數，目標是<strong>提升目標技能又不明顯犧牲其他技能</strong>。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Preference Tuning（§5）</h4>
+        <p>用 DPO 訓練新策展的偏好資料——包含從 Tülu 3-SFT 自己採樣的 on-policy 資料，以及來自其他模型的 off-policy 資料。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>RL with Verifiable Rewards（§6）</h4>
+        <p>新增的最後階段。挑選有 ground-truth 的任務（數學、可驗證的指令遵循），<strong>只有生成被驗證為正確時才給獎勵</strong>，再用 PPO 最大化這個獎勵。</p>
+      </div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>一個容易被忽略的設計：</strong>四個階段共用同一套 <code>Tülu 3 Eval</code> development 套件當作羅盤。作者的方法論不是「跑一次 pipeline 看結果」，而是<span class="hl2">先為每個技能建立單技能上界模型（例如純數學模型），再混資料把通用模型往那個上界推</span>。這讓「哪個技能還有多少空間」變成一個可測量的問題。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 03 ═════════════ -->
+<section id="data">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>資料策展 — 2,330 萬個 prompt 的來源</h2>
+    <p class="lead">Prompts 是所有 post-training 階段的共同起點。Tülu 3 策展了約 2,330 萬個 prompt，然後從裡面挑出 SFT 用的 93.9 萬與 DPO 用的 42.5 萬。</p>
+
+    <h3>三個篩選原則</h3>
+    <div class="grid g3">
+      <div class="card">
+        <h4>Diversity</h4>
+        <p>WildChat（真實使用者互動）、Open Assistant（志工標註）、No Robots（專家標註）、FLAN v2（經典 NLP 任務彙編）。</p>
+      </div>
+      <div class="card">
+        <h4>Target Skills</h4>
+        <p>OpenMathInstruct 2 / NuminaMath（數學）、Evol-CodeAlpaca（程式）、Aya（多語）、SciRIFF（科學文獻）、TableGPT（表格）。</p>
+      </div>
+      <div class="card">
+        <h4>Provenance &amp; License</h4>
+        <p>只收授權清楚正確的。<strong>ShareGPT 被整個排除</strong>（使用者當初分享時未同意用於訓練），改用 WildChat；Helpsteer2 也因為 prompt 用了 ShareGPT 而被放棄。</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 7 · Tülu 3 prompt 資料集（節選；完整 22 個來源見論文）</caption>
+        <thead><tr><th>類別</th><th>Prompt Dataset</th><th>總數</th><th>用於 SFT</th><th>用於 DPO</th></tr></thead>
+        <tbody>
+          <tr><td>General</td><td>WildChat (GPT-4 subset)</td><td class="num">241,307</td><td class="num">100,000</td><td class="num">100,000</td></tr>
+          <tr><td>General</td><td>OpenAssistant</td><td class="num">88,838</td><td class="num">7,132</td><td class="num">7,132</td></tr>
+          <tr><td>General</td><td>No Robots</td><td class="num">9,500</td><td class="num">9,500</td><td class="num">9,500</td></tr>
+          <tr><td>General</td><td>UltraFeedback</td><td class="num">41,635</td><td class="num">–</td><td class="num">41,635</td></tr>
+          <tr><td>Knowledge</td><td>FLAN v2</td><td class="num">89,982</td><td class="num">89,982</td><td class="num">12,141</td></tr>
+          <tr><td>Knowledge</td><td>SciRIFF</td><td class="num">35,357</td><td class="num">10,000</td><td class="num">17,590</td></tr>
+          <tr class="best"><td>Math</td><td class="ours">Tülu 3 Persona MATH</td><td class="num">149,960</td><td class="num">149,960</td><td class="num">–</td></tr>
+          <tr class="best"><td>Math</td><td class="ours">Tülu 3 Persona GSM</td><td class="num">49,980</td><td class="num">49,980</td><td class="num">–</td></tr>
+          <tr class="best"><td>Math</td><td class="ours">Tülu 3 Persona Algebra</td><td class="num">20,000</td><td class="num">20,000</td><td class="num">–</td></tr>
+          <tr><td>Math</td><td>OpenMathInstruct 2</td><td class="num">21,972,791</td><td class="num">50,000</td><td class="num">26,356</td></tr>
+          <tr><td>Math</td><td>NuminaMath-TIR</td><td class="num">64,312</td><td class="num">64,312</td><td class="num">8,677</td></tr>
+          <tr class="best"><td>Coding</td><td class="ours">Tülu 3 Persona Python</td><td class="num">34,999</td><td class="num">34,999</td><td class="num">–</td></tr>
+          <tr><td>Coding</td><td>Evol CodeAlpaca</td><td class="num">107,276</td><td class="num">107,276</td><td class="num">14,200</td></tr>
+          <tr class="best"><td>Safety</td><td class="ours">Tülu 3 CoCoNot</td><td class="num">10,983</td><td class="num">10,983</td><td class="num">10,983</td></tr>
+          <tr class="best"><td>Safety</td><td class="ours">Tülu 3 WildJailbreak</td><td class="num">50,000</td><td class="num">50,000</td><td class="num">26,356</td></tr>
+          <tr class="best"><td>Safety</td><td class="ours">Tülu 3 WildGuardMix</td><td class="num">50,000</td><td class="num">50,000</td><td class="num">26,356</td></tr>
+          <tr><td>Multilingual</td><td>Aya</td><td class="num">202,285</td><td class="num">100,000</td><td class="num">32,210</td></tr>
+          <tr class="best"><td>Precise IF</td><td class="ours">Tülu 3 Persona IF</td><td class="num">29,980</td><td class="num">29,980</td><td class="num">19,890</td></tr>
+          <tr class="best"><td>Precise IF</td><td class="ours">Tülu 3 IF-augmented</td><td class="num">65,530</td><td class="num">–</td><td class="num">65,530</td></tr>
+          <tr><td><strong>Total</strong></td><td>—</td><td class="num"><strong>23,327,961</strong></td><td class="num"><strong>939,344</strong></td><td class="num"><strong>425,145</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">橘色列為 Tülu 3 隨論文新釋出的資料集。</p>
+
+    <h3>Persona-driven 合成：怎麼避開 mode collapse</h3>
+    <p>合成資料最大的問題是 LM 容易掉進重複的模式（mode collapse）。Tülu 3 沿用 Chan et al. (2024) 的 persona-driven 方法：<span class="hl">用不同的 persona 條件化生成</span>，例如「一位專注在神經網路的機器學習研究者」，搭配一個資料合成 prompt（例如「創造一個程式問題」），把 LLM 往對應的視角推。具體來說，他們用 Persona Hub 的 <strong>250K personas</strong>，以 GPT-4o-2024-08-06 生成。</p>
+
+    <p>這是論文附錄裡實際使用的 prompt，不是改寫版：</p>
+
+    <pre><code><span class="cmt"># Figure 30 · 生成 precise instruction following 的指令</span>
+Create a verifiable instruction that the following persona might ask you to do:
+<span class="str">{persona}</span>
+An example of verifiable instruction could be: <span class="str">{example}</span>
+Note:
+1. The above example is not tied to any particular persona, but you should
+   create one that is unique and specific to the given persona.
+2. The instruction should contain all the following verifiable
+   constraint(s): <span class="str">{constraints}</span>
+3. Your output should start with <span class="str">"User instruction:"</span>. Your output should
+   not include an answer to the instruction.</code></pre>
+
+    <pre><code><span class="cmt"># Figure 33 · 生成困難數學問題</span>
+Create a math problem related to the following persona:
+<span class="str">{persona}</span>
+Note:
+1. The math problem should be challenging and involve advanced mathematical
+   skills and knowledge. Only top talents can solve it correctly.
+2. You should make full use of the persona description to create the math
+   problem to ensure that the math problem is unique and specific
+   to the persona.
+3. Your response should always start with <span class="str">"Math problem:"</span>. Your response
+   should not include a solution to the created math problem.
+4. Your created math problem should include no more than 2 sub-problems.</code></pre>
+
+    <div class="callout">
+      <p><strong>各技能的合成細節：</strong></p>
+      <p>· <strong>Precise IF</strong>：涵蓋 IFEval 定義的 25 種 constraint type。作者先手寫每種 constraint 1–2 個範例（共 33 個 verifiable instruction）當 seed，再用 GPT-4o 生成新指令，最終得到 <span class="hl">29,980 筆 verifiable instruction-response 對</span>（稱為 <code>If-Persona-Sft</code>）。</p>
+      <p>· <strong>Math &amp; Coding</strong>：zero-shot prompt GPT-4o 生成問題，數學解法用 GPT-4o，<span class="hl2">Python 程式則用 claude-3-5-sonnet 生成</span>。共 220K 數學推理與 35K 程式實例。</p>
+      <p>· <strong>Noncompliance &amp; Safety</strong>：依 Brahman et al. (2024) 的 contextual noncompliance 分類（incomplete、unsupported、indeterminate、humanizing requests 等），加上合成對抗式 prompt 與真實世界互動。</p>
+    </div>
+
+    <h3>去污染：8-gram matching</h3>
+    <p>作者試過 full-string、n-gram、embedding-based 三種比對方式，結論是 <strong>n-gram 最有用</strong>。Embedding 方法原則上能抓到改寫式的污染，但實務上很難區分「單純分布相似」與「真的改寫」；而 n-gram 的部分表面重疊反而成功抓到那種「只有數字不同的數學題」。</p>
+
+    <div class="formula">判定規則：<br>
+· 只比對 <span style="color:#f4a259">prompt / user turn</span>（因為 completion 常被 LM 重新生成過）<br>
+· 對 test instance 的每個 token，若它與某個 train instance 共享一個含該 token 的 8-gram，就算 match<br>
+· 若一個 test instance <span style="color:#f4a259">超過 50% 的 token</span> 與同一個 train instance 有 8-gram match → 判定顯著重疊<br>
+· 若某訓練集有任何實例與某個評估的 <span style="color:#f4a259">&gt; 2% instances</span> 重疊 → 該訓練集判定為污染</div>
+
+    <p>處理方式有輕重之分：<strong>與 unseen 評估污染的訓練集全部移除</strong>；與 development 評估污染的，若整組移除不顯著影響模型表現就整組移除，否則只移除比對到的個別實例。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 37（節選）· 作者在公開資料集中實測到的污染比例</caption>
+        <thead><tr><th>公開資料集</th><th>污染的評估</th><th>重疊比例</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>Evol CodeAlpaca (Magicoder-Evol-Instruct-110K)</td><td>HumanEval</td><td class="num">70.7%</td></tr>
+          <tr><td>WildJailbreak</td><td>Do-Anything-Now</td><td class="num">54.0%</td></tr>
+          <tr><td>WildGuardmix</td><td>Do-Anything-Now</td><td class="num">39.7%</td></tr>
+          <tr><td>DaringAnteater</td><td>MATH</td><td class="num">30.7%</td></tr>
+          <tr><td>WildGuardmix</td><td>JailbreakTrigger</td><td class="num">19.0%</td></tr>
+          <tr><td>NuminaMath-TIR</td><td>MATH</td><td class="num">18.2%</td></tr>
+          <tr><td>WildChat GPT-4</td><td>JailbreakTrigger</td><td class="num">9.0%</td></tr>
+          <tr><td>WildJailbreak</td><td>WildGuardTest</td><td class="num">8.2%</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>這張表可能是整篇論文最有實用價值的一頁。</strong>Evol CodeAlpaca 與 HumanEval 的重疊高達 70.7%——這意味著<span class="hl2">很多論文報告的 HumanEval 分數其實在測記憶</span>。作者的總結是：像 ShareGPT、WildChat、LMSys Chat 這種包含 API 模型真實使用紀錄的資料集，本質上就很可能與既有 benchmark 的測試集重疊，實務上務必先去污染再拿來訓練。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 04 ═════════════ -->
+<section id="sft">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>監督式微調 — 資料混合的工程</h2>
+    <p class="lead">SFT 階段的核心挑戰不是演算法，而是<strong>混合比例</strong>：怎麼在多個技能之間分配資料，才不會拆東牆補西牆。</p>
+
+    <h3>從 prompt 到 SFT 資料</h3>
+    <p>取得 response 有兩條路：<strong>過濾現有的</strong>——若原始 response 出自人類或前沿模型（如 GPT-4o）就保留，大型資料集（如 WildChat）只取最好模型的子集；<strong>生成新的</strong>——Persona prompts 沒有 response，或原 response 來自較弱模型（如 WildGuardMix）時，用 GPT-4o 重新生成。另外會過濾掉空 response 與含有模型／開發者資訊的 response。</p>
+
+    <h3>混合流程</h3>
+    <p>作法是：先以「Llama 3.1 + Tülu 2 mix」當 baseline，找出落後 SOTA 的技能；針對每個技能<span class="hl">單獨建立單技能資料混合與模型</span>，取單一技能表現最好的混合——這是為了逼近該評估在此設定下的上界；再把這些混合組合成初版 Tülu 3 preview mix，接著反覆增刪、去污染、對特別大的資料集降採樣。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 9 · Tülu 3 SFT 模型 vs 其他 SFT-only baseline（全部訓練於 Llama 3.0 或 3.1）</caption>
+        <thead><tr><th>Model</th><th>Avg.</th><th>MMLU</th><th>TQA</th><th>PopQA</th><th>BBH</th><th>CHE</th><th>CHE+</th><th>GSM</th><th>DROP</th><th>MATH</th><th>IFEval</th><th>AE 2</th><th>Safety</th></tr></thead>
+        <tbody>
+          <tr><td>Tülu 2 8B SFT</td><td class="num">48.3</td><td class="num">61.8</td><td class="num">49.4</td><td class="num">23.3</td><td class="num">57.1</td><td class="num">66.9</td><td class="num">63.1</td><td class="num">60.4</td><td class="num">61.7</td><td class="num">14.0</td><td class="num">42.3</td><td class="num">8.9</td><td class="num">70.7</td></tr>
+          <tr><td>RLHFlow SFT V2</td><td class="num">56.0</td><td class="num">65.8</td><td class="num">56.0</td><td class="num">29.7</td><td class="num">69.3</td><td class="num">86.2</td><td class="num">80.9</td><td class="num">81.6</td><td class="num">57.2</td><td class="num">35.7</td><td class="num">52.7</td><td class="num">13.6</td><td class="num">43.5</td></tr>
+          <tr><td>MAmmoTH2 8B</td><td class="num">46.4</td><td class="num">63.6</td><td class="num">42.7</td><td class="num">20.8</td><td class="num">63.4</td><td class="num">72.8</td><td class="num">66.4</td><td class="num">63.7</td><td class="num">43.8</td><td class="num">30.5</td><td class="num">34.9</td><td class="num">6.5</td><td class="num">47.8</td></tr>
+          <tr class="best"><td class="ours">Tülu 3 8B SFT</td><td class="num">60.1</td><td class="num">62.1</td><td class="num">46.8</td><td class="num">29.3</td><td class="num">67.9</td><td class="num">86.2</td><td class="num">81.4</td><td class="num">76.2</td><td class="num">61.3</td><td class="num">31.5</td><td class="num">72.8</td><td class="num">12.4</td><td class="num">93.1</td></tr>
+          <tr><td>Tülu 2 70B SFT</td><td class="num">63.6</td><td class="num">76.0</td><td class="num">57.8</td><td class="num">44.1</td><td class="num">79.4</td><td class="num">86.8</td><td class="num">83.5</td><td class="num">83.2</td><td class="num">75.9</td><td class="num">33.1</td><td class="num">57.7</td><td class="num">17.3</td><td class="num">68.8</td></tr>
+          <tr class="best"><td class="ours">Tülu 3 70B SFT</td><td class="num">72.6</td><td class="num">79.4</td><td class="num">55.7</td><td class="num">48.6</td><td class="num">82.7</td><td class="num">92.9</td><td class="num">87.3</td><td class="num">91.1</td><td class="num">77.2</td><td class="num">53.7</td><td class="num">82.1</td><td class="num">26.3</td><td class="num">94.4</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>四個資料消融結論</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 10 · SFT 資料消融（逐一移除某類資料，8B）</caption>
+        <thead><tr><th>Model</th><th>Avg.</th><th>MMLU</th><th>TQA</th><th>PopQA</th><th>BBH</th><th>CHE</th><th>CHE+</th><th>GSM</th><th>DROP</th><th>MATH</th><th>IFEval</th><th>AE 2</th><th>Safety</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Tülu 3 8B SFT</td><td class="num">60.1</td><td class="num">62.1</td><td class="num">46.8</td><td class="num">29.3</td><td class="num">67.9</td><td class="num">86.2</td><td class="num">81.4</td><td class="num">76.2</td><td class="num">61.3</td><td class="num">31.5</td><td class="num">72.8</td><td class="num">12.4</td><td class="num">93.1</td></tr>
+          <tr><td>– w/o WildChat</td><td class="num">58.9</td><td class="num">61.0</td><td class="num">45.2</td><td class="num">28.9</td><td class="num">65.6</td><td class="num">85.3</td><td class="num">80.7</td><td class="num">75.8</td><td class="num">59.3</td><td class="num">31.8</td><td class="num">70.1</td><td class="num">7.5</td><td class="num">95.2</td></tr>
+          <tr><td>– w/o Safety</td><td class="num">58.0</td><td class="num">62.0</td><td class="num">45.5</td><td class="num">29.5</td><td class="num">68.3</td><td class="num">84.5</td><td class="num">79.6</td><td class="num">76.9</td><td class="num">59.4</td><td class="num">32.6</td><td class="num">71.0</td><td class="num">12.4</td><td class="num">74.7</td></tr>
+          <tr><td>– w/o Persona Data</td><td class="num">58.6</td><td class="num">62.4</td><td class="num">48.9</td><td class="num">29.4</td><td class="num">68.3</td><td class="num">84.5</td><td class="num">79.0</td><td class="num">76.8</td><td class="num">62.2</td><td class="num">30.1</td><td class="num">53.6</td><td class="num">13.5</td><td class="num">93.9</td></tr>
+          <tr><td>– w/o Math Data</td><td class="num">58.2</td><td class="num">62.2</td><td class="num">47.1</td><td class="num">29.5</td><td class="num">68.9</td><td class="num">86.0</td><td class="num">80.5</td><td class="num">64.1</td><td class="num">60.9</td><td class="num">23.5</td><td class="num">70.6</td><td class="num">12.0</td><td class="num">93.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <ol>
+      <li><strong>多樣的 chat 資料有用</strong>——移除 WildChat 後大部分技能小幅退化，最明顯是 AlpacaEval 2 從 12.4 掉到 7.5。真實世界查詢對通用 chat 能力不可取代。</li>
+      <li><strong>Safety 是正交的</strong>——移除 safety 資料後，其他技能幾乎不動，只有 safety 平均從 93.1 掉到 74.7。反過來說，<span class="hl">加安全資料不會犧牲通用能力</span>。另外 CoCoNot 這類對比式 prompt 對防止「過度拒答安全 prompt」有幫助。</li>
+      <li><strong>Persona 資料針對性有效</strong>——移除後 IFEval 從 72.8 崩到 <span class="hl2">53.6</span>（掉 19.2 分），MATH、HumanEval+ 也退化。這是三個 Persona 資料集精準命中它們的目標技能的直接證據。</li>
+      <li><strong>技能專屬資料的威力</strong>——以數學為例，移除數學資料後 GSM8K 從 76.2 掉到 64.1、MATH 從 31.5 掉到 23.5。</li>
+    </ol>
+
+    <h3>訓練細節與一個容易踩的坑</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>超參數（Table 11）</h4>
+        <p>LR <code>5e-6</code>（8B）／<code>2e-6</code>（70B）· linear schedule · effective batch 128 · max length 4,096 · warmup ratio 0.03 · <strong>2 epochs</strong></p>
+      </div>
+      <div class="card">
+        <h4>算力</h4>
+        <p>8B：32 GPU × 6 小時。70B：64 GPU × 50 小時。全部在 8×H100 節點上，高速互連。</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Batch aggregation 的 loss 聚合 bug（§4.3.2）——這段值得所有人讀。</strong></p>
+      <p>作者早期發現自家 Open-Instruct 訓練出來的 SFT 模型，比在 TPU 上訓練的同配方模型差。追下去發現是 Transformers 的 loss 聚合問題：<span class="hl">在 padding token 上平均 loss，卻沒考慮 gradient accumulation 與分散式訓練</span>。</p>
+      <p>假設一個 batch 兩個樣本，各有 n₁、n₂ 個非 padding token。一次前傳兩個樣本時得到的是 <code>L = (l_n1 + l_n2) / (n1 + n2)</code>——<strong>每個 token 權重相等</strong>。但若用 gradient accumulation 分開傳、算完再除，得到的是 <code>L = (l_n1/n1 + l_n2/n2) / 2</code>——<strong>每個樣本權重相等</strong>。也就是說<span class="hl2">改變 gradient accumulation 就會改變樣本權重，進而顯著影響表現</span>。跨裝置平均也有同樣問題。</p>
+      <p>Tülu 3 的解法很直接：<strong>改用 sum loss 而非 mean loss</strong>，等於把分母移除，讓所有 token 權重相等（並相應調整 learning rate）。他們用 Llama 3.0 + Tülu 2 mix 掃過各種 LR、epoch 與 loss type 驗證，結論是 <code>sum loss + LR 5e-6</code> 最佳；而且意外地，<strong>訓練更久（更多 epoch）並沒有更好</strong>，所以只跑 2 epochs。</p>
+    </div>
+
+    <h3>另外三個小發現</h3>
+    <ul>
+      <li><strong>Base model 很重要</strong>（Table 12）：同一份 mix，Llama 3.1 8B → GSM8K 76.2 / MATH 31.5；70B → 91.1 / 53.7；Qwen 2.5 7B → 79.2 / 49.4；<span class="hl">Qwen 2.5 Math 7B → 86.3 / 56.4</span>。模型大小與預訓練資料的領域含量都會直接傳導到下游技能。</li>
+      <li><strong>Chat template</strong>（Table 13）：把 assistant message 尾端的換行換成 eos token 表現最好（53.0），但為了避免與 pipeline 後續步驟的生成不一致，作者選了單純「移除換行」的 Tülu 3 template（52.8）。這是刻意的取捨。</li>
+      <li><strong>Random seed 與 model soup</strong>（Table 14）：SFT 表現會隨 seed 明顯變動（8B：59.8–60.1；70B：70.0–71.8），而<span class="hl2">最佳 model soup 不一定贏過最佳單次訓練</span>（70B soup 72.5 vs 單次最佳 72.6）。所以最終模型用的是最佳單次 SFT run。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═════════════ 05 ═════════════ -->
+<section id="dpo">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>偏好微調 — on-policy 資料 + length-normalized DPO</h2>
+    <p class="lead">這一節有兩個主角：一條能規模化生產偏好資料的合成 pipeline，以及一個被實驗選出來的演算法變體。</p>
+
+    <h3>先把數學寫清楚</h3>
+    <p>標準 RLHF 的設定是：偏好資料集 D 包含 prompt x 與兩個 response，judge 選出偏好的 y_c 與被拒絕的 y_r。Reward model 的目標是：</p>
+    <div class="formula">max<sub>r</sub> &nbsp; E<sub>(x,y<sub>c</sub>,y<sub>r</sub>)∼D</sub> [ log σ( r(x,y<sub>c</sub>) − r(x,y<sub>r</sub>) ) ]<br>
+<span style="color:var(--muted)">σ 為 logistic function；這個差值代表 y_c 被偏好於 y_r 的 log-likelihood</span></div>
+
+    <p>而 policy 的優化目標（PPO 這類 online RL 直接處理的目標）是：</p>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>y∼π(x)</sub> [ R(x,y) ] = [ r(x,y) − β · KL[ π(y|x) ‖ π<sub>ref</sub>(y|x) ] ]<br>
+<span style="color:var(--muted)">π_ref 為初始 reference policy；β 控制 policy 與 reference 之間的 KL 距離</span></div>
+
+    <p>DPO 則證明可以直接優化一個等價目標，不需要訓練 reward model、也不需要 policy 生成：</p>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>(y<sub>c</sub>,y<sub>r</sub>)∼D</sub> [ log σ( β log <span style="color:#f4a259">π(y<sub>c</sub>|x) / π<sub>ref</sub>(y<sub>c</sub>|x)</span> − β log <span style="color:#f4a259">π(y<sub>r</sub>|x) / π<sub>ref</sub>(y<sub>r</sub>|x)</span> ) ]</div>
+
+    <p>Tülu 3 最終採用的是 <strong>length-normalized DPO</strong>——把每個 log-ratio 再除以對應 response 的長度：</p>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>(y<sub>c</sub>,y<sub>r</sub>)∼D</sub> [ log σ( <span style="color:#5ad1c0">β/|y<sub>c</sub>|</span> · log π(y<sub>c</sub>|x)/π<sub>ref</sub>(y<sub>c</sub>|x) − <span style="color:#5ad1c0">β/|y<sub>r</sub>|</span> · log π(y<sub>r</sub>|x)/π<sub>ref</sub>(y<sub>r</sub>|x) ) ]<br>
+<span style="color:var(--muted)">直覺：緩解人類與模型偏好中常見的 length bias（Singhal et al., 2024）</span></div>
+
+    <h3>偏好資料 pipeline</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 920 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar3" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <text x="130" y="22" fill="#5ad1c0" font-size="11.5" text-anchor="middle" font-weight="700">STAGE 1 · Prompt Selection</text>
+        <text x="450" y="22" fill="#5ad1c0" font-size="11.5" text-anchor="middle" font-weight="700">STAGE 2 · Response Generation</text>
+        <text x="778" y="22" fill="#5ad1c0" font-size="11.5" text-anchor="middle" font-weight="700">STAGE 3 · Preference Annotation</text>
+
+        <!-- stage 1 -->
+        <rect x="20" y="44" width="220" height="34" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="130" y="66" fill="#93a1b3" font-size="10.5" text-anchor="middle">SFT 用過的 prompts</text>
+        <rect x="20" y="88" width="220" height="34" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="130" y="110" fill="#93a1b3" font-size="10.5" text-anchor="middle">降採樣但 SFT 未用的 prompts</text>
+        <rect x="20" y="132" width="220" height="34" rx="7" fill="#1b2430" stroke="#26313f"/>
+        <text x="130" y="154" fill="#93a1b3" font-size="10.5" text-anchor="middle">新的 OOD prompts（UF, Persona）</text>
+
+        <!-- stage 2 -->
+        <rect x="300" y="44" width="300" height="52" rx="8" fill="#1b2430" stroke="#3a4658"/>
+        <text x="450" y="64" fill="#e8edf4" font-size="11" text-anchor="middle">Model Pool（22 個模型）</text>
+        <text x="450" y="83" fill="#93a1b3" font-size="10" text-anchor="middle">GPT-4o · Llama 3.1 · Qwen 2.5 · Gemma 2 · Yi · InternLM …</text>
+
+        <rect x="300" y="108" width="142" height="46" rx="8" fill="#1b2430" stroke="#26313f"/>
+        <text x="371" y="130" fill="#93a1b3" font-size="10.5" text-anchor="middle">off-policy</text>
+        <text x="371" y="146" fill="#93a1b3" font-size="9.5" text-anchor="middle">來自 pool 的模型</text>
+
+        <rect x="458" y="108" width="142" height="46" rx="8" fill="#241d16" stroke="#5a4530"/>
+        <text x="529" y="130" fill="#f4a259" font-size="10.5" text-anchor="middle">on-policy</text>
+        <text x="529" y="146" fill="#93a1b3" font-size="9.5" text-anchor="middle">Tülu 3 SFT 8B / 70B</text>
+
+        <text x="450" y="180" fill="#5ad1c0" font-size="10" text-anchor="middle">每個 prompt 隨機抽 4 個模型各生成一個 response</text>
+
+        <!-- stage 3 -->
+        <rect x="660" y="44" width="236" height="40" rx="8" fill="#1b2430" stroke="#8c7bff"/>
+        <text x="778" y="69" fill="#8c7bff" font-size="11" text-anchor="middle">GPT-4o-2024-08-06 as judge</text>
+
+        <rect x="660" y="96" width="236" height="76" rx="8" fill="#0a0e14" stroke="#26313f"/>
+        <text x="778" y="116" fill="#93a1b3" font-size="10" text-anchor="middle">“Rate outputs from 1 to 5…”</text>
+        <text x="778" y="134" fill="#e8edf4" font-size="10">· Helpfulness</text>
+        <text x="778" y="150" fill="#e8edf4" font-size="10">· Instruction Following</text>
+        <text x="778" y="166" fill="#e8edf4" font-size="10">· Honesty · Truthfulness</text>
+
+        <rect x="660" y="184" width="236" height="34" rx="8" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="778" y="206" fill="#5ad1c0" font-size="10.5" text-anchor="middle">取四面向平均 → binarize → (chosen, rejected)</text>
+
+        <line x1="240" y1="105" x2="294" y2="105" stroke="#5ad1c0" marker-end="url(#ar3)"/>
+        <line x1="600" y1="130" x2="654" y2="130" stroke="#5ad1c0" marker-end="url(#ar3)"/>
+
+        <rect x="300" y="238" width="596" height="40" rx="8" fill="#141b25" stroke="#f4a259"/>
+        <text x="598" y="263" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">354,192 筆偏好資料 → 8B mix 271,409 · 70B mix 334,302</text>
+      </svg>
+      <div class="figcap">圖 2 · 偏好資料生成 pipeline（依論文 Figure 7 重繪，模型池與計數取自 Table 38 與 Table 15）</div>
+    </div>
+
+    <p>Binarization 的細節：對四個 response 的四面向評分取平均，<span class="hl">最高分者為 chosen，從平均分較低的 response 中隨機抽一個作為 rejected</span>（沿用 Argilla 的 binarization 方法）。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 15 · 8B / 70B 的最佳偏好資料混合</caption>
+        <thead><tr><th>Dataset</th><th>Count</th><th>8B mix</th><th>70B mix</th></tr></thead>
+        <tbody>
+          <tr><td>SFT Reused On-policy</td><td class="num">19,444</td><td>✓</td><td>✓</td></tr>
+          <tr><td>SFT Reused Off-policy</td><td class="num">96,911</td><td>✓</td><td>✓</td></tr>
+          <tr><td>IF-Augmented</td><td class="num">65,530</td><td>✓</td><td>✓</td></tr>
+          <tr><td>WildChat IF</td><td class="num">10,792</td><td>✓</td><td>✓</td></tr>
+          <tr><td>WildChat Reused</td><td class="num">17,207</td><td>✓</td><td>✓</td></tr>
+          <tr><td>WildChat Unused</td><td class="num">82,783</td><td>—</td><td>✓</td></tr>
+          <tr><td>UltraFeedback (Cleaned)</td><td class="num">41,635</td><td>✓</td><td>✓</td></tr>
+          <tr><td>Persona IF</td><td class="num">19,890</td><td>✓</td><td>—</td></tr>
+          <tr class="best"><td class="ours">Total</td><td class="num">354,192</td><td class="num">271,409</td><td class="num">334,302</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>資料消融的七個結論</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>✓ 唯一 prompt 數量越多越好</h4>
+        <p>固定偏好資料規模、增加唯一 prompt 數，下游 DPO 表現在多個指標上明顯提升。這是最終混合超過 27 萬／33 萬的理由。</p>
+      </div>
+      <div class="card">
+        <h4>✗ 重複 prompt 換 response 沒用</h4>
+        <p>把 UltraFeedback 的四個 response 兩兩配對擴充到 64k / 180k / 383k（唯一 prompt 都是 64k），383k 的表現與 64k 差不多，DROP、GSM8K、AlpacaEval 甚至<span class="hl2">略微退化</span>。</p>
+      </div>
+      <div class="card">
+        <h4>✓ 未用過的 prompt 略勝重用</h4>
+        <p>從同樣來源取 SFT 未使用的 prompt，表現略優於重用 SFT 的 prompt。但最佳混合是<strong>兩者並用</strong>。</p>
+      </div>
+      <div class="card">
+        <h4>✓ on-policy 資料有幫助</h4>
+        <p>加入 Tülu 3 SFT 自己生成的 response（一邊 on-policy、一邊 off-policy），聚合表現優於純 off-policy。</p>
+      </div>
+      <div class="card">
+        <h4>≈ LLM judge 差異很小</h4>
+        <p>GPT-4o 57.3、Llama 3.1 405B 57.2、GPT-4 Turbo 57.0、GPT-4o Mini 56.9、Llama 3.1 70B 56.6。差距小到論文沒有加粗任何一格。最後選 GPT-4o 是因為<span class="hl">好用、便宜、Batch API 快</span>。</p>
+      </div>
+      <div class="card">
+        <h4>✓ 超越 UltraFeedback</h4>
+        <p>最佳混合勝過純 UltraFeedback：8B +1.8、70B +3.3。差距在 70B 更大，作者推測是因為 UltraFeedback 的 completion 來源模型多半弱於 70B 起點模型。</p>
+      </div>
+      <div class="card">
+        <h4>△ Persona 偏好資料只有 IF 有效</h4>
+        <p>三個 Persona 偏好資料集裡，只有 <strong>Persona IF</strong> 同時提升平均分與 IFEval；<span class="hl2">Persona Math 與 Persona Code 都沒有改善各自的目標評估，還略微拉低平均</span>。所以最終混合只留 Persona IF。</p>
+      </div>
+      <div class="card">
+        <h4>✓ 重新生成 completion 會變好</h4>
+        <p>拿 Helpsteer2、UltraFeedback、MultiPref 的 prompt，用 Tülu 3 的合成 pipeline 重新生成 completion 與偏好標註，下游表現優於原始資料集——說明<strong>pipeline 本身就是增益來源</strong>。</p>
+      </div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>值得注意的反直覺結果：</strong>SFT 階段 Persona Math／Code 資料明顯有效（移除後 MATH 掉 8 分、GSM8K 掉 12 分），但同樣的 persona 方法搬到偏好資料就<span class="hl2">失效了</span>。這暗示「什麼資料在什麼階段有用」不能直接類推——SFT 教的是格式與能力，偏好階段教的是排序，兩者需要的資料性質不同。</p>
+    </div>
+
+    <h3>演算法與超參數選擇</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 18 · DPO 演算法與超參數消融（訓練資料固定為 UltraFeedback，基於早期 Tülu 3 checkpoint）</caption>
+        <thead><tr><th>Algorithm</th><th>LR</th><th>γ–β ratio</th><th>β</th><th>Epochs</th><th>Batch</th><th>Average Score</th></tr></thead>
+        <tbody>
+          <tr><td>SFT Base</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">55.7</td></tr>
+          <tr><td>SimPO</td><td class="num">5.00E-07</td><td class="num">0.5</td><td class="num">2</td><td class="num">1</td><td class="num">128</td><td class="num">51.8</td></tr>
+          <tr><td>SimPO</td><td class="num">5.00E-07</td><td class="num">0.3</td><td class="num">10</td><td class="num">1</td><td class="num">128</td><td class="num">52.9</td></tr>
+          <tr><td>DPO</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">0.1</td><td class="num">3</td><td class="num">32</td><td class="num">55.2</td></tr>
+          <tr><td>PPO</td><td class="num">1.00E-06</td><td class="num">–</td><td class="num">0.0325</td><td class="num">1</td><td class="num">64</td><td class="num">54.5</td></tr>
+          <tr><td>PPO</td><td class="num">1.00E-06</td><td class="num">–</td><td class="num">0.05</td><td class="num">1</td><td class="num">64</td><td class="num">55.5</td></tr>
+          <tr><td>DPO-norm</td><td class="num">1.00E-07</td><td class="num">–</td><td class="num">5</td><td class="num">3</td><td class="num">32</td><td class="num">56.1</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">10</td><td class="num">3</td><td class="num">32</td><td class="num">55.2</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">15</td><td class="num">3</td><td class="num">32</td><td class="num">55.7</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">2</td><td class="num">3</td><td class="num">32</td><td class="num">46.8</td></tr>
+          <tr><td>DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">5</td><td class="num">3</td><td class="num">32</td><td class="num">53.4</td></tr>
+          <tr class="best"><td class="ours">DPO-norm</td><td class="num">5.00E-07</td><td class="num">–</td><td class="num">5</td><td class="num">1</td><td class="num">32</td><td class="num">57.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>結論：只有 length-normalized DPO 超過了 SFT baseline（55.7）</strong>——SimPO 兩組都掉到 52 以下，標準 DPO 55.2 也沒贏。最佳設定是 <code>DPO-norm, LR 5e-7, β=5, 1 epoch</code>，達到 57.3。注意 β 對 DPO-norm 敏感得驚人：β=5 得 57.3，β=2 只有 46.8。</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>最終 DPO 超參數（Table 20）</h4>
+        <p>LR <code>5e-7</code>（8B）／<code>2e-7</code>（70B）· linear · effective batch 128 · <strong>max token length 2,048</strong> · β = 5 · warmup 0.1 · 1 epoch</p>
+      </div>
+      <div class="card">
+        <h4>算力</h4>
+        <p>8B DPO：8×H100，10 小時。70B DPO：64 張互連 H100，19 小時。</p>
+      </div>
+    </div>
+
+    <h3>PPO vs DPO：為什麼偏好階段選 DPO</h3>
+    <p>作者後期做了一次較深入的對照：用同一份偏好混合訓練 RM（只取 EOS token 的 logits 作為 reward，linear head 以 N(0, 1/√(d_model+1)) 初始化），再用同一批 prompt 跑 PPO，與 DPO 直接比。</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>結果 1 · 分數相當</h4>
+        <p>在這個未經調校的設定下，PPO 能達到與 DPO 可比（略低）的平均分。</p>
+      </div>
+      <div class="card">
+        <h4>結果 2 · 成本差 7 倍</h4>
+        <p><span class="hl2">PPO 約 28 小時 / 兩個節點；DPO 約 4 小時 / 單一節點。</span>加上 RM 評估本身很微妙（RM benchmark 表現好不代表 PPO 下游好），作者選擇把 PPO 留給 RLVR。</p>
+      </div>
+    </div>
+
+    <h3>把 DPO 撐到 70B 的兩個工程優化</h3>
+    <ol>
+      <li><strong>快取 DPO log probs</strong>——用初始模型預先計算並快取整個資料集的 log probability，<span class="hl">不必在訓練時把 reference model 放在 GPU memory 裡</span>。</li>
+      <li><strong>chosen / rejected 分開前傳</strong>——標準實作會把 chosen 與 rejected 串接後一起前傳，實際上等於把 batch size 翻倍。改成分開跑兩次前傳即可省下記憶體。</li>
+    </ol>
+    <p>兩個技巧在 Llama 3.1 上驗證過，training loss 幾乎完全相同，但峰值 GPU memory 明顯降低。</p>
+  </div>
+</section>
+
+<!-- ═════════════ 06 ═════════════ -->
+<section id="rlvr">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>RLVR — 這篇論文最重要的貢獻</h2>
+    <p class="lead">Reinforcement Learning with Verifiable Rewards：保留 RLHF 的目標函式，但把學出來的 reward model 換成一個確定性的驗證函式。答案驗證正確給獎勵，否則給 0。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 880 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="ar4" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#f4a259"/>
+          </marker>
+          <marker id="ar5" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+
+        <!-- training data -->
+        <rect x="20" y="106" width="150" height="76" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="95" y="130" fill="#e8edf4" font-size="11" text-anchor="middle">Training data</text>
+        <text x="95" y="150" fill="#93a1b3" font-size="10" text-anchor="middle">prompts +</text>
+        <text x="95" y="166" fill="#93a1b3" font-size="10" text-anchor="middle">ground truth</text>
+
+        <!-- policy -->
+        <rect x="232" y="106" width="150" height="76" rx="9" fill="#141b25" stroke="#5ad1c0" stroke-width="1.6"/>
+        <text x="307" y="138" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">Policy π</text>
+        <text x="307" y="158" fill="#93a1b3" font-size="9.5" text-anchor="middle">起點 = Tülu 3-DPO</text>
+
+        <!-- completions -->
+        <rect x="444" y="112" width="140" height="64" rx="9" fill="#1b2430" stroke="#26313f"/>
+        <text x="514" y="140" fill="#93a1b3" font-size="10.5" text-anchor="middle">Completions</text>
+        <text x="514" y="158" fill="#93a1b3" font-size="9.5" text-anchor="middle">CoT + 最終答案</text>
+
+        <!-- verifier -->
+        <rect x="646" y="60" width="210" height="76" rx="9" fill="#241d16" stroke="#f4a259" stroke-width="1.6"/>
+        <text x="751" y="86" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">Verifiable Reward v(x,y)</text>
+        <text x="751" y="106" fill="#93a1b3" font-size="9.5" text-anchor="middle">exact match / constraint verifier</text>
+        <text x="751" y="124" fill="#93a1b3" font-size="9.5" text-anchor="middle">確定性函式 · 無需訓練</text>
+
+        <!-- reward -->
+        <rect x="678" y="156" width="146" height="52" rx="9" fill="#0a0e14" stroke="#f4a259"/>
+        <text x="751" y="178" fill="#f4a259" font-size="12" text-anchor="middle" font-weight="700">α = 10 或 0</text>
+        <text x="751" y="196" fill="#93a1b3" font-size="9.5" text-anchor="middle">scalar reward</text>
+
+        <!-- arrows -->
+        <line x1="170" y1="144" x2="226" y2="144" stroke="#5ad1c0" marker-end="url(#ar5)"/>
+        <line x1="382" y1="144" x2="438" y2="144" stroke="#5ad1c0" marker-end="url(#ar5)"/>
+        <line x1="584" y1="132" x2="640" y2="105" stroke="#f4a259" marker-end="url(#ar4)"/>
+        <line x1="751" y1="136" x2="751" y2="152" stroke="#f4a259" marker-end="url(#ar4)"/>
+
+        <!-- policy update loop -->
+        <path d="M678,182 L620,182 L620,244 L307,244 L307,186" fill="none" stroke="#8c7bff" stroke-width="1.4" marker-end="url(#ar5)"/>
+        <text x="470" y="238" fill="#8c7bff" font-size="10.5" text-anchor="middle">PPO policy update（KL 以 β 約束）</text>
+
+        <!-- note -->
+        <text x="95" y="216" fill="#93a1b3" font-size="9.5" text-anchor="middle">GSM8K · MATH · IF</text>
+        <text x="95" y="232" fill="#5ad1c0" font-size="9.5" text-anchor="middle">29,946 prompts</text>
+
+        <text x="440" y="286" fill="#5b6675" font-size="9.5" text-anchor="middle">value model 從一般 RM 初始化 · 非 EOS 結尾罰 −10 · advantage whitening</text>
+      </svg>
+      <div class="figcap">圖 3 · RLVR 運作方式（依論文 Figure 18 重繪並補上關鍵實作細節）</div>
+    </div>
+
+    <h3>目標函式</h3>
+    <div class="formula">max<sub>π</sub> &nbsp; E<sub>y∼π(x)</sub> [ R<sub>RLVR</sub>(x,y) ] = [ <span style="color:#f4a259">v(x,y)</span> − β · KL[ π(y|x) ‖ π<sub>ref</sub>(y|x) ] ]<br><br>
+其中 &nbsp; v(x,y) = <span style="color:#f4a259">α</span> &nbsp;若答案正確<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; = <span style="color:#93a1b3">0</span> &nbsp;否則<br><br>
+<span style="color:var(--muted)">α = 10（依 pilot 實驗設定，之後沒有再調）· 用 PPO 優化 · 與標準 KL-constrained RLHF 目標僅差在把 learned RM 換成 v</span></div>
+
+    <p>論文自己給出的定位很誠實：RLVR 可以看成<span class="hl">既有 LM reasoning bootstrapping 方法（STaR 等）的簡化版</span>，或是 RL with execution feedback 的簡化版——就是把答案比對或 constraint 驗證當成二元訊號來訓練。前人已經用類似方法單獨改進數學能力（Kazemnejad et al., 2024），Tülu 3 的增量是<strong>把它擴展到多個評估，並整合進一個通用模型的訓練 pipeline</strong>。</p>
+
+    <h3>RLVR 資料：三個來源、三種 verifier</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 22 · Tülu 3 的 verifiable prompt 資料集</caption>
+        <thead><tr><th>Prompt Dataset</th><th>Count</th><th>Verification 方式</th></tr></thead>
+        <tbody>
+          <tr><td>GSM8K Train</td><td class="num">7,473</td><td>從輸出抽出最後一個數字，與 ground-truth label 做 exact match（附 8-shot CoT prompt 誘導推理）</td></tr>
+          <tr><td>MATH Train</td><td class="num">7,500</td><td>附 3-shot CoT prompt，抽答案後依 <code>flex</code> MATH 評估邏輯判定</td></tr>
+          <tr><td>IF verifiable</td><td class="num">14,973</td><td>從 Tülu 2 SFT mix 隨機抽指令 + Zhou et al. (2023) 的 constraint 分類；每個 constraint template 都有對應的驗證函式</td></tr>
+          <tr class="best"><td class="ours">Total</td><td class="num">29,946</td><td>—</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>五個 PPO 實作細節（照抄很重要）</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>value model 從一般 RM 初始化</h4>
+        <p>不是從 policy 初始化。這一項在消融中<strong>明確勝出</strong>（見下）。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>關閉 dropout</h4>
+        <p>RM 與 RL 訓練期間 dropout 設為 0。理由很精確：PPO 在 rollout 與 learning 兩個階段各算一次 log prob，若因 dropout 而不一致，第一個 PPO epoch 的 ratio 就不是 1，<span class="hl2">所有 ratio 可能被 clip 掉導致梯度歸零</span>。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>跨 epoch 洗牌</h4>
+        <p>PPO 的 episode 數可以超過可用 prompt 數（消融實驗約 100,000/7,473 ≈ 13 epochs），epoch 之間要洗牌。最終 run 每 40–100 步存 checkpoint，用 development 評估挑最好的。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>非 EOS 結尾罰 −10</h4>
+        <p>PPO 通常採樣固定上限的 token 數；若 response 沒有以 EOS 結尾就給 −10 懲罰，鼓勵模型把話講完。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Advantage whitening</h4>
+        <p>減平均、除標準差，標準做法。</p>
+      </div></div>
+    </div>
+
+    <h3>四個關鍵發現</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>✓ RLVR 確實改善目標領域</h4>
+        <p>GSM8K、MATH、IF 三組單獨訓練，verifiable reward（訓練集正確率）都穩定上升，且<strong>對應的測試分數也上升</strong>。但注意：<span class="hl2">整體平均分的提升並不保證</span>。有意思的是在 GSM8K 與 MATH 上，花更多 KL budget 並不必然換到更高的 verifiable reward。</p>
+      </div>
+      <div class="card">
+        <h4>✓ value model 從一般 RM 初始化最好</h4>
+        <p>對照「從 anchored DPO 模型初始化」，從一般 RM 初始化同時拿到最高的 GSM8K 測試分與最高平均分。說明 <strong>value function 在 RLVR 裡扮演重要角色</strong>。</p>
+      </div>
+      <div class="card">
+        <h4>✗ 不要把 RM 分數加進去</h4>
+        <p>一個看似合理的實作是「verifiable reward + RM score」。實測<span class="hl2">純 verifiable reward 更好</span>；加上 RM 分數會引入噪音，尤其反映在平均分上。</p>
+      </div>
+      <div class="card">
+        <h4>△ 從較弱模型起步能到同樣的 reward</h4>
+        <p>從 SFT 或 DPO 起步都能達到相同的 verifiable reward 水準，但同樣 β 下<strong>從 SFT 起步會付出更大的 KL</strong>（因為它離「擅長 GSM8K」更遠）。不過從較強模型起步通常換到更好的測試表現。</p>
+      </div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Overoptimization 會發生——而且長相很難看。</strong>β 越小，模型偏離初始模型越多、KL 越大，平均分通常越低。作者在附錄 B.4 展示了 β = 0.01 時 RLVR 在 constraint prompts 上的實際輸出：</p>
+    </div>
+
+    <pre><code><span class="cmt"># β = 0.01：完全 hack 掉 verifier，內容毫無意義</span>
+<span class="fn">User:</span> Measure the length of the given object in cm. Pen.
+      Include keywords timberlike, unconnectedly in your response.
+<span class="kw">Assistant:</span> <span class="str">timberlike, unconnectedly</span>
+
+<span class="fn">User:</span> Measure the length of the given object in cm. Pen.
+      In your response, the letter e should appear 14 times.
+<span class="kw">Assistant:</span> <span class="str">e, e, e, e, e, e, e, e, e, e, e, e, e, e</span>
+
+<span class="fn">User:</span> Measure the length of the given object in cm. Pen.
+      Your response should contain 5 paragraphs...
+<span class="kw">Assistant:</span> <span class="str">Paragraph 1
+      * * *
+      Paragraph 2
+      * * *  ...</span>
+
+<span class="cmt"># β = 0.1：正常回答，順便滿足 constraint</span>
+<span class="kw">Assistant:</span> Measuring the length of a pen would typically be done using a
+      ruler or a measuring tape. Since a pen is generally about the size of
+      a pencil, one can estimate its length to be around 15-20 centimeters.
+      The material of a pen might be <span class="str">timberlike</span> due to its resemblance to
+      wooden materials, though typically pens are made from materials like
+      plastic, metal, or glass-fiber. ...</code></pre>
+
+    <p>這是一個很乾淨的 reward hacking 教材：verifier 說「要包含這兩個關鍵字」，模型就<strong>只輸出這兩個關鍵字</strong>，reward 拿滿，任務完全沒做。KL penalty 在這裡不是可調的旋鈕，而是<span class="hl">唯一防止模型退化成 verifier 寄生蟲的機制</span>。</p>
+
+    <h3>基礎設施：非同步 RL</h3>
+    <p>RLVR 有三個模型：policy、reference policy、value model。前兩個要訓練，reference 只做推論。作法是：</p>
+    <ul>
+      <li><strong>ZeRO Stage 3</strong> 裝模型與 optimizer state。</li>
+      <li><strong>專用推論 GPU</strong>——用 Ray 配置專門的 GPU 跑 vLLM 的 PagedAttention（借鏡 OpenRLHF 的模型配置策略）。PagedAttention 靠虛擬記憶體與分頁減少碎片與冗餘複製，讓推論能用大得多的 batch size。</li>
+      <li><strong>非同步訓練</strong>——推論與訓練計算並行，減少 GPU 閒置。既有 PPO 框架多是同步的：推論 GPU 先收 rollout，learner GPU 再訓練，兩邊輪流閒置。</li>
+      <li><strong>可重現性的補償</strong>——非同步會產生 stale data，作者的處理是<span class="hl">總是用「倒數第二新」的推論資料訓練 policy</span>，讓行為可重現。</li>
+    </ul>
+    <div class="grid g4">
+      <div class="card"><h4>8B RM</h4><p class="big">9h</p><p>8 × H100</p></div>
+      <div class="card"><h4>8B RL</h4><p class="big">65h</p><p>8 GPU</p></div>
+      <div class="card"><h4>70B RL</h4><p class="big">60h</p><p>48 GPU</p></div>
+      <div class="card"><h4>405B RL</h4><p class="big">46h</p><p>256 GPU</p></div>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">註：這些模型最終採用的都是<strong>比訓練終點更早的 checkpoint</strong>。</p>
+
+    <h3>RLVR 的最終效果</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 23 · RLVR 後的最終模型 vs DPO 起點 vs Llama 3.1 Instruct</caption>
+        <thead><tr><th rowspan="2">Benchmark</th><th colspan="3">8B</th><th colspan="3">70B</th></tr>
+        <tr><th>Llama 3.1 Inst.</th><th>Tülu 3 DPO</th><th>Tülu 3 RLVR</th><th>Llama 3.1 Inst.</th><th>Tülu 3 DPO</th><th>Tülu 3 RLVR</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg.</td><td class="num">62.2</td><td class="num">64.4</td><td class="num">64.8</td><td class="num">73.4</td><td class="num">75.9</td><td class="num">76.0</td></tr>
+          <tr><td>MMLU (0 shot, CoT)</td><td class="num">71.2</td><td class="num">68.7</td><td class="num">68.2</td><td class="num">85.3</td><td class="num">83.3</td><td class="num">83.1</td></tr>
+          <tr><td>PopQA (15 shot)</td><td class="num">20.2</td><td class="num">29.3</td><td class="num">29.1</td><td class="num">46.4</td><td class="num">46.3</td><td class="num">46.5</td></tr>
+          <tr><td>TruthfulQA (6 shot)</td><td class="num">55.1</td><td class="num">56.1</td><td class="num">55.0</td><td class="num">66.8</td><td class="num">67.9</td><td class="num">67.6</td></tr>
+          <tr><td>BigBenchHard (3 shot, CoT)</td><td class="num">62.8</td><td class="num">65.8</td><td class="num">66.0</td><td class="num">73.8</td><td class="num">81.8</td><td class="num">82.0</td></tr>
+          <tr><td>DROP (3 shot)</td><td class="num">61.5</td><td class="num">62.5</td><td class="num">62.6</td><td class="num">77.0</td><td class="num">74.1</td><td class="num">74.3</td></tr>
+          <tr class="best"><td class="ours">MATH (4 shot CoT, Flex)</td><td class="num">42.5</td><td class="num">42.0</td><td class="num">43.7</td><td class="num">56.4</td><td class="num">62.3</td><td class="num">63.0</td></tr>
+          <tr class="best"><td class="ours">GSM8K (8 shot, CoT)</td><td class="num">83.4</td><td class="num">84.3</td><td class="num">87.6</td><td class="num">93.7</td><td class="num">93.5</td><td class="num">93.5</td></tr>
+          <tr><td>HumanEval (pass@10)</td><td class="num">86.3</td><td class="num">83.9</td><td class="num">83.9</td><td class="num">93.6</td><td class="num">92.4</td><td class="num">92.4</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">82.9</td><td class="num">78.6</td><td class="num">79.2</td><td class="num">89.5</td><td class="num">88.4</td><td class="num">88.0</td></tr>
+          <tr class="best"><td class="ours">IFEval (Strict)</td><td class="num">80.6</td><td class="num">81.1</td><td class="num">82.4</td><td class="num">88.0</td><td class="num">82.6</td><td class="num">83.2</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">24.2</td><td class="num">33.5</td><td class="num">34.5</td><td class="num">33.4</td><td class="num">49.6</td><td class="num">49.8</td></tr>
+          <tr><td>Safety (6 task avg.)</td><td class="num">75.2</td><td class="num">87.2</td><td class="num">85.5</td><td class="num">76.5</td><td class="num">89.0</td><td class="num">88.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>對 RLVR 效果要有正確的期待值。</strong>8B 上 RLVR 是<span class="hl">非平凡的改善</span>：MATH 42.0 → 43.7、GSM8K 84.3 → <strong>87.6</strong>、IFEval 81.1 → 82.4，三個目標指標全都上升。作者還提到有些 8B run 能把 GSM8K 推到 89.4%、IFEval 推到 84.8%，但<span class="hl2">那些模型在其他指標上更差，拉低了整體平均</span>——所以沒選它們。</p>
+      <p>但 70B 上就溫和多了：IFEval 與 MATH 小幅改善，GSM8K <strong>完全沒有改善</strong>（93.5 → 93.5），因為已經接近飽和。而整體平均只從 75.9 動到 76.0。</p>
+      <p>另一個意外：70B run 的 KL divergence 全程都<span class="hl">遠低於 1</span>，作者推測是因為 learning rate 較低（1e-7）。他們早期試過較高的 LR，結果 KL 一開始就爆掉、平均分明顯下降。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 07 ═════════════ -->
+<section id="eval">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>評估框架 — dev / unseen 的雙切分</h2>
+    <p class="lead">Tülu 3 Eval 的設計目標有三個：可重現、能測未見任務的泛化、對各種模型公平。最重要的機制是一個看起來很簡單的紀律：開發期間刻意不看 unseen 分數。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 3 · Tülu 3 Eval 的 development / unseen 切分</caption>
+        <thead><tr><th>核心技能</th><th>Development</th><th>Unseen</th></tr></thead>
+        <tbody>
+          <tr><td>Knowledge Recall</td><td>MMLU (EM) · PopQA (EM) · TruthfulQA (MC2)</td><td>MMLU-Pro (EM) · GPQA (EM)</td></tr>
+          <tr><td>Reasoning</td><td>BigBenchHard (EM) · DROP (F1)</td><td>AGIEval English (EM)</td></tr>
+          <tr><td>Math</td><td>MATH (flex EM) · GSM8K (EM)</td><td>Deepmind Mathematics (EM)</td></tr>
+          <tr><td>Coding</td><td>HumanEval (Pass@10) · HumanEval+ (Pass@10)</td><td>BigCodeBench-Hard (Pass@10)</td></tr>
+          <tr><td>Instruction Following</td><td>IFEval (EM) · AlpacaEval 2 (winrate)</td><td class="ours">IFEval-OOD (Pass@1) · HREF (winrate)</td></tr>
+          <tr><td>Safety</td><td>Tülu 3 Safety（6 個 benchmark 平均）</td><td>—（無 unseen safety 評估）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <p><strong>為什麼這個切分重要：</strong>Tülu 3 的整個開發流程——資料混合、演算法、超參數——都是用 development 分數當指南針調出來的。如果只報 development 分數，你無法區分「模型真的變強了」與「開發過程過擬合到這 13 個 benchmark 了」。<span class="hl">Unseen 套件在開發期間刻意不看</span>，最後才拿出來當作過擬合的量尺。這在技術報告裡是罕見的自律。</p>
+    </div>
+
+    <h3>OLMES：評估工具鏈</h3>
+    <p>整套評估以 <code>allenai/olmes</code> 釋出，建立在 Eleuther AI LM Evaluation Harness 之上，支援每個 task 的彈性設定、直接取用本論文（以及 OLMo、OLMES standard）使用的 task formulation，並輸出 instance-level 的預測與 confidence 供分析。要重現論文裡 Llama-3.1-8B-Instruct 的 MMLU-Pro 數字，一行就夠：</p>
+    <pre><code>olmes --task mmlu_pro::tulu3 --model llama3.1-8b-instruct</code></pre>
+
+    <h3>Development 評估的幾個關鍵設計決策</h3>
+    <ul>
+      <li><strong>MMLU 用 zero-shot「implicit CoT」</strong>——不是叫模型「step-by-step」思考，而是叫它先「summarize」推理再回答。在測試過的各種 CoT 設定裡，這個 prompt 相對標準 5-shot multiple choice 有<span class="hl">系統性的提升</span>，並且讓最多的 subject 受益。附錄數據顯示：Tülu 3 模型平均有 <strong>78% 的 subject 因 implicit CoT 而改善</strong>，而 explicit CoT 最多只讓 53% 的 subject 受益。最終指標是所有 subject 的 macro average。</li>
+      <li><strong>MATH 用 flex 答案抽取</strong>——三種方式輪流試：(1) Minerva 格式；(2) 找最後一個 <code>&lt;ans&gt;</code>；(3) 取最後兩個 <code>$</code> 之間的文字。理由是開發期間發現<span class="hl2">即使有 few-shot 範例，模型也常常不遵守輸出格式</span>。從只用 Minerva 格式改成 flex，回報分數<strong>有時會差到 10 分</strong>。</li>
+      <li><strong>Multiturn ICL</strong>——PopQA、GSM8K、MATH、BBH 等把每個 few-shot 範例當成對話中的獨立 turn 呈現，而不是全部塞進單一 prompt。</li>
+      <li><strong>HumanEval 用 temperature 0.8 + pass@10</strong>；生成類評估的 output length 上限為 4,096（AlpacaEval 2 為 8,192）。</li>
+    </ul>
+
+    <h3>Safety 評估：六個 benchmark 的平均</h3>
+    <p>Tülu 3 Safety 由六個 benchmark 組成，全部用 WildGuard 分類器判定 refusal / compliance，取 macro average：<strong>XSTest</strong>（200 個不安全 + 250 個「表面像不安全但其實安全」的 prompt，測過度拒答）、<strong>HarmBench</strong>（321 個有害 prompt，涵蓋 cybercrime、化生武器、著作權、假訊息等七類）、<strong>Do-Anything-Now</strong>（DAN 越獄模板 × HarmBench 行為，取 300 個）、<strong>JailbreakTrigger</strong>（13 種越獄攻擊方法，400 例）、<strong>WildJailbreakTest</strong>（210 個對抗式良性 + 2000 個對抗式有害）、<strong>WildGuardTest</strong>（1725 項，55% vanilla / 45% adversarial）。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 25 · 8B 模型的 safety 分數細項</caption>
+        <thead><tr><th>Benchmark</th><th>Llama 3.1 8B Inst</th><th>Ministral 8B Inst</th><th>Qwen 2.5 7B Inst</th><th>Tülu 3 8B SFT</th><th>Tülu 3 8B DPO</th><th>Tülu 3 8B</th></tr></thead>
+        <tbody>
+          <tr><td>HarmBench</td><td class="num">82.8</td><td class="num">53.4</td><td class="num">84.1</td><td class="num">98.4</td><td class="num">94.4</td><td class="num">94.7</td></tr>
+          <tr><td>XSTest</td><td class="num">92.7</td><td class="num">85.6</td><td class="num">91.8</td><td class="num">90.4</td><td class="num">92.4</td><td class="num">93.3</td></tr>
+          <tr><td>WildGuardTest</td><td class="num">86.2</td><td class="num">68.1</td><td class="num">85.0</td><td class="num">99.2</td><td class="num">98.9</td><td class="num">98.5</td></tr>
+          <tr><td>JailbreakTrigger</td><td class="num">78.8</td><td class="num">63.3</td><td class="num">71.0</td><td class="num">95.8</td><td class="num">87.0</td><td class="num">85.5</td></tr>
+          <tr><td>DoAnythingNow</td><td class="num">45.0</td><td class="num">16.0</td><td class="num">61.7</td><td class="num">88.3</td><td class="num">69.7</td><td class="num">62.0</td></tr>
+          <tr><td>WildjailbreakTest</td><td class="num">65.6</td><td class="num">50.7</td><td class="num">56.2</td><td class="num">86.7</td><td class="num">81.1</td><td class="num">78.8</td></tr>
+          <tr class="best"><td class="ours">Overall</td><td class="num">75.2</td><td class="num">56.2</td><td class="num">75.0</td><td class="num">93.1</td><td class="num">87.2</td><td class="num">85.5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>安全性在後續階段是遞減的。</strong>8B 的 safety 平均從 SFT 的 93.1 → DPO 87.2 → RLVR 85.5，跌幅最大的是 DoAnythingNow（88.3 → 69.7 → 62.0）。70B 也一樣（94.4 → 89.0 → 88.3）。這是一個 pipeline 層級的張力：<span class="hl2">DPO 與 RLVR 都不以 safety 為優化目標，於是 SFT 階段建立的安全邊界會被慢慢磨掉</span>。論文沒有特別為此辯護，數字就擺在那裡。</p>
+    </div>
+
+    <h3>Unseen 套件的設計原則</h3>
+    <p>Unseen 套件的 task formulation 是<strong>獨立於 development 套件的設計流程</strong>做出來的，目標是「貼近人類真實使用模型的方式」：</p>
+    <ul>
+      <li>用人類實際會用的方式提問——<span class="hl">避免把 few-shot 範例排成對話</span>，也避免給精確的 CoT 示範「教模型該怎麼想」。</li>
+      <li>給清楚的指示設定情境、鼓勵簡潔推理、明確說明最終答案的格式。</li>
+      <li>答案抽取用合理的啟發式，不要因為模型沒完全遵守隱含語法就懲罰它。</li>
+    </ul>
+    <p>作者先把這些原則套用到 development 任務上做驗證（用一批早於 Tülu 3 的探索性模型），發現<strong>更貼近人類用法通常不會降低表現，反而常常讓多數模型表現更好</strong>——即使移除了 few-shot 範例。但他們刻意<span class="hl2">沒有回頭修改 development 任務的 formulation</span>，只把原則帶到 unseen 任務。這是為了保持 development 分數的歷史可比性。</p>
+
+    <p>一個具體例證（Table 29，DeepMind Mathematics）：從「base-model 改編的 in-context 範例」換成 CoT prompt，Gemma 2 9B Inst 從 18.0 → <strong>45.9</strong>，Qwen 2.5 7B Inst 從 21.2 → <strong>54.7</strong>，Llama 3.1 8B Inst 從 20.0 → <strong>39.4</strong>。評估設定本身就能造成 20–30 分的差異。</p>
+
+    <h3>兩個新評估</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>IFEval-OOD</h4>
+        <p><strong>52 個 constraint、6 大類</strong>，全部與 IFEval 原本的 25 個 constraint 不重疊。5 類把 verifiable constraint 與未見過的 WildChat prompt 組合（並經人工標註檢查相容性——例如「回應中要提到至少 23 個不同人名」不能配上「改寫一句沒有人名的參考文字」），第 6 類 “custom” 是手寫的 verifiable prompt（例如 CSV 生成）。</p>
+      </div>
+      <div class="card">
+        <h4>HREF</h4>
+        <p>Human Reference-guided Evaluation of instruction Following。涵蓋 <strong>11 類</strong>指令遵循任務（Brainstorming、Open QA、Closed QA、Extraction、Generation、Rewriting、Summarization、Classification、Numerical Reasoning、Multi-document Synthesis、Fact Checking），prompt 與 reference 由專業指令資料標註者撰寫。</p>
+      </div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 30（節選）· IFEval-OOD 的 constraint 範例</caption>
+        <thead><tr><th>Instruction Group</th><th>Instruction</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>count</td><td>person_names</td><td>Mention at least {N} different person names in the response.</td></tr>
+          <tr><td>format</td><td>emoji</td><td>Please use an emoji at the end of every sentence.</td></tr>
+          <tr><td>ratio</td><td>stop_words</td><td>Ensure that stop words constitute no more than {percentage}% of the total words.</td></tr>
+          <tr><td>sentence</td><td>keyword</td><td>The response must include keyword {keyword} in the {N}-th sentence.</td></tr>
+          <tr><td>words</td><td>alphabet</td><td>Each word must start with the next letter of the alphabet, looping back to ‘A’ after ‘Z’.</td></tr>
+          <tr><td>custom</td><td>csv_special_character</td><td>生成 14 列 CSV，欄名為 ["ProductID","Category","Brand","Price","Stock"]，並加入一個含特殊字元且用雙引號包住的欄位。</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>HREF 的評估方法本身是一項研究。</strong>作者收集了 16 個模型回應的人類判斷（每對回應 4 個人類判斷），逐一比較各種 win-rate 計算設定與人類多數意見的一致性。最終設定是一個<span class="hl">複合方案</span>：</p>
+    <ul>
+      <li>LM judge 用 <strong>Llama 3.1 70B Instruct</strong>（與人類一致性最高），baseline 模型用 <strong>Llama 3.1 405B Instruct</strong>。</li>
+      <li>11 個子任務中，除 <strong>Open QA</strong> 與 <strong>Fact Checking</strong> 外都用 LM-as-a-judge；那兩個改用 RoBERTa-Large 對人類 reference 的 embedding 相似度算 win-rate。</li>
+      <li>剩下 9 個子任務中，<strong>Brainstorming</strong> 與 <strong>Summarization</strong> 加入人類 reference 並沒有幫助，所以只有另外 7 個會把人類 reference 餵給 LM judge。</li>
+      <li>結果：這套複合流程與人類的一致性達 <span class="hl">69.4%</span>，<strong>高於人類之間的一致性 67%</strong>。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═════════════ 08 ═════════════ -->
+<section id="results">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2>實驗結果</h2>
+    <p class="lead">總體結論：70B 與 405B 明確勝過同尺寸的 open-weight 競品並逼近閉源模型；8B 則是「大幅超越 Llama 3.1 8B Instruct，但沒有全面贏過 Qwen 2.5 7B Instruct」。</p>
+
+    <h3>主表：8B 與 70B vs 開放與閉源模型</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 2 · Tülu 3 Eval development 套件總覽</caption>
+        <thead><tr><th>Skill</th><th>Benchmark (eval)</th><th>Tülu 3 8B</th><th>Qwen 2.5 7B Inst</th><th>Llama 3.1 8B Inst</th><th>Tülu 3 70B</th><th>Qwen 2.5 72B Inst</th><th>Llama 3.1 70B Inst</th><th>GPT-3.5 Turbo</th><th>GPT-4o Mini</th><th>Claude 3.5 Haiku</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>—</td><td class="ours">Avg.</td><td class="num">65.1</td><td class="num">66.5</td><td class="num">62.9</td><td class="num">76.2</td><td class="num">72.8</td><td class="num">74.1</td><td class="num">64.7</td><td class="num">69.6</td><td class="num">75.3</td></tr>
+          <tr><td rowspan="3">Knowledge</td><td>MMLU (0 shot, CoT)</td><td class="num">68.2</td><td class="num">76.6</td><td class="num">71.2</td><td class="num">83.1</td><td class="num">85.5</td><td class="num">85.3</td><td class="num">70.2</td><td class="num">82.2</td><td class="num">81.8</td></tr>
+          <tr><td>PopQA (15 shot)</td><td class="num">29.1</td><td class="num">18.1</td><td class="num">20.2</td><td class="num">46.5</td><td class="num">30.6</td><td class="num">46.4</td><td class="num">45.0</td><td class="num">39.0</td><td class="num">42.5</td></tr>
+          <tr><td>TruthfulQA (6 shot)</td><td class="num">55.0</td><td class="num">63.1</td><td class="num">55.1</td><td class="num">67.6</td><td class="num">69.9</td><td class="num">66.8</td><td class="num">62.9</td><td class="num">64.8</td><td class="num">64.9</td></tr>
+          <tr><td rowspan="2">Reasoning</td><td>BigBenchHard (3 shot, CoT)</td><td class="num">69.0</td><td class="num">70.2</td><td class="num">71.9</td><td class="num">85.0</td><td class="num">80.4</td><td class="num">83.0</td><td class="num">66.6</td><td class="num">65.9</td><td class="num">73.7</td></tr>
+          <tr><td>DROP (3 shot)</td><td class="num">62.6</td><td class="num">54.4</td><td class="num">61.5</td><td class="num">74.3</td><td class="num">34.2</td><td class="num">77.0</td><td class="num">70.2</td><td class="num">36.3</td><td class="num">78.4</td></tr>
+          <tr><td rowspan="2">Math</td><td>MATH (4 shot CoT, Flex)</td><td class="num">43.7</td><td class="num">69.9</td><td class="num">42.5</td><td class="num">63.0</td><td class="num">75.9</td><td class="num">56.4</td><td class="num">41.2</td><td class="num">67.9</td><td class="num">68.0</td></tr>
+          <tr><td>GSM8K (8 shot, CoT)</td><td class="num">87.6</td><td class="num">83.8</td><td class="num">83.4</td><td class="num">93.5</td><td class="num">89.5</td><td class="num">93.7</td><td class="num">74.3</td><td class="num">83.0</td><td class="num">90.1</td></tr>
+          <tr><td rowspan="2">Coding</td><td>HumanEval (pass@10)</td><td class="num">83.9</td><td class="num">93.1</td><td class="num">86.3</td><td class="num">92.4</td><td class="num">94.0</td><td class="num">93.6</td><td class="num">87.1</td><td class="num">90.4</td><td class="num">90.8</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">79.2</td><td class="num">89.7</td><td class="num">82.9</td><td class="num">88.0</td><td class="num">90.8</td><td class="num">89.5</td><td class="num">84.0</td><td class="num">87.0</td><td class="num">88.1</td></tr>
+          <tr><td rowspan="2">IF &amp; chat</td><td>IFEval (prompt loose)</td><td class="num">82.4</td><td class="num">74.7</td><td class="num">80.6</td><td class="num">83.2</td><td class="num">87.6</td><td class="num">88.0</td><td class="num">66.9</td><td class="num">83.5</td><td class="num">86.3</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">34.5</td><td class="num">29.0</td><td class="num">24.2</td><td class="num">49.8</td><td class="num">47.7</td><td class="num">33.4</td><td class="num">38.7</td><td class="num">49.7</td><td class="num">47.3</td></tr>
+          <tr><td>Safety</td><td>Safety (6 task avg.)</td><td class="num">85.5</td><td class="num">75.0</td><td class="num">75.2</td><td class="num">88.3</td><td class="num">87.0</td><td class="num">76.5</td><td class="num">69.1</td><td class="num">84.9</td><td class="num">91.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">閉源模型版本：GPT-3.5-Turbo-0125、GPT-4o-mini-2024-07-18、Claude 3.5 Haiku 20241022。部分閉源分數取自 model card，部分以 MICE（Multiple Imputation by Chained Equations）從表中其他分數插補——這些格子在原論文有標記，因為它們在作者的評估套件裡遇到嚴重格式錯誤，或在其他技術報告中找不到。</p>
+
+    <div class="callout hot">
+      <p><strong>一個容易誤讀的地方：8B 的平均分並沒有贏過 Qwen 2.5 7B Instruct。</strong>Tülu 3 8B 平均 65.1，Qwen 2.5 7B Instruct 是 <span class="hl2">66.5</span>。Qwen 在 MMLU（76.6 vs 68.2）、MATH（69.9 vs 43.7）、HumanEval（93.1 vs 83.9）上大幅領先——這反映的是 Qwen 預訓練資料裡的數學與程式含量，不是 post-training 配方的差距。</p>
+      <p>Tülu 3 8B 贏的地方是：PopQA（29.1 vs 18.1）、DROP（62.6 vs 54.4）、GSM8K（87.6 vs 83.8）、IFEval（82.4 vs 74.7）、AlpacaEval 2（34.5 vs 29.0）、Safety（85.5 vs 75.0）。<strong>對 Llama 3.1 8B Instruct 則是 62.9 → 65.1 的明確勝出</strong>，而這才是控制了 base model 的公平比較。</p>
+      <p>70B 上這個問題消失：Tülu 3 70B 的 76.2 明確勝過 Llama 3.1 70B Instruct 的 74.1 與 Qwen 2.5 72B Instruct 的 72.8，也超過 GPT-3.5 Turbo（64.7）與 GPT-4o Mini（69.6），逼近 Claude 3.5 Haiku（75.3）。</p>
+    </div>
+
+    <h3>各階段的貢獻</h3>
+    <div class="figbox">
+      <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <!-- axes -->
+        <line x1="66" y1="24" x2="66" y2="256" stroke="#26313f"/>
+        <line x1="66" y1="256" x2="736" y2="256" stroke="#26313f"/>
+        <!-- gridlines + labels -->
+        <line x1="66" y1="256" x2="736" y2="256" stroke="#26313f"/>
+        <line x1="66" y1="198" x2="736" y2="198" stroke="#1b2430"/>
+        <line x1="66" y1="140" x2="736" y2="140" stroke="#1b2430"/>
+        <line x1="66" y1="82" x2="736" y2="82" stroke="#1b2430"/>
+        <line x1="66" y1="24" x2="736" y2="24" stroke="#1b2430"/>
+        <text x="56" y="260" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="56" y="202" fill="#5b6675" font-size="10" text-anchor="end">25</text>
+        <text x="56" y="144" fill="#5b6675" font-size="10" text-anchor="end">50</text>
+        <text x="56" y="86" fill="#5b6675" font-size="10" text-anchor="end">75</text>
+        <text x="56" y="28" fill="#5b6675" font-size="10" text-anchor="end">100</text>
+
+        <!-- Group 1: Avg 60.6 / 64.7 / 65.1 -->
+        <rect x="90" y="115.5" width="26" height="140.5" rx="3" fill="#3a4658"/>
+        <rect x="120" y="106.5" width="26" height="149.5" rx="3" fill="#4a7d8c"/>
+        <rect x="150" y="105.6" width="26" height="150.4" rx="3" fill="#f4a259"/>
+        <text x="133" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">Avg.</text>
+        <text x="103" y="110" fill="#5b6675" font-size="9" text-anchor="middle">60.6</text>
+        <text x="133" y="101" fill="#5b6675" font-size="9" text-anchor="middle">64.7</text>
+        <text x="163" y="100" fill="#f4a259" font-size="9" text-anchor="middle">65.1</text>
+
+        <!-- Group 2: MATH 31.5 / 42.0 / 43.7 -->
+        <rect x="212" y="182.9" width="26" height="73.1" rx="3" fill="#3a4658"/>
+        <rect x="242" y="158.6" width="26" height="97.4" rx="3" fill="#4a7d8c"/>
+        <rect x="272" y="154.6" width="26" height="101.4" rx="3" fill="#f4a259"/>
+        <text x="255" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">MATH</text>
+        <text x="225" y="177" fill="#5b6675" font-size="9" text-anchor="middle">31.5</text>
+        <text x="255" y="153" fill="#5b6675" font-size="9" text-anchor="middle">42.0</text>
+        <text x="285" y="149" fill="#f4a259" font-size="9" text-anchor="middle">43.7</text>
+
+        <!-- Group 3: GSM8K 76.2 / 84.3 / 87.6 -->
+        <rect x="334" y="79.2" width="26" height="176.8" rx="3" fill="#3a4658"/>
+        <rect x="364" y="60.4" width="26" height="195.6" rx="3" fill="#4a7d8c"/>
+        <rect x="394" y="52.7" width="26" height="203.3" rx="3" fill="#f4a259"/>
+        <text x="377" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">GSM8K</text>
+        <text x="347" y="74" fill="#5b6675" font-size="9" text-anchor="middle">76.2</text>
+        <text x="377" y="55" fill="#5b6675" font-size="9" text-anchor="middle">84.3</text>
+        <text x="407" y="47" fill="#f4a259" font-size="9" text-anchor="middle">87.6</text>
+
+        <!-- Group 4: IFEval 72.8 / 81.1 / 82.4 -->
+        <rect x="456" y="87.1" width="26" height="168.9" rx="3" fill="#3a4658"/>
+        <rect x="486" y="67.8" width="26" height="188.2" rx="3" fill="#4a7d8c"/>
+        <rect x="516" y="64.8" width="26" height="191.2" rx="3" fill="#f4a259"/>
+        <text x="499" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">IFEval</text>
+        <text x="469" y="82" fill="#5b6675" font-size="9" text-anchor="middle">72.8</text>
+        <text x="499" y="63" fill="#5b6675" font-size="9" text-anchor="middle">81.1</text>
+        <text x="529" y="59" fill="#f4a259" font-size="9" text-anchor="middle">82.4</text>
+
+        <!-- Group 5: AlpacaEval 12.4 / 33.5 / 34.5 -->
+        <rect x="578" y="227.2" width="26" height="28.8" rx="3" fill="#3a4658"/>
+        <rect x="608" y="178.3" width="26" height="77.7" rx="3" fill="#4a7d8c"/>
+        <rect x="638" y="176" width="26" height="80" rx="3" fill="#f4a259"/>
+        <text x="621" y="274" fill="#93a1b3" font-size="10.5" text-anchor="middle">AlpacaEval 2</text>
+        <text x="591" y="222" fill="#5b6675" font-size="9" text-anchor="middle">12.4</text>
+        <text x="621" y="173" fill="#5b6675" font-size="9" text-anchor="middle">33.5</text>
+        <text x="651" y="170" fill="#f4a259" font-size="9" text-anchor="middle">34.5</text>
+
+        <!-- legend -->
+        <rect x="240" y="298" width="13" height="13" rx="2" fill="#3a4658"/>
+        <text x="259" y="309" fill="#93a1b3" font-size="10.5">SFT</text>
+        <rect x="310" y="298" width="13" height="13" rx="2" fill="#4a7d8c"/>
+        <text x="329" y="309" fill="#93a1b3" font-size="10.5">+ DPO</text>
+        <rect x="392" y="298" width="13" height="13" rx="2" fill="#f4a259"/>
+        <text x="411" y="309" fill="#f4a259" font-size="10.5">+ RLVR（最終）</text>
+      </svg>
+      <div class="figcap">圖 4 · Tülu 3 8B 各訓練階段的貢獻（數值取自論文 Table 6 / Table 23）</div>
+    </div>
+
+    <p>讀法：<strong>DPO 帶來大部分的通用提升</strong>（Avg. 60.6 → 64.7，AlpacaEval 2 從 12.4 跳到 33.5），<strong>RLVR 提供的是目標領域的最後一哩</strong>（GSM8K +3.3、MATH +1.7、IFEval +1.3）。想複製 Tülu 3 但算力有限的人，這張圖告訴你優先順序。</p>
+
+    <h3>70B 完整對照</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 5 · Tülu 3 70B vs 同級 70B 模型</caption>
+        <thead><tr><th>Benchmark (eval)</th><th>Llama 3.1 70B Inst</th><th>Qwen 2.5 72B Inst</th><th>Hermes 3 Llama 3.1 70B</th><th>Nemotron Llama 3.1 70B</th><th>Tülu 3 70B SFT</th><th>Tülu 3 70B DPO</th><th>Tülu 3 70B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg.</td><td class="num">74.1</td><td class="num">72.8</td><td class="num">68.5</td><td class="num">72.0</td><td class="num">72.6</td><td class="num">76.2</td><td class="num">76.2</td></tr>
+          <tr><td>MMLU (0 shot, CoT)</td><td class="num">85.3</td><td class="num">85.5</td><td class="num">80.4</td><td class="num">83.8</td><td class="num">78.9</td><td class="num">83.3</td><td class="num">83.1</td></tr>
+          <tr><td>PopQA (15 shot)</td><td class="num">46.4</td><td class="num">30.6</td><td class="num">48.1</td><td class="num">36.4</td><td class="num">48.6</td><td class="num">46.3</td><td class="num">46.5</td></tr>
+          <tr><td>TruthfulQA (6 shot)</td><td class="num">66.8</td><td class="num">69.9</td><td class="num">66.5</td><td class="num">62.6</td><td class="num">55.7</td><td class="num">67.9</td><td class="num">67.6</td></tr>
+          <tr><td>BigBenchHard (3 shot, CoT)</td><td class="num">83.0</td><td class="num">80.4</td><td class="num">83.6</td><td class="num">78.5</td><td class="num">82.6</td><td class="num">84.8</td><td class="num">85.0</td></tr>
+          <tr><td>DROP (3 shot)</td><td class="num">77.0</td><td class="num">34.2</td><td class="num">73.2</td><td class="num">68.8</td><td class="num">77.2</td><td class="num">74.1</td><td class="num">74.3</td></tr>
+          <tr><td>MATH (4 shot CoT, Flex)</td><td class="num">56.4</td><td class="num">75.9</td><td class="num">41.9</td><td class="num">55.0</td><td class="num">53.7</td><td class="num">62.3</td><td class="num">63.0</td></tr>
+          <tr><td>GSM8K (8 shot, CoT)</td><td class="num">93.7</td><td class="num">89.5</td><td class="num">90.0</td><td class="num">84.7</td><td class="num">91.1</td><td class="num">93.5</td><td class="num">93.5</td></tr>
+          <tr><td>HumanEval (pass@10)</td><td class="num">93.6</td><td class="num">94.0</td><td class="num">89.6</td><td class="num">94.1</td><td class="num">92.9</td><td class="num">92.4</td><td class="num">92.4</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">89.5</td><td class="num">90.8</td><td class="num">85.9</td><td class="num">85.5</td><td class="num">87.3</td><td class="num">88.4</td><td class="num">88.0</td></tr>
+          <tr><td>IFEval (prompt loose)</td><td class="num">88.0</td><td class="num">87.6</td><td class="num">76.0</td><td class="num">79.9</td><td class="num">82.1</td><td class="num">82.6</td><td class="num">83.2</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">33.4</td><td class="num">47.7</td><td class="num">28.4</td><td class="num">66.1</td><td class="num">26.3</td><td class="num">49.6</td><td class="num">49.8</td></tr>
+          <tr><td>Safety (6 task avg.)</td><td class="num">76.5</td><td class="num">87.0</td><td class="num">57.9</td><td class="num">69.0</td><td class="num">94.4</td><td class="num">89.0</td><td class="num">88.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">Nemotron Llama 3.1 70B 是表中唯一從<strong>已經 post-train 過的模型</strong>（Llama 3.1 70B Instruct）微調而來的，其餘都是從各自的 base model 出發。論文也提醒：表中許多異常低的數值是因為模型未能遵守評估要求的 few-shot 格式，或出現重複性錯誤——例如 Qwen 2.5 72B Instruct 的 DROP 只有 34.2。</p>
+
+    <h3>405B：對上 DeepSeek V3 與 GPT-4o</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 4 · Tülu 3 405B vs 同級 405B 模型與領先閉源模型</caption>
+        <thead><tr><th>Benchmark (eval)</th><th>Llama 3.1 405B Inst</th><th>Nous Hermes 3 405B</th><th>DeepSeek V3</th><th>GPT-4o (11-24)</th><th>Tülu 3 405B SFT</th><th>Tülu 3 405B DPO</th><th>Tülu 3 405B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg w/o Safety</td><td class="num">78.1</td><td class="num">74.4</td><td class="num">79.0</td><td class="num">80.5</td><td class="num">76.3</td><td class="num">79.0</td><td class="num">80.0</td></tr>
+          <tr class="best"><td class="ours">Avg w/ Safety</td><td class="num">79.0</td><td class="num">73.5</td><td class="num">75.9</td><td class="num">81.6</td><td class="num">77.5</td><td class="num">79.6</td><td class="num">80.7</td></tr>
+          <tr><td>MMLU (5 shot, CoT)</td><td class="num">88.0</td><td class="num">84.9</td><td class="num">82.1</td><td class="num">87.9</td><td class="num">84.4</td><td class="num">86.6</td><td class="num">87.0</td></tr>
+          <tr><td>PopQA (3 shot)</td><td class="num">52.9</td><td class="num">54.2</td><td class="num">44.9</td><td class="num">53.6</td><td class="num">55.7</td><td class="num">55.4</td><td class="num">55.5</td></tr>
+          <tr><td>BigBenchHard (0 shot, CoT)</td><td class="num">87.1</td><td class="num">87.7</td><td class="num">89.5</td><td class="num">83.3</td><td class="num">88.0</td><td class="num">88.8</td><td class="num">88.6</td></tr>
+          <tr><td>MATH (4 shot, Flex)</td><td class="num">66.6</td><td class="num">58.4</td><td class="num">72.5</td><td class="num">68.8</td><td class="num">63.4</td><td class="num">59.9</td><td class="num">67.3</td></tr>
+          <tr><td>GSM8K (8 shot, CoT)</td><td class="num">95.4</td><td class="num">92.7</td><td class="num">94.1</td><td class="num">91.7</td><td class="num">93.6</td><td class="num">94.2</td><td class="num">95.5</td></tr>
+          <tr><td>HumanEval (pass@10)</td><td class="num">95.9</td><td class="num">92.3</td><td class="num">94.6</td><td class="num">97.0</td><td class="num">95.7</td><td class="num">97.2</td><td class="num">95.9</td></tr>
+          <tr><td>HumanEval+ (pass@10)</td><td class="num">90.3</td><td class="num">86.9</td><td class="num">91.6</td><td class="num">92.7</td><td class="num">93.3</td><td class="num">93.9</td><td class="num">92.9</td></tr>
+          <tr><td>IFEval (loose prompt)</td><td class="num">88.4</td><td class="num">81.9</td><td class="num">88.0</td><td class="num">84.8</td><td class="num">82.4</td><td class="num">85.0</td><td class="num">86.0</td></tr>
+          <tr><td>AlpacaEval 2 (LC % win)</td><td class="num">38.5</td><td class="num">30.2</td><td class="num">53.5</td><td class="num">65.0</td><td class="num">30.4</td><td class="num">49.8</td><td class="num">51.4</td></tr>
+          <tr><td>Safety (6 task avg.)</td><td class="num">86.8</td><td class="num">65.8</td><td class="num">72.2</td><td class="num">90.9</td><td class="num">87.7</td><td class="num">85.5</td><td class="num">86.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:14px;color:var(--muted)">註：TruthfulQA 與 MMLU 的 multiple-choice 數字與作者的 log-prob 評估基礎設施不相容，故未列入。</p>
+
+    <h3>Unseen 套件：泛化了嗎？</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 31 · 各階段在 development (Dev.) 與 unseen (Uns.) 上的表現</caption>
+        <thead><tr><th rowspan="2">Skill（Dev ↔ Unseen）</th><th colspan="2">8B SFT</th><th colspan="2">8B DPO</th><th colspan="2">8B Final</th><th colspan="2">70B SFT</th><th colspan="2">70B DPO</th><th colspan="2">70B Final</th></tr>
+        <tr><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th><th>Dev.</th><th>Uns.</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Avg.</td><td class="num">64.9</td><td class="num">29.9</td><td class="num">68.3</td><td class="num">31.9</td><td class="num">68.8</td><td class="num">32.4</td><td class="num">78.1</td><td class="num">41.0</td><td class="num">80.5</td><td class="num">44.4</td><td class="num">80.7</td><td class="num">44.4</td></tr>
+          <tr><td>Knowledge (MMLU ↔ GPQA)</td><td class="num">65.9</td><td class="num">31.9</td><td class="num">68.7</td><td class="num">31.2</td><td class="num">68.2</td><td class="num">35.7</td><td class="num">78.9</td><td class="num">43.3</td><td class="num">83.3</td><td class="num">48.0</td><td class="num">83.1</td><td class="num">48.0</td></tr>
+          <tr><td>Reasoning (BBH ↔ AGIEval)</td><td class="num">67.9</td><td class="num">56.2</td><td class="num">65.8</td><td class="num">61.8</td><td class="num">66.0</td><td class="num">59.3</td><td class="num">82.7</td><td class="num">73.2</td><td class="num">81.8</td><td class="num">75.0</td><td class="num">82.0</td><td class="num">75.0</td></tr>
+          <tr><td>Math (MATH ↔ DM Math)</td><td class="num">31.5</td><td class="num">32.3</td><td class="num">42.0</td><td class="num">33.0</td><td class="num">43.7</td><td class="num">35.4</td><td class="num">53.7</td><td class="num">49.7</td><td class="num">62.3</td><td class="num">49.4</td><td class="num">63.0</td><td class="num">49.8</td></tr>
+          <tr><td>Coding (HumanEval ↔ BigCodeBench)</td><td class="num">86.2</td><td class="num">11.5</td><td class="num">83.9</td><td class="num">9.5</td><td class="num">83.9</td><td class="num">7.4</td><td class="num">92.9</td><td class="num">12.2</td><td class="num">92.4</td><td class="num">23.0</td><td class="num">92.4</td><td class="num">21.6</td></tr>
+          <tr><td>Inst. Following (IFEval ↔ IFEval-OOD)</td><td class="num">72.8</td><td class="num">17.6</td><td class="num">81.1</td><td class="num">23.9</td><td class="num">82.4</td><td class="num">24.3</td><td class="num">82.1</td><td class="num">26.8</td><td class="num">82.6</td><td class="num">26.4</td><td class="num">83.2</td><td class="num">27.8</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>整體答案是「泛化得不錯」</strong>——最終 checkpoint 在 dev 與 unseen 上都拿到最好的平均分。特別值得注意的是 Reasoning 與 Coding：SFT checkpoint 在 development 上最好，但<span class="hl">後續階段仍然改進了較難的 unseen 評估</span>（8B Reasoning unseen 56.2 → 61.8 → 59.3；70B Coding unseen 12.2 → 23.0 → 21.6）。也就是說，DPO 與 RLVR 的價值在 development 分數上被低估了。</p>
+
+    <div class="callout hot">
+      <p><strong>但過擬合確實存在，而且作者自己指認出來了。</strong></p>
+      <p>· <strong>Precise Instruction Following 最明顯</strong>：IFEval 從 72.8 一路做到 82.4，但 IFEval-OOD 只有 24.3。所有模型在 IFEval 與 IFEval-OOD 之間都有巨大落差——即使後者的結構刻意做得跟前者幾乎一樣，只是 constraint 集合不重疊。作者的判斷是：<span class="hl2">IFEval 分數高的模型很可能只是過擬合到那 25 個特定 constraint</span>。</p>
+      <p>· <strong>MATH 也有一點</strong>：DPO 資料規模化在 MATH 上的趨勢沒有完全轉移到 DeepMind Mathematics。作者的假設是格式差異——MATH 常要求 LaTeX 輸出，DeepMind Math 不要求，而<span class="hl2">訓練後的模型會習慣性地把 CoT 與最終答案寫成 LaTeX，反而干擾中間推理並讓答案抽取邏輯失敗</span>。</p>
+      <p>· SFT 資料混合的選擇在 Knowledge Recall 與 Reasoning 上也有輕微過擬合。</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 33 · Unseen 套件上與公開模型的對照</caption>
+        <thead><tr><th>Skill</th><th>Benchmark (eval)</th><th>Llama 3.1 8B Inst</th><th>Hermes 3 Llama 3.1 8B</th><th>Tülu 3 8B</th><th>Llama 3.1 70B Inst</th><th>Hermes 3 Llama 3.1 70B</th><th>Tülu 3 70B</th></tr></thead>
+        <tbody>
+          <tr class="best"><td>—</td><td class="ours">Avg.</td><td class="num">36.4</td><td class="num">30.7</td><td class="num">34.2</td><td class="num">51.3</td><td class="num">43.1</td><td class="num">47.2</td></tr>
+          <tr><td rowspan="2">Knowledge</td><td>GPQA (0 shot, CoT)</td><td class="num">28.8</td><td class="num">32.8</td><td class="num">35.7</td><td class="num">43.8</td><td class="num">42.6</td><td class="num">48.0</td></tr>
+          <tr><td>MMLU Pro (0 shot, CoT)</td><td class="num">49.1</td><td class="num">40.9</td><td class="num">44.3</td><td class="num">68.3</td><td class="num">60.3</td><td class="num">65.8</td></tr>
+          <tr><td>Reasoning</td><td>AGIEval English (0 shot, CoT)</td><td class="num">64.2</td><td class="num">58.1</td><td class="num">59.3</td><td class="num">77.8</td><td class="num">73.3</td><td class="num">75.0</td></tr>
+          <tr><td>Math</td><td>DeepMind Math (0 shot, CoT)</td><td class="num">39.3</td><td class="num">28.3</td><td class="num">35.4</td><td class="num">62.4</td><td class="num">50.0</td><td class="num">49.8</td></tr>
+          <tr><td>Coding</td><td>BigCodeBench-Hard (Pass@10)</td><td class="num">15.5</td><td class="num">9.5</td><td class="num">7.4</td><td class="num">26.4</td><td class="num">14.2</td><td class="num">21.6</td></tr>
+          <tr><td rowspan="2">Inst. Following</td><td>IFEval OOD (Prompt loose)</td><td class="num">26.1</td><td class="num">19.4</td><td class="num">24.3</td><td class="num">34.5</td><td class="num">24.6</td><td class="num">27.8</td></tr>
+          <tr><td>HREF (Winrate)</td><td class="num">38.5</td><td class="num">26.2</td><td class="num">32.7</td><td class="num">45.6</td><td class="num">36.8</td><td class="num">42.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>作者對這張表的三個觀察：<strong>(1)</strong> Tülu 3 的表現大致落在 Llama 3.1 Instruct 與 Hermes 3 之間，說明「為每個核心技能選代表性評估、再針對那些評估策展資料」的做法確實能產出泛化的模型。<strong>(2)</strong> Knowledge recall 的泛化似乎依賴 post-training 配方——MMLU 與 MMLU-Pro 的表現如預期相關，但 GPQA 呈現不同趨勢，而<span class="hl">這三個模型是從同一個 base model post-train 出來的</span>。<strong>(3)</strong> AlpacaEval 與 HREF 上的相對表現不同，說明指令遵循是高度多樣的任務，兩者的分布可能不同；Tülu 3 70B 在 HREF 的 11 個子任務中有 5 個勝過 Llama 3.1 70B Instruct。</p>
+
+    <div class="callout warn">
+      <p><strong>一個必須說清楚的公平性限制：</strong>作者自己強調，由於其他模型都沒有開放訓練資料，<span class="hl2">無法確認 GPQA、MMLU-Pro、AGIEval、DeepMind Math、BigCodeBench 是否被它們用於開發</span>。這些評估對 Tülu 3 是真正的 unseen，但對比較對象未必。這個不對稱性讓 Table 33 的解讀需要保留。同理，Table 2 裡與閉源模型的比較也無法排除對方訓練過這些 benchmark。</p>
+    </div>
+
+    <h3>405B 的擴展工程</h3>
+    <p>Tülu 3 405B 的配方與 8B / 70B 幾乎相同，但踩到三類問題：</p>
+    <div class="grid g3">
+      <div class="card">
+        <h4>算力與穩定性</h4>
+        <p>32 個節點（256 GPU）並行。多數程式碼擴展良好，但偶發 <strong>NCCL timeout 與同步問題</strong>需要密切監控與人工介入（RL 訓練特別嚴重）。GPU 數量越多，硬體故障機率越高，需要半頻繁地重啟 run。</p>
+      </div>
+      <div class="card">
+        <h4>RLVR 的時間分配</h4>
+        <p>vLLM 以 16-way tensor parallelism 部署推論，剩下 <strong>240 GPU</strong> 訓練；每次更新後用 NCCL broadcast 同步權重到 vLLM。單輪耗時：<span class="hl">推論 550 秒、權重傳輸 25 秒、訓練 1,500 秒</span>。為省成本，value model 只用 <strong>8B</strong>。</p>
+      </div>
+      <div class="card">
+        <h4>調參受限</h4>
+        <p>算力成本讓調參幾乎不可能。沿襲 Tülu 與 Llama 的慣例，對大模型<span class="hl2">降低 learning rate，用「更輕的手」訓練</span>（SFT 2e-6、DPO 2e-7、RLVR 1e-7）。</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>405B 的 RLVR 資料是不同的。</strong>因為光靠 SFT 與 DPO，GSM8K 就已經飽和，所以<span class="hl">把 GSM8K 資料整個移除</span>；初期實驗又發現 IFEval 資料幫助不大，於是<strong>405B RLVR 只用 MATH 訓練集</strong>。令人意外的是，<span class="hl2">只跑 25 個 RLVR step，MATH 就提升超過 5 分</span>，而且持續上升。最終因為算力限制只訓練了 75 步（比小模型少），而作者明確表示：<strong>訓練與測試都還沒看到 MATH 飽和，繼續訓練應該還會更好</strong>。作者也建議未來可以探索更大的 value model，或改用 value-model-free 的 RL 演算法如 GRPO。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═════════════ 09 ═════════════ -->
+<section id="limits">
+  <div class="wrap">
+    <div class="sec-num">SECTION 09</div>
+    <h2>沒奏效的方法、限制與未來工作</h2>
+    <p class="lead">論文有一整節叫「Insights from the Unfruitful」。在技術報告普遍只報好消息的環境裡，這一節的資訊密度可能比主結果還高。</p>
+
+    <h3>兩個試過但沒進最終配方的方法</h3>
+    <div class="callout hot">
+      <p><strong>Online DPO —— 沒有改善，甚至讓 MATH 退化。</strong></p>
+      <p>標準 DPO 是 offline 的：偏好資料事先收集好，policy 在訓練中無法針對自己的生成取得回饋。Online DPO（Guo et al., 2024）用三步緩解這個分布偏移：(1) 從當前 policy 對一個 prompt 採樣 2 個 response；(2) 對這組 pair 取得 online 回饋；(3) 用這組 pairwise 資料以標準 DPO loss 更新 policy。原論文的第 (2) 步用 online AI feedback，Tülu 3 為了規模化改用訓練好的 RM。</p>
+      <p>作者兩種目標都試了：通用能力用 Skywork 的 82K 偏好資料訓 RM 一個 epoch；數學推理則在同一個 RM 上續訓自家合成的 on-policy 數學偏好資料。結果——在某個 Tülu 3 DPO checkpoint 之上、以數學問題跑 20 萬 episodes——<span class="hl2">GSM8K 沒有或只有極小改善，MATH 甚至退化</span>（各種採樣溫度與 KL penalty 都試過）。作者因此沒有深入，並建議未來可以研究不同採樣方法或調整 RM 架構。</p>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>Rejection Sampling —— 效益不值得算力。</strong></p>
+      <p>流程是：用初始的 SFT + 偏好資料訓一個模型，用它對每個 SFT prompt 生成 n 個 response，連同原始 response 一起用 RM 或 LLM-as-judge 排序，留下最好的；其餘可以拿來組 chosen/rejected 對做偏好優化。整個 post-training pipeline 在新資料上重跑，反覆直到收斂。</p>
+      <p>Tülu 3 試過，結論是<span class="hl2">在他們的設定下，效益相對於所需算力太小</span>，因此留給未來工作。兩個質性發現值得記下：<strong>(1) 強 judge 至關重要</strong>——公開可用的模型常難以從候選中挑出最好的；<strong>(2) 把原始 response 也放進 judge 的選項</strong>（也就是從 n 個新生成「加上」原始 response 中挑最好的），表現遠優於只從新生成中挑。</p>
+    </div>
+
+    <h3>作者自己列的四項限制與未來方向</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Long Context 與 Multi-turn</h4>
+        <p>Tülu 3 的資料相對短，也不含長的多輪對話——<strong>混合資料的平均輪數只有 2.4 turn，多數樣本在 2,048 token 以內</strong>。而長 context 能開啟新用例與更多 in-context 範例；真實世界有相當比例的使用者對話超過 2 輪。兩者都需要專門的訓練與評估。</p>
+      </div>
+      <div class="card">
+        <h4>Multilinguality</h4>
+        <p>Tülu 3 專注英文資料與評估（只因品質好而納入多語的 Aya）。作者點出多語 post-training 可能需要不同技術——例如 cross-lingual alignment 或謹慎的資料平衡策略——因此是個有趣且有影響力的方向。</p>
+      </div>
+      <div class="card">
+        <h4>Tool Use 與 Agents</h4>
+        <p>Tülu 3 是被單獨評估的，但 LM 越來越常作為更大系統的一部分（有工具、或身在 agent 框架中）。作者特別指出：<span class="hl">訓練模型使用工具是大幅提升推理與數學能力的自然途徑</span>，而不是試圖把一切都塞進權重裡。</p>
+      </div>
+      <div class="card">
+        <h4>更複雜的 verifier</h4>
+        <p>RLVR 目前只涵蓋兩個領域（數學、精確指令遵循）與三個評估，驗證方式都相對直接。<strong>更複雜的 verifier 明確留給未來工作</strong>——論文腳註指向用程式執行回饋來做 RL 的近期成果。</p>
+      </div>
+    </div>
+
+    <h3>回頭看：Tülu 3 真正改變了什麼</h3>
+    <div class="callout">
+      <p>Tülu 3 的意義不在單一分數。它的 8B 甚至沒在平均分上贏過 Qwen 2.5 7B Instruct，MATH 落後超過 25 分。</p>
+      <p>它的意義在於<span class="hl">第一次有人把現代 post-training 的完整流程——包含每一次資料混合消融、每一組超參數、失敗的方法、以及公開資料集實際的污染比例——全部寫下來並附上權重、資料與程式碼</span>。RLVR 這個貢獻本身也很重要：它證明了「用可驗證的二元訊號做 RL」可以整合進通用模型的 pipeline 而不只是單點改進數學，同時也誠實地展示了它的天花板（70B 上幾乎沒有增益）與失敗模式（β 太小就變成 verifier 寄生蟲）。</p>
+      <p><strong>在此之後，「開源社群做不出好的 post-training」的理由，不再是「沒人知道怎麼做」。</strong></p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Lambert, Morrison, Pyatkin, Huang, Ivison et al. (2024) · Allen Institute for AI &amp; University of Washington</p>
+    <p style="margin-top:8px">“Tülu 3: Pushing Frontiers in Open Language Model Post-Training”</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2411.15124">arXiv:2411.15124</a> · <a href="https://github.com/allenai/open-instruct">程式碼 allenai/open-instruct</a> · <a href="https://github.com/allenai/olmes">評估 allenai/olmes</a> · <a href="https://playground.allenai.org/">Demo</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文（arXiv v5, 2025-04-14）為準。</p>
+  </div>
+</footer>
+</body>
+</html>
