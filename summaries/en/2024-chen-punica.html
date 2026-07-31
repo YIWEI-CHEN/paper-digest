@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punica Paper Digest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px}
+  li{margin:8px 0;color:var(--ink)}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700;line-height:1.2}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:1.9}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  tr.grp td{background:var(--panel2);color:var(--acc2);font-family:var(--mono);font-size:12px;letter-spacing:.06em}
+  .ours{color:var(--acc2);font-weight:600}
+  td.hot{color:var(--hot)}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em;line-height:1.7}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">MLSys 2024 · Paper Digest</div>
+    <h1 class="title">Pun<span class="sql">ica</span></h1>
+    <p class="subtitle">One GPU, one copy of the backbone weights, and dozens of different LoRA models running in the same batch. It comes down to a single new CUDA kernel: SGMV.</p>
+    <div class="meta-row">
+      <span class="tag lit">Multi-Tenant LoRA Serving</span>
+      <span class="tag lit">SGMV CUDA Kernel</span>
+      <span class="tag">LLM Inference</span>
+      <span class="tag">Llama-2 7B / 13B / 70B</span>
+      <span class="tag">A100</span>
+      <span class="tag">12× throughput</span>
+    </div>
+    <p class="authors">Lequn Chen*, Zihao Ye*, Yongji Wu, Danyang Zhuo, Luis Ceze, Arvind Krishnamurthy · University of Washington &amp; Duke University (*equal contribution) · <a href="https://arxiv.org/abs/2310.18547">arXiv:2310.18547</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 Problem</a>
+    <a href="#background">02 Background</a>
+    <a href="#sgmv">03 SGMV</a>
+    <a href="#system">04 System Design</a>
+    <a href="#impl">05 Implementation</a>
+    <a href="#eval">06 Evaluation</a>
+    <a href="#discuss">07 Discussion</a>
+  </div>
+</nav>
+
+<!-- ══════════════════ 01 ══════════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>Problem — the absurdity of k×n GPUs</h2>
+    <p class="lead">LoRA lets every tenant fine-tune their own model cheaply. So an ML provider's job is no longer "serve one big model" — it's "serve hundreds of models that differ from each other but share a backbone." Doing that with existing serving systems is enormously wasteful.</p>
+
+    <p>Simply serving LoRA models as if they were independently trained from scratch wastes GPU resources. Assuming we need <code>k</code> GPUs to serve each LoRA model, serving <code>n</code> different LoRA models would <strong>seemingly</strong> require <code>k × n</code> GPUs. This straightforward approach overlooks something important: <span class="hl">these LoRA models all originate from the same pre-trained model, so there is enormous weight correlation between them.</span></p>
+
+    <h3>Three design guidelines</h3>
+    <p>The authors argue an efficient multi-LoRA serving system must follow three guidelines. Every design decision in the paper falls out of these:</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>G1 · Consolidate onto few GPUs</h4>
+        <p>GPUs are expensive and scarce resources, so multi-tenant LoRA serving workloads must be <strong>consolidated to a small number of GPUs</strong>, increasing overall GPU utilization.</p>
+      </div>
+      <div class="card">
+        <h4>G2 · Make batching work across models</h4>
+        <p>As prior work (Orca) noticed, batching is one of the most effective approaches to consolidate ML workloads. But batching <strong>only works when requests are for the exact same model</strong>. So we need to enable batching for different LoRA models.</p>
+      </div>
+      <div class="card">
+        <h4>G3 · Only the decode stage matters</h4>
+        <p>The decode stage is the <strong>predominant factor</strong> in the cost of model serving. We thus only need to focus on decode stage performance. Other aspects are less important and can use straightforward techniques (e.g. on-demand loading of LoRA weights).</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The key insight:</strong> with SGMV in place, the authors observe something <span class="hl2">surprising</span> — <strong>there are negligible performance differences between batching the same LoRA model and batching different LoRA models</strong>. At the same time, on-demand loading of LoRA models has only millisecond-level latency. Together these give Punica enormous scheduling freedom: <span class="hl">it can consolidate user requests onto a small set of GPUs without being constrained by which LoRA models are already running on which GPUs.</span></p>
+    </div>
+
+    <h3>Three contributions</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Identifying the opportunity to batch requests across multiple, different LoRA models</h4>
+        <p>A problem-framing contribution: treating multi-tenant LoRA serving as a distinct systems problem.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Designing and implementing an efficient CUDA kernel for running multiple LoRA models concurrently</h4>
+        <p>That is SGMV (Segmented Gather Matrix-Vector Multiplication), the paper's technical core.</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>Developing new scheduling mechanisms to consolidate multi-tenant LoRA workloads</h4>
+        <p>Including GPU selection logic, on-demand model loading, request migration, and a separable KvCache layout.</p>
+      </div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The result up front:</strong> with a fixed-sized GPU cluster, Punica achieves <span class="hl2">12× higher throughput</span> in serving multiple LoRA models compared to state-of-the-art LLM serving systems, while only adding <span class="hl2">2ms</span> latency per token.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 02 ══════════════════ -->
+<section id="background">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>Background — why the decode stage</h2>
+    <p class="lead">To understand why Punica is shaped the way it is, you need the arithmetic difference between the prefill and decode stages. That difference is the foundation of the entire paper.</p>
+
+    <h3>2.1 Prefill vs. decode</h3>
+    <p>A transformer LLM operates in two stages. <strong>Prefill</strong> accepts a user prompt and generates a subsequent token plus a Key-Value cache (KvCache). <strong>Decode</strong> accepts a token and the KvCache, generates one more token, and appends a column to the KvCache. Decode is iterative — the generated token becomes the input for the next step, until an end-of-sequence token is generated.</p>
+
+    <p>Assuming prompt length <code>s</code> and attention head dimension <code>d</code>:</p>
+    <div class="formula">
+      Prefill: self-attention = (s, d) × (d, s) × (s, d)　　MLP = (s, h) × (h, h)<br>
+      Decode:　 self-attention = (1, d) × (d, s+1) × (s+1, d)　　MLP = (1, h) × (h, h)<br>
+      <span style="color:var(--muted)">s = past sequence length, h = hidden dimension</span>
+    </div>
+
+    <p><strong>The difference is stark: the decode stage's input is a single vector, so GPU utilization is low.</strong></p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="80" y1="240" x2="720" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="40" x2="80" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="192" x2="720" y2="192" stroke="#1b2430"/>
+        <line x1="80" y1="145" x2="720" y2="145" stroke="#1b2430"/>
+        <line x1="80" y1="97" x2="720" y2="97" stroke="#1b2430"/>
+        <line x1="80" y1="50" x2="720" y2="50" stroke="#1b2430"/>
+        <text x="72" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="72" y="196" fill="#5b6675" font-size="10" text-anchor="end">10 ms</text>
+        <text x="72" y="149" fill="#5b6675" font-size="10" text-anchor="end">20 ms</text>
+        <text x="72" y="101" fill="#5b6675" font-size="10" text-anchor="end">30 ms</text>
+        <text x="72" y="54" fill="#5b6675" font-size="10" text-anchor="end">40 ms</text>
+        <text x="80" y="260" fill="#5b6675" font-size="10" text-anchor="middle">batch 1</text>
+        <text x="700" y="260" fill="#5b6675" font-size="10" text-anchor="middle">batch 32</text>
+
+        <line x1="80" y1="159.25" x2="700" y2="78.5" stroke="#f4a259" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="80" cy="159.25" r="4" fill="#f4a259"/>
+        <circle cx="700" cy="78.5" r="4" fill="#f4a259"/>
+        <text x="96" y="152" fill="#f4a259" font-size="11" font-weight="700">17 ms</text>
+        <text x="684" y="70" fill="#f4a259" font-size="11" font-weight="700" text-anchor="end">34 ms</text>
+        <text x="390" y="106" fill="#f4a259" font-size="11" text-anchor="middle">longer sequences (~2× latency for 32× the batch)</text>
+
+        <line x1="80" y1="187.75" x2="700" y2="178.25" stroke="#5ad1c0" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="80" cy="187.75" r="4" fill="#5ad1c0"/>
+        <circle cx="700" cy="178.25" r="4" fill="#5ad1c0"/>
+        <text x="96" y="205" fill="#5ad1c0" font-size="11" font-weight="700">11 ms</text>
+        <text x="684" y="196" fill="#5ad1c0" font-size="11" font-weight="700" text-anchor="end">13 ms</text>
+        <text x="390" y="222" fill="#5ad1c0" font-size="11" text-anchor="middle">short sequences (nearly flat)</text>
+
+        <text x="24" y="140" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,140)" text-anchor="middle">Decode Latency</text>
+      </svg>
+      <div class="figcap">Fig 1 · Batching effect in the decode stage (redrawn from Figure 1 and the paper's prose).<br>The text gives only the batch-1 and batch-32 endpoints; the shape in between is not provided — dashed lines connect the endpoints and do not represent the real curve.</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>This chart is the evidence for G3.</strong> Prefill latency is proportional to batch size — the GPU's compute capability is already fully utilized, so batching buys nothing. Decode is completely different: increasing batch size from 1 to 32, decode step latency increases from <span class="hl">11ms to 13ms</span> for short sequences and from <span class="hl">17ms to 34ms</span> for longer ones. <span class="hl2">Batching can improve GPU utilization significantly for the decode stage</span> — and serving latency for long output lengths is predominantly determined by decode, which is exactly what systems like Orca exploit.</p>
+    </div>
+
+    <h3>2.2 The math of LoRA</h3>
+    <p>LoRA's key observation is that <strong>the weight difference between the pre-trained model and the fine-tuned model has a low rank</strong>. That difference can therefore be represented as the product of two small, dense matrices.</p>
+
+    <div class="formula">
+      W ∈ ℝ<sup>h₁×h₂</sup>　　A ∈ ℝ<sup>h₁×r</sup>　　B ∈ ℝ<sup>r×h₂</sup><br>
+      <span style="color:var(--acc2)">W + AB</span> is the new weight for the fine-tuned model<br>
+      <span style="color:var(--muted)">r is the LoRA rank, usually much smaller than the original dimension (e.g. 16 instead of 4096)</span>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>Storage overhead</h4><p class="big">0.1%–1%</p><p>Each fine-tuned model adds only this much of the model weight.</p></div>
+      <div class="card"><h4>Where it applies</h4><p>Usually applied to <strong>all dense projections</strong> in the transformer layer, including the Query-Key-Value-Output projections in attention and the MLP.</p></div>
+      <div class="card"><h4>Note</h4><p>The self-attention operation itself <strong>does not contain any weight</strong>, so LoRA never touches the attention computation core — only the linear projections around it.</p></div>
+    </div>
+
+    <h3>So how do you serve multi-tenant LoRA efficiently on a shared cluster?</h3>
+    <p>One approach is to regard each LoRA model as independent and use a traditional LLM serving system (e.g. vLLM). But this neglects the weight sharing among different LoRA models — the very thing that could significantly improve GPU efficiency. Further, treating each LoRA model as independent makes <strong>model loading time a substantial performance bottleneck when bootstrapping model serving</strong>.</p>
+    <p>Even if we share the backbone across LoRA models, one question remains: <span class="hl">how do we batch-compute the LoRA add-ons efficiently?</span> That is what SGMV solves.</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 03 ══════════════════ -->
+<section id="sgmv">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>SGMV — the technical core</h2>
+    <p class="lead">Segmented Gather Matrix-Vector Multiplication. Long name, one-sentence semantics: <strong>split the batch into contiguous segments, and multiply each segment by its own weight matrix.</strong></p>
+
+    <h3>3.1 Formalization</h3>
+    <p>When a LoRA model has multiple inputs in the batch, they can be further batched together. The authors group inputs to the same LoRA model <strong>consecutively</strong>. Let <code>n</code> be the number of LoRA models in a batch and <code>s_i</code> the last element index for the <code>i</code>-th model within the batch, where <code>s₀ = 0</code> and <code>s_n</code> is the batch size. Input <code>{x_i | i ∈ [1, s_n]}</code> is partitioned as <code>{{x_j | j ∈ (s_{i-1}, s_i]} | i ∈ [1, n]}</code>.</p>
+
+    <p>The dense projection output can then be written as:</p>
+    <div class="formula">
+      ⎡ y₁ ⎤　　⎡ x₁ ⎤　　　　⎡ x₁ ⎤<br>
+      ⎢ ⋮ ⎥ := ⎢ ⋮ ⎥ · W ＋ ⎢ ⋮ ⎥ · A₁B₁　　(segment 1)<br>
+      ⎢ y_{s₁} ⎥　⎣ x_{s₁} ⎦　　⎣ x_{s₁} ⎦<br>
+      ⎢ ⋮ ⎥　　　　　　　　　　　　⋮<br>
+      ⎣ y_{s_n} ⎦　⎣ x_{s_n} ⎦　　⎣ x_{s_n} ⎦ · A_nB_n　(segment n)<br>
+      <span style="color:var(--muted)">The left-hand multiplication is the backbone computation, batched through regular GEMM. The right-hand side is what SGMV must handle.</span>
+    </div>
+
+    <div class="callout">
+      <p><strong>This is the fault line of the whole design.</strong> The left term <code>x · W</code> uses <span class="hl">the same W for every request</span>, so it is a standard batched GEMM — no problem. The right term multiplies each segment by <span class="hl2">a different A_i B_i</span> — and that is precisely what existing systems cannot batch.</p>
+    </div>
+
+    <h3>3.2 SGMV semantics</h3>
+    <p>Note that the operator <code>v += x·AB</code> can be separated into two launches of the same kernel: initialize <code>v := 0</code>, then run <code>v += x·A</code> followed by <code>y += v·B</code>. That operator is SGMV:</p>
+
+    <div class="formula" style="color:var(--acc2);font-size:16px">
+      Y[ s[i] : s[i+1] ] += X[ s[i] : s[i+1] ] @ W[i]
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="a1" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L7,3 L0,6 Z" fill="#93a1b3"/>
+          </marker>
+        </defs>
+        <text x="30" y="26" fill="#e8edf4" font-size="13" font-weight="700">X (batch, segmented by LoRA)</text>
+        <text x="370" y="26" fill="#e8edf4" font-size="13" font-weight="700">W[i] (per-segment weights)</text>
+        <text x="650" y="26" fill="#e8edf4" font-size="13" font-weight="700">Y (accumulated in place)</text>
+
+        <rect x="40" y="46" width="150" height="72" rx="5" fill="#1b2430" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="115" y="78" fill="#5ad1c0" font-size="12" text-anchor="middle">segment 0</text>
+        <text x="115" y="98" fill="#5b6675" font-size="10.5" text-anchor="middle">s[0] .. s[1]</text>
+
+        <rect x="40" y="128" width="150" height="52" rx="5" fill="#1b2430" stroke="#f4a259" stroke-width="2"/>
+        <text x="115" y="150" fill="#f4a259" font-size="12" text-anchor="middle">segment 1</text>
+        <text x="115" y="168" fill="#5b6675" font-size="10.5" text-anchor="middle">s[1] .. s[2]</text>
+
+        <rect x="40" y="190" width="150" height="92" rx="5" fill="#1b2430" stroke="#8c7bff" stroke-width="2"/>
+        <text x="115" y="228" fill="#8c7bff" font-size="12" text-anchor="middle">segment 2</text>
+        <text x="115" y="248" fill="#5b6675" font-size="10.5" text-anchor="middle">s[2] .. s[3]</text>
+
+        <rect x="400" y="52" width="90" height="60" rx="5" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="445" y="87" fill="#5ad1c0" font-size="13" text-anchor="middle">W[0]</text>
+        <rect x="400" y="128" width="90" height="60" rx="5" fill="#141b25" stroke="#f4a259"/>
+        <text x="445" y="163" fill="#f4a259" font-size="13" text-anchor="middle">W[1]</text>
+        <rect x="400" y="204" width="90" height="60" rx="5" fill="#141b25" stroke="#8c7bff"/>
+        <text x="445" y="239" fill="#8c7bff" font-size="13" text-anchor="middle">W[2]</text>
+
+        <line x1="196" y1="82" x2="394" y2="82" stroke="#5ad1c0" marker-end="url(#a1)"/>
+        <line x1="196" y1="154" x2="394" y2="158" stroke="#f4a259" marker-end="url(#a1)"/>
+        <line x1="196" y1="236" x2="394" y2="234" stroke="#8c7bff" marker-end="url(#a1)"/>
+
+        <rect x="640" y="46" width="150" height="72" rx="5" fill="#1b2430" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="715" y="88" fill="#5ad1c0" font-size="12" text-anchor="middle">+= result 0</text>
+        <rect x="640" y="128" width="150" height="52" rx="5" fill="#1b2430" stroke="#f4a259" stroke-width="2"/>
+        <text x="715" y="159" fill="#f4a259" font-size="12" text-anchor="middle">+= result 1</text>
+        <rect x="640" y="190" width="150" height="92" rx="5" fill="#1b2430" stroke="#8c7bff" stroke-width="2"/>
+        <text x="715" y="242" fill="#8c7bff" font-size="12" text-anchor="middle">+= result 2</text>
+
+        <line x1="496" y1="82" x2="634" y2="82" stroke="#5ad1c0" marker-end="url(#a1)"/>
+        <line x1="496" y1="158" x2="634" y2="154" stroke="#f4a259" marker-end="url(#a1)"/>
+        <line x1="496" y1="234" x2="634" y2="236" stroke="#8c7bff" marker-end="url(#a1)"/>
+
+        <text x="410" y="312" fill="#5b6675" font-size="11.5">Segments can have different lengths — the indptr s[] is the only scheduling info the kernel needs</text>
+      </svg>
+      <div class="figcap">Fig 2 · SGMV semantics (redrawn from Figure 3). Requests for the same LoRA model sit in a contiguous segment; segment boundaries are described by the indptr <code>s[]</code>.</div>
+    </div>
+
+    <p>SGMV <strong>parallelizes the feature-weight multiplication of different requests in the batch</strong> and groups requests corresponding to the same LoRA model, <span class="hl">increasing the operational intensity of the kernel so it can use GPU Tensor Cores for acceleration</span>.</p>
+
+    <h3>3.3 Shrink and expand: two very different kernel schedules</h3>
+    <p>The authors classify the SGMV operator into two categories based on input and output feature dimensions:</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>SGMV-shrink · v = x·A</h4>
+        <p>The first operator in the LoRA module. It <strong>shrinks a high-dimensional input feature to a low-rank output</strong> (e.g. 4096 → 16).</p>
+        <p style="margin-top:10px;color:var(--acc2)">Problem: the output dimension is too thin, so parallelism is insufficient.</p>
+        <p><strong>Solution: Split-K.</strong> Split B on the input feature dimension, <code>B = [B⁽¹⁾; …; B⁽ᵏ⁾]</code>, and dispatch different <code>y⁽ⁱ⁾ = v·B⁽ⁱ⁾</code> to different threadblocks. After the partial sums finish on all threadblocks, perform a <strong>grid synchronization</strong> followed by a cross-threadblock reduction: <code>y = Σᵢ y⁽ⁱ⁾</code>.</p>
+      </div>
+      <div class="card">
+        <h4>SGMV-expand · y = v·B</h4>
+        <p>The second operator. It <strong>expands the low-rank input feature back to a high-dimensional output</strong> (e.g. 16 → 4096).</p>
+        <p style="margin-top:10px;color:var(--acc)">The output dimension is wide, so parallelism is naturally abundant.</p>
+        <p><strong>Solution: split on the output dimension.</strong> Split A on the output feature dimension, <code>A = [A⁽¹⁾ … A⁽ⁿ⁾]</code>, dispatch different <code>v⁽ⁱ⁾ = x·A⁽ⁱ⁾</code> to different threadblocks, and the concatenation of <code>v⁽ⁱ⁾</code> forms the final result.</p>
+      </div>
+    </div>
+
+    <p>Both kernels bind the LoRA index to CUDA's <code>blockIdx.y</code>, so the computation on each <code>blockIdx.y</code> is a matrix multiplication between features and one specific LoRA weight. <strong>Both use GPU Tensor Cores to accelerate the matrix multiplication.</strong></p>
+
+    <div class="callout hot">
+      <p><strong>One important exception.</strong> When <span class="hl2">each request has a distinct LoRA index</span>, the computation corresponding to each LoRA index degrades to matrix-vector multiplication, which is <strong>totally IO-bound</strong>. The authors designed a specific schedule for this case that <span class="hl">maximizes memory bandwidth utilization and does not use Tensor Cores</span>, because of the low operational intensity. This detail resurfaces when we read the source code.</p>
+    </div>
+
+    <h3>3.4 Roofline analysis</h3>
+    <p>The authors use the roofline model to understand SGMV's performance. FLOP and memory I/O bytes are calculated as:</p>
+    <div class="formula">
+      FLOP = s<sub>n</sub> × h<sub>i</sub> × h<sub>o</sub> × 2<br>
+      I/O　 = [ s<sub>n</sub> × (h<sub>i</sub> + h<sub>o</sub>) + n × h₁ × h₂ ] × 2<br>
+      <span style="color:var(--muted)">n = number of LoRA models, s = segment indices, s_n = total number of inputs, h_i / h_o = input and output dimensions of the SGMV weight matrix.<br>The factor 2 in FLOP comes from multiply-add; the factor 2 in I/O comes from the byte size of the 16-bit float data type.<br>This case study uses h_i = 16, h_o = 4096.</span>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="90" y1="250" x2="720" y2="250" stroke="#26313f"/>
+        <line x1="90" y1="40" x2="90" y2="250" stroke="#26313f"/>
+        <text x="405" y="288" fill="#5b6675" font-size="11" text-anchor="middle">Arithmetic intensity  FLOP : I/O  →</text>
+        <text x="26" y="145" fill="#5b6675" font-size="11" transform="rotate(-90,26,145)" text-anchor="middle">Achieved FLOP/s  →</text>
+
+        <line x1="90" y1="58" x2="720" y2="58" stroke="#5b6675" stroke-dasharray="5 4"/>
+        <text x="714" y="52" fill="#93a1b3" font-size="10.5" text-anchor="end">312 TFLOP/s (A100 peak FP16)</text>
+
+        <line x1="120" y1="250" x2="500" y2="58" stroke="#5b6675" stroke-dasharray="5 4"/>
+        <text x="330" y="140" fill="#93a1b3" font-size="10.5" transform="rotate(-27,330,140)">1.935 TB/s (memory bandwidth)</text>
+
+        <line x1="168" y1="228" x2="168" y2="150" stroke="#ff6b6b" stroke-width="2.5"/>
+        <circle cx="168" cy="150" r="4" fill="#ff6b6b"/>
+        <text x="180" y="146" fill="#ff6b6b" font-size="11" font-weight="700">Distinct</text>
+        <text x="180" y="163" fill="#5b6675" font-size="10">intensity unchanged;</text>
+        <text x="180" y="177" fill="#5b6675" font-size="10">bigger batch just moves up</text>
+
+        <path d="M200,222 C280,196 360,148 452,86" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <circle cx="452" cy="86" r="4" fill="#5ad1c0"/>
+        <text x="466" y="90" fill="#5ad1c0" font-size="11" font-weight="700">Identical</text>
+        <text x="466" y="107" fill="#5b6675" font-size="10">climbs the bandwidth slope</text>
+        <text x="466" y="121" fill="#5b6675" font-size="10">→ bandwidth-bound</text>
+
+        <path d="M186,225 C240,205 290,178 340,150" fill="none" stroke="#f4a259" stroke-width="2.5"/>
+        <circle cx="340" cy="150" r="4" fill="#f4a259"/>
+        <text x="352" y="196" fill="#f4a259" font-size="11" font-weight="700">Uniform / Skewed</text>
+        <text x="352" y="212" fill="#5b6675" font-size="10">a combination of both effects</text>
+      </svg>
+      <div class="figcap">Fig 3 · Qualitative roofline behavior of the SGMV kernel (redrawn from Figure 7 and the paper's prose).<br><strong>Axes and curve positions are illustrative</strong> — Figure 7 provides no readable raw values. Only the two ceilings (1.935 TB/s, 312 TFLOP/s) are numbers stated in the paper.</div>
+    </div>
+
+    <ul>
+      <li><strong>Distinct</strong> (every request a different LoRA): arithmetic intensity <span class="hl2">does not change</span>, because FLOP and I/O grow at the same rate. Since each input utilizes a small amount of GPU compute units, increasing batch size increases performance (vertical on the plot).</li>
+      <li><strong>Identical</strong> (all the same LoRA): the line goes up diagonally along the slope of memory bandwidth, meaning <span class="hl">SGMV is bounded by memory bandwidth</span> here.</li>
+      <li><strong>Uniform / Skewed</strong>: in between — a combination of increasing degree of parallelism and increasing arithmetic intensity.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════ 04 ══════════════════ -->
+<section id="system">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>System Design — four things beyond the kernel</h2>
+    <p class="lead">SGMV only answers "how do we compute on one GPU." Punica still has to answer "how do we schedule across a cluster." The four mechanisms here — scheduling, on-demand loading, request migration, and KvCache layout — make up Punica's system layer.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L7,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <rect x="20" y="40" width="86" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="63" y="62" fill="#93a1b3" font-size="11" text-anchor="middle">Users</text>
+        <rect x="20" y="96" width="86" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="63" y="118" fill="#93a1b3" font-size="11" text-anchor="middle">Users</text>
+
+        <rect x="136" y="40" width="94" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="183" y="62" fill="#93a1b3" font-size="11" text-anchor="middle">Frontend</text>
+        <rect x="136" y="96" width="94" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="183" y="118" fill="#93a1b3" font-size="11" text-anchor="middle">Frontend</text>
+
+        <rect x="266" y="52" width="128" height="66" rx="8" fill="#141b25" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="330" y="80" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">Scheduler</text>
+        <text x="330" y="99" fill="#5b6675" font-size="10" text-anchor="middle">global view of all GPUs</text>
+
+        <line x1="110" y1="57" x2="130" y2="57" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="110" y1="113" x2="130" y2="113" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="234" y1="60" x2="260" y2="72" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="234" y1="112" x2="260" y2="100" stroke="#5ad1c0" marker-end="url(#a2)"/>
+
+        <rect x="440" y="26" width="170" height="122" rx="8" fill="#0f151d" stroke="#26313f"/>
+        <text x="525" y="45" fill="#93a1b3" font-size="11" text-anchor="middle">Runner</text>
+        <rect x="452" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="487" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="458" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="487" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="458" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="487" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="458" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="487" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <rect x="530" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="565" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="536" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="565" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="536" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="565" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="536" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="565" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <rect x="632" y="26" width="170" height="122" rx="8" fill="#0f151d" stroke="#26313f"/>
+        <text x="717" y="45" fill="#93a1b3" font-size="11" text-anchor="middle">Runner</text>
+        <rect x="644" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="679" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="650" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="679" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="650" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="679" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="650" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="679" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <rect x="722" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="757" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="728" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="757" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="728" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="757" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="728" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="757" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <line x1="398" y1="76" x2="434" y2="76" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="398" y1="94" x2="626" y2="94" stroke="#5ad1c0" marker-end="url(#a2)"/>
+
+        <text x="410" y="188" fill="#5b6675" font-size="11" text-anchor="middle">Each GPU loads the full backbone; only LoRA components swap in from remote storage on demand</text>
+        <text x="410" y="208" fill="#5b6675" font-size="11" text-anchor="middle">A large fraction of GPU memory is reserved for KvCache</text>
+      </svg>
+      <div class="figcap">Fig 4 · Punica system architecture (redrawn from Figure 2). Frontends expose a RESTful API, the scheduler dispatches requests, and each GPU server runs a runner.</div>
+    </div>
+
+    <h3>4.1 Scheduling new requests</h3>
+    <p>Punica's scheduler has a <strong>global view of the state of all GPUs</strong>. For each GPU, Punica maintains the working set of requests (the batch input of the LLM invocation). As new requests are added and decode steps unfold, the KvCache consumes more and more GPU memory, so Punica also continuously tracks the memory space available for KvCache on each GPU.</p>
+
+    <div class="callout">
+      <p><strong>The scheduling rule:</strong> assign a new request to the GPU that currently has <span class="hl">the largest working set</span> (i.e. the largest LLM invocation batch size) while satisfying two constraints: (1) it has not reached the max batch size limit; (2) it has enough memory for the new request's KvCache. When there are multiple candidates, the one with the <strong>highest GPU UUID</strong> gets the request. When all GPUs are fully occupied (max batch size reached or insufficient memory), the request is queued. When GPUs become available, queued requests are scheduled <strong>FCFS</strong>.</p>
+    </div>
+
+    <p>The max batch size limit balances cluster throughput against per-token latency. Oversized batches greatly slow down latency while providing marginal throughput gains. <span class="hl">The authors profile A100 GPUs and set the maximum batch size to 32.</span></p>
+
+    <p>The GPU selection logic deliberately emphasizes cluster throughput within the latency sweet spot. Its properties:</p>
+    <ul>
+      <li><strong>A busy GPU is likely to stay busy</strong>, as more requests will be assigned to it.</li>
+      <li><strong>A lightly loaded GPU is likely to lower its load</strong> as requests terminate.</li>
+      <li><strong>An idle GPU is likely to stay idle.</strong></li>
+    </ul>
+    <p>As a consequence the scheduler maintains peak throughput and <strong>consolidates GPU usage</strong> based on current overall system load, which makes scaling the cluster up and down easier. In a cloud setting, Punica performs two cluster allocation actions: <strong>(1)</strong> if no lightly loaded GPU exists, request more GPUs; <strong>(2)</strong> return the GPU resources for servers with no load.</p>
+
+    <h3>4.2 On-demand model loading</h3>
+    <p>Weight sharing between the LoRA model and the underlying pre-trained model makes model loading fast. The size of a LoRA model (matrices A and B) is only about <strong>1%</strong> of the underlying pre-trained model.</p>
+    <p>Loading a LoRA model from main memory to GPU memory is merely an asynchronous host-to-device memory copy, bounded by PCIe bandwidth:</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>Load one layer</h4><p class="big">~50 µs</p><p>PCIe Gen4 x16</p></div>
+      <div class="card"><h4>Load entire model</h4><p class="big">2 ms</p><p>PCIe Gen4 x16</p></div>
+      <div class="card"><h4>One decode step</h4><p class="big">~30 ms</p><p>Much longer than loading → natural overlap</p></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>A pragmatic decision not to over-optimize.</strong> Since the memory copy and GPU computation can overlap, it is feasible to implement sophisticated layer-by-layer or even matrix-by-matrix loading to minimize the delay. But the authors note that each decode step takes around 30ms and each request might need thousands of decode steps. So they <span class="hl2">opted for a simpler yet equivalently efficient method</span>: when a request is newly added to a GPU, if its LoRA model is not already loaded, issue an asynchronous memory copy to load the LoRA weight and let the GPU continue running other inputs in the batch. <span class="hl">By the end of the model execution, the weight has already finished loading</span>, and the new request joins the batch naturally.</p>
+    </div>
+
+    <h3>4.3 Request migration</h3>
+    <p>As requests generate more tokens, their KvCache occupies more GPU memory. When a GPU runs out of KvCache space, it migrates some requests to other GPUs. Migration consists of two steps — <strong>evict and add</strong>. The scheduler evicts the <strong>newest</strong> request from the GPU, which preserves FCFS semantics. Scheduling the evicted request is the same as adding a new request.</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>Cancel R₃</h4><p>The scheduler first sends the cancellation of the request to GPU 1.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Release KvCache</h4><p>After GPU 1 finishes running the previous batch, it picks up the cancellation and releases the KvCache. GPU 1 also omits R₃'s new token generated in the previous batch.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Stop streaming R₃</h4><p>Stop streaming R₃'s tokens to the scheduler.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Add R₃</h4><p><strong>Immediately after</strong> sending the cancellation to GPU 1, the scheduler adds R₃ to GPU 2.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Build KvCache</h4><p>GPU 2 runs a <strong>prefill</strong> step on R₃'s original prompt plus all previously generated tokens, reinstating R₃'s KvCache on GPU 2.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Start streaming R₃</h4><p>GPU 2 starts to stream R₃'s new tokens to the scheduler.</p></div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>Why recompute instead of moving the KvCache?</strong> The authors opt for recomputation for its <span class="hl">simplicity</span>. PagedAttention has shown that recomputation's latency is equal to or better than moving the KvCache in most cases, which agrees with their observation.</p>
+      <p>Punica's scheduler also supports canceling requests (a typical scenario is user disconnection); this is straightforward — remove the request from both the GPU and the scheduler states. <strong>More importantly, request cancellation as a scheduling primitive is what enables request migration.</strong></p>
+    </div>
+
+    <h3>4.4 Memory layout for KvCache</h3>
+    <p>Punica uses a <strong>separable KvCache layout</strong>, which is important for text generation batching throughput. The HuggingFace Transformers library's KvCache layout consists of complicated nested lists of tensors, conceptually viewable as:</p>
+    <div class="formula" style="color:var(--hot)">
+      [ L , 2 , B , N , S , D ]<br>
+      <span style="color:var(--muted)">L = number of layers, 2 = Key and Value projection, B = batch size, N = number of heads, S = sequence length, D = head dimension</span>
+    </div>
+
+    <p>This layout has two problems:</p>
+    <ul>
+      <li><strong>Problem 1 (efficiency):</strong> in each decode step, HuggingFace Transformers concatenates one tensor along the sequence length dimension. The concatenation is inefficient as it needs to read the <strong>whole KvCache and write a new copy</strong>, whereas the new tensor is only <code>1/S</code> of the KvCache.</li>
+      <li><strong>Problem 2 (more serious, semantic):</strong> the batching dimension <span class="hl2">is not the outermost dimension</span>, which means requests in the batch are hard to separate in the KvCache. Under this restriction, <strong>requests that enter the batch together need to remain together during all decode steps until all requests meet their own stopping condition.</strong></li>
+    </ul>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <pattern id="hatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#ff6b6b" stroke-width="2.2"/>
+          </pattern>
+        </defs>
+        <line x1="70" y1="200" x2="700" y2="200" stroke="#26313f"/>
+        <line x1="70" y1="30" x2="70" y2="200" stroke="#26313f"/>
+        <text x="26" y="115" fill="#5b6675" font-size="10.5" transform="rotate(-90,26,115)" text-anchor="middle">decode steps</text>
+        <text x="385" y="230" fill="#5b6675" font-size="10.5" text-anchor="middle">Request Index (4 requests batched together)</text>
+
+        <rect x="100" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="100" y="120" width="60" height="80" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="166" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="166" y="60" width="60" height="140" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="232" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="232" y="40" width="60" height="160" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="298" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="298" y="150" width="60" height="50" fill="#1b2430" stroke="#5ad1c0"/>
+
+        <rect x="400" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="400" y="140" width="60" height="60" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="466" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="466" y="90" width="60" height="110" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="532" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="532" y="160" width="60" height="40" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="598" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="598" y="125" width="60" height="75" fill="#1b2430" stroke="#5ad1c0"/>
+
+        <rect x="470" y="18" width="12" height="12" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <text x="490" y="29" fill="#93a1b3" font-size="10.5">Waste</text>
+        <rect x="560" y="18" width="12" height="12" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="580" y="29" fill="#93a1b3" font-size="10.5">Actual</text>
+      </svg>
+      <div class="figcap">Fig 5 · Inseparable KvCache adds wasted decode steps (redrawn from Figure 6 — an <strong>illustrative</strong> figure).<br>Four consecutive requests are batched together; shorter requests must run extra decode steps waiting for the longest one.</div>
+    </div>
+
+    <p>The paper notes that <strong>FasterTransformer and DeepSpeed also suffer from similar problems</strong>. Punica's KvCache layout instead is:</p>
+    <div class="formula" style="color:var(--acc)">
+      [ Σ<sub>i</sub> ⌈ S<sub>i</sub> / P ⌉ , L , 2 , N , P , D ]<br>
+      <span style="color:var(--muted)">S_i = length of the i-th sequence, P = page size</span>
+    </div>
+    <p>They use <strong>paged KvCache</strong> (PagedAttention) to minimize memory fragmentation, and put <span class="hl">the batching dimension on the outermost to enable continuous batching</span>.</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 05 ══════════════════ -->
+<section id="impl">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Implementation &amp; Source — including what the paper doesn't say</h2>
+    <p class="lead">Punica's implementation has two parts: a Python library on top of PyTorch that runs on a single GPU, and system components for serving across a cluster. Beyond what the paper describes, this section quotes actual code from the <a href="https://github.com/punica-ai/punica" style="color:var(--acc)">punica-ai/punica</a> repo — and there are a couple of places where it does not quite match the paper.</p>
+
+    <h3>5.1 What the paper describes</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Python library</h4>
+        <p>CUDA kernels are exposed as a PyTorch Extension using <strong>PyBind11</strong>. The Llama model implementation is adapted from HuggingFace Transformers.</p>
+      </div>
+      <div class="card">
+        <h4>FlashInfer</h4>
+        <p>Used for fast and memory-efficient self-attention. Besides fusing <code>softmax(QKᵀ)V</code> like FlashAttention, FlashInfer further <strong>supports batch decoding without padding</strong>, and supports paged KvCache.</p>
+      </div>
+      <div class="card">
+        <h4>Fused LayerNorm</h4>
+        <p class="big">110 µs → 4 µs</p>
+        <p>The authors also fuse LayerNorm, roughly a 27× latency reduction.</p>
+      </div>
+      <div class="card">
+        <h4>System components</h4>
+        <p>The scheduler, frontend, and runner are all written in <strong>Rust</strong>. Unary RPC and streaming text chunks are both implemented via web socket, with I/O handled asynchronously. The runner spawns a subprocess for each GPU (a thin wrapper around the PyTorch library) and communicates via pipes.</p>
+      </div>
+    </div>
+
+    <h3>5.2 Mixing prefill and decode in one batch</h3>
+    <p>Punica mixes new requests in the prefill stage and existing requests in the decode stage <strong>in one batch</strong>. This way, dense projections and LoRA can both benefit from a bigger batch size.</p>
+    <p>For batching, all inputs are concatenated along the sequence length dimension. <strong>Prefill requests always go at the beginning, decode requests at the latter part.</strong> A <code>BatchLen</code> struct then distinguishes different requests: it contains a list of indices indicating the starting index of each prefill request, plus a number indicating how many decode requests there are.</p>
+    <p>In the self-attention layer, the indices and leading input states go to the <code>BatchPrefill</code> kernel, and the trailing input states go to the <code>BatchDecode</code> kernel.</p>
+
+    <div class="callout">
+      <p><strong>A very fine scheduling touch:</strong> within a batch, the authors further organize the batch input order so that <span class="hl">requests that share the same LoRA model are consecutive</span>. And — <strong>the tail of prefill requests and the head of decode requests can share a LoRA model if possible</strong>. This minimizes the number of SGMV segments.</p>
+      <p>Before each batched model invocation, they concatenate batch inputs and construct <code>BatchLen</code> and SGMV segment indices. Both <strong>remain constant for the entire model invocation</strong>. This design avoids recomputation — otherwise <code>BatchLen</code> would be computed <code>L</code> times and SGMV segment indices <code>7L</code> times (<code>L</code> = number of layers).</p>
+    </div>
+
+    <p>Why <code>7L</code>? Because there are 7 LoRA add-ons per layer. That is very visible in the source.</p>
+
+    <h3>5.3 Source: the seven LoRA additions per layer</h3>
+    <p>Here is the attention forward from <code>src/punica/models/llama_lora.py</code>. Note the dense projections run as usual, then <code>add_lora()</code> adds the LoRA delta <strong>in place</strong>:</p>
+
+    <pre><code><span class="cmt"># src/punica/models/llama_lora.py</span>
+<span class="kw">from</span> punica.ops <span class="kw">import</span> add_lora_sgmv_custom_cutlass <span class="kw">as</span> add_lora
+
+<span class="kw">def</span> <span class="fn">forward</span>(self, hidden_states, blen, prefill_kv, decode_kv,
+            lora: BatchedLlamaLoraWeight):
+    <span class="cmt"># 1) backbone dense projections — ordinary batched GEMM</span>
+    q_proj = self.q_proj(hidden_states)
+    k_proj = self.k_proj(hidden_states)
+    v_proj = self.v_proj(hidden_states)
+
+    <span class="cmt"># 2) LoRA add-on — SGMV, accumulated in place onto q/k/v_proj</span>
+    <span class="fn">add_lora</span>(q_proj, hidden_states,
+             lora.q.wa_ptr, lora.q.wb_ptr,
+             lora.segment,          <span class="cmt"># ← this is SGMV's indptr s[]</span>
+             self.layer_idx, lora.rank)
+    <span class="fn">add_lora</span>(k_proj, hidden_states,
+             lora.k.wa_ptr, lora.k.wb_ptr, lora.segment,
+             self.layer_idx, lora.rank)
+    <span class="fn">add_lora</span>(v_proj, hidden_states,
+             lora.v.wa_ptr, lora.v.wb_ptr, lora.segment,
+             self.layer_idx, lora.rank)
+    ...</code></pre>
+
+    <p>Attention has four (<code>q, k, v, o</code>) and the MLP has three (<code>gate, up, down</code>) — <strong>7 per layer</strong>, matching the paper's <code>7L</code>. That single <code>lora.segment</code> tensor is the <code>s[]</code> from Fig 2: all the batch's LoRA scheduling information condensed into one array.</p>
+
+    <h3>5.4 Source: the real SGMV API, and one surprise</h3>
+    <p>The repo's <code>src/punica/ops/__init__.py</code> defines the public kernel API. SGMV's semantics match the paper exactly:</p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">sgmv_cutlass</span>(y, x, w_ptr, s, layer_idx):
+    <span class="str">"""
+    Semantics:
+      y[s[i]:s[i+1]] += x[s[i]:s[i+1]] @ deref(w_ptr[i])
+
+    Args:
+      y: Shape: `[B, H2]`. Output vectors. Will be changed in-place.
+      x: Shape: `[B, H1]`. Input vectors.
+      w_ptr: Shape: `[S]`. DType: torch.int64. Pointer to the weight matrices.
+      s: Shape: `[S+1]`, DType: torch.int32. Indptr of the weight matrices.
+         `s[0] == 0`, `s[-1] == B`.
+    """</span></code></pre>
+
+    <p>But what the model actually uses is this <strong>hybrid</strong>:</p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">add_lora_sgmv_custom_cutlass</span>(y, x, wa_ptr, wb_ptr, s,
+                                 layer_idx, lora_rank):
+    <span class="str">"""
+    Semantics:
+      y[s[i]:s[i+1]] += x[s[i]:s[i+1]] @ deref(wa_ptr[i]).T @ deref(wb_ptr[i])
+    """</span>
+    tmp1 = torch.empty((<span class="str">8 * 1024 * 1024</span>,), dtype=torch.uint8, device=x.device)
+    tmp2_size = _kernels.sgmv_cutlass_tmp_size(wa_ptr.size(<span class="str">0</span>))
+    tmp2 = torch.empty((tmp2_size,), dtype=torch.uint8, device=x.device)
+    v = torch.zeros((x.size(<span class="str">0</span>), lora_rank), dtype=x.dtype, device=x.device)
+
+    _kernels.<span class="fn">sgmv_shrink</span>(v, x, wa_ptr, s, tmp1, layer_idx)   <span class="cmt"># ← custom CUDA kernel</span>
+    _kernels.<span class="fn">sgmv_cutlass</span>(y, v, wb_ptr, s, tmp2, layer_idx)  <span class="cmt"># ← CUTLASS implementation</span></code></pre>
+
+    <div class="callout warn">
+      <p><strong>An implementation detail the paper doesn't spell out.</strong> The shrink half (<code>v = x·A</code>, with the Split-K design) is the authors' own CUDA kernel. But the expand half (<code>y = v·B</code>) <span class="hl2">goes through CUTLASS's general implementation on the shipping path</span>, not the custom expand schedule described in §4 of the paper.</p>
+      <p>The evidence is in the same file — the pure custom-kernel versions, <code>sgmv()</code> and <code>add_lora_sgmv()</code>, are both still stubbed:</p>
+      <pre style="margin:10px 0 0"><code><span class="kw">def</span> <span class="fn">sgmv</span>(y, x, w_ptr, s, layer_idx):
+    <span class="kw">if</span> x.size(<span class="str">1</span>) &lt; y.size(<span class="str">1</span>):
+        <span class="kw">raise</span> <span class="fn">NotImplementedError</span>(<span class="str">"TODO: sgmv_expand"</span>)
+    ...</code></pre>
+      <p style="margin-top:10px">In other words: <span class="hl">the expand kernel schedule the paper describes is not completed in this open-source code</span>; CUTLASS fills that slot on the shipping path. This does not invalidate the paper's numbers (the benchmarks run this hybrid), but if you set out to reproduce the §4 expand kernel, you will not find it in the repo.</p>
+    </div>
+
+    <p>The weight memory layout reflects the hybrid directly — the comments in <code>src/punica/utils/lora.py</code> say it plainly:</p>
+    <pre><code><span class="kw">class</span> <span class="fn">LoraWeight</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, num_layers, in_features, out_features,
+                 lora_rank, dtype, device):
+        <span class="cmt"># SGMV-Shrink custom CUDA kernel uses column-major.</span>
+        self.wa = torch.zeros(
+            (num_layers, lora_rank, in_features), dtype=dtype, device=device)
+        <span class="cmt"># SGMV-Expand cutlass kernel uses row-major.</span>
+        self.wb = torch.zeros(
+            (num_layers, lora_rank, out_features), dtype=dtype, device=device)</code></pre>
+
+    <h3>5.5 Source: the other kernel — BGMV</h3>
+    <p>The repo contains a second kernel the paper never names, but which corresponds exactly to the §4 discussion of "each request has a distinct LoRA index": <strong>BGMV (Batched Gather Matrix-Vector)</strong>, in <code>csrc/bgmv/</code>.</p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">add_lora_bgmv</span>(y, x, wa_T_all, wb_T_all, indicies, layer_idx, scale):
+    <span class="str">"""
+    Semantics:
+      y[i] += (
+          x[i].unsqueeze(0)
+          @ wa_T_all[indices[i], layer_idx, :, :].transpose(-1, -2)
+          @ wb_T_all[indices[i], layer_idx, :, :].transpose(-1, -2)
+          * scale
+        ).squeeze(0)
+
+      indicies: Shape: `[B]`. Indices of the LoRA weights.
+    """</span></code></pre>
+
+    <div class="callout">
+      <p><strong>Note the key difference between SGMV and BGMV.</strong> SGMV takes <code>s</code> (an indptr describing <span class="hl">contiguous segments</span>); BGMV takes <code>indicies</code> (<span class="hl2">one index per batch element</span>). The former assumes requests for the same LoRA are grouped together so Tensor Cores can do matrix multiplication; the latter corresponds to the paper's "degrades to matrix-vector, totally IO-bound, does not use Tensor Cores" case — where every request is a different LoRA and there are no segments to speak of.</p>
+      <p>BGMV turned out to be quite influential: it is one of the <strong>earliest multi-LoRA batching kernel shapes adopted by downstream inference frameworks</strong>, because the <code>indicies</code> interface is far easier to graft onto an existing continuous-batching scheduler than SGMV's "requests must be sorted by LoRA" assumption.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 06 ══════════════════ -->
+<section id="eval">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>Evaluation</h2>
+
+    <div class="callout hot">
+      <p><strong>Something you must know before reading this paper: it contains no tables at all.</strong> Every result is a figure (Figures 7–13), with no accompanying raw-value tables. Every number below is one the paper <span class="hl2">states explicitly in its prose</span>. Where a value exists only as a bar or line in a figure, I mark it as not provided rather than estimating it.</p>
+    </div>
+
+    <h3>6.1 Setup</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>Experimental setup (compiled from §7)</caption>
+        <thead><tr><th>Item</th><th>Configuration</th></tr></thead>
+        <tbody>
+          <tr><td>Testbed #1</td><td>Single server, 1× NVIDIA A100 <strong>80GB</strong> GPU. Large GPU memory, used to study the LoRA batching effect.</td></tr>
+          <tr><td>Testbed #2</td><td>2× NVIDIA HGX A100 <strong>40GB</strong> servers, 8 GPUs each. Fast NvSwitch, used to study tensor parallelism and cluster deployment.</td></tr>
+          <tr><td>Models</td><td>Llama-2 7B / 13B / 70B</td></tr>
+          <tr><td>LoRA rank</td><td><strong>16</strong> for all experiments; LoRA applied to all dense projections</td></tr>
+          <tr><td>LoRA weights</td><td><span class="hot">random weights</span> (the authors note the weights do not affect latency performance)</td></tr>
+          <tr><td>Workload</td><td>Prompt and response lengths drawn from <strong>ShareGPT</strong>'s real user-bot conversation distribution</td></tr>
+          <tr><td>Max batch size</td><td>32 (for all systems)</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>Four request distributions</strong> (controlling LoRA diversity within a batch):</p>
+    <div class="grid g4">
+      <div class="card"><h4>Distinct</h4><p>Each request is for a <strong>distinct</strong> LoRA model. The hardest case.</p></div>
+      <div class="card"><h4>Uniform</h4><p>All LoRA models are equally popular. Given <code>n</code> requests, use <code>⌈√n⌉</code> models.</p></div>
+      <div class="card"><h4>Skewed</h4><p>Model popularity follows a <strong>Zipf-α</strong> distribution; the <code>i</code>-th most popular model gets <code>α</code> times the requests of the <code>i+1</code>-th. The experiments use <strong>α = 1.5</strong>.</p></div>
+      <div class="card"><h4>Identical</h4><p>All requests are for the <strong>same</strong> LoRA model — equivalent to traditional single-model serving.</p></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>The baseline setup is stacked against Punica, and the authors are upfront about it.</strong> Since there was no well-known multi-LoRA serving system at the time, they compare Punica against a variety of popular LLM backbone serving systems and <span class="hl2">allow various degrees of relaxation in favor of the baselines</span>:</p>
+      <ul style="margin-top:8px">
+        <li><strong>HuggingFace PEFT</strong> + HuggingFace Transformers (real LoRA support)</li>
+        <li><strong>DeepSpeed</strong> (real LoRA support)</li>
+        <li><strong>FasterTransformer</strong> and <strong>vLLM</strong>: run <span class="hl">backbone-only</span>, since these two did not support LoRA models at the time</li>
+        <li>And the <strong>model switching costs for baseline systems are omitted</strong></li>
+      </ul>
+      <p style="margin-top:8px">In other words, the vLLM numbers are an idealized upper bound that pretends LoRA overhead does not exist. That makes the 12× conclusion more conservative, and more credible.</p>
+    </div>
+
+    <h3>6.2 LoRA operator microbenchmark</h3>
+    <p>The batched LoRA operator is implemented as two SGMV kernel launches and compared against two PyTorch baselines:</p>
+    <ul>
+      <li><strong>Loop</strong>: a for-loop over each LoRA model.</li>
+      <li><strong>Gather-BMM</strong>: the gather step stacks the weight matrices each input needs into a single matrix, then <code>torch.bmm()</code> performs a batched matrix multiplication. Like SGMV, it launches Gather twice and BMM twice.</li>
+    </ul>
+    <p>The authors' analysis shows Gather-BMM incurs much more I/O than SGMV: Gather reads in <code>n × h_i × h_o</code> elements and writes to <code>s_n × h_i × h_o</code>; then BMM needs to read in the <code>s_n × h_i × h_o</code> weight elements that Gather just wrote. <span class="hl">In combination, Gather-BMM incurs <code>s_n × h_i × h_o × 2</code> more elements of memory I/O than SGMV.</span></p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="80" y1="240" x2="720" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="40" x2="80" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="177" x2="720" y2="177" stroke="#1b2430"/>
+        <line x1="80" y1="113" x2="720" y2="113" stroke="#1b2430"/>
+        <line x1="80" y1="50" x2="720" y2="50" stroke="#1b2430"/>
+        <text x="72" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="72" y="181" fill="#5b6675" font-size="10" text-anchor="end">40 µs</text>
+        <text x="72" y="117" fill="#5b6675" font-size="10" text-anchor="end">80 µs</text>
+        <text x="72" y="54" fill="#5b6675" font-size="10" text-anchor="end">120 µs</text>
+        <text x="80" y="262" fill="#5b6675" font-size="10" text-anchor="middle">batch 1</text>
+        <text x="700" y="262" fill="#5b6675" font-size="10" text-anchor="middle">batch 64</text>
+
+        <line x1="80" y1="181.4" x2="700" y2="56.4" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="80" cy="181.4" r="4" fill="#ff6b6b"/><circle cx="700" cy="56.4" r="4" fill="#ff6b6b"/>
+        <text x="686" y="48" fill="#ff6b6b" font-size="11" font-weight="700" text-anchor="end">116 µs · Distinct</text>
+
+        <line x1="80" y1="181.4" x2="700" y2="167.2" stroke="#f4a259" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="700" cy="167.2" r="4" fill="#f4a259"/>
+        <text x="686" y="158" fill="#f4a259" font-size="11" font-weight="700" text-anchor="end">46 µs · Uniform / Skewed</text>
+
+        <line x1="80" y1="181.4" x2="700" y2="176.7" stroke="#5ad1c0" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="700" cy="176.7" r="4" fill="#5ad1c0"/>
+        <text x="686" y="196" fill="#5ad1c0" font-size="11" font-weight="700" text-anchor="end">40 µs · Identical</text>
+
+        <text x="96" y="200" fill="#93a1b3" font-size="11" font-weight="700">37 µs (start, same for all four)</text>
+        <text x="24" y="140" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,140)" text-anchor="middle">SGMV Latency</text>
+      </svg>
+      <div class="figcap">Fig 6 · SGMV latency across the four workloads (redrawn from the prose describing Figure 8).<br><strong>Only the batch-1 and batch-64 endpoints are stated in the paper</strong>; the shape in between is not given, so dashed lines connect them.<br>Loop and Gather-BMM numbers are not stated numerically, so they are not plotted.</div>
+    </div>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>Distinct</h4>
+        <p>Loop <strong>behaves terribly</strong> because it runs multiple rounds of batch size 1. Gather-BMM latency increases fast due to the slowdown of Gather. SGMV also increases gradually, <span class="hl">from 37µs to 116µs</span>, because batching does not change arithmetic intensity.</p>
+      </div>
+      <div class="card">
+        <h4>Uniform / Skewed</h4>
+        <p>Similar to Distinct, though Gather-BMM performs slightly better (fewer matrices to load). SGMV latency increases <span class="hl">only marginally, from 37µs to 46µs</span> — a combination of increasing parallelism and increasing arithmetic intensity.</p>
+      </div>
+      <div class="card">
+        <h4>Identical</h4>
+        <p>All implementations have the same semantics: BMM. We can therefore infer that <span class="hl2">SGMV implements BMM more efficiently than <code>torch.bmm()</code> in the case of LoRA</span>. SGMV latency remains almost constant, <span class="hl">from 37µs to 40µs</span>.</p>
+      </div>
+    </div>
+
+    <h3>6.3 Effect of LoRA rank</h3>
+    <p>This is the experiment with the most complete numbers in the paper (Testbed #1, LoRA ranks 8/16/32/64):</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="220" x2="740" y2="220" stroke="#26313f"/>
+        <line x1="70" y1="40" x2="70" y2="220" stroke="#26313f"/>
+        <line x1="70" y1="164.6" x2="740" y2="164.6" stroke="#1b2430"/>
+        <line x1="70" y1="109.2" x2="740" y2="109.2" stroke="#1b2430"/>
+        <line x1="70" y1="53.8" x2="740" y2="53.8" stroke="#1b2430"/>
+        <text x="62" y="224" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="62" y="168" fill="#5b6675" font-size="10" text-anchor="end">40 µs</text>
+        <text x="62" y="113" fill="#5b6675" font-size="10" text-anchor="end">80 µs</text>
+        <text x="62" y="58" fill="#5b6675" font-size="10" text-anchor="end">120 µs</text>
+
+        <rect x="560" y="40" width="11" height="11" rx="2" fill="#5ad1c0"/><text x="576" y="50" fill="#93a1b3" font-size="10.5">batch 1</text>
+        <rect x="646" y="40" width="11" height="11" rx="2" fill="#f4a259"/><text x="662" y="50" fill="#93a1b3" font-size="10.5">batch 64</text>
+
+        <rect x="90" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="117.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="153" y="120.3" width="55" height="99.7" rx="3" fill="#f4a259"/>
+        <text x="180.5" y="113" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">72</text>
+        <text x="149" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 8</text>
+
+        <rect x="260" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="287.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="323" y="116.2" width="55" height="103.8" rx="3" fill="#f4a259"/>
+        <text x="350.5" y="109" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">75</text>
+        <text x="319" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 16</text>
+
+        <rect x="430" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="457.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="493" y="96.8" width="55" height="123.2" rx="3" fill="#f4a259"/>
+        <text x="520.5" y="90" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">89</text>
+        <text x="489" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 32</text>
+
+        <rect x="600" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="627.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="663" y="56.6" width="55" height="163.4" rx="3" fill="#f4a259"/>
+        <text x="690.5" y="50" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">118</text>
+        <text x="659" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 64</text>
+
+        <text x="405" y="270" fill="#5b6675" font-size="11" text-anchor="middle">Distinct workload (worst case) · values stated in the paper's prose</text>
+        <text x="24" y="130" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,130)" text-anchor="middle">Latency</text>
+      </svg>
+      <div class="figcap">Fig 7 · SGMV latency at different LoRA ranks (redrawn from Figure 9 and the stated values).</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>The key finding:</strong> in the Distinct case, the latency of a single request batch is <span class="hl">42µs for all four ranks</span>; only at batch size 64 do they diverge (72 / 75 / 89 / 118 µs). And when the workload has weight sharing (Uniform, Skewed, Identical), <span class="hl2">latency remains almost the same across batch sizes 1 to 64, at around 42µs to 45µs</span>.</p>
+    </div>
+
+    <h3>6.4 Transformer layer benchmark</h3>
+    <p>Next, layer-level performance after incorporating the LoRA operator (Testbed #1, 7B and 13B configurations, sequence lengths 512 and 2048).</p>
+    <p>Batching helps more when the sequence is shorter: <span class="hl">at sequence length 512, latency only increases by 72% when batch size goes from 1 to 32</span>. With longer sequences, self-attention takes more time, which reduces the layer-wise batching effect.</p>
+
+    <div class="callout warn">
+      <p><strong>This is the paper's most important "non-result."</strong> In contrast to the kernel microbenchmark, <span class="hl2">layer latency is roughly the same across different workloads</span> (Distinct / Uniform / Skewed / Identical). The reason: the computation time for the LoRA add-on is small compared to the backbone dense projection and the self-attention.</p>
+      <p>The authors italicize the consequence: <strong>this LoRA-model-agnostic performance property enables scheduling different LoRA models as if they were one model.</strong> The scheduling algorithm can then focus on overall throughput instead of individual LoRA model placement — <span class="hl">which is exactly how Punica's scheduler is designed</span>.</p>
+    </div>
+
+    <h3>6.5 Single-GPU text generation</h3>
+    <p>On Testbed #1, 1000 requests (generating around 101k tokens), all systems restricted to FCFS batching with max batch size 32.</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Figure 11 · Single-GPU text generation throughput (only values stated explicitly in the paper)</caption>
+        <thead><tr><th>System</th><th>Workload</th><th>7B (tok/s)</th><th>13B (tok/s)</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Punica</td><td>Distinct / Uniform / Skewed (consistently high)</td><td class="num">1044</td><td class="num">693</td></tr>
+          <tr><td>vLLM (backbone-only)</td><td>Identical</td><td class="num">1140</td><td class="num">789</td></tr>
+          <tr><td>HuggingFace Transformers</td><td>all</td><td class="num">not stated</td><td class="num">not stated</td></tr>
+          <tr><td>DeepSpeed</td><td>all</td><td class="num">not stated</td><td class="num">not stated</td></tr>
+          <tr><td>FasterTransformer (backbone-only)</td><td>all</td><td class="num">not stated</td><td class="num">not stated</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>The paper's qualitative claim: <strong>Punica consistently delivers high throughput regardless of workload.</strong> Most baselines achieve relatively high throughput in the Identical case, but their performance deteriorates as soon as there are multiple LoRA models:</p>
+    <ul>
+      <li><strong>Distinct</strong>: all baseline systems run with a batch size of <span class="hl2">1</span>, so throughput is low.</li>
+      <li><strong>Uniform / Skewed</strong>: most batches for the baselines have <span class="hl2">extremely small batch sizes (1–3)</span>.</li>
+      <li><strong>Punica</strong>: batches different LoRA models together and therefore <span class="hl">runs with a batch size of 32 consistently</span>.</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>vLLM edges out Punica in the Identical case (1140 vs 1044, 789 vs 693) — but that's expected.</strong> The authors state the reason plainly: <span class="hl">vLLM is run backbone-only</span>, with no LoRA overhead at all. In the Identical case both vLLM and Punica outperform the other systems because both KvCache layouts allow continuous batching; other systems have to wait for the longest sequence in the batch to finish. HuggingFace Transformers' low performance is due to its lack of critical CUDA kernel optimizations such as FlashAttention.</p>
+    </div>
+
+    <h3>6.6 70B model with tensor parallelism</h3>
+    <p>On 8 GPUs in Testbed #2, running the 70B model with Megatron's tensor parallel scheme. Punica is compared against vLLM, which also uses the same Megatron scheme. These are the paper's most striking numbers:</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="90" y1="240" x2="720" y2="240" stroke="#26313f"/>
+        <line x1="90" y1="30" x2="90" y2="240" stroke="#26313f"/>
+        <line x1="90" y1="200" x2="720" y2="200" stroke="#1b2430"/>
+        <line x1="90" y1="160" x2="720" y2="160" stroke="#1b2430"/>
+        <line x1="90" y1="120" x2="720" y2="120" stroke="#1b2430"/>
+        <line x1="90" y1="80" x2="720" y2="80" stroke="#1b2430"/>
+        <line x1="90" y1="40" x2="720" y2="40" stroke="#1b2430"/>
+        <text x="82" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="82" y="204" fill="#5b6675" font-size="10" text-anchor="end">100</text>
+        <text x="82" y="164" fill="#5b6675" font-size="10" text-anchor="end">200</text>
+        <text x="82" y="124" fill="#5b6675" font-size="10" text-anchor="end">300</text>
+        <text x="82" y="84" fill="#5b6675" font-size="10" text-anchor="end">400</text>
+        <text x="82" y="44" fill="#5b6675" font-size="10" text-anchor="end">500</text>
+
+        <rect x="130" y="230.8" width="110" height="9.2" rx="2" fill="#ff6b6b"/>
+        <text x="185" y="222" fill="#ff6b6b" font-size="12" text-anchor="middle" font-weight="700">21–25</text>
+        <text x="185" y="262" fill="#e8edf4" font-size="11.5" text-anchor="middle" font-weight="700">vLLM</text>
+        <text x="185" y="279" fill="#93a1b3" font-size="10.5" text-anchor="middle">multiple LoRA models</text>
+
+        <rect x="320" y="62.8" width="110" height="177.2" rx="2" fill="#5ad1c0"/>
+        <text x="375" y="54" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">441–446</text>
+        <text x="375" y="262" fill="#f4a259" font-size="11.5" text-anchor="middle" font-weight="700">Punica</text>
+        <text x="375" y="279" fill="#93a1b3" font-size="10.5" text-anchor="middle">multiple LoRA models</text>
+
+        <rect x="510" y="57.2" width="110" height="182.8" rx="2" fill="#4a6274"/>
+        <text x="565" y="49" fill="#93a1b3" font-size="12" text-anchor="middle" font-weight="700">457</text>
+        <text x="565" y="262" fill="#93a1b3" font-size="11.5" text-anchor="middle" font-weight="700">vLLM</text>
+        <text x="565" y="279" fill="#93a1b3" font-size="10.5" text-anchor="middle">backbone-only (no LoRA)</text>
+
+        <text x="24" y="135" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,135)" text-anchor="middle">Throughput (tok/s)</text>
+      </svg>
+      <div class="figcap">Fig 8 · 70B model throughput (Testbed #2, 8-GPU tensor parallel; ranges stated in the paper's prose).</div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>This is the most persuasive set of numbers in the paper.</strong> In the presence of multiple LoRA models, vLLM's throughput is around <span class="hl2">21 to 25 tok/s</span>; whereas when serving just the backbone, vLLM achieves <span class="hl">457 tok/s</span> thanks to the large batch size. Punica <strong>consistently delivers 441 to 446 tok/s regardless of LoRA popularity distribution</strong> — essentially matching vLLM's no-LoRA upper bound while genuinely serving many different LoRA models.</p>
+      <p>In the Identical case, Punica and vLLM achieve the same performance because their parallel schemes are the same.</p>
+    </div>
+
+    <h3>6.7 Cluster deployment</h3>
+    <p>16 GPUs on Testbed #2, 7B model, one-hour experiment. The load varies as follows: in the macro view the request rate gradually increases then gradually decreases; in the micro view, gaps between request arrival times follow an exponential distribution and the arrival process follows a Poisson distribution. LoRA model popularity follows <strong>Zipf-1.5</strong> (same as the Skewed workload).</p>
+
+    <p>The paper's observations:</p>
+    <ul>
+      <li>Punica is able to <strong>consolidate GPU usage</strong> while delivering high throughput.</li>
+      <li>GPUs usually run <span class="hl">with the maximum batch size</span> when they are not idle, because the scheduling algorithm prioritizes large batch sizes.</li>
+      <li>Occasionally a GPU runs with a smaller batch size because it runs out of KvCache space and <strong>migrates out a few requests to other GPUs</strong>.</li>
+      <li>When a GPU becomes idle (batch size = 0), it <span class="hl2">is likely to stay idle</span> — which can then be released to the cloud provider if necessary.</li>
+    </ul>
+    <p style="font-size:14px;color:var(--muted)">Figure 13 shows three panels (request rate, throughput, and per-GPU batch size over time) but provides no readable raw values, so it is not redrawn here.</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 07 ══════════════════ -->
+<section id="discuss">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>Discussion, Limitations &amp; Legacy</h2>
+
+    <div class="callout warn">
+      <p><strong>To be clear: this paper has no Limitations section.</strong> §8 is Related Work and §9 is the Conclusion. So below I separate what <em>the authors state</em> from what <em>follows from the experimental setup</em>, rather than dressing the latter up as the authors' claims.</p>
+    </div>
+
+    <h3>7.1 Positioning, as stated by the authors</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Orthogonal to inference optimizations</h4>
+        <p>The authors state explicitly that <strong>Punica is orthogonal to optimizations like speculative decoding</strong>. Orca's continuous batching, vLLM's PagedAttention, and FlashAttention are already integrated into Punica.</p>
+      </div>
+      <div class="card">
+        <h4>Complementary to quantization</h4>
+        <p>Model and KvCache quantization save more headroom for KvCache, enabling Punica to serve longer sequences without migration. The authors note an interesting interaction: <span class="hl">quantization reduces self-attention latency, which makes Punica's efficient LoRA kernel even more important</span> (LoRA becomes a larger share of total latency).</p>
+      </div>
+      <div class="card">
+        <h4>Difference from PetS</h4>
+        <p>PetS batches requests to different adapters (Adapters, MaskBert, Diff-Pruning, Bitfit) of an LLM on a single GPU, allowing GPU memory sharing across downstream tasks. <strong>However, it does not enable multiple different models to run concurrently.</strong></p>
+      </div>
+      <div class="card">
+        <h4>Difference from CNN serving systems</h4>
+        <p>Clipper and its successors were mainly designed for smaller CNN models. The key difference: <span class="hl2">serving CNN models is stateless, whereas LLM serving needs to persist the KvCache</span>. That state introduces an affinity that asks for a different system design.</p>
+      </div>
+    </div>
+
+    <h3>7.2 Limitations visible from the setup</h3>
+    <div class="callout hot">
+      <p><strong>Limitation 1: no quality or accuracy evaluation at all.</strong> The paper states LoRA models use <span class="hl2">random weights</span>, on the grounds that weights do not affect latency performance. That is entirely reasonable for a systems paper's goals, but it means <strong>no experiment here verifies that Punica's output is numerically equivalent to serving each LoRA model individually.</strong> If you take this to production, numerical correctness is on you to validate (the repo's <code>tests/test_sgmv.py</code> and friends are a starting point).</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 2: all LoRA models must share one rank and one backbone.</strong> All experiments use rank 16. You can see it in the SGMV interface itself — <code>add_lora_sgmv_custom_cutlass(...)</code> takes a <span class="hl2">single scalar <code>lora_rank</code></span>, and the weight pointer arrays <code>wa_ptr</code>/<code>wb_ptr</code> assume uniform matrix shapes. Mixed-rank multi-tenancy is out of scope.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 3: SGMV requires same-LoRA requests to be contiguous.</strong> That is the premise of the segment semantics, and it pushes complexity onto the scheduler (see §5.2's arrangement of grouping shared-LoRA requests and letting the prefill tail share a LoRA with the decode head). BGMV in the repo exists precisely as the alternative interface that sidesteps this constraint.</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>Limitation 4: no tables, so most baseline numbers cannot be checked.</strong> The specific values behind Figures 8, 11, and 13 are never stated in the text. For precise comparisons you would have to run the repo's <code>benchmarks/bench_textgen_lora.py</code> yourself.</p>
+    </div>
+
+    <h3>7.3 Why this paper matters</h3>
+    <p>Punica is one of the earliest works to treat multi-tenant LoRA serving as a distinct systems problem, and its technical contribution reduces to one sentence: <strong>it dismantled the apparently fundamental constraint that different models cannot be batched together, using a single kernel.</strong></p>
+    <p>More consequential still is the §6.4 finding — <span class="hl">the LoRA add-on is small enough relative to the backbone that layer latency is insensitive to how many distinct LoRAs are in the batch</span>. Once that holds, the scheduling problem for multi-tenant LoRA serving collapses from "model placement" to "plain throughput scheduling," which is an order of magnitude easier. Every design in Punica's system layer stands on that result.</p>
+
+    <div class="callout">
+      <p><strong>If you want to use this paper:</strong></p>
+      <ul style="margin-top:8px">
+        <li><strong>Building an inference framework:</strong> go straight to <code>csrc/bgmv/</code> and <code>csrc/sgmv/</code>. BGMV's <code>indicies</code> interface grafts onto an existing continuous-batching scheduler far more easily than SGMV's segment interface.</li>
+        <li><strong>Working on scheduling:</strong> §5.1's GPU selection logic (pick the largest working set, tie-break on highest UUID) and the "busy gets busier, idle stays idle" philosophy is a clean example of consolidation-oriented scheduling.</li>
+        <li><strong>Writing kernels:</strong> Split-K plus grid sync for shrink, output-dimension splitting for expand, and falling back to an IO-bound non-Tensor-Core schedule for the distinct case — the reasoning behind those three trade-offs is worth studying.</li>
+        <li><strong>Reproducing:</strong> you need A100s (80GB for the single-GPU experiments, or 2× HGX A100 40GB for the cluster ones), CUDA 11.8 or 12.1, and Python 3.10/3.11.</li>
+      </ul>
+    </div>
+
+    <h3>Conclusion</h3>
+    <p>Punica's design is centered around a new CUDA kernel (SGMV) that allows batching of GPU operations for different LoRA models. For each GPU, Punica <strong>only requires a single copy of the underlying pre-trained model</strong> to serve multiple, different LoRA models, significantly improving GPU efficiency in terms of both memory and computation. Additionally, Punica's scheduler consolidates multi-tenant LoRA serving workloads in a shared GPU cluster. With a fixed-sized GPU cluster, <strong>Punica achieves 12× higher LoRA model serving throughput compared to state-of-the-art LLM serving systems while only adding 2ms latency per token</strong>.</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Chen, Ye, Wu, Zhuo, Ceze, Krishnamurthy (2024) · University of Washington &amp; Duke University</p>
+    <p style="margin-top:8px">“Punica: Multi-Tenant LoRA Serving” · MLSys 2024</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2310.18547">arXiv:2310.18547</a> · <a href="https://github.com/punica-ai/punica">Code: punica-ai/punica</a></p>
+    <p style="margin-top:18px;color:#5b6675">This page is a digest; figures are redrawn or reorganized from the paper. Numbers follow the original (arXiv v1, 2023-10-28).<br>The paper contains no tables — all quoted values come from statements in its prose. Code excerpts come from the punica-ai/punica repo.</p>
+  </div>
+</footer>
+</body>
+</html>

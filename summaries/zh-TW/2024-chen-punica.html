@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punica 論文導讀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0d1117;
+    --panel:#141b25;
+    --panel2:#1b2430;
+    --ink:#e8edf4;
+    --muted:#93a1b3;
+    --line:#26313f;
+    --acc:#5ad1c0;
+    --acc2:#f4a259;
+    --acc3:#8c7bff;
+    --hot:#ff6b6b;
+    --serif:'Noto Serif TC',serif;
+    --sans:'Noto Sans TC',sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --disp:'Space Grotesk',sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--sans);
+    line-height:1.85;
+    font-size:16px;
+    background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+  }
+  .wrap{max-width:980px;margin:0 auto;padding:0 28px}
+
+  header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+  .kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+  h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+  h1.title .sql{color:var(--acc2)}
+  .subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:680px;font-weight:400}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+  .tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+  .tag.lit{border-color:var(--acc);color:var(--acc)}
+  .authors{margin-top:26px;color:var(--muted);font-size:14px}
+  .authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+
+  nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+  nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+  nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+  nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+
+  section{padding:62px 0;border-bottom:1px solid var(--line)}
+  .sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+  h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+  h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+  p{margin:16px 0;color:var(--ink)}
+  p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+  strong{color:#fff;font-weight:700}
+  .hl{color:var(--acc);font-weight:500}
+  .hl2{color:var(--acc2);font-weight:500}
+  ul,ol{margin:16px 0 16px 22px}
+  li{margin:8px 0;color:var(--ink)}
+
+  .grid{display:grid;gap:18px;margin:26px 0}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+  .card h4{font-family:var(--disp);font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+  .card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+  .card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700;line-height:1.2}
+
+  .callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+  .callout.warn{border-color:var(--acc2)}
+  .callout.hot{border-color:var(--hot)}
+  .callout p{margin:6px 0}
+
+  .formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:1.9}
+
+  pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+  code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+  pre code{background:none;padding:0;color:#c8d3e0}
+  .kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+
+  .tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+  table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+  caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 4px;letter-spacing:.04em}
+  th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line)}
+  th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+  td{color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+  tr.best td{background:rgba(90,209,192,.08)}
+  tr.best td.num{color:var(--acc);font-weight:700}
+  tr.grp td{background:var(--panel2);color:var(--acc2);font-family:var(--mono);font-size:12px;letter-spacing:.06em}
+  .ours{color:var(--acc2);font-weight:600}
+  td.hot{color:var(--hot)}
+
+  .figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+  .figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em;line-height:1.7}
+  svg{display:block;width:100%;height:auto}
+
+  .steps{counter-reset:s;margin:24px 0}
+  .step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+  .step:last-child{border-bottom:none}
+  .step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+  .step .n::before{content:counter(s)}
+  .step .body h4{font-family:var(--disp);font-size:16px;color:#fff;margin-bottom:4px}
+  .step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+
+  footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+  footer a{color:var(--acc);text-decoration:none}
+
+  @media(max-width:720px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .wrap{padding:0 18px}
+    section{padding:46px 0}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">MLSys 2024 · 論文導讀</div>
+    <h1 class="title">Pun<span class="sql">ica</span></h1>
+    <p class="subtitle">一顆 GPU、一份 backbone 權重、幾十個不同的 LoRA 模型，塞進同一個 batch 一起跑。關鍵只有一個新 CUDA kernel：SGMV。</p>
+    <div class="meta-row">
+      <span class="tag lit">Multi-Tenant LoRA Serving</span>
+      <span class="tag lit">SGMV CUDA Kernel</span>
+      <span class="tag">LLM Inference</span>
+      <span class="tag">Llama-2 7B / 13B / 70B</span>
+      <span class="tag">A100</span>
+      <span class="tag">12× throughput</span>
+    </div>
+    <p class="authors">Lequn Chen*, Zihao Ye*, Yongji Wu, Danyang Zhuo, Luis Ceze, Arvind Krishnamurthy · University of Washington &amp; Duke University（*共同第一作者） · <a href="https://arxiv.org/abs/2310.18547">arXiv:2310.18547</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#problem">01 問題定義</a>
+    <a href="#background">02 背景</a>
+    <a href="#sgmv">03 SGMV</a>
+    <a href="#system">04 系統設計</a>
+    <a href="#impl">05 實作與原始碼</a>
+    <a href="#eval">06 實驗結果</a>
+    <a href="#discuss">07 討論與影響</a>
+  </div>
+</nav>
+
+<!-- ══════════════════ 01 ══════════════════ -->
+<section id="problem">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2>問題定義 — k×n 個 GPU 的荒謬</h2>
+    <p class="lead">LoRA 讓每個租戶都能用很低的成本微調出自己的模型。於是 ML 服務商面對的不再是「服務一個大模型」，而是「同時服務幾百個彼此不同、但共享同一個 backbone 的小模型」。用現有的 serving 系統做這件事，浪費得非常離譜。</p>
+
+    <p>如果把每個 LoRA 模型當成獨立訓練出來的模型來服務，就是在浪費 GPU。假設服務一個 LoRA 模型需要 <code>k</code> 個 GPU，服務 <code>n</code> 個不同的 LoRA 模型<strong>看起來</strong>就需要 <code>k × n</code> 個 GPU。這個直觀做法忽略了一件事：<span class="hl">這些 LoRA 模型都源自同一個 pre-trained model，權重之間存在巨大的相關性。</span></p>
+
+    <h3>三條設計準則</h3>
+    <p>作者認為一個高效的多 LoRA 服務系統必須遵循三條準則，整篇論文的設計都是從這三條推出來的：</p>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>G1 · 整併到少量 GPU</h4>
+        <p>GPU 昂貴且稀缺，因此必須把多租戶 LoRA 服務工作負載<strong>整併到盡可能少的 GPU 上</strong>，提高整體 GPU 使用率。</p>
+      </div>
+      <div class="card">
+        <h4>G2 · 讓不同模型也能 batch</h4>
+        <p>如同 Orca 已經指出的，batching 是提升效能與 GPU 使用率最有效的手段之一。但 batching <strong>只在請求指向完全相同的模型時才有效</strong>。因此必須設法讓不同 LoRA 模型的請求也能一起 batch。</p>
+      </div>
+      <div class="card">
+        <h4>G3 · 只需盯著 decode 階段</h4>
+        <p>decode 階段是模型服務成本的<strong>主導因素</strong>，所以只需要專注在 decode 階段的效能。其他面向相對次要，用直觀的技巧處理即可（例如 LoRA 權重的 on-demand 載入）。</p>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p><strong>核心洞察：</strong>有了 SGMV 之後，作者觀察到一件<span class="hl2">出乎意料</span>的事——<strong>batch 同一個 LoRA 模型與 batch 不同 LoRA 模型，效能差異可以忽略不計</strong>。同時 LoRA 模型的 on-demand 載入只有毫秒級延遲。這兩件事加起來給了 Punica 極大的排程自由度：<span class="hl">可以把使用者請求整併到一小組 GPU 上，而不受「哪些 LoRA 模型已經在哪張卡上跑」的限制。</span></p>
+    </div>
+
+    <h3>Punica 的三個貢獻</h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>指出批次處理「多個不同 LoRA 模型」請求的機會</h4>
+        <p>這是問題定義層面的貢獻：把 multi-tenant LoRA serving 當成一個獨立的系統問題來看待。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>設計並實作了能並行執行多個 LoRA 模型的高效 CUDA kernel</h4>
+        <p>即 SGMV（Segmented Gather Matrix-Vector Multiplication），論文的技術核心。</p>
+      </div></div>
+      <div class="step"><div class="n"></div><div class="body">
+        <h4>開發了整併多租戶 LoRA 工作負載的新排程機制</h4>
+        <p>包含 GPU 選擇邏輯、on-demand 模型載入、請求遷移，以及可分離的 KvCache layout。</p>
+      </div></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>結果先講：</strong>在固定大小的 GPU 叢集上，相較於 state-of-the-art LLM serving 系統，Punica 在服務多個 LoRA 模型時達到 <span class="hl2">12× 的 throughput</span>，而每個 token 只增加 <span class="hl2">2ms</span> 延遲。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 02 ══════════════════ -->
+<section id="background">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2>背景 — 為什麼是 decode 階段</h2>
+    <p class="lead">要理解 Punica 為什麼長成這樣，得先理解 prefill 與 decode 這兩個階段在算術特性上的根本差異。這個差異是整篇論文的地基。</p>
+
+    <h3>2.1 Prefill vs. Decode</h3>
+    <p>Transformer LLM 的運作分兩階段。<strong>Prefill</strong> 接受使用者 prompt，生成後續的第一個 token 與一份 Key-Value cache（KvCache）。<strong>Decode</strong> 接受一個 token 與 KvCache，生成下一個 token 並在 KvCache 上追加一個 column。decode 是迭代過程，生成的 token 成為下一步的輸入，直到產生 end-of-sequence token。</p>
+
+    <p>假設 prompt 長度為 <code>s</code>、attention head 維度為 <code>d</code>：</p>
+    <div class="formula">
+      Prefill：self-attention = (s, d) × (d, s) × (s, d)　　MLP = (s, h) × (h, h)<br>
+      Decode　：self-attention = (1, d) × (d, s+1) × (s+1, d)　　MLP = (1, h) × (h, h)<br>
+      <span style="color:var(--muted)">s = past sequence length，h = hidden dimension</span>
+    </div>
+
+    <p><strong>差別一目了然：decode 階段的輸入是單一向量（batch 維度以外只有 1 個 token），GPU 使用率極低。</strong></p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="80" y1="240" x2="720" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="40" x2="80" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="192" x2="720" y2="192" stroke="#1b2430"/>
+        <line x1="80" y1="145" x2="720" y2="145" stroke="#1b2430"/>
+        <line x1="80" y1="97" x2="720" y2="97" stroke="#1b2430"/>
+        <line x1="80" y1="50" x2="720" y2="50" stroke="#1b2430"/>
+        <text x="72" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="72" y="196" fill="#5b6675" font-size="10" text-anchor="end">10 ms</text>
+        <text x="72" y="149" fill="#5b6675" font-size="10" text-anchor="end">20 ms</text>
+        <text x="72" y="101" fill="#5b6675" font-size="10" text-anchor="end">30 ms</text>
+        <text x="72" y="54" fill="#5b6675" font-size="10" text-anchor="end">40 ms</text>
+        <text x="80" y="260" fill="#5b6675" font-size="10" text-anchor="middle">batch 1</text>
+        <text x="700" y="260" fill="#5b6675" font-size="10" text-anchor="middle">batch 32</text>
+
+        <!-- long sequence: 17 -> 34 -->
+        <line x1="80" y1="159.25" x2="700" y2="78.5" stroke="#f4a259" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="80" cy="159.25" r="4" fill="#f4a259"/>
+        <circle cx="700" cy="78.5" r="4" fill="#f4a259"/>
+        <text x="96" y="152" fill="#f4a259" font-size="11" font-weight="700">17 ms</text>
+        <text x="684" y="70" fill="#f4a259" font-size="11" font-weight="700" text-anchor="end">34 ms</text>
+        <text x="390" y="106" fill="#f4a259" font-size="11" text-anchor="middle">長序列（約 2× 延遲，換來 32× batch）</text>
+
+        <!-- short sequence: 11 -> 13 -->
+        <line x1="80" y1="187.75" x2="700" y2="178.25" stroke="#5ad1c0" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="80" cy="187.75" r="4" fill="#5ad1c0"/>
+        <circle cx="700" cy="178.25" r="4" fill="#5ad1c0"/>
+        <text x="96" y="205" fill="#5ad1c0" font-size="11" font-weight="700">11 ms</text>
+        <text x="684" y="196" fill="#5ad1c0" font-size="11" font-weight="700" text-anchor="end">13 ms</text>
+        <text x="390" y="222" fill="#5ad1c0" font-size="11" text-anchor="middle">短序列（幾乎不變）</text>
+
+        <text x="24" y="140" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,140)" text-anchor="middle">Decode Latency</text>
+      </svg>
+      <div class="figcap">圖 1 · Decode 階段的 batching 效益（依論文 Figure 1 與正文敘述重繪）。<br>論文正文只給出 batch 1 與 batch 32 的端點值，中間的曲線形狀未提供 — 此處以虛線連接，不代表實際趨勢。</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>這張圖就是 G3 的證據。</strong>Prefill 的延遲與 batch size 成正比（GPU 算力已被充分利用，batch 沒有額外好處）。但 decode 完全不是這樣：batch size 從 1 增加到 32，短序列的 decode step 延遲只從 <span class="hl">11ms 增加到 13ms</span>，長序列從 <span class="hl">17ms 增加到 34ms</span>。<span class="hl2">換句話說，batching 能顯著提升 decode 階段的 GPU 使用率</span>——而長輸出的服務延遲主要由 decode 階段決定，這正是 Orca 這類系統的立足點。</p>
+    </div>
+
+    <h3>2.2 LoRA 的數學形式</h3>
+    <p>LoRA 的關鍵觀察是：pre-trained model 與 fine-tune 後模型之間的<strong>權重差異具有低秩性</strong>。因此這個差異可以表示為兩個小而密的矩陣的乘積。</p>
+
+    <div class="formula">
+      W ∈ ℝ<sup>h₁×h₂</sup>　　A ∈ ℝ<sup>h₁×r</sup>　　B ∈ ℝ<sup>r×h₂</sup><br>
+      <span style="color:var(--acc2)">W + AB</span> 是 fine-tune 後模型的新權重<br>
+      <span style="color:var(--muted)">r 是 LoRA rank，通常遠小於原始維度（例如 16 相對於 4096）</span>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4>額外儲存成本</h4><p class="big">0.1%–1%</p><p>每個 fine-tuned 模型只增加原模型權重的 0.1% 到 1%。</p></div>
+      <div class="card"><h4>套用位置</h4><p>通常套用到 transformer layer 的<strong>所有 dense projection</strong>，包含 attention 的 Query-Key-Value-Output projection 與 MLP。</p></div>
+      <div class="card"><h4>注意</h4><p>self-attention 運算<strong>本身不含任何權重</strong>，所以 LoRA 不會作用在 attention 的計算核心上，只作用在它前後的線性投影。</p></div>
+    </div>
+
+    <h3>那麼，怎麼在共享 GPU 叢集上高效服務多租戶 LoRA？</h3>
+    <p>一種做法是把每個 LoRA 模型當成獨立模型，用傳統 LLM serving 系統（例如 vLLM）服務。但這忽略了不同 LoRA 模型之間的權重共享——而這個共享正是大幅提升 GPU 效率的關鍵。更進一步，如果把每個 LoRA 模型視為獨立模型，<strong>模型載入時間會成為 bootstrap 階段的顯著效能瓶頸</strong>。</p>
+    <p>即使我們在各個 LoRA 模型之間共享 backbone，仍然留下一個問題：<span class="hl">要怎麼高效地「批次計算」那些 LoRA add-on？</span>這就是 SGMV 要解決的問題。</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 03 ══════════════════ -->
+<section id="sgmv">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>SGMV — 論文的技術核心</h2>
+    <p class="lead">Segmented Gather Matrix-Vector Multiplication。名字很長，語意其實一句話就講完：<strong>把 batch 切成連續的 segment，每個 segment 乘上屬於它自己的那個權重矩陣。</strong></p>
+
+    <h3>3.1 問題的形式化</h3>
+    <p>當一個 LoRA 模型在 batch 中有多個輸入時，可以把它們進一步 batch 在一起。作者把指向同一個 LoRA 模型的輸入<strong>連續地擺在一起</strong>。令 <code>n</code> 為 batch 中 LoRA 模型的數量，<code>s_i</code> 為第 <code>i</code> 個模型在 batch 中的最後一個元素索引，其中 <code>s₀ = 0</code>、<code>s_n</code> 為 batch size。輸入 <code>{x_i | i ∈ [1, s_n]}</code> 被切分為 <code>{{x_j | j ∈ (s_{i-1}, s_i]} | i ∈ [1, n]}</code>。</p>
+
+    <p>那麼 dense projection 的輸出可以寫成：</p>
+    <div class="formula">
+      ⎡ y₁ ⎤　　⎡ x₁ ⎤　　　　⎡ x₁ ⎤<br>
+      ⎢ ⋮ ⎥ := ⎢ ⋮ ⎥ · W ＋ ⎢ ⋮ ⎥ · A₁B₁　　（第 1 段）<br>
+      ⎢ y_{s₁} ⎥　⎣ x_{s₁} ⎦　　⎣ x_{s₁} ⎦<br>
+      ⎢ ⋮ ⎥　　　　　　　　　　　　⋮<br>
+      ⎣ y_{s_n} ⎦　⎣ x_{s_n} ⎦　　⎣ x_{s_n} ⎦ · A_nB_n　（第 n 段）<br>
+      <span style="color:var(--muted)">左半邊是 backbone 計算，可用一般的 GEMM 批次處理；右半邊才是 SGMV 要解決的。</span>
+    </div>
+
+    <div class="callout">
+      <p><strong>這就是整個設計的分水嶺。</strong>左邊那項 <code>x · W</code> 對所有請求都是<span class="hl">同一個 W</span>，所以是標準的 batched GEMM，完全沒問題。右邊那項每個 segment 要乘上<span class="hl2">不同的 A_i B_i</span>——這才是既有系統做不到 batch 的地方。</p>
+    </div>
+
+    <h3>3.2 SGMV 的語意</h3>
+    <p>注意 <code>v += x·AB</code> 這個 operator 可以拆成同一個 kernel 的兩次啟動：先初始化 <code>v := 0</code>，然後執行 <code>v += x·A</code>，接著 <code>y += v·B</code>。這個 operator 就叫 SGMV：</p>
+
+    <div class="formula" style="color:var(--acc2);font-size:16px">
+      Y[ s[i] : s[i+1] ] += X[ s[i] : s[i+1] ] @ W[i]
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="a1" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L7,3 L0,6 Z" fill="#93a1b3"/>
+          </marker>
+        </defs>
+        <text x="30" y="26" fill="#e8edf4" font-size="13" font-weight="700">X（batch，已依 LoRA 分段）</text>
+        <text x="370" y="26" fill="#e8edf4" font-size="13" font-weight="700">W[i]（每段各自的權重）</text>
+        <text x="650" y="26" fill="#e8edf4" font-size="13" font-weight="700">Y（就地累加）</text>
+
+        <!-- X segments -->
+        <rect x="40" y="46" width="150" height="72" rx="5" fill="#1b2430" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="115" y="78" fill="#5ad1c0" font-size="12" text-anchor="middle">segment 0</text>
+        <text x="115" y="98" fill="#5b6675" font-size="10.5" text-anchor="middle">s[0] .. s[1]</text>
+
+        <rect x="40" y="128" width="150" height="52" rx="5" fill="#1b2430" stroke="#f4a259" stroke-width="2"/>
+        <text x="115" y="150" fill="#f4a259" font-size="12" text-anchor="middle">segment 1</text>
+        <text x="115" y="168" fill="#5b6675" font-size="10.5" text-anchor="middle">s[1] .. s[2]</text>
+
+        <rect x="40" y="190" width="150" height="92" rx="5" fill="#1b2430" stroke="#8c7bff" stroke-width="2"/>
+        <text x="115" y="228" fill="#8c7bff" font-size="12" text-anchor="middle">segment 2</text>
+        <text x="115" y="248" fill="#5b6675" font-size="10.5" text-anchor="middle">s[2] .. s[3]</text>
+
+        <!-- W -->
+        <rect x="400" y="52" width="90" height="60" rx="5" fill="#141b25" stroke="#5ad1c0"/>
+        <text x="445" y="87" fill="#5ad1c0" font-size="13" text-anchor="middle">W[0]</text>
+        <rect x="400" y="128" width="90" height="60" rx="5" fill="#141b25" stroke="#f4a259"/>
+        <text x="445" y="163" fill="#f4a259" font-size="13" text-anchor="middle">W[1]</text>
+        <rect x="400" y="204" width="90" height="60" rx="5" fill="#141b25" stroke="#8c7bff"/>
+        <text x="445" y="239" fill="#8c7bff" font-size="13" text-anchor="middle">W[2]</text>
+
+        <line x1="196" y1="82" x2="394" y2="82" stroke="#5ad1c0" marker-end="url(#a1)"/>
+        <line x1="196" y1="154" x2="394" y2="158" stroke="#f4a259" marker-end="url(#a1)"/>
+        <line x1="196" y1="236" x2="394" y2="234" stroke="#8c7bff" marker-end="url(#a1)"/>
+
+        <!-- Y -->
+        <rect x="640" y="46" width="150" height="72" rx="5" fill="#1b2430" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="715" y="88" fill="#5ad1c0" font-size="12" text-anchor="middle">+= 結果 0</text>
+        <rect x="640" y="128" width="150" height="52" rx="5" fill="#1b2430" stroke="#f4a259" stroke-width="2"/>
+        <text x="715" y="159" fill="#f4a259" font-size="12" text-anchor="middle">+= 結果 1</text>
+        <rect x="640" y="190" width="150" height="92" rx="5" fill="#1b2430" stroke="#8c7bff" stroke-width="2"/>
+        <text x="715" y="242" fill="#8c7bff" font-size="12" text-anchor="middle">+= 結果 2</text>
+
+        <line x1="496" y1="82" x2="634" y2="82" stroke="#5ad1c0" marker-end="url(#a1)"/>
+        <line x1="496" y1="158" x2="634" y2="154" stroke="#f4a259" marker-end="url(#a1)"/>
+        <line x1="496" y1="234" x2="634" y2="236" stroke="#8c7bff" marker-end="url(#a1)"/>
+
+        <text x="410" y="312" fill="#5b6675" font-size="11.5">段長度可以不同 — s[] 這個 indptr 就是唯一需要傳進 kernel 的排程資訊</text>
+      </svg>
+      <div class="figcap">圖 2 · SGMV 語意（依論文 Figure 3 重繪）。同一個 LoRA 模型的請求被排在連續的 segment 內，segment 邊界由 indptr <code>s[]</code> 描述。</div>
+    </div>
+
+    <p>SGMV 把 batch 中<strong>不同請求的 feature-weight 乘法平行化</strong>，並把對應到同一個 LoRA 模型的請求 group 起來，藉此<span class="hl">提高 kernel 的 operational intensity（算術強度），使其能夠使用 GPU Tensor Cores 加速</span>。</p>
+
+    <h3>3.3 Shrink 與 Expand：兩種截然不同的 kernel schedule</h3>
+    <p>作者依據輸入與輸出的 feature 維度，把 SGMV operator 分成兩類：</p>
+
+    <div class="grid g2">
+      <div class="card">
+        <h4>SGMV-shrink · v = x·A</h4>
+        <p>LoRA 模組的第一個 operator。它把<strong>高維輸入 shrink 成低秩輸出</strong>（例如 4096 → 16）。</p>
+        <p style="margin-top:10px;color:var(--acc2)">問題：輸出維度太細（too thin），平行度不足。</p>
+        <p><strong>解法：Split-K。</strong>把 B 沿著 input feature 維度切成 <code>B = [B⁽¹⁾; …; B⁽ᵏ⁾]</code>，把不同的 <code>y⁽ⁱ⁾ = v·B⁽ⁱ⁾</code> 分派到不同 threadblock。所有 threadblock 的 partial sum 算完之後，做一次 <strong>grid synchronization</strong>，再跨 threadblock reduction 聚合：<code>y = Σᵢ y⁽ⁱ⁾</code>。</p>
+      </div>
+      <div class="card">
+        <h4>SGMV-expand · y = v·B</h4>
+        <p>第二個 operator。它把<strong>低秩輸入 expand 回高維輸出</strong>（例如 16 → 4096）。</p>
+        <p style="margin-top:10px;color:var(--acc)">輸出維度夠寬，平行度天然充足。</p>
+        <p><strong>解法：沿輸出維度切分。</strong>把 A 沿 output feature 維度切成 <code>A = [A⁽¹⁾ … A⁽ⁿ⁾]</code>，把不同的 <code>v⁽ⁱ⁾ = x·A⁽ⁱ⁾</code> 分派到 GPU 中不同的 threadblock，最後把 <code>v⁽ⁱ⁾</code> 串接起來就是最終結果。</p>
+      </div>
+    </div>
+
+    <p>兩個 kernel 都把 LoRA 索引綁定到 CUDA 的 <code>blockIdx.y</code>，於是每個 <code>blockIdx.y</code> 上的計算就是「features 與某個特定 LoRA 權重」之間的矩陣乘法。<strong>兩者都使用 GPU Tensor Cores 加速矩陣乘法。</strong></p>
+
+    <div class="callout hot">
+      <p><strong>一個重要的例外情況。</strong>當 batch 中<span class="hl2">每個請求都有不同的 LoRA 索引</span>時，每個 LoRA 索引對應的計算就退化成 matrix-vector multiplication——這是<strong>完全 IO-bound</strong> 的。作者為這種情況設計了專門的 schedule：<span class="hl">最大化記憶體頻寬使用率，並且「不使用 Tensor Cores」，因為此時 operational intensity 太低</span>。這個細節在後面看原始碼時會再出現一次。</p>
+    </div>
+
+    <h3>3.4 Roofline 分析</h3>
+    <p>作者用 roofline model 分析 SGMV kernel。FLOP 與記憶體 I/O bytes 的計算方式為：</p>
+    <div class="formula">
+      FLOP = s<sub>n</sub> × h<sub>i</sub> × h<sub>o</sub> × 2<br>
+      I/O　 = [ s<sub>n</sub> × (h<sub>i</sub> + h<sub>o</sub>) + n × h₁ × h₂ ] × 2<br>
+      <span style="color:var(--muted)">n = LoRA 模型數，s = segment indices，s_n = 輸入總數，h_i / h_o = SGMV 權重矩陣的輸入／輸出維度。<br>FLOP 的因子 2 來自矩陣乘法的 multiply-add；I/O 的因子 2 來自 16-bit 浮點的 byte 大小。<br>本 case study 使用 h_i = 16、h_o = 4096。</span>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="90" y1="250" x2="720" y2="250" stroke="#26313f"/>
+        <line x1="90" y1="40" x2="90" y2="250" stroke="#26313f"/>
+        <text x="405" y="288" fill="#5b6675" font-size="11" text-anchor="middle">算術強度  FLOP : I/O  →</text>
+        <text x="26" y="145" fill="#5b6675" font-size="11" transform="rotate(-90,26,145)" text-anchor="middle">Achieved FLOP/s  →</text>
+
+        <!-- peak FP16 ceiling -->
+        <line x1="90" y1="58" x2="720" y2="58" stroke="#5b6675" stroke-dasharray="5 4"/>
+        <text x="714" y="52" fill="#93a1b3" font-size="10.5" text-anchor="end">312 TFLOP/s（A100 peak FP16）</text>
+
+        <!-- memory bandwidth diagonal -->
+        <line x1="120" y1="250" x2="500" y2="58" stroke="#5b6675" stroke-dasharray="5 4"/>
+        <text x="330" y="140" fill="#93a1b3" font-size="10.5" transform="rotate(-27,330,140)">1.935 TB/s（記憶體頻寬上限）</text>
+
+        <!-- Distinct: vertical -->
+        <line x1="168" y1="228" x2="168" y2="150" stroke="#ff6b6b" stroke-width="2.5"/>
+        <circle cx="168" cy="150" r="4" fill="#ff6b6b"/>
+        <text x="180" y="146" fill="#ff6b6b" font-size="11" font-weight="700">Distinct</text>
+        <text x="180" y="163" fill="#5b6675" font-size="10">算術強度不變，</text>
+        <text x="180" y="177" fill="#5b6675" font-size="10">加大 batch 只往上走</text>
+
+        <!-- Identical: along diagonal -->
+        <path d="M200,222 C280,196 360,148 452,86" fill="none" stroke="#5ad1c0" stroke-width="2.5"/>
+        <circle cx="452" cy="86" r="4" fill="#5ad1c0"/>
+        <text x="466" y="90" fill="#5ad1c0" font-size="11" font-weight="700">Identical</text>
+        <text x="466" y="107" fill="#5b6675" font-size="10">沿頻寬斜線爬升</text>
+        <text x="466" y="121" fill="#5b6675" font-size="10">→ 受記憶體頻寬限制</text>
+
+        <!-- Uniform / Skewed in between -->
+        <path d="M186,225 C240,205 290,178 340,150" fill="none" stroke="#f4a259" stroke-width="2.5"/>
+        <circle cx="340" cy="150" r="4" fill="#f4a259"/>
+        <text x="352" y="196" fill="#f4a259" font-size="11" font-weight="700">Uniform / Skewed</text>
+        <text x="352" y="212" fill="#5b6675" font-size="10">兩種效果的組合</text>
+      </svg>
+      <div class="figcap">圖 3 · SGMV kernel 的 roofline 定性行為（依論文 Figure 7 與正文敘述重繪）。<br><strong>座標軸與曲線位置為示意</strong>——論文的 Figure 7 未提供可讀取的原始數值，僅兩條 ceiling（1.935 TB/s、312 TFLOP/s）為論文明確給出的數字。</div>
+    </div>
+
+    <ul>
+      <li><strong>Distinct</strong>（每個請求都是不同 LoRA）：算術強度<span class="hl2">不會改變</span>，因為 FLOP 與 I/O 以相同速率成長。由於每個輸入只用到少量 GPU 計算單元，加大 batch size 反而會提升效能（圖上是垂直往上）。</li>
+      <li><strong>Identical</strong>（全部同一個 LoRA）：曲線沿著記憶體頻寬的斜線往上爬，代表 <span class="hl">SGMV 在這個情況下是被記憶體頻寬限制住的</span>。</li>
+      <li><strong>Uniform / Skewed</strong>：介於兩者之間，是「平行度增加」與「算術強度增加」兩種效果的組合。</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════ 04 ══════════════════ -->
+<section id="system">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>系統設計 — kernel 之外的四件事</h2>
+    <p class="lead">有了 SGMV 只解決了「一張卡上怎麼算」。Punica 還需要回答「叢集上怎麼排」。這一節的四個機制——排程、on-demand 載入、請求遷移、KvCache layout——共同構成 Punica 的系統層。</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 820 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <marker id="a2" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto" markerUnits="strokeWidth">
+            <path d="M0,0 L7,3 L0,6 Z" fill="#5ad1c0"/>
+          </marker>
+        </defs>
+        <rect x="20" y="40" width="86" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="63" y="62" fill="#93a1b3" font-size="11" text-anchor="middle">Users</text>
+        <rect x="20" y="96" width="86" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="63" y="118" fill="#93a1b3" font-size="11" text-anchor="middle">Users</text>
+
+        <rect x="136" y="40" width="94" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="183" y="62" fill="#93a1b3" font-size="11" text-anchor="middle">Frontend</text>
+        <rect x="136" y="96" width="94" height="34" rx="6" fill="#1b2430" stroke="#26313f"/>
+        <text x="183" y="118" fill="#93a1b3" font-size="11" text-anchor="middle">Frontend</text>
+
+        <rect x="266" y="52" width="128" height="66" rx="8" fill="#141b25" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="330" y="80" fill="#5ad1c0" font-size="13" text-anchor="middle" font-weight="700">Scheduler</text>
+        <text x="330" y="99" fill="#5b6675" font-size="10" text-anchor="middle">全域 GPU 狀態視圖</text>
+
+        <line x1="110" y1="57" x2="130" y2="57" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="110" y1="113" x2="130" y2="113" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="234" y1="60" x2="260" y2="72" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="234" y1="112" x2="260" y2="100" stroke="#5ad1c0" marker-end="url(#a2)"/>
+
+        <!-- runners -->
+        <rect x="440" y="26" width="170" height="122" rx="8" fill="#0f151d" stroke="#26313f"/>
+        <text x="525" y="45" fill="#93a1b3" font-size="11" text-anchor="middle">Runner</text>
+        <rect x="452" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="487" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="458" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="487" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="458" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="487" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="458" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="487" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <rect x="530" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="565" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="536" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="565" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="536" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="565" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="536" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="565" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <rect x="632" y="26" width="170" height="122" rx="8" fill="#0f151d" stroke="#26313f"/>
+        <text x="717" y="45" fill="#93a1b3" font-size="11" text-anchor="middle">Runner</text>
+        <rect x="644" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="679" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="650" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="679" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="650" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="679" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="650" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="679" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <rect x="722" y="54" width="70" height="82" rx="5" fill="#141b25" stroke="#26313f"/>
+        <text x="757" y="74" fill="#e8edf4" font-size="10" text-anchor="middle">GPU</text>
+        <rect x="728" y="82" width="58" height="16" rx="3" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="757" y="94" fill="#5ad1c0" font-size="8.5" text-anchor="middle">LLM backbone</text>
+        <rect x="728" y="102" width="58" height="14" rx="3" fill="#1b2430" stroke="#26313f"/>
+        <text x="757" y="113" fill="#93a1b3" font-size="8.5" text-anchor="middle">KvCache</text>
+        <rect x="728" y="120" width="58" height="12" rx="3" fill="#1b2430" stroke="#f4a259"/>
+        <text x="757" y="129" fill="#f4a259" font-size="8" text-anchor="middle">LoRA … LoRA</text>
+
+        <line x1="398" y1="76" x2="434" y2="76" stroke="#5ad1c0" marker-end="url(#a2)"/>
+        <line x1="398" y1="94" x2="626" y2="94" stroke="#5ad1c0" marker-end="url(#a2)"/>
+
+        <text x="410" y="188" fill="#5b6675" font-size="11" text-anchor="middle">每張 GPU 都載入完整的 backbone；只有 LoRA 元件按需從遠端儲存 swap in</text>
+        <text x="410" y="208" fill="#5b6675" font-size="11" text-anchor="middle">大部分 GPU 記憶體保留給 KvCache</text>
+      </svg>
+      <div class="figcap">圖 4 · Punica 系統架構（依論文 Figure 2 重繪）。Frontend 對外提供 RESTful API，Scheduler 派發請求，每台 GPU server 跑一個 Runner。</div>
+    </div>
+
+    <h3>4.1 排程新請求</h3>
+    <p>Punica 的 scheduler 擁有<strong>所有 GPU 的全域狀態視圖</strong>。對每張 GPU，Punica 維護一個 working set（即 LLM invocation 的 batch 輸入）。隨著新請求加入 working set、decode step 展開，KvCache 消耗越來越多 GPU 記憶體，所以 Punica 也持續追蹤每張 GPU 上可用於 KvCache 的記憶體空間。</p>
+
+    <div class="callout">
+      <p><strong>排程規則：</strong>把新請求排給<span class="hl">目前 working set 最大（也就是 LLM invocation batch size 最大）</span>的那張 GPU，同時滿足兩個約束：(1) 尚未達到 max batch size 上限；(2) 有足夠記憶體容納新請求的 KvCache。有多個候選時，<strong>GPU UUID 最大的那張</strong>拿到新請求。當所有 GPU 都滿載（達到 max batch size 或記憶體不足），請求進入佇列。之後有 GPU 空出來時，佇列中的請求以 <strong>FCFS</strong> 方式排程。</p>
+    </div>
+
+    <p>max batch size 上限在「叢集 throughput」與「per-token 延遲」之間取平衡。過大的 batch 會大幅拖慢延遲，卻只帶來邊際的 throughput 收益。<span class="hl">作者 profile A100 之後，把 max batch size 定為 32。</span></p>
+
+    <p>這個 GPU 選擇邏輯刻意強調「在延遲約束內的叢集 throughput」，它的性質是：</p>
+    <ul>
+      <li><strong>忙碌的 GPU 傾向於維持忙碌</strong>，因為更多請求會被指派給它。</li>
+      <li><strong>輕載的 GPU 傾向於降低負載</strong>，因為請求會逐漸終止。</li>
+      <li><strong>閒置的 GPU 傾向於維持閒置。</strong></li>
+    </ul>
+    <p>因此 scheduler 能維持峰值 throughput，並依當前系統總負載<strong>整併 GPU 使用</strong>。這讓叢集的 scale up/down 更容易。在雲端環境中，Punica 執行兩種叢集配置操作：<strong>(1)</strong> 若叢集中沒有輕載 GPU，就請求更多 GPU；<strong>(2)</strong> 對於完全沒有負載的 GPU server，把資源歸還。</p>
+
+    <h3>4.2 On-demand 模型載入</h3>
+    <p>LoRA 模型與底層 pre-trained model 之間的權重共享讓模型載入非常快。LoRA 模型（矩陣 A 與 B）的大小只有底層 pre-trained model 的約 <strong>1%</strong>。</p>
+    <p>把 LoRA 模型從主記憶體載入 GPU 記憶體只是一次非同步的 host-to-device memory copy，延遲受 PCIe 頻寬限制：</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>載入單層</h4><p class="big">~50 µs</p><p>PCIe Gen4 x16</p></div>
+      <div class="card"><h4>載入整個模型</h4><p class="big">2 ms</p><p>PCIe Gen4 x16</p></div>
+      <div class="card"><h4>單個 decode step</h4><p class="big">~30 ms</p><p>遠大於載入時間 → 天然重疊</p></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>這裡有一個「不做過度優化」的務實決定。</strong>因為 memory copy 與 GPU 計算可以重疊，理論上可以實作精細的 layer-by-layer 甚至 matrix-by-matrix 載入來把延遲藏到最小。但作者注意到：每個 decode step 約需 30ms，而每個請求可能需要數千個 decode steps。所以他們<span class="hl2">選擇了更簡單但等效的做法</span>——當新請求加入 GPU 時，若其 LoRA 模型尚未載入，就發出一個非同步的 memory copy 來載入 LoRA 權重，然後讓 GPU 繼續跑 batch 中的其他輸入。<span class="hl">等到這次模型執行結束時，權重早就載完了</span>，新請求自然地加入 batch。</p>
+    </div>
+
+    <h3>4.3 請求遷移</h3>
+    <p>隨著請求生成更多 token，它們的 KvCache 佔用越來越多 GPU 記憶體。當一張 GPU 的 KvCache 空間耗盡時，就把一些請求遷移到其他 GPU。請求遷移分兩步——<strong>evict 與 add</strong>。Scheduler 驅逐 GPU 上<strong>最新</strong>的請求，這保留了 FCFS 語意。被驅逐請求的排程方式與新增請求相同。</p>
+
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>Cancel R₃</h4><p>Scheduler 先送出請求的取消指令給 GPU 1。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Release KvCache</h4><p>GPU 1 跑完前一個 batch 後接收取消並釋放 KvCache。GPU 1 也丟棄 R₃ 在前一個 batch 中生成的新 token。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Stop streaming R₃</h4><p>停止把 R₃ 的 token 串流給 scheduler。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Add R₃</h4><p>送出取消指令<strong>之後立刻</strong>，scheduler 就把 R₃ 加到 GPU 2。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Build KvCache</h4><p>GPU 2 對 R₃ 的原始 prompt 加上所有先前生成的 token 執行一次 <strong>prefill</strong>，藉此在 GPU 2 上重建 R₃ 的 KvCache。</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Start streaming R₃</h4><p>GPU 2 開始把 R₃ 的新 token 串流給 scheduler。</p></div></div>
+    </div>
+
+    <div class="callout">
+      <p><strong>為什麼用重算而不是搬 KvCache？</strong>作者選擇重算是為了<span class="hl">簡單</span>。PagedAttention 已經證明在大多數情況下，重算的延遲與搬移 KvCache 相當或更好——這與作者的觀察一致。</p>
+      <p>另外，Punica scheduler 支援取消請求（典型場景是使用者斷線），實作很直接：把請求從 GPU 與 scheduler 狀態中移除。<strong>更重要的是，把請求取消當成一個排程原語（scheduling primitive），才使得請求遷移成為可能。</strong></p>
+    </div>
+
+    <h3>4.4 KvCache 的記憶體佈局</h3>
+    <p>Punica 使用<strong>可分離（separable）的 KvCache layout</strong>，這對文字生成的 batching throughput 至關重要。HuggingFace Transformers 的 KvCache layout 由複雜的巢狀 tensor list 組成，概念上可視為：</p>
+    <div class="formula" style="color:var(--hot)">
+      [ L , 2 , B , N , S , D ]<br>
+      <span style="color:var(--muted)">L = 層數，2 = Key/Value projection，B = batch size，N = head 數，S = 序列長度，D = head 維度</span>
+    </div>
+
+    <p>這個佈局有兩個問題：</p>
+    <ul>
+      <li><strong>問題一（效率）：</strong>每個 decode step，HuggingFace Transformers 沿序列長度維度串接一個 tensor。這個串接很沒效率，因為它必須讀取<strong>整個 KvCache 並寫出一份新的副本</strong>，而新 tensor 只佔 <code>1/S</code>。</li>
+      <li><strong>問題二（更嚴重，語意層面）：</strong>batching 維度<span class="hl2">不在最外層</span>，這意味著 batch 中的請求在 KvCache 裡很難被分開。在這個限制下，<strong>一起進入 batch 的請求必須在所有 decode step 中維持在一起，直到所有請求都滿足各自的停止條件為止。</strong></li>
+    </ul>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 260" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <defs>
+          <pattern id="hatch" width="6" height="6" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+            <line x1="0" y1="0" x2="0" y2="6" stroke="#ff6b6b" stroke-width="2.2"/>
+          </pattern>
+        </defs>
+        <line x1="70" y1="200" x2="700" y2="200" stroke="#26313f"/>
+        <line x1="70" y1="30" x2="70" y2="200" stroke="#26313f"/>
+        <text x="26" y="115" fill="#5b6675" font-size="10.5" transform="rotate(-90,26,115)" text-anchor="middle">decode steps</text>
+        <text x="385" y="230" fill="#5b6675" font-size="10.5" text-anchor="middle">Request Index（同一個 batch 內的 4 個請求）</text>
+
+        <!-- group 1: batch of 4, longest = 170 tall -->
+        <rect x="100" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="100" y="120" width="60" height="80" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="166" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="166" y="60" width="60" height="140" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="232" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="232" y="40" width="60" height="160" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="298" y="40" width="60" height="160" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="298" y="150" width="60" height="50" fill="#1b2430" stroke="#5ad1c0"/>
+
+        <!-- group 2 -->
+        <rect x="400" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="400" y="140" width="60" height="60" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="466" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="466" y="90" width="60" height="110" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="532" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="532" y="160" width="60" height="40" fill="#1b2430" stroke="#5ad1c0"/>
+        <rect x="598" y="90" width="60" height="110" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <rect x="598" y="125" width="60" height="75" fill="#1b2430" stroke="#5ad1c0"/>
+
+        <rect x="470" y="18" width="12" height="12" fill="url(#hatch)" stroke="#ff6b6b"/>
+        <text x="490" y="29" fill="#93a1b3" font-size="10.5">Waste</text>
+        <rect x="560" y="18" width="12" height="12" fill="#1b2430" stroke="#5ad1c0"/>
+        <text x="580" y="29" fill="#93a1b3" font-size="10.5">Actual</text>
+      </svg>
+      <div class="figcap">圖 5 · 不可分離的 KvCache 造成浪費的 decode step（依論文 Figure 6 重繪，為<strong>示意圖</strong>）。<br>連續 4 個請求被 batch 在一起，較短的請求必須陪著最長的請求空跑，浪費的計算就是斜線部分。</div>
+    </div>
+
+    <p>論文指出 <strong>FasterTransformer 與 DeepSpeed 也有類似問題</strong>。Punica 的 KvCache layout 則是：</p>
+    <div class="formula" style="color:var(--acc)">
+      [ Σ<sub>i</sub> ⌈ S<sub>i</sub> / P ⌉ , L , 2 , N , P , D ]<br>
+      <span style="color:var(--muted)">S_i = 第 i 個序列的長度，P = page size</span>
+    </div>
+    <p>作者使用 <strong>paged KvCache</strong>（PagedAttention）來最小化記憶體碎片化，並把 <span class="hl">batching 維度放到最外層以支援 continuous batching</span>。</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 05 ══════════════════ -->
+<section id="impl">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>實作與原始碼 — 論文沒說的那部分</h2>
+    <p class="lead">Punica 的實作分兩部分：跑在單張 GPU 上的 PyTorch Python library，以及支援跨叢集服務的系統元件。這一節除了論文寫的內容，也直接引用 <a href="https://github.com/punica-ai/punica" style="color:var(--acc)">punica-ai/punica</a> repo 裡的實際程式碼——有幾個地方跟論文的描述不完全一致，值得知道。</p>
+
+    <h3>5.1 論文描述的實作</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Python Library</h4>
+        <p>CUDA kernel 透過 <strong>PyBind11</strong> 以 PyTorch Extension 形式暴露。Llama 模型實作改編自 HuggingFace Transformers。</p>
+      </div>
+      <div class="card">
+        <h4>FlashInfer</h4>
+        <p>使用 FlashInfer 做快速且記憶體高效的 self-attention。除了像 FlashAttention 一樣融合 <code>softmax(QKᵀ)V</code> 之外，FlashInfer 還<strong>支援不需要 padding 的 batch decoding</strong>，並支援 paged KvCache。</p>
+      </div>
+      <div class="card">
+        <h4>LayerNorm 融合</h4>
+        <p class="big">110 µs → 4 µs</p>
+        <p>作者也融合了 LayerNorm，延遲降低約 27 倍。</p>
+      </div>
+      <div class="card">
+        <h4>系統元件</h4>
+        <p>Scheduler、frontend、runner 全部用 <strong>Rust</strong> 寫。Unary RPC 與串流文字 chunk 都透過 web socket 實作，I/O 非同步處理。Runner 為每張 GPU spawn 一個 subprocess（PyTorch library 的薄封裝），主行程用 pipe 與 subprocess 溝通。</p>
+      </div>
+    </div>
+
+    <h3>5.2 混合 Prefill 與 Decode 的批次策略</h3>
+    <p>Punica 把處於 Prefill 階段的新請求與處於 Decode 階段的既有請求<strong>混在同一個 batch</strong>。這樣一來，dense projection 與 LoRA 都能受惠於更大的 batch size。</p>
+    <p>為了做 batching，所有輸入沿序列長度維度串接。<strong>Prefill 請求一律放在開頭，Decode 請求放在後半部。</strong>接著傳入一個 <code>BatchLen</code> struct 來區分不同請求：它包含每個 Prefill 請求的起始索引清單，以及 Decode 請求的數量。</p>
+    <p>在 self-attention 層，把索引與前導輸入狀態傳給 <code>BatchPrefill</code> kernel，把尾端的輸入狀態傳給 <code>BatchDecode</code> kernel。</p>
+
+    <div class="callout">
+      <p><strong>一個很細的排程巧思：</strong>在 batch 內部，作者進一步組織輸入順序，讓<span class="hl">共享同一個 LoRA 模型的請求彼此相鄰</span>。而且——<strong>Prefill 請求的尾巴與 Decode 請求的頭，如果可能的話會共享同一個 LoRA 模型</strong>。這是為了讓 SGMV 的 segment 數量最小化。</p>
+      <p>接著在每次 batched model invocation 之前，先串接 batch 輸入並建構 <code>BatchLen</code> 與 SGMV segment indices。這兩者在<strong>整個 model invocation 期間保持不變</strong>。這個設計避免了重複計算——否則 <code>BatchLen</code> 要算 <code>L</code> 次，SGMV segment indices 要算 <code>7L</code> 次（<code>L</code> 為層數）。</p>
+    </div>
+
+    <p>為什麼是 <code>7L</code>？因為每一層有 7 個 LoRA add-on 需要計算。這一點在原始碼裡看得非常清楚。</p>
+
+    <h3>5.3 原始碼：每一層的 7 次 LoRA 加法</h3>
+    <p>下面是 <code>src/punica/models/llama_lora.py</code> 中 attention 層的 forward。注意 dense projection 照常呼叫，然後 <code>add_lora()</code> <strong>就地（in-place）</strong>把 LoRA delta 加上去：</p>
+
+    <pre><code><span class="cmt"># src/punica/models/llama_lora.py</span>
+<span class="kw">from</span> punica.ops <span class="kw">import</span> add_lora_sgmv_custom_cutlass <span class="kw">as</span> add_lora
+
+<span class="kw">def</span> <span class="fn">forward</span>(self, hidden_states, blen, prefill_kv, decode_kv,
+            lora: BatchedLlamaLoraWeight):
+    <span class="cmt"># 1) backbone 的 dense projection —— 一般的 batched GEMM</span>
+    q_proj = self.q_proj(hidden_states)
+    k_proj = self.k_proj(hidden_states)
+    v_proj = self.v_proj(hidden_states)
+
+    <span class="cmt"># 2) LoRA add-on —— SGMV，就地累加到 q/k/v_proj 上</span>
+    <span class="fn">add_lora</span>(q_proj, hidden_states,
+             lora.q.wa_ptr, lora.q.wb_ptr,
+             lora.segment,          <span class="cmt"># ← 就是 SGMV 的 indptr s[]</span>
+             self.layer_idx, lora.rank)
+    <span class="fn">add_lora</span>(k_proj, hidden_states,
+             lora.k.wa_ptr, lora.k.wb_ptr, lora.segment,
+             self.layer_idx, lora.rank)
+    <span class="fn">add_lora</span>(v_proj, hidden_states,
+             lora.v.wa_ptr, lora.v.wb_ptr, lora.segment,
+             self.layer_idx, lora.rank)
+    ...</code></pre>
+
+    <p>Attention 有 <code>q, k, v, o</code> 四次，MLP 有 <code>gate, up, down</code> 三次 —— 合計每層 <strong>7 次</strong>，正好對應論文說的 <code>7L</code>。<code>lora.segment</code> 這一個 tensor 就是圖 2 裡的 <code>s[]</code>，整個 batch 的 LoRA 排程資訊全部濃縮在裡面。</p>
+
+    <h3>5.4 原始碼：SGMV 的實際 API 與一個意外發現</h3>
+    <p>repo 的 <code>src/punica/ops/__init__.py</code> 定義了對外的 kernel API。SGMV 的語意跟論文完全一致：</p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">sgmv_cutlass</span>(y, x, w_ptr, s, layer_idx):
+    <span class="str">"""
+    Semantics:
+      y[s[i]:s[i+1]] += x[s[i]:s[i+1]] @ deref(w_ptr[i])
+
+    Args:
+      y: Shape: `[B, H2]`. Output vectors. Will be changed in-place.
+      x: Shape: `[B, H1]`. Input vectors.
+      w_ptr: Shape: `[S]`. DType: torch.int64. Pointer to the weight matrices.
+      s: Shape: `[S+1]`, DType: torch.int32. Indptr of the weight matrices.
+         `s[0] == 0`, `s[-1] == B`.
+    """</span></code></pre>
+
+    <p>但真正被模型使用的是這個 <strong>混合實作</strong>：</p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">add_lora_sgmv_custom_cutlass</span>(y, x, wa_ptr, wb_ptr, s,
+                                 layer_idx, lora_rank):
+    <span class="str">"""
+    Semantics:
+      y[s[i]:s[i+1]] += x[s[i]:s[i+1]] @ deref(wa_ptr[i]).T @ deref(wb_ptr[i])
+    """</span>
+    tmp1 = torch.empty((<span class="str">8 * 1024 * 1024</span>,), dtype=torch.uint8, device=x.device)
+    tmp2_size = _kernels.sgmv_cutlass_tmp_size(wa_ptr.size(<span class="str">0</span>))
+    tmp2 = torch.empty((tmp2_size,), dtype=torch.uint8, device=x.device)
+    v = torch.zeros((x.size(<span class="str">0</span>), lora_rank), dtype=x.dtype, device=x.device)
+
+    _kernels.<span class="fn">sgmv_shrink</span>(v, x, wa_ptr, s, tmp1, layer_idx)   <span class="cmt"># ← 自製 CUDA kernel</span>
+    _kernels.<span class="fn">sgmv_cutlass</span>(y, v, wb_ptr, s, tmp2, layer_idx)  <span class="cmt"># ← CUTLASS 實作</span></code></pre>
+
+    <div class="callout warn">
+      <p><strong>這裡有一個論文沒有明講的實作細節。</strong>shrink 那一半（<code>v = x·A</code>，含 Split-K 那套設計）是作者自己寫的 CUDA kernel；但 expand 那一半（<code>y = v·B</code>）<span class="hl2">在實際出貨的路徑上是走 CUTLASS 的通用實作</span>，而不是論文 §4 描述的那個自製 expand schedule。</p>
+      <p>證據就在同一個檔案裡——純自製版本的 <code>sgmv()</code> 與 <code>add_lora_sgmv()</code> 都還停在：</p>
+      <pre style="margin:10px 0 0"><code><span class="kw">def</span> <span class="fn">sgmv</span>(y, x, w_ptr, s, layer_idx):
+    <span class="kw">if</span> x.size(<span class="str">1</span>) &lt; y.size(<span class="str">1</span>):
+        <span class="kw">raise</span> <span class="fn">NotImplementedError</span>(<span class="str">"TODO: sgmv_expand"</span>)
+    ...</code></pre>
+      <p style="margin-top:10px">也就是說：<span class="hl">論文描述的 expand kernel schedule 在這份開源程式碼裡沒有完成</span>，出貨路徑用 CUTLASS 補上。這不影響論文的效能數字（benchmark 跑的就是這個混合實作），但如果你想照著論文 §4 重現那個 expand kernel，會發現 repo 裡沒有。</p>
+    </div>
+
+    <p>權重的記憶體佈局也直接反映了這個混合設計 —— <code>src/punica/utils/lora.py</code> 的註解說得很白：</p>
+    <pre><code><span class="kw">class</span> <span class="fn">LoraWeight</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(self, num_layers, in_features, out_features,
+                 lora_rank, dtype, device):
+        <span class="cmt"># SGMV-Shrink custom CUDA kernel uses column-major.</span>
+        self.wa = torch.zeros(
+            (num_layers, lora_rank, in_features), dtype=dtype, device=device)
+        <span class="cmt"># SGMV-Expand cutlass kernel uses row-major.</span>
+        self.wb = torch.zeros(
+            (num_layers, lora_rank, out_features), dtype=dtype, device=device)</code></pre>
+
+    <h3>5.5 原始碼：另一個 kernel — BGMV</h3>
+    <p>repo 裡還有一個論文正文沒有命名、但確實對應到 §4 那段「每個請求都有不同 LoRA 索引」討論的 kernel：<strong>BGMV（Batched Gather Matrix-Vector）</strong>，放在 <code>csrc/bgmv/</code>。</p>
+
+    <pre><code><span class="kw">def</span> <span class="fn">add_lora_bgmv</span>(y, x, wa_T_all, wb_T_all, indicies, layer_idx, scale):
+    <span class="str">"""
+    Semantics:
+      y[i] += (
+          x[i].unsqueeze(0)
+          @ wa_T_all[indices[i], layer_idx, :, :].transpose(-1, -2)
+          @ wb_T_all[indices[i], layer_idx, :, :].transpose(-1, -2)
+          * scale
+        ).squeeze(0)
+
+      indicies: Shape: `[B]`. Indices of the LoRA weights.
+    """</span></code></pre>
+
+    <div class="callout">
+      <p><strong>注意 SGMV 與 BGMV 的關鍵差異。</strong>SGMV 吃的是 <code>s</code>（indptr，描述<span class="hl">連續 segment</span>），BGMV 吃的是 <code>indicies</code>（每個 batch 元素<span class="hl2">各自一個索引</span>）。前者假設同一個 LoRA 的請求被排在一起、可以用 Tensor Cores 做矩陣乘法；後者對應論文說的「退化成 matrix-vector、完全 IO-bound、不使用 Tensor Cores」的情況——每個請求都是不同 LoRA，根本沒有 segment 可言。</p>
+      <p>這個 BGMV 後來的影響力其實不小：它是<strong>最早被下游推論框架採用的多 LoRA batching kernel 形式</strong>之一，因為 <code>indicies</code> 這個介面比 SGMV 的「請求必須依 LoRA 排序」假設更容易接進既有的 continuous batching 排程器。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════ 06 ══════════════════ -->
+<section id="eval">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2>實驗結果</h2>
+
+    <div class="callout hot">
+      <p><strong>先講一個讀這篇論文必須知道的事：這篇論文沒有任何表格。</strong>所有實驗結果都以圖（Figure 7–13）呈現，論文沒有附上原始數值表。下面所有數字都是<span class="hl2">論文正文明確寫出來的</span>；正文沒寫、只能從圖上目測的數值，我一律標示為未提供，不做估算。</p>
+    </div>
+
+    <h3>6.1 實驗設定</h3>
+    <div class="tbl-wrap">
+      <table>
+        <caption>實驗設定（整理自論文 §7）</caption>
+        <thead><tr><th>項目</th><th>設定</th></tr></thead>
+        <tbody>
+          <tr><td>Testbed #1</td><td>單台 server，1× NVIDIA A100 <strong>80GB</strong> GPU。大記憶體，用來研究 LoRA batching 效果。</td></tr>
+          <tr><td>Testbed #2</td><td>2× NVIDIA HGX A100 <strong>40GB</strong> server，每台 8 GPU。具備 NvSwitch，用來研究 tensor parallelism 與叢集部署。</td></tr>
+          <tr><td>模型</td><td>Llama-2 7B / 13B / 70B</td></tr>
+          <tr><td>LoRA rank</td><td>所有實驗使用 <strong>16</strong>；LoRA 套用到所有 dense projection</td></tr>
+          <tr><td>LoRA 權重</td><td><span class="hot">隨機權重</span>（作者說明：權重不影響延遲效能）</td></tr>
+          <tr><td>工作負載</td><td>Prompt 與 response 長度取自 <strong>ShareGPT</strong> 的真實 user-bot 對話分佈</td></tr>
+          <tr><td>Max batch size</td><td>32（所有系統一致）</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p><strong>四種請求分佈</strong>（決定 batch 中 LoRA 模型的多樣性）：</p>
+    <div class="grid g4">
+      <div class="card"><h4>Distinct</h4><p>每個請求都指向<strong>不同</strong>的 LoRA 模型。最嚴苛的情況。</p></div>
+      <div class="card"><h4>Uniform</h4><p>所有 LoRA 模型同樣熱門。給定 <code>n</code> 個請求，使用 <code>⌈√n⌉</code> 個模型。</p></div>
+      <div class="card"><h4>Skewed</h4><p>模型熱門度遵循 <strong>Zipf-α</strong> 分佈，第 <code>i</code> 熱門的模型請求數是第 <code>i+1</code> 名的 <code>α</code> 倍。實驗取 <strong>α = 1.5</strong>。</p></div>
+      <div class="card"><h4>Identical</h4><p>所有請求都指向<strong>同一個</strong> LoRA 模型。等於傳統單模型服務。</p></div>
+    </div>
+
+    <div class="callout warn">
+      <p><strong>Baseline 的設定對 Punica 不利，這點作者很誠實。</strong>由於當時沒有知名的 multi-LoRA 服務系統，作者拿 Punica 跟一系列主流 LLM backbone 服務系統比較，並<span class="hl2">給了 baseline 各種對它們有利的放寬</span>：</p>
+      <ul style="margin-top:8px">
+        <li><strong>HuggingFace PEFT</strong> + HuggingFace Transformers（真的有 LoRA）</li>
+        <li><strong>DeepSpeed</strong>（真的有 LoRA）</li>
+        <li><strong>FasterTransformer</strong> 與 <strong>vLLM</strong>：<span class="hl">只跑 backbone</span>，因為這兩個系統當時不支援 LoRA 模型</li>
+        <li>並且<strong>省略了 baseline 系統的模型切換成本</strong></li>
+      </ul>
+      <p style="margin-top:8px">換句話說，vLLM 那組數字是「假裝完全沒有 LoRA 開銷」的理想上界。這讓 12× 的結論反而更保守、更可信。</p>
+    </div>
+
+    <h3>6.2 LoRA operator microbenchmark</h3>
+    <p>作者把 batched LoRA operator 實作成兩次 SGMV kernel 啟動，並與兩個 PyTorch baseline 比較：</p>
+    <ul>
+      <li><strong>Loop</strong>：對每個 LoRA 模型跑一次迴圈。</li>
+      <li><strong>Gather-BMM</strong>：gather 步驟把每個輸入需要的權重矩陣堆疊成單一矩陣，再用 <code>torch.bmm()</code> 做 batched 矩陣乘法。與 SGMV 一樣啟動 Gather 兩次、BMM 兩次。</li>
+    </ul>
+    <p>作者的分析指出 Gather-BMM 的 I/O 比 SGMV 多得多：Gather 讀入 <code>n × h_i × h_o</code> 個元素、寫出 <code>s_n × h_i × h_o</code> 個；接著 BMM 又必須讀回 Gather 剛寫出的 <code>s_n × h_i × h_o</code> 個權重元素。<span class="hl">合計 Gather-BMM 比 SGMV 多出 <code>s_n × h_i × h_o × 2</code> 個元素的記憶體 I/O。</span></p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="80" y1="240" x2="720" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="40" x2="80" y2="240" stroke="#26313f"/>
+        <line x1="80" y1="177" x2="720" y2="177" stroke="#1b2430"/>
+        <line x1="80" y1="113" x2="720" y2="113" stroke="#1b2430"/>
+        <line x1="80" y1="50" x2="720" y2="50" stroke="#1b2430"/>
+        <text x="72" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="72" y="181" fill="#5b6675" font-size="10" text-anchor="end">40 µs</text>
+        <text x="72" y="117" fill="#5b6675" font-size="10" text-anchor="end">80 µs</text>
+        <text x="72" y="54" fill="#5b6675" font-size="10" text-anchor="end">120 µs</text>
+        <text x="80" y="262" fill="#5b6675" font-size="10" text-anchor="middle">batch 1</text>
+        <text x="700" y="262" fill="#5b6675" font-size="10" text-anchor="middle">batch 64</text>
+
+        <line x1="80" y1="181.4" x2="700" y2="56.4" stroke="#ff6b6b" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="80" cy="181.4" r="4" fill="#ff6b6b"/><circle cx="700" cy="56.4" r="4" fill="#ff6b6b"/>
+        <text x="686" y="48" fill="#ff6b6b" font-size="11" font-weight="700" text-anchor="end">116 µs · Distinct</text>
+
+        <line x1="80" y1="181.4" x2="700" y2="167.2" stroke="#f4a259" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="700" cy="167.2" r="4" fill="#f4a259"/>
+        <text x="686" y="158" fill="#f4a259" font-size="11" font-weight="700" text-anchor="end">46 µs · Uniform / Skewed</text>
+
+        <line x1="80" y1="181.4" x2="700" y2="176.7" stroke="#5ad1c0" stroke-width="2" stroke-dasharray="6 4"/>
+        <circle cx="700" cy="176.7" r="4" fill="#5ad1c0"/>
+        <text x="686" y="196" fill="#5ad1c0" font-size="11" font-weight="700" text-anchor="end">40 µs · Identical</text>
+
+        <text x="96" y="200" fill="#93a1b3" font-size="11" font-weight="700">37 µs（起點，四種分佈相同）</text>
+        <text x="24" y="140" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,140)" text-anchor="middle">SGMV Latency</text>
+      </svg>
+      <div class="figcap">圖 6 · SGMV 在四種工作負載下的延遲（依論文 Figure 8 正文敘述重繪）。<br><strong>只有 batch 1 與 batch 64 的端點值為論文明確給出</strong>，中間曲線形狀未提供，此處以虛線連接。<br>Loop 與 Gather-BMM 的具體數值論文正文未給出，故未繪製。</div>
+    </div>
+
+    <div class="grid g3">
+      <div class="card">
+        <h4>Distinct</h4>
+        <p>Loop <strong>表現極差</strong>，因為它跑的是多輪 batch size 1。Gather-BMM 延遲因 Gather 的拖累而快速上升。SGMV 也逐步上升，<span class="hl">從 37µs 到 116µs</span>，因為 batching 不改變算術強度。</p>
+      </div>
+      <div class="card">
+        <h4>Uniform / Skewed</h4>
+        <p>與 Distinct 情況類似，但 Gather-BMM 表現略好（要載入的矩陣較少）。SGMV 延遲<span class="hl">只從 37µs 微幅上升到 46µs</span>——這是「平行度增加」與「算術強度增加」兩種效果的組合。</p>
+      </div>
+      <div class="card">
+        <h4>Identical</h4>
+        <p>所有實作的語意都相同（就是 BMM）。因此可以推論 <span class="hl2">SGMV 在 LoRA 的情境下比 <code>torch.bmm()</code> 更高效地實作了 BMM</span>。SGMV 延遲幾乎不變，<span class="hl">從 37µs 到 40µs</span>。</p>
+      </div>
+    </div>
+
+    <h3>6.3 不同 LoRA rank 的影響</h3>
+    <p>這是論文中唯一一組數值最完整的實驗（Testbed #1，LoRA rank 8/16/32/64）：</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 300" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="70" y1="220" x2="740" y2="220" stroke="#26313f"/>
+        <line x1="70" y1="40" x2="70" y2="220" stroke="#26313f"/>
+        <line x1="70" y1="164.6" x2="740" y2="164.6" stroke="#1b2430"/>
+        <line x1="70" y1="109.2" x2="740" y2="109.2" stroke="#1b2430"/>
+        <line x1="70" y1="53.8" x2="740" y2="53.8" stroke="#1b2430"/>
+        <text x="62" y="224" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="62" y="168" fill="#5b6675" font-size="10" text-anchor="end">40 µs</text>
+        <text x="62" y="113" fill="#5b6675" font-size="10" text-anchor="end">80 µs</text>
+        <text x="62" y="58" fill="#5b6675" font-size="10" text-anchor="end">120 µs</text>
+
+        <rect x="560" y="40" width="11" height="11" rx="2" fill="#5ad1c0"/><text x="576" y="50" fill="#93a1b3" font-size="10.5">batch 1</text>
+        <rect x="646" y="40" width="11" height="11" rx="2" fill="#f4a259"/><text x="662" y="50" fill="#93a1b3" font-size="10.5">batch 64</text>
+
+        <rect x="90" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="117.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="153" y="120.3" width="55" height="99.7" rx="3" fill="#f4a259"/>
+        <text x="180.5" y="113" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">72</text>
+        <text x="149" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 8</text>
+
+        <rect x="260" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="287.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="323" y="116.2" width="55" height="103.8" rx="3" fill="#f4a259"/>
+        <text x="350.5" y="109" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">75</text>
+        <text x="319" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 16</text>
+
+        <rect x="430" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="457.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="493" y="96.8" width="55" height="123.2" rx="3" fill="#f4a259"/>
+        <text x="520.5" y="90" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">89</text>
+        <text x="489" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 32</text>
+
+        <rect x="600" y="161.8" width="55" height="58.2" rx="3" fill="#5ad1c0"/>
+        <text x="627.5" y="155" fill="#5ad1c0" font-size="10.5" text-anchor="middle" font-weight="700">42</text>
+        <rect x="663" y="56.6" width="55" height="163.4" rx="3" fill="#f4a259"/>
+        <text x="690.5" y="50" fill="#f4a259" font-size="10.5" text-anchor="middle" font-weight="700">118</text>
+        <text x="659" y="240" fill="#e8edf4" font-size="12" text-anchor="middle" font-weight="700">r = 64</text>
+
+        <text x="405" y="270" fill="#5b6675" font-size="11" text-anchor="middle">Distinct 工作負載（最嚴苛情況）· 論文正文給出的實際數值</text>
+        <text x="24" y="130" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,130)" text-anchor="middle">Latency</text>
+      </svg>
+      <div class="figcap">圖 7 · 不同 LoRA rank 下的 SGMV 延遲（依論文 Figure 9 與正文數值重繪，數值為論文明確給出）。</div>
+    </div>
+
+    <div class="callout">
+      <p><strong>關鍵發現：</strong>在 Distinct 情況下，batch size 1 的延遲在四種 rank 下<span class="hl">全都是 42µs</span>；batch size 64 才拉開差距（72 / 75 / 89 / 118 µs）。而當工作負載存在權重共享時（Uniform、Skewed、Identical），<span class="hl2">延遲在 batch size 1 到 64 之間幾乎不變，維持在約 42µs 到 45µs</span>。</p>
+    </div>
+
+    <h3>6.4 Transformer layer benchmark</h3>
+    <p>把 LoRA operator 併入 transformer layer 之後測整層效能（Testbed #1，7B 與 13B 配置，序列長度 512 與 2048）。</p>
+    <p>序列較短時 batching 效果更強：<span class="hl">序列長度 512 時，batch size 從 1 增加到 32，延遲只增加 72%</span>。序列較長時 self-attention 花的時間更多，削弱了 layer 層級的 batching 效果。</p>
+
+    <div class="callout warn">
+      <p><strong>這是整篇論文最重要的一個「非結果」。</strong>與 kernel 層級的 microbenchmark 形成對比——<span class="hl2">layer 層級的延遲在不同工作負載（Distinct / Uniform / Skewed / Identical）之間幾乎相同</span>。原因是 LoRA add-on 的計算時間相對於 backbone dense projection 與 self-attention 來說很小。</p>
+      <p>作者用斜體強調了這個性質：<strong>這種「LoRA-model-agnostic」的效能特性，讓我們可以把不同的 LoRA 模型當成同一個模型來排程。</strong>於是排程演算法可以只關注整體 throughput，而不必操心個別 LoRA 模型放在哪張卡上——<span class="hl">這正是 Punica 排程器設計的立論基礎</span>。</p>
+    </div>
+
+    <h3>6.5 單 GPU 文字生成</h3>
+    <p>Testbed #1 上生成 1000 個請求（約 101k tokens），所有系統以 FCFS 排程、max batch size 32。</p>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Figure 11 · 單 GPU 文字生成 throughput（僅列出論文正文明確給出的數值）</caption>
+        <thead><tr><th>系統</th><th>工作負載</th><th>7B (tok/s)</th><th>13B (tok/s)</th></tr></thead>
+        <tbody>
+          <tr class="best"><td class="ours">Punica</td><td>Distinct / Uniform / Skewed（一致高 throughput）</td><td class="num">1044</td><td class="num">693</td></tr>
+          <tr><td>vLLM（backbone-only）</td><td>Identical</td><td class="num">1140</td><td class="num">789</td></tr>
+          <tr><td>HuggingFace Transformers</td><td>全部</td><td class="num">未提供</td><td class="num">未提供</td></tr>
+          <tr><td>DeepSpeed</td><td>全部</td><td class="num">未提供</td><td class="num">未提供</td></tr>
+          <tr><td>FasterTransformer（backbone-only）</td><td>全部</td><td class="num">未提供</td><td class="num">未提供</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>論文的定性描述是：<strong>Punica 無論在哪種工作負載下都能穩定交出高 throughput。</strong>多數 baseline 在 Identical 情況下也能有相對高的 throughput，但一旦出現多個 LoRA 模型，效能就崩壞：</p>
+    <ul>
+      <li><strong>Distinct</strong>：所有 baseline 系統的 batch size 都是 <span class="hl2">1</span>，因此 throughput 很低。</li>
+      <li><strong>Uniform / Skewed</strong>：baseline 的多數 batch 的 batch size 都<span class="hl2">極小（1–3）</span>。</li>
+      <li><strong>Punica</strong>：能把不同 LoRA 模型 batch 在一起，因此可以<span class="hl">穩定跑在 batch size 32</span>。</li>
+    </ul>
+
+    <div class="callout">
+      <p><strong>Identical 情況下 vLLM 略勝 Punica（1140 vs 1044、789 vs 693）——但這是預期內的。</strong>原因作者寫得很清楚：<span class="hl">vLLM 跑的是 backbone-only</span>，完全沒有 LoRA 開銷。而在 Identical 情況下 vLLM 與 Punica 都優於其他系統，因為兩者的 KvCache layout 都支援 continuous batching；其他系統則必須等 batch 中最長的序列跑完。HuggingFace Transformers 效能低落則是因為缺乏關鍵的 CUDA kernel 優化（例如 FlashAttention）。</p>
+    </div>
+
+    <h3>6.6 70B 模型 + Tensor Parallelism</h3>
+    <p>在 Testbed #2 的 8 張 GPU 上，用 Megatron 的 tensor parallel scheme 跑 70B 模型。Punica 與 vLLM 比較，vLLM 也使用相同的 Megatron TP scheme。這組數字是論文中對比最鮮明的：</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg" font-family="JetBrains Mono, monospace">
+        <line x1="90" y1="240" x2="720" y2="240" stroke="#26313f"/>
+        <line x1="90" y1="30" x2="90" y2="240" stroke="#26313f"/>
+        <line x1="90" y1="200" x2="720" y2="200" stroke="#1b2430"/>
+        <line x1="90" y1="160" x2="720" y2="160" stroke="#1b2430"/>
+        <line x1="90" y1="120" x2="720" y2="120" stroke="#1b2430"/>
+        <line x1="90" y1="80" x2="720" y2="80" stroke="#1b2430"/>
+        <line x1="90" y1="40" x2="720" y2="40" stroke="#1b2430"/>
+        <text x="82" y="244" fill="#5b6675" font-size="10" text-anchor="end">0</text>
+        <text x="82" y="204" fill="#5b6675" font-size="10" text-anchor="end">100</text>
+        <text x="82" y="164" fill="#5b6675" font-size="10" text-anchor="end">200</text>
+        <text x="82" y="124" fill="#5b6675" font-size="10" text-anchor="end">300</text>
+        <text x="82" y="84" fill="#5b6675" font-size="10" text-anchor="end">400</text>
+        <text x="82" y="44" fill="#5b6675" font-size="10" text-anchor="end">500</text>
+
+        <rect x="130" y="230.8" width="110" height="9.2" rx="2" fill="#ff6b6b"/>
+        <text x="185" y="222" fill="#ff6b6b" font-size="12" text-anchor="middle" font-weight="700">21–25</text>
+        <text x="185" y="262" fill="#e8edf4" font-size="11.5" text-anchor="middle" font-weight="700">vLLM</text>
+        <text x="185" y="279" fill="#93a1b3" font-size="10.5" text-anchor="middle">多個 LoRA 模型</text>
+
+        <rect x="320" y="62.8" width="110" height="177.2" rx="2" fill="#5ad1c0"/>
+        <text x="375" y="54" fill="#5ad1c0" font-size="12" text-anchor="middle" font-weight="700">441–446</text>
+        <text x="375" y="262" fill="#f4a259" font-size="11.5" text-anchor="middle" font-weight="700">Punica</text>
+        <text x="375" y="279" fill="#93a1b3" font-size="10.5" text-anchor="middle">多個 LoRA 模型</text>
+
+        <rect x="510" y="57.2" width="110" height="182.8" rx="2" fill="#4a6274"/>
+        <text x="565" y="49" fill="#93a1b3" font-size="12" text-anchor="middle" font-weight="700">457</text>
+        <text x="565" y="262" fill="#93a1b3" font-size="11.5" text-anchor="middle" font-weight="700">vLLM</text>
+        <text x="565" y="279" fill="#93a1b3" font-size="10.5" text-anchor="middle">backbone-only（無 LoRA）</text>
+
+        <text x="24" y="135" fill="#5b6675" font-size="10.5" transform="rotate(-90,24,135)" text-anchor="middle">Throughput (tok/s)</text>
+      </svg>
+      <div class="figcap">圖 8 · 70B 模型的 throughput（Testbed #2，8 GPU tensor parallel；數值為論文正文明確給出的範圍）。</div>
+    </div>
+
+    <div class="callout hot">
+      <p><strong>這是全篇最有說服力的一組數字。</strong>在存在多個 LoRA 模型的情況下，vLLM 的 throughput 只有 <span class="hl2">21 到 25 tok/s</span>；而它服務單純 backbone 時可以達到 <span class="hl">457 tok/s</span>（因為 batch size 大）。Punica 則<strong>不論 LoRA 熱門度分佈為何，都能穩定交出 441 到 446 tok/s</strong>——幾乎追平 vLLM 的無 LoRA 上界，同時真的在服務多個不同的 LoRA 模型。</p>
+      <p>在 Identical 情況下，Punica 與 vLLM 效能相同，因為兩者的平行化方案一樣。</p>
+    </div>
+
+    <h3>6.7 叢集部署</h3>
+    <p>Testbed #2 的 16 張 GPU，7B 模型，實驗持續一小時。負載變化方式：宏觀來看請求率逐漸上升再逐漸下降；微觀來看，請求到達時間的間隔服從指數分佈，到達過程服從 Poisson 分佈。LoRA 模型熱門度服從 <strong>Zipf-1.5</strong>（與 Skewed 工作負載相同）。</p>
+
+    <p>論文的觀察是：</p>
+    <ul>
+      <li>Punica 能夠<strong>整併 GPU 使用率</strong>，同時交出高 throughput。</li>
+      <li>GPU 通常在非閒置時<span class="hl">以最大 batch size 運行</span>，因為排程演算法優先考慮大 batch。</li>
+      <li>偶爾會有 GPU 以較小的 batch size 運行，因為它的 KvCache 空間耗盡而<strong>把一些請求遷移到其他 GPU</strong>。</li>
+      <li>當一張 GPU 變成閒置（batch size = 0），它<span class="hl2">很可能會維持閒置</span>——必要時就能歸還給雲端供應商。</li>
+    </ul>
+    <p style="font-size:14px;color:var(--muted)">論文的 Figure 13 呈現三個面板（請求率、throughput、每張 GPU 的 batch size 隨時間變化），但未提供可讀取的原始數值，此處不重繪。</p>
+  </div>
+</section>
+
+<!-- ══════════════════ 07 ══════════════════ -->
+<section id="discuss">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2>討論、限制與後續影響</h2>
+
+    <div class="callout warn">
+      <p><strong>先說清楚：這篇論文沒有 Limitations 章節。</strong>作者在 §8 寫的是 Related Work，§9 是 Conclusion。所以下面我把「作者明說的」與「從實驗設定可以推出的」分開列，不把後者偽裝成作者的說法。</p>
+    </div>
+
+    <h3>7.1 作者明說的定位</h3>
+    <div class="grid g2">
+      <div class="card">
+        <h4>與推論優化工作正交</h4>
+        <p>作者明確指出 <strong>Punica 與 speculative decoding 這類優化是正交的（orthogonal）</strong>。Orca 的 continuous batching、vLLM 的 PagedAttention、FlashAttention 這些 Punica 已經整合進來了。</p>
+      </div>
+      <div class="card">
+        <h4>與量化工作互補</h4>
+        <p>模型與 KvCache 量化能為 KvCache 省下更多空間，讓 Punica 能服務更長的序列而不需遷移。作者還特別指出一個有趣的互動：<span class="hl">量化降低了 self-attention 延遲，這反而讓 Punica 的高效 LoRA kernel 變得更重要</span>（因為 LoRA 在總延遲中的佔比上升了）。</p>
+      </div>
+      <div class="card">
+        <h4>與 PetS 的差異</h4>
+        <p>PetS 在單張 GPU 上批次處理不同 adapter（Adapters、MaskBert、Diff-Pruning、Bitfit）的請求，允許在不同下游任務間共享 GPU 記憶體，<strong>但它不支援多個不同模型並行執行</strong>。</p>
+      </div>
+      <div class="card">
+        <h4>與 CNN serving 系統的差異</h4>
+        <p>Clipper 這一系列系統主要為較小的 CNN 模型設計。關鍵差異是：<span class="hl2">CNN 服務是無狀態的，而 LLM 服務需要持久化 KvCache</span>。這個狀態引入了對「不同系統設計」的親和性需求。</p>
+      </div>
+    </div>
+
+    <h3>7.2 從實驗設定看得出來的限制</h3>
+    <div class="callout hot">
+      <p><strong>限制一：完全沒有品質／準確度評估。</strong>論文明確寫出 LoRA 模型使用<span class="hl2">隨機權重</span>，理由是「權重不影響延遲效能」。就系統論文的目標而言這是完全合理的，但這代表：<strong>本文沒有任何一個實驗驗證 Punica 產生的輸出與逐一服務各 LoRA 模型的輸出在數值上等價。</strong>如果你要把它用在生產環境，數值正確性需要自己驗證（repo 裡有 <code>tests/test_sgmv.py</code> 等單元測試可作為起點）。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>限制二：所有 LoRA 模型必須共用同一個 rank 與同一個 backbone。</strong>實驗中所有 LoRA 都是 rank 16。從 SGMV 的介面設計就看得出來——<code>add_lora_sgmv_custom_cutlass(...)</code> 只接受<span class="hl2">單一個 <code>lora_rank</code> 純量</span>，而權重指標陣列 <code>wa_ptr</code>/<code>wb_ptr</code> 假設所有矩陣形狀一致。混合 rank 的多租戶場景不在本文範圍內。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>限制三：SGMV 要求同 LoRA 的請求必須連續排列。</strong>這是 segment 語意的前提。它把一部分複雜度推給了排程器（§5.2 那段「讓共享 LoRA 的請求相鄰、讓 prefill 尾巴與 decode 開頭共享 LoRA」的安排）。repo 裡的 BGMV 正是為了繞開這個限制而存在的替代介面。</p>
+    </div>
+    <div class="callout hot">
+      <p><strong>限制四：論文沒有表格，多數 baseline 數值無法查證。</strong>Figure 8、11、13 的具體數值論文正文都沒有給出。想做精確比較的話，只能自己跑 repo 裡的 <code>benchmarks/bench_textgen_lora.py</code>。</p>
+    </div>
+
+    <h3>7.3 這篇論文為什麼重要</h3>
+    <p>Punica 是最早把「multi-tenant LoRA serving」當成獨立系統問題來處理的工作之一，而它的技術貢獻可以濃縮成一句話：<strong>把「不同模型不能一起 batch」這個看似根本的限制，用一個 kernel 拆掉了。</strong></p>
+    <p>更關鍵的是 §6.4 那個實驗結論——<span class="hl">LoRA add-on 的成本相對於 backbone 小到讓整層延遲對「batch 裡有幾種 LoRA」不敏感</span>。這個性質一旦成立，多租戶 LoRA 服務的排程問題就從「模型放置問題」退化成「單純的 throughput 排程問題」，難度差了一個等級。Punica 系統層的所有設計，都是站在這個結論上的。</p>
+
+    <div class="callout">
+      <p><strong>如果你要用這篇論文：</strong></p>
+      <ul style="margin-top:8px">
+        <li><strong>做推論框架的：</strong>直接看 <code>csrc/bgmv/</code> 與 <code>csrc/sgmv/</code>。BGMV 的 <code>indicies</code> 介面比 SGMV 的 segment 介面更容易接進既有的 continuous batching 排程器。</li>
+        <li><strong>做排程的：</strong>§5.1 的 GPU 選擇邏輯（挑 working set 最大的、UUID 最大的 tie-break）與「忙碌的更忙、閒置的保持閒置」哲學，是很乾淨的整併式排程範例。</li>
+        <li><strong>做 kernel 的：</strong>shrink 用 Split-K + grid sync、expand 沿輸出維度切、distinct 情況退回 IO-bound 非 Tensor-Core schedule —— 這三種 schedule 的取捨邏輯值得細看。</li>
+        <li><strong>要重現的：</strong>需要 A100（80GB 用於單卡實驗，或 2×HGX A100 40GB 用於叢集實驗）、CUDA 11.8 或 12.1、Python 3.10/3.11。</li>
+      </ul>
+    </div>
+
+    <h3>結論</h3>
+    <p>Punica 的設計核心是一個新的 CUDA kernel（SGMV），它讓不同 LoRA 模型的 GPU 運算得以批次化。對每張 GPU，Punica <strong>只需要底層 pre-trained model 的單一份副本</strong>，就能服務多個不同的 LoRA 模型，在記憶體與計算兩方面都顯著提升 GPU 效率。此外，Punica 的排程器在共享 GPU 叢集上整併多租戶 LoRA 服務工作負載。在固定大小的 GPU 叢集上，相較於 state-of-the-art LLM serving 系統，<strong>Punica 達到 12× 的 LoRA 模型服務 throughput，而每個 token 只增加 2ms 延遲</strong>。</p>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Chen, Ye, Wu, Zhuo, Ceze, Krishnamurthy (2024) · University of Washington &amp; Duke University</p>
+    <p style="margin-top:8px">“Punica: Multi-Tenant LoRA Serving” · MLSys 2024</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2310.18547">arXiv:2310.18547</a> · <a href="https://github.com/punica-ai/punica">程式碼 punica-ai/punica</a></p>
+    <p style="margin-top:18px;color:#5b6675">本頁為論文導讀摘要，圖表為依論文內容重繪／整理；數值以原論文（arXiv v1, 2023-10-28）為準。<br>原論文無表格，所有引用數值均取自論文正文明確敘述；程式碼片段取自 punica-ai/punica repo。</p>
+  </div>
+</footer>
+</body>
+</html>
