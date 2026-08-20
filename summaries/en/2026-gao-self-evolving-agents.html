@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="A bilingual English and Traditional Chinese walkthrough of A Survey of Self-Evolving Agents (TMLR 2026).">
+<title>Self-Evolving Agents Survey · Bilingual Paper Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;900&family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0d1117;
+  --panel:#141b25;
+  --panel2:#1b2430;
+  --ink:#e8edf4;
+  --muted:#93a1b3;
+  --line:#26313f;
+  --acc:#5ad1c0;
+  --acc2:#f4a259;
+  --acc3:#8c7bff;
+  --hot:#ff6b6b;
+  --serif:'Noto Serif TC',serif;
+  --sans:'Noto Sans TC',sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --disp:'Space Grotesk',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--sans);
+  line-height:1.85;
+  font-size:16px;
+  background-image:radial-gradient(circle at 12% 8%,rgba(90,209,192,.07),transparent 40%),radial-gradient(circle at 88% 22%,rgba(140,123,255,.08),transparent 42%);
+}
+.wrap{max-width:980px;margin:0 auto;padding:0 28px}
+body[data-lang="en"] .zh{display:none}
+body[data-lang="zh"] .en{display:none}
+.langtoggle{position:fixed;top:14px;right:18px;z-index:60;display:flex;gap:4px;background:rgba(13,17,23,.9);border:1px solid var(--line);border-radius:999px;padding:4px;backdrop-filter:blur(10px)}
+.langtoggle button{font-family:var(--mono);font-size:12px;color:var(--muted);background:none;border:none;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+.langtoggle button.active{background:var(--acc);color:#06231f;font-weight:600}
+header.hero{padding:90px 0 60px;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.kicker{font-family:var(--mono);font-size:13px;letter-spacing:.28em;color:var(--acc);text-transform:uppercase;margin-bottom:22px}
+h1.title{font-family:var(--disp);font-weight:700;font-size:clamp(38px,6vw,72px);line-height:1.02;letter-spacing:-.02em;color:#fff}
+h1.title .sql{color:var(--acc2)}
+.subtitle{font-family:var(--serif);font-size:clamp(17px,2.4vw,22px);color:var(--muted);margin-top:22px;max-width:760px;font-weight:400}
+.meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:34px;font-family:var(--mono);font-size:12.5px}
+.tag{background:var(--panel2);border:1px solid var(--line);padding:6px 13px;border-radius:999px;color:var(--muted)}
+.tag.lit{border-color:var(--acc);color:var(--acc)}
+.authors{margin-top:26px;color:var(--muted);font-size:14px;max-width:850px}
+.authors a{color:var(--acc);text-decoration:none;border-bottom:1px dotted var(--acc)}
+nav.toc{position:sticky;top:0;z-index:20;background:rgba(13,17,23,.82);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);padding:13px 0}
+nav.toc .wrap{display:flex;gap:6px;flex-wrap:wrap;font-family:var(--mono);font-size:12.5px}
+nav.toc a{color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:7px;transition:.2s}
+nav.toc a:hover{color:var(--acc);background:var(--panel2)}
+section{padding:62px 0;border-bottom:1px solid var(--line)}
+.sec-num{font-family:var(--mono);color:var(--acc);font-size:13px;letter-spacing:.2em}
+h2{font-family:var(--disp);font-weight:700;font-size:clamp(26px,4vw,40px);color:#fff;margin:8px 0 28px;letter-spacing:-.01em;line-height:1.1}
+h3{font-family:var(--serif);font-weight:600;font-size:21px;color:var(--acc2);margin:34px 0 14px}
+h4{font-family:var(--disp)}
+p{margin:16px 0;color:var(--ink)}
+p.lead{font-family:var(--serif);font-size:18.5px;color:var(--muted)}
+strong{color:#fff;font-weight:700}
+.hl{color:var(--acc);font-weight:500}
+.hl2{color:var(--acc2);font-weight:500}
+ul{margin:14px 0 14px 22px;color:var(--ink)}
+li{margin:8px 0}
+.grid{display:grid;gap:18px;margin:26px 0}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px}
+.card h4{font-size:15px;color:var(--acc);margin-bottom:8px;letter-spacing:.02em}
+.card p{font-size:14.5px;margin:6px 0;color:var(--muted)}
+.card .big{font-family:var(--disp);font-size:34px;color:#fff;font-weight:700}
+.callout{border-left:3px solid var(--acc);background:var(--panel2);padding:18px 24px;border-radius:0 12px 12px 0;margin:24px 0}
+.callout.warn{border-color:var(--acc2)}
+.callout.hot{border-color:var(--hot)}
+.callout p{margin:6px 0}
+.formula{font-family:var(--mono);background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 24px;margin:22px 0;color:var(--acc);font-size:15px;overflow-x:auto;line-height:1.9}
+pre{background:#0a0e14;border:1px solid var(--line);border-radius:12px;padding:20px 22px;overflow-x:auto;margin:20px 0;font-family:var(--mono);font-size:13px;line-height:1.7}
+code{font-family:var(--mono);background:var(--panel2);padding:2px 7px;border-radius:5px;font-size:.88em;color:var(--acc)}
+pre code{background:none;padding:0;color:#c8d3e0}
+.kw{color:var(--acc3)} .str{color:var(--acc2)} .cmt{color:#5b6675} .fn{color:var(--acc)}
+.tbl-wrap{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:12px}
+table{border-collapse:collapse;width:100%;font-size:13.5px;font-family:var(--sans)}
+caption{caption-side:top;text-align:left;font-family:var(--mono);font-size:12px;color:var(--muted);padding:14px 18px 8px;letter-spacing:.04em}
+th,td{padding:11px 15px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{background:var(--panel2);font-family:var(--disp);font-size:12.5px;color:var(--acc);font-weight:700;letter-spacing:.03em}
+td{color:var(--muted)}
+td.num{font-family:var(--mono);text-align:right;color:var(--ink)}
+td.center{text-align:center;font-family:var(--mono)}
+tr.best td{background:rgba(90,209,192,.08)}
+tr.best td.center{color:var(--acc);font-weight:700}
+.ours{color:var(--acc2);font-weight:600}
+.figbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:26px;margin:26px 0}
+.figcap{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:14px;text-align:center;letter-spacing:.03em}
+svg{display:block;width:100%;height:auto}
+.steps{counter-reset:s;margin:24px 0}
+.step{display:flex;gap:18px;padding:18px 0;border-bottom:1px dashed var(--line)}
+.step:last-child{border-bottom:none}
+.step .n{counter-increment:s;flex:0 0 38px;height:38px;border-radius:10px;background:var(--panel2);border:1px solid var(--acc);color:var(--acc);font-family:var(--disp);font-weight:700;display:flex;align-items:center;justify-content:center}
+.step .n::before{content:counter(s)}
+.step .body h4{font-size:16px;color:#fff;margin-bottom:4px}
+.step .body p{font-size:14.5px;color:var(--muted);margin:2px 0}
+footer{padding:60px 0 90px;text-align:center;color:var(--muted);font-family:var(--mono);font-size:13px}
+footer a{color:var(--acc);text-decoration:none}
+@media(max-width:820px){.g4{grid-template-columns:1fr 1fr}}
+@media(max-width:720px){.g2,.g3,.g4{grid-template-columns:1fr}.wrap{padding:0 18px}section{padding:46px 0}.langtoggle{right:10px}.authors{padding-right:80px}}
+</style>
+</head>
+<body data-lang="zh">
+
+<div class="langtoggle" role="group" aria-label="Language / 語言">
+  <button id="btn-zh" type="button" class="active">繁中</button>
+  <button id="btn-en" type="button">EN</button>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">TMLR 2026 · Survey · <span class="zh">論文導讀</span><span class="en">Paper Walkthrough</span></div>
+    <h1 class="title">Self-Evolving<br><span class="sql">Agents</span></h1>
+    <p class="subtitle zh">把「會做事的 agent」推向「會根據經驗改造自己」：用 <strong>What × When × How × Where</strong> 拆解可演化元件、時機、學習訊號與落地場域。</p>
+    <p class="subtitle en">A map from agents that act to agents that rewrite themselves from experience—organized by <strong>What × When × How × Where</strong> they evolve.</p>
+    <div class="meta-row">
+      <span class="tag lit">Self-Evolution</span><span class="tag lit">Agentic Systems</span>
+      <span class="tag">Continual Learning</span><span class="tag">Test-Time Adaptation</span><span class="tag">Multi-Agent</span><span class="tag">Safety</span>
+    </div>
+    <p class="authors">Huan-ang Gao, Jiayi Geng, Wenyue Hua, Mengkang Hu, Xinzhe Juan, Hongzhang Liu, Shilong Liu, Jiahao Qiu, Xuan Qi, Qihan Ren, Yiran Wu, Hongru Wang, et al. · <a href="https://arxiv.org/abs/2507.21046">arXiv:2507.21046</a> · <a href="https://github.com/CharlesQ9/Self-Evolving-Agents">companion repository</a></p>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#boundary">01 <span class="zh">定義</span><span class="en">Definition</span></a>
+    <a href="#map">02 <span class="zh">總覽</span><span class="en">Map</span></a>
+    <a href="#what">03 What</a>
+    <a href="#when-how">04 When &amp; How</a>
+    <a href="#where">05 Where</a>
+    <a href="#evaluation">06 <span class="zh">評估</span><span class="en">Evaluation</span></a>
+    <a href="#future">07 <span class="zh">風險與未來</span><span class="en">Risks &amp; Future</span></a>
+    <a href="#takeaways">08 <span class="zh">讀後結論</span><span class="en">Takeaways</span></a>
+  </div>
+</nav>
+
+<section id="boundary">
+  <div class="wrap">
+    <div class="sec-num">SECTION 01</div>
+    <h2><span class="zh">定義 — 什麼才算 self-evolving agent？</span><span class="en">Definition — What Counts as a Self-Evolving Agent?</span></h2>
+    <p class="lead zh">關鍵不是用了 SFT、RL 或 memory，而是<strong>誰決定更新</strong>。若 agent 能依自己的 trajectory 或 feedback，持續修改模型、context、toolset 或 architecture，以改善未來任務，才落入本文的 operational definition。</p>
+    <p class="lead en">The boundary is not whether a system uses SFT, RL, or memory; it is <strong>where update autonomy lives</strong>. An agent qualifies when its own trajectories or feedback drive persistent changes to its model, context, toolset, or architecture to improve future work.</p>
+
+    <div class="formula">Π = (Γ, {ψ<sub>i</sub>}, {C<sub>i</sub>}, {W<sub>i</sub>})<br>
+      f(Π, τ, r) = Π′<br>
+      max<sub>f</sub> Σ<sub>j=0…n</sub> U(Π<sub>j</sub>, T<sub>j</sub>)<br>
+      <span style="color:var(--muted)">Γ = architecture · ψ = model · C = context (prompt + memory) · W = tools · τ = trajectory · r = internal/external feedback</span>
+    </div>
+
+    <div class="grid g3">
+      <div class="card"><h4><span class="zh">經驗驅動</span><span class="en">Experience-dependent</span></h4><p class="zh">更新來自 trajectory、自產資料、環境或 evaluator feedback，而非固定排程。</p><p class="en">Updates come from trajectories, self-generated data, environment signals, or evaluator feedback—not merely a fixed schedule.</p></div>
+      <div class="card"><h4><span class="zh">持久且改變 policy</span><span class="en">Persistent and policy-changing</span></h4><p class="zh">改動必須跨 step 或 task 保留下來，實際改變 policy、context、tools 或 topology，而非暫時遵循指令。</p><p class="en">The change must persist across steps or tasks and alter policy, context, tools, or topology—not merely induce transient instruction-following.</p></div>
+      <div class="card"><h4><span class="zh">自主啟動學習</span><span class="en">Self-initiated learning</span></h4><p class="zh">系統要能主動 exploration、reflection 或 structural modification；只依外部資料或固定排程更新不算。</p><p class="en">The system must initiate exploration, reflection, or structural modification; learning triggered only by external data or schedules does not qualify.</p></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 1 · Comparison between self-evolving agents and other paradigms (reproduced from the paper)</caption>
+        <thead><tr><th>Paradigm</th><th>Runtime Context</th><th>Evolving Toolset</th><th>Dynamic Tasks</th><th>Test-time Adaptation</th><th>Active Exploration</th><th>Structural Change</th><th>Self-reflect &amp; Eval</th></tr></thead>
+        <tbody>
+          <tr><td>Curriculum Learning</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td></tr>
+          <tr><td>Lifelong Learning</td><td class="center">✗</td><td class="center">✗</td><td class="center">✓</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td></tr>
+          <tr><td>Model Editing</td><td class="center">✗</td><td class="center">✗</td><td class="center">✓</td><td class="center">✓</td><td class="center">✗</td><td class="center">✗</td><td class="center">✗</td></tr>
+          <tr class="best"><td class="ours">Self-evolving Agents</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td><td class="center">✓</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout warn">
+      <p class="zh"><strong>不要誤讀：</strong>作者自己把這篇定位為仍在成形領域的 <span class="hl2">guiding synthesis</span>，不是已經被社群完全接受的封閉定義。Table 1 很適合建立直覺，但那些全 ✓ 是分類主張，不是實驗證明每個現有系統都具備全部能力。</p>
+      <p class="en"><strong>Do not over-read the boundary:</strong> the authors explicitly call this a <span class="hl2">guiding synthesis</span> for a still-forming field, not a settled definition. Table 1 is a conceptual positioning claim; it does not show that every existing system realizes every checkmark.</p>
+    </div>
+  </div>
+</section>
+
+<section id="map">
+  <div class="wrap">
+    <div class="sec-num">SECTION 02</div>
+    <h2><span class="zh">總覽 — 四個正交問題</span><span class="en">The Map — Four Orthogonal Questions</span></h2>
+    <p class="lead zh">這篇 survey 最有用的地方，是把「self-evolution」從模糊口號拆成四個可以獨立選擇、又會彼此耦合的設計軸。</p>
+    <p class="lead en">The survey’s most useful move is to turn “self-evolution” from a slogan into four independently selectable—but tightly coupled—design axes.</p>
+
+    <div class="figbox">
+      <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="tax-title tax-desc" font-family="JetBrains Mono, monospace">
+        <title id="tax-title">Self-evolving agent taxonomy</title><desc id="tax-desc">An experience and feedback loop surrounds an agent whose evolution is described by what, when, how, and where.</desc>
+        <defs><marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/></marker></defs>
+        <rect x="325" y="188" width="250" height="140" rx="18" fill="#1b2430" stroke="#5ad1c0" stroke-width="2"/>
+        <text x="450" y="226" fill="#ffffff" font-size="19" text-anchor="middle" font-weight="700">SELF-EVOLVING AGENT</text>
+        <text x="450" y="258" fill="#93a1b3" font-size="13" text-anchor="middle">Π = model + context</text>
+        <text x="450" y="281" fill="#93a1b3" font-size="13" text-anchor="middle">+ tools + architecture</text>
+        <text x="450" y="308" fill="#f4a259" font-size="12" text-anchor="middle">trajectory τ + feedback r → Π′</text>
+        <rect x="55" y="52" width="260" height="116" rx="14" fill="#141b25" stroke="#26313f"/>
+        <text x="82" y="82" fill="#5ad1c0" font-size="15" font-weight="700">WHAT</text>
+        <text x="82" y="111" fill="#93a1b3" font-size="12">Model · Context</text><text x="82" y="134" fill="#93a1b3" font-size="12">Tools · Architecture</text>
+        <rect x="585" y="52" width="260" height="116" rx="14" fill="#141b25" stroke="#26313f"/>
+        <text x="612" y="82" fill="#5ad1c0" font-size="15" font-weight="700">WHEN</text>
+        <text x="612" y="111" fill="#93a1b3" font-size="12">Intra-test-time</text><text x="612" y="134" fill="#93a1b3" font-size="12">Inter-test-time</text>
+        <rect x="55" y="350" width="260" height="116" rx="14" fill="#141b25" stroke="#26313f"/>
+        <text x="82" y="380" fill="#5ad1c0" font-size="15" font-weight="700">HOW</text>
+        <text x="82" y="409" fill="#93a1b3" font-size="12">Reward · Demonstration</text><text x="82" y="432" fill="#93a1b3" font-size="12">Population / Evolutionary</text>
+        <rect x="585" y="350" width="260" height="116" rx="14" fill="#141b25" stroke="#26313f"/>
+        <text x="612" y="380" fill="#5ad1c0" font-size="15" font-weight="700">WHERE</text>
+        <text x="612" y="409" fill="#93a1b3" font-size="12">General domain</text><text x="612" y="432" fill="#93a1b3" font-size="12">Specialized domain</text>
+        <line x1="315" y1="138" x2="368" y2="191" stroke="#5ad1c0" marker-end="url(#arr)"/><line x1="585" y1="138" x2="532" y2="191" stroke="#5ad1c0" marker-end="url(#arr)"/>
+        <line x1="315" y1="379" x2="368" y2="325" stroke="#5ad1c0" marker-end="url(#arr)"/><line x1="585" y1="379" x2="532" y2="325" stroke="#5ad1c0" marker-end="url(#arr)"/>
+      </svg>
+      <div class="figcap"><span class="zh">圖 1 · 依論文 Figure 2–3 重繪的四維 taxonomy</span><span class="en">Figure 1 · Four-dimensional taxonomy, redrawn from paper Figures 2–3</span></div>
+    </div>
+
+    <div class="grid g4">
+      <div class="card"><h4>What</h4><p class="zh">agent 的哪一層狀態能被持久改寫？</p><p class="en">Which persistent state is rewritten?</p></div>
+      <div class="card"><h4>When</h4><p class="zh">更新發生在單次任務內，還是任務之間？</p><p class="en">During a task, or between tasks?</p></div>
+      <div class="card"><h4>How</h4><p class="zh">用什麼 feedback、資料來源與搜尋機制更新？</p><p class="en">Which feedback, data source, and search mechanism drive change?</p></div>
+      <div class="card"><h4>Where</h4><p class="zh">追求廣泛 transfer，還是特定領域深度？</p><p class="en">Broad transfer, or deep domain expertise?</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="what">
+  <div class="wrap">
+    <div class="sec-num">SECTION 03</div>
+    <h2>What to Evolve — <span class="zh">四個演化位置</span><span class="en">Four Evolutionary Loci</span></h2>
+    <p class="lead zh">靜態 agent 和 self-evolving agent 可以擁有完全相同的元件；差別在於哪些元件能依經驗自主、持久地改寫。</p>
+    <p class="lead en">A static and a self-evolving agent may contain identical components. The difference is which components can be autonomously and persistently rewritten from experience.</p>
+
+    <div class="grid g2">
+      <div class="card"><h4>01 · Model {ψ}</h4><p class="zh">更新 policy weights 或從互動中歸納可重用的 experience/lessons。代表路線包括 SCA 的自出題—自解題—再訓練、SELF/SCoRe 的 feedback-driven policy improvement。</p><p class="en">Rewrite policy weights or distill reusable experience. Examples include SCA’s challenge–solve–retrain loop and feedback-driven policy improvement in SELF/SCoRe.</p></div>
+      <div class="card"><h4>02 · Context {C}</h4><p class="zh">讓 prompt 與 long-term memory 成為可學習狀態。Memory 不只是存越多越好；還包括抽取、壓縮、去重、檢索與淘汰。</p><p class="en">Treat prompts and long-term memory as learnable state. Memory evolution includes extraction, compression, deduplication, retrieval, and deletion—not simply storing more.</p></div>
+      <div class="card"><h4>03 · Tools {W}</h4><p class="zh">agent 可以建立新工具、透過練習 mastery、再依任務 selection。Voyager/Alita/CRAFT 類系統把成功程序封裝成可重用 skill。</p><p class="en">Agents create tools, master them through practice, and select among them per task. Systems such as Voyager, Alita, and CRAFT package successful procedures as reusable skills.</p></div>
+      <div class="card"><h4>04 · Architecture {Γ}</h4><p class="zh">演化 control flow、節點 prompt、角色配置或 multi-agent topology。這是從「調某個 component」跨到「重寫整個 agentic program」。</p><p class="en">Evolve control flow, node prompts, roles, or multi-agent topology—moving from tuning a component to rewriting the agentic program itself.</p></div>
+    </div>
+
+    <div class="callout">
+      <p class="zh"><strong>實務上的優先順序：</strong>越往下改，潛在效益與風險都越大。Prompt/memory 更新便宜且可逆；weight、tool、architecture 更新則需要更完整的 validation、versioning 與 rollback。</p>
+      <p class="en"><strong>Practical ordering:</strong> deeper changes raise both upside and risk. Prompt/memory updates are cheap and reversible; weight, tool, and architecture updates demand stronger validation, versioning, and rollback.</p>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption><span class="zh">依論文 Table 2 整理 · 每個 evolution locus 的代表系統（非完整清單）</span><span class="en">Condensed from paper Table 2 · Representative systems by evolution locus (not exhaustive)</span></caption>
+        <thead><tr><th><span class="zh">位置</span><span class="en">Locus</span></th><th><span class="zh">子類型</span><span class="en">Subtypes</span></th><th><span class="zh">代表方法</span><span class="en">Representative methods</span></th><th><span class="zh">主要失敗模式</span><span class="en">Key failure mode</span></th></tr></thead>
+        <tbody>
+          <tr><td>Model</td><td>Policy · Experience</td><td>SCA, RAGEN, AgentGen</td><td><span class="zh">model drift、錯誤自產資料</span><span class="en">Model drift; bad synthetic data</span></td></tr>
+          <tr><td>Context</td><td>Prompt · Memory</td><td>PromptBreeder, Mem0, Expel</td><td><span class="zh">context pollution、錯誤記憶</span><span class="en">Context pollution; false memories</span></td></tr>
+          <tr><td>Tools</td><td>Creation · Mastery · Selection</td><td>Alita, SkillWeaver, ToolGen</td><td><span class="zh">不安全程式碼、tool sprawl</span><span class="en">Unsafe code; tool sprawl</span></td></tr>
+          <tr><td>Architecture</td><td>Single · Multi-agent</td><td>DGM, AFlow, ADAS, ReMA</td><td><span class="zh">搜尋成本、協作不穩定</span><span class="en">Search cost; unstable coordination</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="when-how">
+  <div class="wrap">
+    <div class="sec-num">SECTION 04</div>
+    <h2>When &amp; How — <span class="zh">更新時機與學習機制</span><span class="en">Timing and Learning Mechanisms</span></h2>
+    <p class="lead zh"><strong>When</strong> 決定 adaptation 和 task execution 的時間關係；<strong>How</strong> 決定用什麼信號產生、篩選與保留更新。</p>
+    <p class="lead en"><strong>When</strong> locates adaptation relative to task execution; <strong>How</strong> determines which signals generate, select, and retain updates.</p>
+
+    <h3><span class="zh">兩種時間尺度</span><span class="en">Two temporal modes</span></h3>
+    <div class="grid g2">
+      <div class="card"><h4>Intra-test-time</h4><p class="zh">在同一個 task 內發現不足並即時調整；可用 ICL/reflection，也可做昂貴的 test-time SFT/RL。優點是針對眼前問題，缺點是延遲與 budget 壓力。</p><p class="en">Detect a weakness and adapt inside the current task, via ICL/reflection or more expensive test-time SFT/RL. It is targeted but latency- and budget-sensitive.</p></div>
+      <div class="card"><h4>Inter-test-time</h4><p class="zh">完成 task 後累積 trajectory，再於任務之間更新。可 offline 從資料批次學，也可 online 從 streaming interaction 持續學。</p><p class="en">Accumulate trajectories and update between completed tasks. Learning may be offline over collected data or online over streaming interactions.</p></div>
+    </div>
+
+    <div class="figbox">
+      <svg viewBox="0 0 900 260" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="time-title" font-family="JetBrains Mono, monospace">
+        <title id="time-title">Intra-test-time and inter-test-time evolution</title>
+        <defs><marker id="arr2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6 Z" fill="#5ad1c0"/></marker></defs>
+        <text x="35" y="48" fill="#f4a259" font-size="14" font-weight="700">INTRA-TEST-TIME</text>
+        <rect x="35" y="70" width="150" height="52" rx="10" fill="#1b2430" stroke="#26313f"/><text x="110" y="102" fill="#93a1b3" text-anchor="middle" font-size="12">attempt</text>
+        <rect x="270" y="70" width="150" height="52" rx="10" fill="#1b2430" stroke="#26313f"/><text x="345" y="102" fill="#93a1b3" text-anchor="middle" font-size="12">feedback</text>
+        <rect x="505" y="70" width="150" height="52" rx="10" fill="#1b2430" stroke="#26313f"/><text x="580" y="102" fill="#93a1b3" text-anchor="middle" font-size="12">adapt</text>
+        <rect x="740" y="70" width="125" height="52" rx="10" fill="#1b2430" stroke="#5ad1c0"/><text x="802" y="102" fill="#5ad1c0" text-anchor="middle" font-size="12">retry</text>
+        <line x1="185" y1="96" x2="267" y2="96" stroke="#5ad1c0" marker-end="url(#arr2)"/><line x1="420" y1="96" x2="502" y2="96" stroke="#5ad1c0" marker-end="url(#arr2)"/><line x1="655" y1="96" x2="737" y2="96" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+        <text x="35" y="178" fill="#f4a259" font-size="14" font-weight="700">INTER-TEST-TIME</text>
+        <rect x="35" y="198" width="150" height="42" rx="10" fill="#1b2430" stroke="#26313f"/><text x="110" y="225" fill="#93a1b3" text-anchor="middle" font-size="12">task T₁</text>
+        <rect x="270" y="198" width="150" height="42" rx="10" fill="#1b2430" stroke="#26313f"/><text x="345" y="225" fill="#93a1b3" text-anchor="middle" font-size="12">update Π → Π′</text>
+        <rect x="505" y="198" width="150" height="42" rx="10" fill="#1b2430" stroke="#5ad1c0"/><text x="580" y="225" fill="#5ad1c0" text-anchor="middle" font-size="12">task T₂</text>
+        <rect x="740" y="198" width="125" height="42" rx="10" fill="#1b2430" stroke="#26313f"/><text x="802" y="225" fill="#93a1b3" text-anchor="middle" font-size="12">…</text>
+        <line x1="185" y1="219" x2="267" y2="219" stroke="#5ad1c0" marker-end="url(#arr2)"/><line x1="420" y1="219" x2="502" y2="219" stroke="#5ad1c0" marker-end="url(#arr2)"/><line x1="655" y1="219" x2="737" y2="219" stroke="#5ad1c0" marker-end="url(#arr2)"/>
+      </svg>
+      <div class="figcap"><span class="zh">圖 2 · 依論文 Figure 5 重繪：單次任務內與任務之間的演化</span><span class="en">Figure 2 · Intra- versus inter-test-time evolution, redrawn from paper Figure 5</span></div>
+    </div>
+
+    <h3><span class="zh">三個主要方法家族</span><span class="en">Three primary method families</span></h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4>Reward-based self-evolution</h4><p class="zh">用 textual feedback、internal reward（confidence/self-judge）、external reward（environment/verifier）或 implicit reward 關閉迴圈。訊號可自動化，但容易 reward hacking、稀疏或偏誤。</p><p class="en">Close the loop with textual, internal, external, or implicit rewards. Signals automate well, but can be sparse, biased, or hackable.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Imitation &amp; demonstration learning</h4><p class="zh">從 self-generated、cross-agent 或 hybrid demonstrations 學習。高品質示範使更新穩定，代價是限制 exploration，且 teacher error 可能被複製。</p><p class="en">Learn from self-generated, cross-agent, or hybrid demonstrations. Good demonstrations stabilize updates, but suppress exploration and may copy teacher errors.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4>Population-based &amp; evolutionary methods</h4><p class="zh">維持多個 candidate agent/workflow，經 mutation、selection、competition 或 collaboration 演化；能搜尋結構，但計算與評估成本最高。</p><p class="en">Maintain candidate agents/workflows and evolve them through mutation, selection, competition, or collaboration. Structural search is powerful but compute- and evaluation-heavy.</p></div></div>
+    </div>
+
+    <div class="callout warn"><p class="zh"><strong>同一方法可以跨格：</strong>分類不是互斥箱子。像 RAGEN 同時涉及 model policy、experience、inter-test-time RL 與 single-agent architecture；真正有用的做法是用多軸座標描述系統，而非只貼一個 label。</p><p class="en"><strong>Methods occupy multiple cells:</strong> the taxonomy is not a set of mutually exclusive boxes. RAGEN, for example, spans policy, experience, inter-test-time RL, and single-agent architecture. Multi-axis coordinates are more informative than a single label.</p></div>
+  </div>
+</section>
+
+<section id="where">
+  <div class="wrap">
+    <div class="sec-num">SECTION 05</div>
+    <h2>Where to Evolve — <span class="zh">通才與專才</span><span class="en">Generalists and Specialists</span></h2>
+    <p class="lead zh">「Where」不是地理位置，而是 capability 要往哪個任務分布累積：跨任務 transfer，或單一高價值領域的深度。</p>
+    <p class="lead en">“Where” is not geography; it is the target task distribution—broad transfer across tasks or deeper expertise in a high-value domain.</p>
+
+    <div class="grid g2">
+      <div class="card"><h4>General-domain evolution</h4><p class="zh">以 versatile digital assistant 為目標，主路線是 memory optimization、curriculum-driven training、model–agent co-evolution。代表案例：Mobile-Agent-E、WebRL、WebEvolver、UI-Genie。</p><p class="en">Targets versatile digital assistants through memory optimization, curriculum-driven training, and model–agent co-evolution. Examples: Mobile-Agent-E, WebRL, WebEvolver, UI-Genie.</p></div>
+      <div class="card"><h4>Specialized-domain evolution</h4><p class="zh">針對 coding、GUI、finance、medical、education、research、games/diplomacy 等環境反覆累積專門能力。優點是 feedback 可驗證；風險是跨域 transfer 薄弱。</p><p class="en">Accumulates expertise in coding, GUI, finance, medicine, education, research, games, or diplomacy. Feedback is often verifiable, but cross-domain transfer remains weak.</p></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption><span class="zh">論文 Section 6 · 應用地圖與常見 evolution loop</span><span class="en">Paper Section 6 · Application map and typical evolution loops</span></caption>
+        <thead><tr><th>Domain</th><th><span class="zh">可驗證訊號</span><span class="en">Verifiable signal</span></th><th><span class="zh">常被演化的部分</span><span class="en">Typical evolving state</span></th><th>Examples</th></tr></thead>
+        <tbody>
+          <tr><td>Coding</td><td>Tests, build, issue resolution</td><td>Tools · workflow · policy</td><td>SICA, SWE-Dev, AgentCoder</td></tr>
+          <tr><td>GUI / Web</td><td>Task completion, environment state</td><td>Memory · curriculum · model</td><td>WebRL, DigiRL, Mobile-Agent-E</td></tr>
+          <tr><td>Finance</td><td>Returns, risk, backtests</td><td>Strategy · memory</td><td>QuantAgent, AlphaEvolve</td></tr>
+          <tr><td>Medical</td><td>Diagnosis quality, coverage, efficiency</td><td>Roles · topology · policy</td><td>DoctorAgent-RL, MDTeamGPT</td></tr>
+          <tr><td>Education</td><td>Student progress, personalization</td><td>Curriculum · user model</td><td>EduAgent, MathTutorBench agents</td></tr>
+          <tr><td>Games / embodied</td><td>Environment reward, task completion</td><td>Skills · memory · planning</td><td>Voyager, Richelieu</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="evaluation">
+  <div class="wrap">
+    <div class="sec-num">SECTION 06</div>
+    <h2><span class="zh">評估 — 不能只看最後 accuracy</span><span class="en">Evaluation — Final Accuracy Is Not Enough</span></h2>
+    <p class="lead zh">self-evolving agent 的核心產物是一條隨時間變化的 learning trajectory。作者主張從 single-shot score 轉向 longitudinal、cost-aware 評估，並同時追蹤五個目標。</p>
+    <p class="lead en">A self-evolving agent produces a learning trajectory over time. The authors argue for longitudinal, cost-aware evaluation across five goals rather than a single end-point score.</p>
+
+    <div class="grid g3">
+      <div class="card"><h4>Adaptivity</h4><p class="big">Δ / t</p><p class="zh">success-by-iteration、adaptation speed：多快從 feedback 變好？</p><p class="en">Success by iteration and adaptation speed: how quickly does feedback help?</p></div>
+      <div class="card"><h4>Retention</h4><p class="big">FGT · BWT</p><p class="zh">新任務是否侵蝕舊能力？新經驗是否反而幫助舊任務？</p><p class="en">Does new learning erase old skills, or improve them?</p></div>
+      <div class="card"><h4>Generalization</h4><p class="big">OOD</p><p class="zh">跨 domain、task cluster 與時間分布是否仍能 transfer？</p><p class="en">Does learning transfer across domains, task clusters, and time?</p></div>
+      <div class="card"><h4>Efficiency</h4><p class="big">CPG</p><p class="zh">每單位 performance gain 花多少 token、時間、tool calls、memory 與人力？</p><p class="en">How many tokens, seconds, tool calls, memory bytes, and human hours per gain?</p></div>
+      <div class="card"><h4>Safety</h4><p class="big">CuP</p><p class="zh">在完成任務的同時，是否維持 policy compliance，沒有 harm、leakage 或 drift？</p><p class="en">Does the agent complete tasks under policy without harm, leakage, or drift?</p></div>
+      <div class="card"><h4>Self-directedness</h4><p class="big">Who?</p><p class="zh">task、strategy、feedback 有多少是 agent 自主產生？外部介入頻率多少？</p><p class="en">Who generated tasks, strategies, and feedback—and how often did humans intervene?</p></div>
+    </div>
+
+    <div class="formula">CPG<sub>t</sub> = Total Cost<sub>t</sub> / (Performance Gain<sub>t</sub> + ε)<br><span style="color:var(--muted)"><span class="zh">成本可拆成 token、turn、wall-clock、tool/API、memory growth 與 human oversight</span><span class="en">Cost can be decomposed into tokens, turns, wall-clock time, tool/API calls, memory growth, and human oversight</span></span></div>
+
+    <div class="tbl-wrap">
+      <table>
+        <caption>Table 10 · Standardized evaluation protocols (key rows reproduced from the paper)</caption>
+        <thead><tr><th>Aspect</th><th>Short-horizon</th><th>Long-horizon</th></tr></thead>
+        <tbody>
+          <tr><td>Goal aligned</td><td>Adaptivity, efficiency</td><td>Retention, generalization, efficiency, long-term safety</td></tr>
+          <tr><td>State persistence</td><td>No persistence across tasks; all updates reset after each episode</td><td>Full persistence of model / prompt / memory / tools across tasks</td></tr>
+          <tr><td>Dataset structure</td><td>Fixed benchmark or episodic sampling; IID or near-IID task variants</td><td>Streamed sequences with non-stationary distributions; versioned tasks; explicit OOD clusters for transfer</td></tr>
+          <tr><td>Evolution budget</td><td>Per-task cap K<sub>short</sub> (iterations, tool calls, tokens, wall-clock)</td><td>Stage cap K<sub>stage</sub> + cumulative cap K<sub>total</sub>; explicit memory/tool growth policy</td></tr>
+          <tr><td>Primary metrics</td><td>Adaptivity: success-by-iteration curves, AULC; Generalization: within-distribution transfer</td><td>Retention: BWT/FGT, forgetting curves; Generalization: temporal &amp; cluster-OOD; Efficiency: Cost-per-Gain (CPG)</td></tr>
+          <tr><td>Safety auditing</td><td>Per-episode Safety/Harm/Refusal; window-level Leakage Rate</td><td>Long-horizon safety drift; periodic Safety/Harm/CuP/Risk probes; persistent Leakage Rate</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout hot">
+      <p class="zh"><strong>目前最大的 evaluation gap：</strong>大多 benchmark 仍是 static snapshot。幾乎沒有測試把 long-horizon retention 與 privacy 放在一起，也缺少 operational constraint 下的 architecture adaptation、完整 tool lifecycle、以及 multi-agent co-evolution 的安全傳染效應。</p>
+      <p class="en"><strong>The biggest evaluation gap:</strong> most benchmarks remain static snapshots. Very few combine long-horizon retention with privacy, architecture adaptation under operational constraints, the complete tool lifecycle, or safety contagion during multi-agent co-evolution.</p>
+    </div>
+  </div>
+</section>
+
+<section id="future">
+  <div class="wrap">
+    <div class="sec-num">SECTION 07</div>
+    <h2><span class="zh">風險與未來 — 演化能力也會放大失敗</span><span class="en">Risks &amp; Future — Evolution Amplifies Failure Too</span></h2>
+    <p class="lead zh">作者把未來工作聚焦在 personalization、generalization、安全可控與 multi-agent ecosystem。共同問題是：agent 的能力與內部狀態會變，所以一次性的驗收不再夠用。</p>
+    <p class="lead en">The paper centers future work on personalization, generalization, controllable safety, and multi-agent ecosystems. The shared problem is that capability and internal state keep changing, so one-time certification is insufficient.</p>
+
+    <div class="grid g2">
+      <div class="card"><h4>Personalization</h4><p class="zh">需要可撤回 consent、data minimization、on-device learning、selective forgetting，以及 longitudinal fairness/safety drift 指標。</p><p class="en">Needs revocable consent, data minimization, on-device learning, selective forgetting, and longitudinal fairness/safety-drift metrics.</p></div>
+      <div class="card"><h4>Generalization</h4><p class="zh">核心是 specialization–adaptability tension、cross-domain transfer、stability–plasticity dilemma 與可轉移 world model。</p><p class="en">Key tensions are specialization versus adaptability, cross-domain transfer, stability versus plasticity, and transferable world models.</p></div>
+      <div class="card"><h4>Safe &amp; controllable evolution</h4><p class="zh">新風險包括 behavior drift、alignment forgetting、memory reward hacking、poisoned memory、以及自產或外來 tool 的漏洞與資料外洩。</p><p class="en">Emergent risks include behavior drift, alignment forgetting, memory reward hacking, poisoned memories, and vulnerable or privacy-leaking tools.</p></div>
+      <div class="card"><h4>Multi-agent ecosystems</h4><p class="zh">要同時處理個體與集體推理、dynamic role assignment、knowledge propagation、credit assignment 與長期協作評估。</p><p class="en">Must balance individual and collective reasoning, dynamic roles, knowledge propagation, credit assignment, and longitudinal coordination evaluation.</p></div>
+    </div>
+
+    <h3><span class="zh">從警告變成 safety lifecycle</span><span class="en">From warnings to a safety lifecycle</span></h3>
+    <div class="steps">
+      <div class="step"><div class="n"></div><div class="body"><h4><span class="zh">隔離與驗證</span><span class="en">Isolate and verify</span></h4><p class="zh">所有 agent-generated 或外部 tools 都先在 sandbox 執行，限制 CPU/memory/time/network，並做 static analysis、dependency scanning 與 risk-based access control。</p><p class="en">Run generated or imported tools in sandboxes with resource limits, static analysis, dependency scanning, and risk-based access control.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4><span class="zh">版本化與可回滾</span><span class="en">Version and roll back</span></h4><p class="zh">model、memory、tools、workflow 的每次自我修改都留下 immutable audit trail；標記 known-safe state，並定期測試 rollback。</p><p class="en">Give every model, memory, tool, and workflow change an immutable audit trail; tag known-safe states and test rollback regularly.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4><span class="zh">持續監控與 red-team</span><span class="en">Monitor and red-team continuously</span></h4><p class="zh">追蹤 reward hacking、resource anomaly、value/safety drift、privacy leakage；不能只在 deployment 前測一次。</p><p class="en">Track reward hacking, resource anomalies, value/safety drift, and privacy leakage—not just before deployment.</p></div></div>
+      <div class="step"><div class="n"></div><div class="body"><h4><span class="zh">高風險 approval gate</span><span class="en">Gate high-risk actions</span></h4><p class="zh">檔案寫入、外部 API、敏感資料與修改核心 goal/safety constraint 等動作，需要 human review。</p><p class="en">Require human review for file writes, external APIs, sensitive data, and changes to core goals or safety constraints.</p></div></div>
+    </div>
+
+    <div class="callout hot"><p class="zh"><strong>Misevolution：</strong>self-improvement 不是單調遞增。agent 可能因自產資料、錯誤 feedback 或 reward loophole 變得更能完成 proxy objective，卻更偏離人的原始意圖。安全性因此必須跟 agent 一起共同演化。</p><p class="en"><strong>Misevolution:</strong> self-improvement is not monotonic. An agent may become better at a proxy objective while drifting away from human intent through synthetic-data errors, bad feedback, or reward loopholes. Safety mechanisms must co-evolve with the agent.</p></div>
+  </div>
+</section>
+
+<section id="takeaways">
+  <div class="wrap">
+    <div class="sec-num">SECTION 08</div>
+    <h2><span class="zh">讀後結論 — 怎麼使用這篇 survey</span><span class="en">Takeaways — How to Use This Survey</span></h2>
+    <p class="lead zh">把它當成 design-review checklist 與閱讀地圖，比把它當成「通往 ASI 的實證證明」更有價值。</p>
+    <p class="lead en">It is most valuable as a design-review checklist and reading map—not as empirical proof of a path to ASI.</p>
+
+    <div class="grid g2">
+      <div class="card"><h4><span class="zh">對研究者</span><span class="en">For researchers</span></h4><p class="zh">報告方法時，明確標出 What/When/How/Where 座標；再補上 persistence boundary、evolution budget、feedback provenance、external intervention 與 rollback policy。</p><p class="en">Report the What/When/How/Where coordinates plus persistence boundaries, evolution budgets, feedback provenance, external interventions, and rollback policy.</p></div>
+      <div class="card"><h4><span class="zh">對工程團隊</span><span class="en">For engineering teams</span></h4><p class="zh">先從 reversible state（prompt/memory）演化開始；只有當 evaluator、logging、versioning、sandbox 與 rollback 成熟後，才擴張到 tools、weights 和 architecture。</p><p class="en">Start with reversible state such as prompts and memory. Expand to tools, weights, and architecture only after evaluators, logging, versioning, sandboxes, and rollback are mature.</p></div>
+    </div>
+
+    <div class="callout">
+      <p class="zh"><strong>一句話：</strong>真正的 self-evolving agent，不只是多跑幾輪 reflection；它是一個能根據經驗改寫自身狀態的學習系統，而評估單位必須從單次答案升級成<strong>整條演化軌跡</strong>。</p>
+      <p class="en"><strong>In one sentence:</strong> a self-evolving agent is not merely an agent that reflects more—it is a learning system that rewrites its own state from experience, so the unit of evaluation must become the <strong>entire evolution trajectory</strong>.</p>
+    </div>
+
+    <h3><span class="zh">這篇 survey 的限制</span><span class="en">Limits of the survey itself</span></h3>
+    <ul class="zh"><li>taxonomy 橫跨大量快速變動且尚未收斂的工作；類別邊界必然重疊。</li><li>它以 breadth 為主，沒有用統一 backbone、environment 與 budget 做 meta-analysis；不同方法的效果無法直接橫比。</li><li>「通往 ASI」是 framing，而不是本文用實驗驗證的因果路徑。</li><li>新版 v4 已比早期版本大幅擴充 evaluation 與 safety；閱讀引用時要注意版本日期。</li></ul>
+    <ul class="en"><li>The taxonomy spans a fast-moving, unsettled literature, so category boundaries necessarily overlap.</li><li>The paper emphasizes breadth and does not run a controlled meta-analysis under shared backbones, environments, and budgets; method effectiveness is not directly comparable.</li><li>“The path to ASI” is framing, not a causal path demonstrated by the survey’s experiments.</li><li>Version 4 substantially expands evaluation and safety relative to earlier versions; readers should note the revision date when citing it.</li></ul>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>Gao et al. (2026) · Transactions on Machine Learning Research · arXiv v4, 16 Jan 2026</p>
+    <p style="margin-top:8px"><a href="https://arxiv.org/abs/2507.21046">arXiv:2507.21046</a> · <a href="https://openreview.net/forum?id=CTr3bovS5F">OpenReview</a> · <a href="https://github.com/CharlesQ9/Self-Evolving-Agents">curated paper list</a></p>
+    <p class="zh" style="margin-top:18px;color:#5b6675">本頁為雙語論文導讀；圖表依論文內容重繪／整理，定義與數值以原論文為準。</p>
+    <p class="en" style="margin-top:18px;color:#5b6675">This bilingual walkthrough redraws and condenses the paper; consult the original for authoritative definitions and numbers.</p>
+  </div>
+</footer>
+
+<script>
+function setLang(lang){
+  document.body.dataset.lang=lang;
+  document.documentElement.lang=lang==='zh'?'zh-Hant':'en';
+  document.getElementById('btn-zh').classList.toggle('active',lang==='zh');
+  document.getElementById('btn-en').classList.toggle('active',lang==='en');
+  document.getElementById('btn-zh').setAttribute('aria-pressed',String(lang==='zh'));
+  document.getElementById('btn-en').setAttribute('aria-pressed',String(lang==='en'));
+}
+document.getElementById('btn-zh').addEventListener('click',()=>setLang('zh'));
+document.getElementById('btn-en').addEventListener('click',()=>setLang('en'));
+setLang(location.pathname.replace(/\\/g,'/').includes('/summaries/en/')?'en':'zh');
+</script>
+</body>
+</html>
