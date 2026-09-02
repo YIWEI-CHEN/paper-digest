@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft AI Monetization · Coding Interview Prep</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --panel: #151b23;
+  --panel-2: #1f2631;
+  --ink: #e6edf3;
+  --muted: #95a3b8;
+  --line: #2d3746;
+  --accent: #ffb000;
+  --accent-2: #58d5c9;
+  --accent-3: #c56cff;
+  --danger: #ff5470;
+  --success: #3ddc97;
+  --code: #0a0f16;
+  --shadow: rgba(0, 0, 0, 0.35);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(88, 213, 201, 0.10), transparent 35%),
+    radial-gradient(circle at 92% 10%, rgba(197, 108, 255, 0.10), transparent 34%),
+    var(--bg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+  line-height: 1.75;
+}
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+header.hero { padding: 76px 0 50px; border-bottom: 1px solid var(--line); }
+.kicker {
+  color: var(--accent-2);
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+}
+h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(36px, 6vw, 66px);
+  line-height: 1.06;
+  letter-spacing: -0.04em;
+}
+.subtitle { max-width: 880px; margin: 20px 0 0; color: var(--muted); font-size: 18px; }
+.meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; }
+.pill, .badge, .source-link {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+  text-decoration: none;
+}
+.pill { padding: 5px 12px; background: rgba(31, 38, 49, 0.78); color: var(--muted); font-size: 12px; }
+.pill.hot { color: var(--accent); border-color: rgba(255, 176, 0, 0.55); }
+.pill.purple { color: var(--accent-3); border-color: rgba(197, 108, 255, 0.55); }
+.pill.green { color: var(--success); border-color: rgba(61, 220, 151, 0.55); }
+nav.toc {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+  background: rgba(13, 17, 23, 0.90);
+  backdrop-filter: blur(12px);
+}
+nav.toc .wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+nav.toc a { color: var(--muted); text-decoration: none; padding: 5px 10px; border-radius: 8px; font-size: 13px; }
+nav.toc a:hover { color: #fff; background: var(--panel-2); }
+section { padding: 48px 0; border-bottom: 1px solid var(--line); }
+.section-title { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+h2 { margin: 0; color: #fff; font-size: clamp(26px, 4vw, 42px); line-height: 1.15; letter-spacing: -0.03em; }
+h3 { margin: 24px 0 10px; color: var(--accent-2); font-size: 19px; }
+h4 { margin: 20px 0 6px; color: #fff; }
+p { margin: 12px 0; }
+a { color: var(--accent-2); }
+.note, .concept-callout {
+  margin-top: 22px;
+  padding: 18px 20px;
+  border-radius: 12px;
+}
+.note { border: 1px solid rgba(255, 176, 0, 0.35); border-left: 4px solid var(--accent); background: rgba(255, 176, 0, 0.08); color: #f7dd9a; }
+.concept-callout { border: 1px solid rgba(88, 213, 201, 0.32); border-left: 4px solid var(--accent-2); background: rgba(88, 213, 201, 0.08); color: var(--muted); }
+.concept-callout strong { display: block; color: #fff; font-size: 17px; }
+.grid { display: grid; gap: 18px; }
+.overview-grid { grid-template-columns: repeat(3, 1fr); }
+.card, .problem-card, .link-card {
+  border: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(31, 38, 49, 0.94), rgba(21, 27, 35, 0.94));
+  box-shadow: 0 16px 40px var(--shadow);
+}
+.card { border-radius: 16px; padding: 22px; }
+.card strong { color: #fff; }
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; background: var(--panel); }
+table { width: 100%; border-collapse: collapse; min-width: 1080px; }
+th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+th { color: var(--accent-2); background: var(--panel-2); font-size: 13px; letter-spacing: 0.04em; }
+td { color: var(--muted); font-size: 14px; }
+td.problem { color: var(--ink); font-weight: 700; }
+tr:last-child td { border-bottom: none; }
+.problem-card { margin-top: 26px; padding: 28px; border-radius: 18px; }
+.problem-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.problem-head h2 { font-size: clamp(24px, 3vw, 34px); }
+.badges, .source-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.badge { padding: 4px 10px; background: var(--panel-2); color: var(--muted); font-size: 12px; }
+.badge.medium { color: var(--accent); }
+.badge.hard { color: var(--danger); }
+.badge.existing { color: var(--success); }
+.source-links { margin-top: 16px; }
+.source-link { padding: 5px 11px; color: var(--accent-2); background: rgba(88, 213, 201, 0.06); font-size: 12px; }
+.summary-list { margin: 10px 0 0; padding-left: 1.2rem; color: var(--muted); }
+.summary-list li { margin: 6px 0; }
+.existing-grid { grid-template-columns: repeat(2, 1fr); }
+.link-card { border-radius: 16px; padding: 20px; }
+.link-card h3 { margin-top: 0; }
+.link-card p { color: var(--muted); }
+.link-card .primary-link { display: inline-block; margin-top: 8px; font-weight: 700; text-decoration: none; }
+.interview-flow { margin-top: 12px; padding: 20px; border: 1px solid rgba(197, 108, 255, 0.30); border-left: 4px solid var(--accent-3); border-radius: 12px; background: rgba(197, 108, 255, 0.06); }
+pre {
+  margin: 18px 0;
+  padding: 18px 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--code);
+  color: #d6deeb;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.62;
+}
+code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+pre code { color: inherit; background: transparent; padding: 0; }
+:not(pre) > code { color: var(--accent-2); background: var(--panel-2); border-radius: 5px; padding: 2px 6px; }
+.py-keyword { color: #c792ea; }
+.py-builtin { color: #82aaff; }
+.py-type { color: #ffcb6b; }
+.py-function { color: #58d5c9; }
+.py-string { color: #ecc48d; }
+.py-number { color: #f78c6c; }
+.py-comment { color: #697989; font-style: italic; }
+.py-operator { color: #89ddff; }
+.complexity { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 16px; }
+.complexity div { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: var(--panel-2); color: var(--muted); }
+.complexity b { color: #fff; }
+footer { padding: 44px 0 70px; color: var(--muted); text-align: center; font-size: 13px; }
+@media (max-width: 760px) {
+  .wrap { padding: 0 16px; }
+  .overview-grid, .existing-grid, .complexity { grid-template-columns: 1fr; }
+  .problem-card { padding: 22px 18px; }
+}
+</style>
+</head>
+<body>
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Microsoft AI Experiences · Monetization</div>
+    <h1>14 題 Role-Aligned Coding Prep</h1>
+    <p class="subtitle">依 ad relevance、retrieval、ranking、recommendation、NLP、online metrics 與 production serving 需求整理；7 題連到既有筆記，7 題在本頁完整詳解。</p>
+    <div class="meta">
+      <span class="pill hot">10 Medium</span>
+      <span class="pill purple">4 Hard</span>
+      <span class="pill green">7 Existing Links · 7 New Write-ups</span>
+      <span class="pill">Heap · Trie · DP · Cache · Graph · Binary Search</span>
+      <span class="pill">Updated 2026-09-02</span>
+    </div>
+    <div class="note">這是依職缺描述做的能力對應與練習建議，不代表 Microsoft 實際面試題庫。題目摘要皆為根據公開題名與常見版本撰寫的原創內容。</div>
+  </div>
+</header>
+
+<nav class="toc">
+  <div class="wrap">
+    <a href="#overview">總覽</a>
+    <a href="#existing">既有 7 題</a>
+    <a href="#k-closest">K Closest</a>
+    <a href="#search-suggestions">Suggestions</a>
+    <a href="#word-break">Word Break</a>
+    <a href="#lru-cache">LRU</a>
+    <a href="#random-pick">Weighted Pick</a>
+    <a href="#median-stream">Median Stream</a>
+    <a href="#autocomplete">Autocomplete</a>
+    <a href="#study-plan">Study Plan</a>
+  </div>
+</nav>
+
+<main>
+  <section id="overview">
+    <div class="wrap">
+      <div class="section-title"><h2>職缺對應與題目總覽</h2></div>
+      <div class="grid overview-grid">
+        <div class="card"><strong>Retrieval / Ranking</strong><p>Top-K、heap、binary search、prefix search 與 streaming statistics，對應廣告候選召回、排序與線上指標。</p></div>
+        <div class="card"><strong>NLP / Agentic Workflows</strong><p>Sliding window、word segmentation、Trie 與 graph dependency，對應文字理解、工具規劃與多步流程。</p></div>
+        <div class="card"><strong>Production ML Systems</strong><p>LRU、versioned lookup、task scheduling 與 interval processing，對應低延遲 serving、cache 與資源管理。</p></div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:24px">
+        <table>
+          <thead><tr><th>#</th><th>Problem</th><th>Priority</th><th>Pattern</th><th>Difficulty</th><th>Role relevance</th><th>Where</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td class="problem">Top K Frequent Elements</td><td>Core</td><td>Heap / Bucket</td><td>Medium</td><td>ranking、heavy hitters</td><td><a href="microsoft-ai-coding-interview-practice.html#top-k-frequent">既有筆記</a></td></tr>
+            <tr><td>2</td><td class="problem">K Closest Points to Origin</td><td>Core</td><td>Heap</td><td>Medium</td><td>top-k retrieval</td><td><a href="#k-closest">本頁詳解</a></td></tr>
+            <tr><td>3</td><td class="problem">Search Suggestions System</td><td>Core</td><td>Sort / Binary Search</td><td>Medium</td><td>Search / Shopping suggestions</td><td><a href="#search-suggestions">本頁詳解</a></td></tr>
+            <tr><td>4</td><td class="problem">Word Break</td><td>Core</td><td>DP</td><td>Medium</td><td>NLP segmentation</td><td><a href="#word-break">本頁詳解</a></td></tr>
+            <tr><td>5</td><td class="problem">Minimum Window Substring</td><td>Core</td><td>Sliding Window</td><td>Hard</td><td>constraint-aware text matching</td><td><a href="coding-interview-practice.html#minimum-window-substring">既有筆記</a></td></tr>
+            <tr><td>6</td><td class="problem">LRU Cache</td><td>Core</td><td>Hash Map / DLL</td><td>Medium</td><td>low-latency inference cache</td><td><a href="#lru-cache">本頁詳解</a></td></tr>
+            <tr><td>7</td><td class="problem">Time Based Key-Value Store</td><td>Core</td><td>Hash Map / Binary Search</td><td>Medium</td><td>versioned features / checkpoints</td><td><a href="databricks-interview-questions.html#time-map">既有筆記</a></td></tr>
+            <tr><td>8</td><td class="problem">Course Schedule II</td><td>Core</td><td>Topological Sort</td><td>Medium</td><td>workflow dependency / planning</td><td><a href="coding-interview-practice.html#course-schedule-ii">既有筆記</a></td></tr>
+            <tr><td>9</td><td class="problem">Task Scheduler</td><td>Core</td><td>Greedy</td><td>Medium</td><td>throughput / serving constraints</td><td><a href="coding-interview-practice.html#task-scheduler">既有筆記</a></td></tr>
+            <tr><td>10</td><td class="problem">Random Pick with Weight</td><td>Core</td><td>Prefix Sum / Binary Search</td><td>Medium</td><td>weighted sampling / exploration</td><td><a href="#random-pick">本頁詳解</a></td></tr>
+            <tr><td>11</td><td class="problem">Find Median from Data Stream</td><td>Stretch</td><td>Two Heaps</td><td>Hard</td><td>online metric aggregation</td><td><a href="#median-stream">本頁詳解</a></td></tr>
+            <tr><td>12</td><td class="problem">Minimum Interval to Include Each Query</td><td>Stretch</td><td>Sort / Heap</td><td>Hard</td><td>offline query optimization</td><td><a href="microsoft-ai-coding-interview-practice.html#minimum-interval">既有筆記</a></td></tr>
+            <tr><td>13</td><td class="problem">Design Search Autocomplete System</td><td>Stretch</td><td>Trie / Top-K</td><td>Hard</td><td>search ranking with updates</td><td><a href="#autocomplete">本頁詳解</a></td></tr>
+            <tr><td>14</td><td class="problem">Merge Intervals</td><td>Stretch</td><td>Sort / Intervals</td><td>Medium</td><td>batch data / time ranges</td><td><a href="microsoft-ai-coding-interview-practice.html#merge-intervals">既有筆記</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="existing">
+    <div class="wrap">
+      <div class="section-title"><h2>已在你的題庫：直接跳轉</h2></div>
+      <div class="grid existing-grid">
+        <article class="link-card"><h3>1. Top K Frequent Elements</h3><p>最直接的 ranking / heavy-hitter 題，練習如何維持 top-k 候選。</p><a class="primary-link" href="microsoft-ai-coding-interview-practice.html#top-k-frequent">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/top-k-frequent-elements/">LeetCode 347</a><a class="source-link" href="https://neetcode.io/problems/top-k-elements-in-list">NeetCode</a></div></article>
+        <article class="link-card"><h3>5. Minimum Window Substring</h3><p>練習 NLP/string matching 常見的 frequency invariant 與動態 sliding window。</p><a class="primary-link" href="coding-interview-practice.html#minimum-window-substring">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/minimum-window-substring/">LeetCode 76</a><a class="source-link" href="https://neetcode.io/problems/minimum-window-with-characters/question">NeetCode</a></div></article>
+        <article class="link-card"><h3>7. Time Based Key-Value Store</h3><p>以 append-only versions 加 binary search，接近 feature/version lookup 的思考方式。</p><a class="primary-link" href="databricks-interview-questions.html#time-map">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/time-based-key-value-store/">LeetCode 981</a><a class="source-link" href="https://neetcode.io/problems/time-based-key-value-store">NeetCode</a></div></article>
+        <article class="link-card"><h3>8. Course Schedule II</h3><p>Topological sort 對應 dependency resolution、agent planning 與 multi-step workflow。</p><a class="primary-link" href="coding-interview-practice.html#course-schedule-ii">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/course-schedule-ii/">LeetCode 210</a><a class="source-link" href="https://neetcode.io/problems/course-schedule-ii">NeetCode</a></div></article>
+        <article class="link-card"><h3>9. Task Scheduler</h3><p>用 frequency frame 推導最短排程，練習 throughput 與 cooldown constraints。</p><a class="primary-link" href="coding-interview-practice.html#task-scheduler">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/task-scheduler/">LeetCode 621</a><a class="source-link" href="https://neetcode.io/problems/task-scheduling">NeetCode</a></div></article>
+        <article class="link-card"><h3>12. Minimum Interval to Include Each Query</h3><p>offline query + heap，是大型 query processing 很典型的 sweep pattern。</p><a class="primary-link" href="microsoft-ai-coding-interview-practice.html#minimum-interval">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/minimum-interval-to-include-each-query/">LeetCode 1851</a><a class="source-link" href="https://neetcode.io/problems/minimum-interval-including-query">NeetCode</a></div></article>
+        <article class="link-card"><h3>14. Merge Intervals</h3><p>排序後線性 sweep，是 batch logs、time windows 與 range aggregation 的基礎題。</p><a class="primary-link" href="microsoft-ai-coding-interview-practice.html#merge-intervals">開啟既有繁中詳解 →</a><div class="source-links"><a class="source-link" href="https://leetcode.com/problems/merge-intervals/">LeetCode 56</a><a class="source-link" href="https://neetcode.io/problems/merge-intervals">NeetCode</a></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section id="k-closest">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>2. K Closest Points to Origin</h2><div class="badges"><span class="badge medium">Medium</span><span class="badge">Heap</span><span class="badge">Top-K</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/k-closest-points-to-origin/">LeetCode 973</a><a class="source-link" href="https://neetcode.io/problems/k-closest-points-to-origin">NeetCode</a></div>
+      <h3>題目整理</h3><p>給平面上的 points 與整數 <code>k</code>，回傳距離原點最近的 k 個點；答案順序不拘。比較距離時不必真的開根號，只比較 <code>x² + y²</code> 即可。</p>
+      <h3>解法說明</h3><p>維護大小最多為 k 的 max-heap。Python 只有 min-heap，因此存負距離；每讀一個點就加入，若 heap 超過 k 個便移除距離最遠者。最後留下的正是目前看過的 k 個最近點。這個 invariant 很像 retrieval system 維持固定大小的 top-k candidates。</p>
+<pre><code class="language-python">from heapq import heappop, heappush
+from typing import List
+
+
+class Solution:
+    def kClosest(self, points: List[List[int]], k: int) -&gt; List[List[int]]:
+        heap = []
+
+        for x, y in points:
+            distance = x * x + y * y
+            heappush(heap, (-distance, x, y))
+
+            if len(heap) &gt; k:
+                heappop(heap)
+
+        return [[x, y] for _, x, y in heap]</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> O(n log k)，每個 point 做一次大小至多 k 的 heap 操作。</div><div><b>Space Complexity:</b> O(k)，heap 只保留 k 個候選。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: State the ranking key</h4><p>"I only need relative distances, so I compare squared distances and avoid the square root."</p>
+        <h4>Step 2: Maintain a bounded candidate set</h4><p>"I keep a max-heap of size k. Its root is the worst point among the current best k, so when a better candidate arrives, the worst one is removed."</p>
+<pre><code>points = [[1,3], [-2,2], [2,-1]], k = 2
+squared distances = [10, 8, 5]
+
+keep 10, 8
+see 5 -&gt; remove 10
+result distances = 8, 5</code></pre>
+        <h4>Step 3: Complexity</h4><p>"Each of n points costs O(log k), so time is O(n log k) and extra space is O(k)."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>Can we do better on average?</b> "Yes, Quickselect gives O(n) average time when output order does not matter."</li></ul>
+        <p><b>中文：</b>面試時強調 heap root 是「目前 top-k 中最差的候選」，所以能在新點進來時立刻淘汰。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="search-suggestions">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>3. Search Suggestions System</h2><div class="badges"><span class="badge medium">Medium</span><span class="badge">Sort</span><span class="badge">Binary Search</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/search-suggestions-system/">LeetCode 1268</a><a class="source-link" href="https://neetcode.io/solutions/search-suggestions-system">NeetCode Explanation</a></div>
+      <h3>題目整理</h3><p>給 product names 與 <code>searchWord</code>。使用者每輸入一個字元後，要回傳最多三個具有目前 prefix 的 product；若超過三個，選字典序最小的三個。</p>
+      <h3>解法說明</h3><p>先把 products 依字典序排序。對每個逐漸變長的 prefix，用 <code>bisect_left</code> 找第一個不小於 prefix 的位置；因為所有相同 prefix 的字串在排序後必定連續，只需檢查該位置後最多三個 product。前一輪的起點可以作為下一輪 binary search 的下界，因為 prefix 變長後候選起點不可能往左移。</p>
+<pre><code class="language-python">from bisect import bisect_left
+from typing import List
+
+
+class Solution:
+    def suggestedProducts(
+        self, products: List[str], searchWord: str
+    ) -&gt; List[List[str]]:
+        products.sort()
+        answer = []
+        prefix = ""
+        start = 0
+
+        for char in searchWord:
+            prefix += char
+            start = bisect_left(products, prefix, lo=start)
+
+            suggestions = []
+            for index in range(start, min(start + 3, len(products))):
+                if products[index].startswith(prefix):
+                    suggestions.append(products[index])
+            answer.append(suggestions)
+
+        return answer</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> O(n log n + m log n + m²)，n 是 products 數、m 是 searchWord 長度；m² 反映 Python 建立逐步 prefix 與 prefix comparison 的字元成本。</div><div><b>Space Complexity:</b> O(m) auxiliary（不計排序與輸出），保存目前 prefix 與每輪最多三個建議。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: Use ordering</h4><p>"After sorting, every product sharing a prefix forms one contiguous range, and the first three are exactly the required suggestions."</p>
+        <h4>Step 2: Find the range start</h4><p>"For each typed prefix, I binary-search its lower bound, then inspect at most three products from that index."</p>
+<pre><code>products = [mobile, moneypot, monitor, mouse, mousepad]
+prefix "mo"  -&gt; start at mobile -&gt; first 3 suggestions
+prefix "mou" -&gt; start at mouse  -&gt; [mouse, mousepad]</code></pre>
+        <h4>Step 3: Complexity</h4><p>"Sorting dominates preprocessing; each keystroke then uses binary search plus at most three prefix checks."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>Why not a Trie?</b> "A Trie is attractive for many repeated queries or online updates, but sorting plus binary search is simpler and sufficient for this static input."</li></ul>
+        <p><b>中文：</b>核心是排序後相同 prefix 的 products 會連在一起，因此 binary search 找起點後只看三個。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="word-break">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>4. Word Break</h2><div class="badges"><span class="badge medium">Medium</span><span class="badge">Dynamic Programming</span><span class="badge">NLP</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/word-break/">LeetCode 139</a><a class="source-link" href="https://neetcode.io/problems/word-break">NeetCode</a></div>
+      <h3>題目整理</h3><p>給字串 <code>s</code> 與字典 <code>wordDict</code>，判斷是否能把整個 s 切成一個或多個字典內單字；同一單字可重複使用。</p>
+      <h3>解法說明</h3><p>定義 <code>reachable[i]</code>：前 i 個字元是否能成功切分。若位置 i 可達，就嘗試每個 dictionary word；只要 s 從 i 開始符合該 word，就把結束位置標為可達。這把大量重複的 recursive suffix 問題濃縮成 n+1 個狀態。</p>
+<pre><code class="language-python">from typing import List
+
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -&gt; bool:
+        reachable = [False] * (len(s) + 1)
+        reachable[0] = True
+
+        for start in range(len(s)):
+            if not reachable[start]:
+                continue
+
+            for word in wordDict:
+                end = start + len(word)
+                if end &lt;= len(s) and s.startswith(word, start):
+                    reachable[end] = True
+
+        return reachable[-1]</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> O(nC)，n 是 s 長度，C 是 wordDict 所有單字的總字元數；每個可達位置最多檢查整份字典。</div><div><b>Space Complexity:</b> O(n)，DP 陣列有 n+1 個狀態（不計輸入字典）。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: Define the state</h4><p>"reachable[i] means the prefix s[:i] can be segmented completely using dictionary words."</p>
+        <h4>Step 2: Propagate reachable boundaries</h4><p>"From every reachable boundary, I try each dictionary word and mark the next boundary if that word matches."</p>
+<pre><code>s = "leetcode", words = ["leet", "code"]
+reachable[0] = True
+0 + "leet" -&gt; reachable[4] = True
+4 + "code" -&gt; reachable[8] = True
+reachable[len(s)] is True</code></pre>
+        <h4>Step 3: Edge cases and complexity</h4><p>"Unreachable positions are skipped, repeated words are naturally allowed, and the DP uses O(n) space."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>When would a Trie help?</b> "When the dictionary is large, a Trie lets me scan matching prefixes without testing every word at every position."</li></ul>
+        <p><b>中文：</b>把「可以切分的位置」當成狀態，從可達邊界繼續延伸到下一個可達邊界。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="lru-cache">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>6. LRU Cache</h2><div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Map</span><span class="badge">Doubly Linked List</span><span class="badge">Design</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/lru-cache/">LeetCode 146</a><a class="source-link" href="https://neetcode.io/problems/lru-cache">NeetCode</a></div>
+      <h3>題目整理</h3><p>設計固定容量的 cache，<code>get</code> 與 <code>put</code> 都需平均 O(1)。每次讀取或更新都使該 key 成為 most recently used；容量超過時移除 least recently used key。</p>
+      <h3>解法說明</h3><p>Hash map 提供 key 到 node 的 O(1) lookup；doubly linked list 維護使用順序並支援 O(1) 移除。使用 dummy <code>left</code>/<code>right</code> nodes 簡化邊界：靠近 left 是 LRU，靠近 right 是 MRU。任何成功的 get/put 都把 node 移到 right 前面。</p>
+<pre><code class="language-python">class Node:
+    def __init__(self, key: int, value: int):
+        self.key = key
+        self.value = value
+        self.prev = None
+        self.next = None
+
+
+class LRUCache:
+    def __init__(self, capacity: int):
+        self.capacity = capacity
+        self.nodes = {}
+        self.left = Node(0, 0)   # Least recently used side
+        self.right = Node(0, 0)  # Most recently used side
+        self.left.next = self.right
+        self.right.prev = self.left
+
+    def _remove(self, node: Node) -&gt; None:
+        node.prev.next = node.next
+        node.next.prev = node.prev
+
+    def _insert_mru(self, node: Node) -&gt; None:
+        previous = self.right.prev
+        previous.next = node
+        node.prev = previous
+        node.next = self.right
+        self.right.prev = node
+
+    def get(self, key: int) -&gt; int:
+        if key not in self.nodes:
+            return -1
+
+        node = self.nodes[key]
+        self._remove(node)
+        self._insert_mru(node)
+        return node.value
+
+    def put(self, key: int, value: int) -&gt; None:
+        if key in self.nodes:
+            self._remove(self.nodes[key])
+
+        node = Node(key, value)
+        self.nodes[key] = node
+        self._insert_mru(node)
+
+        if len(self.nodes) &gt; self.capacity:
+            lru = self.left.next
+            self._remove(lru)
+            del self.nodes[lru.key]</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> O(1) average for <code>get</code> and <code>put</code>，hash lookup 與 list pointer updates 都是常數操作。</div><div><b>Space Complexity:</b> O(capacity)，map 與 linked list 最多保存 capacity 個 entries。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: Identify two independent needs</h4><p>"I need O(1) lookup by key and O(1) removal by recency. A hash map solves lookup, while a doubly linked list solves ordering and deletion."</p>
+        <h4>Step 2: State the invariant</h4><p>"The node next to the left sentinel is always the LRU item, and the node before the right sentinel is always the MRU item."</p>
+<pre><code>capacity = 2
+put(1,1): LRU [1] MRU
+put(2,2): LRU [1,2] MRU
+get(1):   LRU [2,1] MRU
+put(3,3): evict 2 -&gt; LRU [1,3] MRU</code></pre>
+        <h4>Step 3: Complexity</h4><p>"Every operation performs a constant number of dictionary and pointer operations, so both APIs are O(1) average time."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>Why doubly linked?</b> "Given a node from the map, I need to unlink it without searching for its predecessor."</li></ul>
+        <p><b>中文：</b>面試時先拆成 O(1) lookup 與 O(1) recency update，再說明 hash map + doubly linked list 各自負責哪一半。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="random-pick">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>10. Random Pick with Weight</h2><div class="badges"><span class="badge medium">Medium</span><span class="badge">Prefix Sum</span><span class="badge">Binary Search</span><span class="badge">Randomized</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/random-pick-with-weight/">LeetCode 528</a><a class="source-link" href="https://neetcode.io/problems/random-pick-with-weight/question">NeetCode</a></div>
+      <h3>題目整理</h3><p>給正整數 weights，設計 <code>pickIndex()</code>，讓 index i 被選到的機率等於 <code>w[i] / sum(w)</code>。呼叫多次時，較大 weight 應按比例更常被選到。</p>
+      <h3>解法說明</h3><p>把 weights 轉成 prefix sums，相當於在一條數線上為每個 index 分配長度等於 weight 的區段。均勻抽一個介於 1 與總權重的整數，再用 binary search 找第一個 prefix sum 大於或等於它的位置；區段越長，被抽中的整數越多，機率自然與 weight 成比例。</p>
+<pre><code class="language-python">from bisect import bisect_left
+from random import randint
+from typing import List
+
+
+class Solution:
+    def __init__(self, w: List[int]):
+        self.prefix = []
+        total = 0
+
+        for weight in w:
+            total += weight
+            self.prefix.append(total)
+
+    def pickIndex(self) -&gt; int:
+        target = randint(1, self.prefix[-1])
+        return bisect_left(self.prefix, target)</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> 初始化 O(n)；每次 <code>pickIndex</code> O(log n)。</div><div><b>Space Complexity:</b> O(n)，保存 prefix sums。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: Convert probability into geometry</h4><p>"I represent each weight as a segment on a number line. Uniformly picking a point then gives each index probability proportional to its segment length."</p>
+<pre><code>w = [1, 3]
+prefix = [1, 4]
+
+target 1       -&gt; index 0
+targets 2,3,4  -&gt; index 1
+probabilities = 1/4 and 3/4</code></pre>
+        <h4>Step 2: Locate the sampled segment</h4><p>"The prefix sums are sorted, so I binary-search the first cumulative sum that reaches the random target."</p>
+        <h4>Step 3: Complexity</h4><p>"Preprocessing is O(n), and each sample is O(log n) with O(n) stored prefix sums."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>What if weights change frequently?</b> "A Fenwick tree can support both weight updates and prefix selection in O(log n)."</li></ul>
+        <p><b>中文：</b>把每個 weight 變成數線上的區段長度，均勻抽點後用 binary search 找落在哪一段。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="median-stream">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>11. Find Median from Data Stream</h2><div class="badges"><span class="badge hard">Hard</span><span class="badge">Two Heaps</span><span class="badge">Streaming</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/find-median-from-data-stream/">LeetCode 295</a><a class="source-link" href="https://neetcode.io/problems/find-median-in-a-data-stream">NeetCode</a></div>
+      <h3>題目整理</h3><p>設計 <code>MedianFinder</code>，支援持續加入數字與隨時查詢目前所有數字的 median；查詢前保證至少已有一個數字。</p>
+      <h3>解法說明</h3><p>用兩個 heap 把資料分成兩半：<code>small</code> 是較小一半的 max-heap（以負值實作），<code>large</code> 是較大一半的 min-heap。維持兩個 invariants：small 所有值都 ≤ large 所有值；small 的大小等於 large 或多一個。奇數筆時 median 是 small top，偶數筆時是兩個 top 平均。</p>
+<pre><code class="language-python">from heapq import heappop, heappush
+
+
+class MedianFinder:
+    def __init__(self):
+        self.small = []  # Max-heap via negative values
+        self.large = []  # Min-heap
+
+    def addNum(self, num: int) -&gt; None:
+        heappush(self.small, -num)
+        heappush(self.large, -heappop(self.small))
+
+        if len(self.large) &gt; len(self.small):
+            heappush(self.small, -heappop(self.large))
+
+    def findMedian(self) -&gt; float:
+        if len(self.small) &gt; len(self.large):
+            return float(-self.small[0])
+        return (-self.small[0] + self.large[0]) / 2</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> <code>addNum</code> O(log n)；<code>findMedian</code> O(1)。</div><div><b>Space Complexity:</b> O(n)，兩個 heaps 合計保存所有輸入。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: Split around the median</h4><p>"I do not need the full sorted order. I only need the maximum of the lower half and the minimum of the upper half."</p>
+        <h4>Step 2: Maintain two invariants</h4><p>"All values in small are no greater than values in large, and small has either the same number of elements or one extra."</p>
+<pre><code>add 1: small=[1], large=[]       median=1
+add 2: small=[1], large=[2]     median=1.5
+add 3: small=[2,1], large=[3]   median=2</code></pre>
+        <h4>Step 3: Complexity</h4><p>"Insertion rebalances a constant number of heap elements in O(log n), while reading the median is O(1)."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>If values are only 0–100?</b> "I can use a fixed counting array and scan 101 buckets to find the median."</li></ul>
+        <p><b>中文：</b>不用維護完整排序，只需維護 median 左右兩半的邊界值與平衡大小。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="autocomplete">
+    <div class="wrap"><article class="problem-card">
+      <div class="problem-head"><h2>13. Design Search Autocomplete System</h2><div class="badges"><span class="badge hard">Hard</span><span class="badge">Trie</span><span class="badge">Top-K</span><span class="badge">Design</span></div></div>
+      <div class="source-links"><a class="source-link" href="https://leetcode.com/problems/design-search-autocomplete-system/">LeetCode 642</a><a class="source-link" href="https://neetcode.io/solutions/design-search-autocomplete-system">NeetCode Explanation</a></div>
+      <h3>題目整理</h3><p>初始化時給 sentences 與出現次數。每輸入一個普通字元，要回傳以目前輸入為 prefix 的 top 3 sentences，排序先看頻率由高到低，再以字典序打破平手；輸入 <code>#</code> 表示一句話完成，要把新句子頻率加一並重設狀態。</p>
+      <h3>解法說明</h3><p>Trie 負責 prefix traversal；每個 Trie node 保存通過該 prefix 的完整 sentences 與 frequencies。輸入普通字元時走到下一個 node，從該 node 的 candidates 選出 top 3；輸入 <code>#</code> 時，把完整輸入沿 Trie 更新。這個版本偏向清楚與正確；若 scale 很大，可在每個 node 維護預先計算的 top-k cache，讓查詢更快。</p>
+<pre><code class="language-python">from collections import defaultdict
+from heapq import nsmallest
+from typing import List
+
+
+class TrieNode:
+    def __init__(self):
+        self.children = {}
+        self.counts = defaultdict(int)
+
+
+class AutocompleteSystem:
+    def __init__(self, sentences: List[str], times: List[int]):
+        self.root = TrieNode()
+        self.current_node = self.root
+        self.current_text = ""
+
+        for sentence, count in zip(sentences, times):
+            self._add(sentence, count)
+
+    def _add(self, sentence: str, count: int) -&gt; None:
+        node = self.root
+        for char in sentence:
+            if char not in node.children:
+                node.children[char] = TrieNode()
+            node = node.children[char]
+            node.counts[sentence] += count
+
+    def input(self, char: str) -&gt; List[str]:
+        if char == "#":
+            self._add(self.current_text, 1)
+            self.current_text = ""
+            self.current_node = self.root
+            return []
+
+        self.current_text += char
+        if char not in self.current_node.children:
+            self.current_node.children[char] = TrieNode()
+        self.current_node = self.current_node.children[char]
+
+        return nsmallest(
+            3,
+            self.current_node.counts,
+            key=lambda sentence: (
+                -self.current_node.counts[sentence], sentence
+            ),
+        )</code></pre>
+      <div class="complexity"><div><b>Time Complexity:</b> 初始化 O(T)，T 是所有 sentence 長度總和；一般輸入字元 O(M)，M 是目前 prefix 的候選 sentence 數（top 3 heap 視為常數 k）；輸入 # 為 O(L)。</div><div><b>Space Complexity:</b> O(T) prefix-sentence associations；每個 sentence 會登記在它經過的 Trie nodes。</div></div>
+      <h3>Interview Explanation Flow</h3><div class="interview-flow">
+        <h4>Step 1: Separate prefix lookup from ranking</h4><p>"A Trie gets me to the node for the typed prefix, and that node stores the sentences eligible for ranking."</p>
+        <h4>Step 2: Define the ranking rule</h4><p>"I rank by negative frequency first and lexicographic order second, then return only the best three."</p>
+<pre><code>sentences = ["i love you":5, "island":3, "i love leetcode":2]
+input "i" -&gt; ["i love you", "island", "i love leetcode"]
+input " " -&gt; ["i love you", "i love leetcode"]
+input "#" -&gt; store the completed sentence and reset</code></pre>
+        <h4>Step 3: Discuss the production trade-off</h4><p>"This design favors simple updates. For read-heavy production traffic, I would cache only top-k results per node and update those caches when sentence counts change."</p>
+        <h4>Possible follow-up</h4><ul class="summary-list"><li><b>How would you shard it?</b> "Partition by an early prefix, replicate hot prefixes, and keep ranking updates observable and eventually consistent."</li></ul>
+        <p><b>中文：</b>先用 Trie 找到 prefix candidates，再依 frequency 與 lexicographic tie-break 做 top-3 ranking。</p>
+      </div>
+    </article></div>
+  </section>
+
+  <section id="study-plan">
+    <div class="wrap">
+      <div class="section-title"><h2>建議練習順序</h2></div>
+      <div class="grid overview-grid">
+        <div class="card"><strong>第一輪：必做</strong><p>Top K Frequent、K Closest、Search Suggestions、Word Break、LRU Cache。這五題涵蓋最可能在一小時面試展開的核心 patterns。</p></div>
+        <div class="card"><strong>第二輪：系統感</strong><p>TimeMap、Course Schedule II、Task Scheduler、Random Pick with Weight、Minimum Window。練習把資料結構選擇連到 production / ML context。</p></div>
+        <div class="card"><strong>最後：Stretch</strong><p>Median Stream、Minimum Interval、Autocomplete、Merge Intervals。重點是能說 invariant、trade-off 與 complexity，不只背 code。</p></div>
+      </div>
+      <div class="concept-callout"><strong>每題的 45 分鐘答題節奏</strong><p>3–5 分鐘釐清 input/output 與 constraints；5 分鐘提出 brute force 與關鍵 observation；20–25 分鐘 coding 並口述 invariant；5–8 分鐘測 example、edge cases 與 complexity；最後主動回答可擴展性或 follow-up。</p></div>
+    </div>
+  </section>
+</main>
+
+<footer>Microsoft AI Monetization coding interview prep · Python · Traditional Chinese explanations.</footer>
+<script>
+(() => {
+  const keywords = new Set([
+    "and", "as", "assert", "break", "class", "continue", "def", "del", "elif",
+    "else", "except", "False", "finally", "for", "from", "if", "import", "in",
+    "is", "lambda", "None", "nonlocal", "not", "or", "pass", "raise", "return",
+    "True", "try", "while", "with", "yield",
+  ]);
+  const builtins = new Set([
+    "abs", "all", "any", "bool", "dict", "enumerate", "float", "int", "len",
+    "list", "max", "min", "range", "set", "sorted", "str", "sum", "tuple", "zip",
+  ]);
+  const types = new Set([
+    "AutocompleteSystem", "List", "LRUCache", "MedianFinder", "Node", "Solution",
+    "TrieNode", "defaultdict",
+  ]);
+  const escapeHtml = (text) => text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const span = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  function readString(code, start) {
+    const prefixMatch = code.slice(start).match(/^([rRuUbBfF]{0,2})(?:"""|'''|"|')/);
+    if (!prefixMatch) return null;
+    const prefix = prefixMatch[1];
+    const quoteStart = start + prefix.length;
+    const quote = code.startsWith('"""', quoteStart) || code.startsWith("'''", quoteStart)
+      ? code.slice(quoteStart, quoteStart + 3)
+      : code[quoteStart];
+    let i = quoteStart + quote.length;
+    while (i < code.length) {
+      if (code.startsWith(quote, i)) { i += quote.length; break; }
+      if (quote.length === 1 && code[i] === "\\") i += 2;
+      else i += 1;
+    }
+    return i;
+  }
+
+  function highlightPython(code) {
+    let html = "";
+    let i = 0;
+    while (i < code.length) {
+      const ch = code[i];
+      if (ch === "#") {
+        const end = code.indexOf("\n", i);
+        const stop = end === -1 ? code.length : end;
+        html += span("py-comment", code.slice(i, stop));
+        i = stop;
+        continue;
+      }
+      const stringEnd = readString(code, i);
+      if (stringEnd !== null) {
+        html += span("py-string", code.slice(i, stringEnd));
+        i = stringEnd;
+        continue;
+      }
+      if (/\d/.test(ch)) {
+        const match = code.slice(i).match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?)/);
+        html += span("py-number", match[0]);
+        i += match[0].length;
+        continue;
+      }
+      if (/[A-Za-z_]/.test(ch)) {
+        const match = code.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+        const word = match[0];
+        const after = code.slice(i + word.length).match(/^\s*\(/);
+        let className = "";
+        if (keywords.has(word)) className = "py-keyword";
+        else if (builtins.has(word)) className = "py-builtin";
+        else if (types.has(word) || /^[A-Z]/.test(word)) className = "py-type";
+        else if (after) className = "py-function";
+        html += className ? span(className, word) : escapeHtml(word);
+        i += word.length;
+        continue;
+      }
+      if (/[-+*/%=!<>|&~^:,.()[\]{}]/.test(ch)) html += span("py-operator", ch);
+      else html += escapeHtml(ch);
+      i += 1;
+    }
+    return html;
+  }
+
+  document.querySelectorAll("pre code.language-python").forEach((block) => {
+    block.innerHTML = highlightPython(block.textContent);
+  });
+})();
+</script>
+</body>
+</html>
