@@ -193,14 +193,14 @@ footer { padding: 44px 0 70px; color: var(--muted); text-align: center; font-siz
 <header class="hero">
   <div class="wrap">
     <div class="kicker">Microsoft AI · Coding Interview Practice</div>
-    <h1>16 題 Python 解題筆記</h1>
+    <h1>18 題 Python 解題筆記</h1>
     <p class="subtitle">根據提供的 LeetCode / NeetCode 題單整理；每題包含題目摘要、Python 解法、繁體中文說明、Time / Space Complexity，以及 Interview Explanation Flow。</p>
     <div class="meta">
       <span class="pill easy">4 Easy</span>
-      <span class="pill hot">11 Medium</span>
+      <span class="pill hot">13 Medium</span>
       <span class="pill purple">1 Hard</span>
       <span class="pill">String · Hash Table · Sliding Window · Heap · DFS · Intervals · Parsing</span>
-      <span class="pill">Updated 2026-06-27</span>
+      <span class="pill">Updated 2026-09-02</span>
     </div>
     <div class="note">題目描述是根據公開題名與常見面試版本重新整理的原創摘要；重點放在面試時需要理解的輸入輸出、限制與解題策略。</div>
   </div>
@@ -217,7 +217,9 @@ footer { padding: 44px 0 70px; color: var(--muted); text-align: center; font-siz
     <a href="#at-most-k-distinct">At Most K</a>
     <a href="#without-repeating">No Repeating</a>
     <a href="#vowels-even">Even Vowels</a>
-    <a href="#top-k-frequent">Top K</a>
+    <a href="#top-k-frequent">Top K Elements</a>
+    <a href="#top-k-frequent-words">Top K Words</a>
+    <a href="#frequency-sort">Frequency Sort</a>
     <a href="#word-pattern">Word Pattern</a>
     <a href="#word-pattern-ii">Word Pattern II</a>
     <a href="#inform-employees">Inform Employees</a>
@@ -261,13 +263,15 @@ footer { padding: 44px 0 70px; color: var(--muted); text-align: center; font-siz
             <tr><td>7</td><td class="problem">Longest Substring Without Repeating Characters</td><td>Sliding Window</td><td>Medium</td><td>用 last seen index 跳過重複字元。</td><td>O(n)</td><td>O(k)</td></tr>
             <tr><td>8</td><td class="problem">Find the Longest Substring Containing Vowels in Even Counts</td><td>Bitmask / Prefix</td><td>Medium</td><td>用 5-bit mask 表示 vowels parity，相同 mask 代表區間內 vowel 都是偶數。</td><td>O(n)</td><td>O(1)</td></tr>
             <tr><td>9</td><td class="problem">Top K Frequent Elements</td><td>Hash Map / Bucket Sort</td><td>Medium</td><td>先統計頻率，再依頻率 bucket 由高到低取 k 個。</td><td>O(n)</td><td>O(n)</td></tr>
-            <tr><td>10</td><td class="problem">Word Pattern</td><td>Hash Map / Bijection</td><td>Easy</td><td>pattern char 與 word 必須一對一映射。</td><td>O(n)</td><td>O(n)</td></tr>
-            <tr><td>11</td><td class="problem">Word Pattern II</td><td>Backtracking</td><td>Medium</td><td>嘗試將 pattern char 映射到不同 substring，並維持雙向唯一。</td><td>Exponential</td><td>O(p+s)</td></tr>
-            <tr><td>12</td><td class="problem">Time Needed to Inform All Employees</td><td>Tree / DFS</td><td>Medium</td><td>公司管理關係形成樹，答案是 head 到最深員工的傳遞時間。</td><td>O(n)</td><td>O(n)</td></tr>
-            <tr><td>13</td><td class="problem">Minimum Interval to Include Each Query</td><td>Sort / Heap</td><td>Hard</td><td>按 query 遞增處理，heap 保存目前可覆蓋 query 的最短 interval。</td><td>O((n+q) log n)</td><td>O(n+q)</td></tr>
-            <tr><td>14</td><td class="problem">Roman to Integer</td><td>Parsing</td><td>Easy</td><td>從右往左掃，遇到比右側小的值就減，否則加。</td><td>O(n)</td><td>O(1)</td></tr>
-            <tr><td>15</td><td class="problem">Merge Intervals</td><td>Sort / Intervals</td><td>Medium</td><td>依 start 排序後，和最後一段重疊就延伸 end。</td><td>O(n log n)</td><td>O(output)</td></tr>
-            <tr><td>16</td><td class="problem">String to Integer (atoi)</td><td>Parsing / Simulation</td><td>Medium</td><td>依序處理空白、符號、數字，最後 clamp 到 32-bit 範圍。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>10</td><td class="problem">Top K Frequent Words</td><td>Hash Map / Sorting</td><td>Medium</td><td>依頻率降冪、字典序升冪排列 unique words，再取前 k 個。</td><td>O(n + u log u)</td><td>O(u)</td></tr>
+            <tr><td>11</td><td class="problem">Sort Characters By Frequency</td><td>Hash Map / Bucket Sort</td><td>Medium</td><td>依字元出現次數分 bucket，由高頻到低頻重建字串。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>12</td><td class="problem">Word Pattern</td><td>Hash Map / Bijection</td><td>Easy</td><td>pattern char 與 word 必須一對一映射。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>13</td><td class="problem">Word Pattern II</td><td>Backtracking</td><td>Medium</td><td>嘗試將 pattern char 映射到不同 substring，並維持雙向唯一。</td><td>Exponential</td><td>O(p+s)</td></tr>
+            <tr><td>14</td><td class="problem">Time Needed to Inform All Employees</td><td>Tree / DFS</td><td>Medium</td><td>公司管理關係形成樹，答案是 head 到最深員工的傳遞時間。</td><td>O(n)</td><td>O(n)</td></tr>
+            <tr><td>15</td><td class="problem">Minimum Interval to Include Each Query</td><td>Sort / Heap</td><td>Hard</td><td>按 query 遞增處理，heap 保存目前可覆蓋 query 的最短 interval。</td><td>O((n+q) log n)</td><td>O(n+q)</td></tr>
+            <tr><td>16</td><td class="problem">Roman to Integer</td><td>Parsing</td><td>Easy</td><td>從右往左掃，遇到比右側小的值就減，否則加。</td><td>O(n)</td><td>O(1)</td></tr>
+            <tr><td>17</td><td class="problem">Merge Intervals</td><td>Sort / Intervals</td><td>Medium</td><td>依 start 排序後，和最後一段重疊就延伸 end。</td><td>O(n log n)</td><td>O(output)</td></tr>
+            <tr><td>18</td><td class="problem">String to Integer (atoi)</td><td>Parsing / Simulation</td><td>Medium</td><td>依序處理空白、符號、數字，最後 clamp 到 32-bit 範圍。</td><td>O(n)</td><td>O(1)</td></tr>
           </tbody>
         </table>
       </div>
@@ -891,6 +895,7 @@ known answer = 13</code></pre>
         <p>給整數陣列 <code>nums</code> 與整數 <code>k</code>，回傳出現頻率最高的 k 個元素。答案順序通常不限。</p>
         <h3>解法說明</h3>
         <p>先用 hash map 統計頻率。因為頻率最多是 <code>n</code>，可以建立 <code>n+1</code> 個 buckets，將元素放到對應頻率的 bucket，最後從高頻到低頻收集 k 個元素。</p>
+        <div class="note"><strong>Frequency 題型家族：</strong>這題與 <a href="#top-k-frequent-words">Top K Frequent Words</a>、<a href="#frequency-sort">Sort Characters By Frequency</a> 都先用 frequency map 計數；差別在輸出規則、tie-break，以及要取 top-k 還是重建完整字串。</div>
 <pre><code class="language-python">from collections import Counter
 from typing import List
 
@@ -945,11 +950,120 @@ answer = [1, 2]</code></pre>
     </div>
   </section>
 
+  <section id="top-k-frequent-words">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>10. Top K Frequent Words</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Map</span><span class="badge">Sorting</span><span class="badge">Top-K</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串陣列 <code>words</code> 與整數 <code>k</code>，回傳出現次數最高的 k 個單字。答案先依 frequency 由高到低排列；若頻率相同，則依 lexicographical order 由小到大排列。公開題目：<a href="https://leetcode.com/problems/top-k-frequent-words/">LeetCode 692</a>。</p>
+        <h3>解法說明</h3>
+        <p>先用 <code>Counter</code> 統計每個 word 的頻率，再排序所有 unique words。排序 key 使用 <code>(-count, word)</code>：負的 count 讓高頻排在前面，word 本身則處理頻率相同時的字典序。最後取前 k 個。</p>
+        <div class="note"><strong>Frequency 題型家族：</strong>先比較 <a href="#top-k-frequent">Top K Frequent Elements</a> 的 bucket 思路，再注意本題多了 lexicographical tie-break；<a href="#frequency-sort">Sort Characters By Frequency</a> 則是依頻率重建整個字串。</div>
+<pre><code class="language-python">from collections import Counter
+from typing import List
+
+
+class Solution:
+    def topKFrequent(self, words: List[str], k: int) -&gt; List[str]:
+        counts = Counter(words)
+        ordered = sorted(
+            counts,
+            key=lambda word: (-counts[word], word),
+        )
+        return ordered[:k]</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n + u log u)，n 是 words 數量，u 是 unique words 數量；先計數，再排序 u 個單字。</div>
+          <div><b>Space Complexity:</b> O(u)，frequency map 與排序結果保存所有 unique words。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Identify both ordering rules</h4>
+          <p>"I need to rank words by descending frequency, with lexicographical order as the tie-breaker."</p>
+          <h4>Step 2: Count, then sort unique words</h4>
+          <p>"I count each word, then sort the unique words using the key <code>(-frequency, word)</code>. Negating the frequency gives descending numeric order while the word remains ascending."</p>
+<pre><code>words = ["i", "love", "leetcode", "i", "love", "coding"]
+k = 2
+
+counts: i=2, love=2, coding=1, leetcode=1
+same frequency: "i" &lt; "love"
+answer = ["i", "love"]</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Counting is O(n), sorting u unique words is O(u log u), and the frequency map uses O(u) space."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Can we optimize when k is small?</b> "Yes. A size-k heap can reduce ranking work to O(u log k), but implementing the reversed lexicographical tie-break carefully is important."</li>
+          </ul>
+          <p><b>中文：</b>本題最重要的差異是雙重排序規則：frequency 降冪、word 字典序升冪。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="frequency-sort">
+    <div class="wrap">
+      <article class="problem-card">
+        <div class="problem-head">
+          <h2>11. Sort Characters By Frequency</h2>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">Hash Map</span><span class="badge">Bucket Sort</span><span class="badge">String</span></div>
+        </div>
+        <h3>題目整理</h3>
+        <p>給字串 <code>s</code>，依每個字元的出現頻率由高到低重新排列；相同字元在結果中要聚在一起。若多個字元頻率相同，可用任意順序。大小寫視為不同字元。公開題目：<a href="https://leetcode.com/problems/sort-characters-by-frequency/">LeetCode 451</a>。</p>
+        <h3>解法說明</h3>
+        <p>先統計每個 character 的 frequency。頻率最大不會超過 <code>len(s)</code>，因此可建立 frequency buckets，讓 <code>buckets[f]</code> 保存出現 f 次的字元。最後從最高 frequency 往下掃，把每個字元重複 f 次加入答案。</p>
+        <div class="note"><strong>Frequency 題型家族：</strong><a href="#top-k-frequent">Top K Frequent Elements</a> 與 <a href="#top-k-frequent-words">Top K Frequent Words</a> 都只取前 k 個 item；本題則依 frequency 重建包含所有原始字元的完整字串。</div>
+<pre><code class="language-python">from collections import Counter
+
+
+class Solution:
+    def frequencySort(self, s: str) -&gt; str:
+        counts = Counter(s)
+        buckets = [[] for _ in range(len(s) + 1)]
+
+        for char, frequency in counts.items():
+            buckets[frequency].append(char)
+
+        parts = []
+        for frequency in range(len(s), 0, -1):
+            for char in buckets[frequency]:
+                parts.append(char * frequency)
+
+        return "".join(parts)</code></pre>
+        <div class="complexity">
+          <div><b>Time Complexity:</b> O(n)，計數、掃描 buckets 與建立長度 n 的輸出皆為線性。</div>
+          <div><b>Space Complexity:</b> O(n)，frequency map、buckets 與輸出 parts 最壞皆與輸入長度同階。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Count frequencies</h4>
+          <p>"The output order depends only on how often each character appears, so I first build a frequency map."</p>
+          <h4>Step 2: Use bounded frequencies</h4>
+          <p>"A character frequency is between 1 and n, so I bucket characters by frequency and scan the buckets from n down to 1."</p>
+<pre><code>s = "tree"
+counts: t=1, r=1, e=2
+
+bucket[2] = [e]
+bucket[1] = [t, r]
+output can be "eetr"</code></pre>
+          <h4>Step 3: Complexity</h4>
+          <p>"Every input and output character is processed a constant number of times, so time and space are both O(n)."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Why not sort the characters directly?</b> "Sorting the full string costs O(n log n), while bounded frequency buckets give O(n)."</li>
+          </ul>
+          <p><b>中文：</b>利用 frequency 上限是 n，將字元依次數分 bucket，再從高頻到低頻重建完整字串。</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
   <section id="word-pattern">
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>10. Word Pattern</h2>
+          <h2>12. Word Pattern</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">Hash Map</span><span class="badge">Bijection</span></div>
         </div>
         <h3>題目整理</h3>
@@ -1009,7 +1123,7 @@ answer = True</code></pre>
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>11. Word Pattern II</h2>
+          <h2>13. Word Pattern II</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Backtracking</span><span class="badge">Hash Map</span></div>
         </div>
         <h3>題目整理</h3>
@@ -1088,7 +1202,7 @@ entire string consumed -> True</code></pre>
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>12. Time Needed to Inform All Employees</h2>
+          <h2>14. Time Needed to Inform All Employees</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Tree</span><span class="badge">DFS</span></div>
         </div>
         <h3>題目整理</h3>
@@ -1144,7 +1258,7 @@ answer = 1</code></pre>
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>13. Minimum Interval to Include Each Query</h2>
+          <h2>15. Minimum Interval to Include Each Query</h2>
           <div class="badges"><span class="badge hard">Hard</span><span class="badge">Sort</span><span class="badge">Heap</span><span class="badge">Intervals</span></div>
         </div>
         <h3>題目整理</h3>
@@ -1214,7 +1328,7 @@ answer = [3, 3, 1, 4]</code></pre>
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>14. Roman to Integer</h2>
+          <h2>16. Roman to Integer</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">Parsing</span></div>
         </div>
         <h3>題目整理</h3>
@@ -1275,7 +1389,7 @@ answer = 1994</code></pre>
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>15. Merge Intervals</h2>
+          <h2>17. Merge Intervals</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Sort</span><span class="badge">Intervals</span></div>
         </div>
         <h3>題目整理</h3>
@@ -1327,7 +1441,7 @@ answer = [[1,6],[8,10],[15,18]]</code></pre>
     <div class="wrap">
       <article class="problem-card">
         <div class="problem-head">
-          <h2>16. String to Integer (atoi)</h2>
+          <h2>18. String to Integer (atoi)</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Parsing</span><span class="badge">Simulation</span></div>
         </div>
         <h3>題目整理</h3>
