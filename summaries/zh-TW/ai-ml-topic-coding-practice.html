@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="依九類 AI/ML 工作主題整理的 28 題 coding practice，包含 NeetCode 解題、LeetCode、既有繁中詳解與直接 ML 實作資源。">
+<title>AI / ML 工作主題導向 Coding Practice · 28 題練習地圖</title>
+<style>
+:root{--bg:#0d1117;--panel:#151b23;--panel-2:#1f2631;--ink:#e6edf3;--muted:#a9b6c8;--line:#2d3746;--accent:#ffb000;--accent-2:#58d5c9;--accent-3:#c56cff;--code:#0a0f16}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:88px}body{margin:0;color:var(--ink);background:radial-gradient(ellipse at 5% 0%,#123033 0,transparent 30rem),var(--bg);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif;line-height:1.8}.wrap{max-width:1140px;margin:auto;padding:0 26px}a{color:var(--accent-2);text-underline-offset:4px}a:hover{color:#a2fff1}a:focus-visible,button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:4px}.back{font-size:14px}.hero{padding:38px 0 44px;border-bottom:1px solid var(--line)}.kicker,.eyebrow{font:12px/1.6 ui-monospace,Consolas,monospace;letter-spacing:.08em;color:var(--accent-2)}.kicker{margin:34px 0 15px;letter-spacing:.18em}h1{font-size:clamp(34px,5.4vw,62px);line-height:1.13;letter-spacing:-.04em;margin:0;color:#fff;max-width:1000px}h1 span{color:var(--accent-2)}.subtitle{color:var(--muted);max-width:880px;font-size:18px;margin:22px 0}h2{font-size:clamp(25px,3.2vw,35px);line-height:1.3;margin:0 0 16px;color:#fff;letter-spacing:-.02em}h3{font-size:23px;line-height:1.4;margin:4px 0;color:#fff}h4{font-size:16px;color:var(--accent-2);margin:20px 0 8px}p{margin:10px 0}.meta,.badges,.source-links{display:flex;flex-wrap:wrap;align-items:center;gap:10px}.pill,.badge{display:inline-flex;border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:12px;color:var(--muted);background:var(--panel-2)}.pill.hot,.badge.start{color:#ffd478;border-color:#765923}.badge.easy{color:#70e6b0}.badge.medium{color:#ffd478}.badge.hard{color:#ff9baa}.note,.concept-callout{padding:16px 20px;border-radius:10px;border:1px solid #5c4b26;border-left:3px solid var(--accent);background:#241f15;margin-top:22px;color:#f6dfaa}.concept-callout{border-color:#255e5a;border-left-color:var(--accent-2);background:#102422;color:var(--ink)}section{padding:42px 0;border-bottom:1px solid var(--line)}.overview-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:25px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px}.card strong{display:block;color:#fff;font-size:19px}.card p{font-size:14px;color:var(--muted)}.stat{font:35px/1.2 ui-monospace,Consolas,monospace;color:var(--accent-2);margin-bottom:8px}.small{font-size:13px;color:var(--muted)}.muted{color:var(--muted)}.table-wrap{border:1px solid var(--line);border-radius:12px;overflow-x:auto;margin:22px 0;background:var(--panel)}table{border-collapse:collapse;width:100%;min-width:760px}caption{text-align:left;padding:14px;color:var(--muted);font-size:13px}th,td{padding:13px 16px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top;font-size:14px}th{background:var(--panel-2);color:var(--accent-2)}tr:last-child td{border-bottom:0}td{color:var(--muted)}td:first-child{color:var(--ink)}.filters{display:grid;grid-template-columns:1.2fr 1fr 1fr auto;gap:14px;align-items:end;margin-top:24px}.filters label{display:block;font-size:13px;color:var(--muted)}input[type="search"],select,button{font:inherit;color:var(--ink);background:var(--panel-2);border:1px solid #536176;border-radius:8px;padding:10px;width:100%;min-width:0}button{cursor:pointer;white-space:nowrap}button:hover{border-color:var(--accent-2)}.filter-status{display:flex;gap:20px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-top:12px;color:var(--muted);font-size:14px}.filter-status input{accent-color:var(--accent-2);width:17px;height:17px;vertical-align:middle}.topic-heading{display:flex;justify-content:space-between;align-items:center;gap:18px}.topic-index{font:44px/1 ui-monospace,Consolas,monospace;color:#40526b}.topic-intro{max-width:920px;color:var(--muted)}.topic-badge{margin-bottom:12px}.problem-card{margin-top:22px;padding:24px;border:1px solid var(--line);border-radius:15px;background:var(--panel);scroll-margin-top:12px}.problem-head{display:flex;justify-content:space-between;align-items:center;gap:16px}.source-links{margin:18px 0;font-size:14px;gap:12px 20px}.primary-link{padding:7px 13px;border:1px solid #367f77;border-radius:8px;background:#10312d;text-decoration:none;font-weight:650}.unavailable{font-size:13px;color:#f6cf85}.tag-lines{font-size:12px;color:var(--muted)}.tag-lines p{margin:2px 0}.tag-lines span{display:inline-block;width:76px;color:#c1cddd}.tag-lines a{text-decoration:none}.relation{font-size:15px;margin:13px 0 18px}.practice-detail{border-top:1px solid var(--line);padding-top:13px}summary{cursor:pointer;color:var(--accent-2);font-size:14px}summary:hover{color:#a2fff1}.practice-detail[open]>summary{margin-bottom:20px}pre{padding:17px 19px;background:var(--code);border:1px solid var(--line);border-radius:10px;overflow-x:auto;font:13px/1.65 ui-monospace,Consolas,monospace;color:#d6deeb;tab-size:4}code{font-family:ui-monospace,Consolas,monospace}:not(pre)>code{background:var(--panel-2);color:var(--accent-2);padding:1px 4px;border-radius:3px}.complexity{display:grid;grid-template-columns:1fr 1fr;gap:12px}.complexity>div{padding:12px 15px;border:1px solid var(--line);border-radius:8px;background:var(--panel-2);font-size:14px}.complexity b{color:var(--accent-2)}.interview-flow{padding:8px 18px;border-left:3px solid var(--accent-3);background:#1d1925}.interview-flow ol{padding-left:21px}.interview-flow li{margin:14px 0;color:#d7dbe5;font-size:15px}.ml-extension{margin:26px 0 0;padding:23px;background:#111f23;border:1px solid #28454f;border-radius:12px}.ml-extension h3{font-size:19px;color:var(--accent-2)}.summary-list{padding-left:22px}.summary-list li{margin:10px 0;color:var(--muted)}.exercise{padding-top:14px;border-top:1px solid #28454f;font-size:14px;color:#c1d3d8}.route{padding-left:23px}.route li{margin:15px 0}.py-keyword{color:#c792ea}.py-builtin{color:#82aaff}.py-type{color:#ffcb6b}.py-function{color:#58d5c9}.py-string{color:#ecc48d}.py-number{color:#f78c6c}.py-comment{color:#93a3b4;font-style:italic}.py-operator{color:#89ddff}[hidden]{display:none!important}footer{padding:35px 0 50px;color:var(--muted);font-size:13px}.no-results{padding:25px;border:1px dashed var(--line);border-radius:12px}noscript p{color:#ffd478}@media(max-width:800px){.filters{grid-template-columns:1fr 1fr}.overview-grid{grid-template-columns:1fr}.problem-head{align-items:flex-start;flex-direction:column}.wrap{padding-left:18px;padding-right:18px}.problem-card{padding:20px}.topic-index{font-size:30px}h3{font-size:21px}}@media(max-width:480px){.filters,.complexity{grid-template-columns:1fr}.tag-lines span{display:block;width:auto}.source-links{gap:12px}.hero{padding-top:24px}.subtitle{font-size:16px}.topic-heading{align-items:flex-start}.topic-index{display:none}}@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}@media print{.toc,.filters,.filter-status{display:none}body{background:#fff;color:#111}h1,h2,h3,h4,p,td,a,.relation{color:#111!important}.card,.problem-card,.ml-extension{background:#fff;border-color:#aaa;box-shadow:none}pre{white-space:pre-wrap}.problem-card{break-inside:avoid}}
+/* A compact reading bar keeps the complete chapter list one click away. */
+.toc {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  border-bottom: 1px solid var(--line);
+  background: rgba(13, 17, 23, .97);
+  backdrop-filter: blur(12px);
+}
+.toc > .wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 72px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.toc-current { min-width: 0; }
+.toc-caption {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  letter-spacing: .1em;
+}
+.toc-current-title {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toc-actions { display: flex; align-items: center; gap: 18px; flex: 0 0 auto; }
+.toc a { text-decoration: none; }
+.toc-quick { font-size: 13px; white-space: nowrap; }
+.toc-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 14px;
+  list-style: none;
+  white-space: nowrap;
+}
+.toc-menu > summary::-webkit-details-marker { display: none; }
+.toc-menu > summary:hover,
+.toc-menu[open] > summary { border-color: #367f77; background: #10312d; color: #a2fff1; }
+.toc-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.toc-chevron { width: 12px; height: 12px; }
+.toc-menu[open] .toc-chevron { transform: rotate(180deg); }
+.toc-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 26px;
+  display: grid;
+  grid-template-columns: .8fr 1fr 1fr;
+  gap: 24px;
+  width: min(880px, calc(100% - 52px));
+  max-height: min(65vh, 560px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #40526b var(--panel);
+  padding: 22px;
+  border: 1px solid #40526b;
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+}
+.toc-group h2 {
+  margin: 0 0 10px;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .08em;
+}
+.toc-group ul { list-style: none; margin: 0; padding: 0; }
+.toc-panel a {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.toc-panel a:hover { background: var(--panel-2); color: #fff; }
+.toc-panel a[aria-current="location"] {
+  background: #10312d;
+  color: #a2fff1;
+  box-shadow: inset 2px 0 var(--accent-2);
+}
+.toc-number { flex: 0 0 19px; font: 11px/1.6 ui-monospace, Consolas, monospace; opacity: .75; }
+@media (max-width: 680px) {
+  .toc > .wrap { gap: 12px; min-height: 68px; }
+  .toc-quick { display: none; }
+  .toc-current-title { font-size: 13px; }
+  .toc-panel {
+    right: 12px;
+    width: calc(100% - 24px);
+    max-height: min(70vh, calc(100dvh - 100px));
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 16px;
+  }
+  .toc-group:first-child ul { display: grid; grid-template-columns: 1fr 1fr; }
+}
+@media print { .toc { display: none; } }
+</style>
+</head>
+<body>
+<header class="hero"><div class="wrap">
+<a class="back" href="../../index.html">← paper-digest</a>
+<div class="kicker">Applied Scientist / Research Scientist · Coding Practice</div>
+<h1>從 AI / ML 工作主題<br><span>找到下一題練習</span></h1>
+<p class="subtitle">28 題演算法練習，依九類工作主題整理。優先開啟 NeetCode 解題，搭配 LeetCode 與既有繁中筆記；每類再接到直接的 ML 實作。</p>
+<div class="meta"><span class="pill hot">9 工作主題</span><span class="pill">28 不重複 LC 題</span><span class="pill">27 NeetCode 本題解題連結</span><span class="pill">20 既有詳解 · 8 新解法</span><span class="pill">查核 2026-09-08</span></div>
+<div class="note"><b>查找結論：</b>有接近的分類題庫，例如 ML Coding、TensorTonic、Deep-ML；這次未找到完全依這九類「工作主題」整理，且以 NeetCode / LeetCode 為主的完整清單。下方的題目對應是本頁依工作內容做的整理，並非平台官方分類，也不是公司考題頻率榜。</div>
+</div></header>
+<nav class="toc" aria-label="頁面目錄">
+  <div class="wrap">
+    <div class="toc-current">
+      <span class="toc-caption">正在閱讀</span>
+      <span class="toc-current-title" id="toc-current-title">開始閱讀</span>
+    </div>
+    <div class="toc-actions">
+      <a class="toc-quick" href="#practice">找題目 →</a>
+      <details class="toc-menu" id="toc-menu">
+        <summary aria-controls="toc-panel">
+          <svg class="toc-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10M3 5h1M3 10h1M3 15h1"/></svg>
+          章節目錄
+          <svg class="toc-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m2 4 4 4 4-4"/></svg>
+        </summary>
+        <div class="toc-panel" id="toc-panel">
+          <div class="toc-group">
+            <h2>開始與複習</h2>
+            <ul>
+              <li><a href="#resources">網路題庫</a></li>
+              <li><a href="#overview">主題總覽</a></li>
+              <li><a href="#practice">找題目</a></li>
+              <li><a href="#study-plan">練習順序</a></li>
+            </ul>
+          </div>
+          <div class="toc-group">
+            <h2>工作主題 · 01–05</h2>
+            <ul>
+              <li><a href="#topic-retrieval"><span class="toc-number" aria-hidden="true">01</span><span>Retrieval / Ranking</span></a></li>
+              <li><a href="#topic-nlp"><span class="toc-number" aria-hidden="true">02</span><span>NLP / LLM</span></a></li>
+              <li><a href="#topic-agents"><span class="toc-number" aria-hidden="true">03</span><span>Agents / Planning</span></a></li>
+              <li><a href="#topic-training"><span class="toc-number" aria-hidden="true">04</span><span>Training / Adaptation</span></a></li>
+              <li><a href="#topic-rl"><span class="toc-number" aria-hidden="true">05</span><span>RL / Decisions</span></a></li>
+            </ul>
+          </div>
+          <div class="toc-group">
+            <h2>工作主題 · 06–09</h2>
+            <ul>
+              <li><a href="#topic-evaluation"><span class="toc-number" aria-hidden="true">06</span><span>Evaluation / Causal</span></a></li>
+              <li><a href="#topic-production"><span class="toc-number" aria-hidden="true">07</span><span>Production / Efficiency</span></a></li>
+              <li><a href="#topic-vision"><span class="toc-number" aria-hidden="true">08</span><span>Multimodal / CV / Speech</span></a></li>
+              <li><a href="#topic-safety"><span class="toc-number" aria-hidden="true">09</span><span>Safety / Interpretability</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+</nav>
+<main>
+<section id="resources"><div class="wrap">
+<h2>網路上，哪些題庫最接近？</h2>
+<p class="muted">以下依各平台公開頁面整理；題庫、學習路線與理論問答分開看。免費範圍、登入要求與內容供應以平台目前頁面為準。</p>
+<div class="table-wrap"><table><thead><tr><th scope="col">資源</th><th scope="col">實際分類／內容</th><th scope="col">適合怎麼用</th></tr></thead><tbody>
+<tr><td><a href="https://mlcoding.net/problems" target="_blank" rel="noopener noreferrer">ML Coding</a></td><td>Retrieval &amp; Ranking、Metrics、Loss &amp; Training、Data &amp; Features、LLM Components、Debugging。</td><td>與這份工作主題相當接近；可直接練 BM25、NDCG、Attention、KV cache 等元件。</td></tr>
+<tr><td><a href="https://www.tensortonic.com/problems" target="_blank" rel="noopener noreferrer">TensorTonic</a> · <a href="https://www.tensortonic.com/roadmap" target="_blank" rel="noopener noreferrer">Roadmap</a></td><td>Loss、Activation、NLP、Linear Algebra、Transformers、Metrics &amp; Evaluation；題庫也有 Value Iteration 與 Q-learning。</td><td>補模型訓練、RL 與數值實作；可跑測試，並有理論／解法分頁。</td></tr>
+<tr><td><a href="https://www.deep-ml.com/problems" target="_blank" rel="noopener noreferrer">Deep-ML</a></td><td>Linear Algebra、ML、Deep Learning、NLP、Computer Vision；另有 collections、labs 與 projects。</td><td>依技術能力練 Python / ML 元件，適合補 NeetCode 題單以外的實作。</td></tr>
+<tr><td><a href="https://neetcode.io/roadmap" target="_blank" rel="noopener noreferrer">NeetCode Roadmap</a></td><td>依演算法模式學習；官方 <a href="https://blog.neetcode.io/p/prepare-coding-interviews" target="_blank" rel="noopener noreferrer">準備指南</a> 也建議先掌握 patterns。</td><td>本頁演算法題的主要解題入口；再由本頁補上「這題與工作有什麼關聯」。</td></tr>
+<tr><td><a href="https://www.ml-150.com/" target="_blank" rel="noopener noreferrer">Machine Learning 150</a></td><td>以 ML 概念與面試問答為主；查核時多個章節標示 Under Construction。</td><td>理論補充。不要把它當作 150 題可立即執行的 coding 題庫。</td></tr>
+</tbody></table></div>
+</div></section>
+<section id="overview"><div class="wrap">
+<h2>保留兩個分類角度</h2>
+<div class="overview-grid">
+<div class="card"><div class="stat">01</div><strong>工作主題</strong><p>這題服務什麼問題？例如 retrieval 的候選選取、production 的 cache，或 evaluation 的串流統計。</p></div>
+<div class="card"><div class="stat">02</div><strong>解題技術</strong><p>這題怎麼解？例如 Heap、Binary Search、Graph、DP。一題可以跨工作主題，但只保留一份題目卡片。</p></div>
+<div class="card"><div class="stat">03</div><strong>直接 ML 實作</strong><p>各主題末尾有延伸資源。Training、RL、Causal、Safety 的完整能力，需要直接做模型、估計流程或評估程式。</p></div>
+</div>
+<div class="table-wrap"><table><caption>題數按主要主題計算，共 28 題；跨主題標籤不重複計數。</caption><thead><tr><th scope="col">工作主題</th><th scope="col">題數</th><th scope="col">LC 覆蓋程度</th><th scope="col">下一步</th></tr></thead><tbody><tr><td><a href="#topic-retrieval">Retrieval / Ranking / Recommendation</a></td><td>5</td><td>直接基礎較多</td><td>先練 Top K Frequent Elements → K Closest → Search Suggestions，再比較 Words 的 tie-break 與多路合併。</td></tr>
+<tr><td><a href="#topic-nlp">NLP / LLM Applications</a></td><td>5</td><td>字串處理基礎</td><td>Encode/Decode → Word Break → Edit Distance；頻率三題可一起複習。</td></tr>
+<tr><td><a href="#topic-agents">Agentic Workflows / Planning</a></td><td>3</td><td>依賴與搜尋基礎</td><td>Course Schedule II → Combination Sum → Network Delay Time；再回看 LRU / TimeMap 的狀態管理。</td></tr>
+<tr><td><a href="#topic-training">Model Training / Adaptation</a></td><td>2</td><td>LC 僅涵蓋周邊元件</td><td>Random Pick with Weight → RandomizedSet；若面試要求 ML coding，優先接續 training step。</td></tr>
+<tr><td><a href="#topic-rl">Reinforcement Learning / Decision Making</a></td><td>2</td><td>DP 類比；需直接練 RL</td><td>先能說明 DP 的 state/action/transition，再直接做 Value Iteration 與 Q-learning update。</td></tr>
+<tr><td><a href="#topic-evaluation">Evaluation / Experimentation / Causal Inference</a></td><td>3</td><td>統計聚合基礎</td><td>Range Sum → Median → Sliding Window Maximum；ASR / OCR 指標再看 Edit Distance。</td></tr>
+<tr><td><a href="#topic-production">Production ML Systems / Efficiency</a></td><td>3</td><td>系統元件直接基礎</td><td>LRU Cache → TimeMap → Task Scheduler；再用 Median / Sliding Window 練監控資料處理。</td></tr>
+<tr><td><a href="#topic-vision">Multimodal / Computer Vision / Speech</a></td><td>3</td><td>網格與序列基礎</td><td>Flood Fill → Number of Islands → Rotate Image；語音評估看 Edit Distance，跨模態檢索看 K Closest。</td></tr>
+<tr><td><a href="#topic-safety">Safety / Robustness / Interpretability</a></td><td>2</td><td>LC 僅弱相關</td><td>Valid Parentheses 可作為暖身；Regex 是選做。主要準備分群錯誤分析、對抗擾動與 attribution。</td></tr></tbody></table></div>
+<div class="concept-callout"><b>例子：</b>Search Suggestions System 的工作主題是 Retrieval / Ranking，這份解法的技術是 Sorting + Binary Search；換成 Trie 解法時，工作主題不變。題目本身要求字典序建議，個人化排名則是後續延伸。</div>
+</div></section>
+<section id="practice"><div class="wrap">
+<h2>找一題開始</h2><p class="muted">題目卡預設按主要主題排列；篩選會包含跨主題標籤。NeetCode 連到解題頁；已有的繁中說明可直接跳轉。16 題標為「起步題」，是本頁建議的學習起點。</p>
+<div class="filters">
+<label>題名、題號或關鍵字<input id="search" type="search" placeholder="例如：top k、528、快取" autocomplete="off"></label>
+<label>工作主題<select id="topic-filter"><option value="">全部主題</option><option value="retrieval">Retrieval / Ranking</option><option value="nlp">NLP / LLM</option><option value="agents">Agents / Planning</option><option value="training">Training / Adaptation</option><option value="rl">RL / Decisions</option><option value="evaluation">Evaluation / Causal</option><option value="production">Production / Efficiency</option><option value="vision">Multimodal / CV / Speech</option><option value="safety">Safety / Interpretability</option></select></label>
+<label>解題技術<select id="pattern-filter"><option value="">全部技術</option><option value="Backtracking">Backtracking</option><option value="Binary Search">Binary Search</option><option value="Bucket Sort">Bucket Sort</option><option value="Design">Design</option><option value="Dynamic Programming">Dynamic Programming</option><option value="Graph">Graph</option><option value="Greedy">Greedy</option><option value="Hash Map">Hash Map</option><option value="Heap">Heap</option><option value="Linked List">Linked List</option><option value="Matrix">Matrix</option><option value="Monotonic Queue">Monotonic Queue</option><option value="Prefix Sum">Prefix Sum</option><option value="Randomized">Randomized</option><option value="Sliding Window">Sliding Window</option><option value="Sorting">Sorting</option><option value="Stack">Stack</option><option value="String Parsing">String Parsing</option><option value="Topological Sort">Topological Sort</option></select></label>
+<button id="clear-filters" type="button">清除篩選</button>
+</div>
+<div class="filter-status"><span id="result-count" role="status" aria-live="polite">顯示 28 / 28 題</span><label><input type="checkbox" id="priority-filter"> 只顯示起步題</label></div>
+<noscript><p>JavaScript 未啟用：所有題目與連結仍可閱讀；篩選與 Python 語法上色需啟用 JavaScript。</p></noscript>
+<p id="no-results" class="no-results" hidden>沒有符合的題目。請清除篩選，或用「Heap」「字串」等其他關鍵字。</p>
+</div></section>
+<section class="topic-section" id="topic-retrieval"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">直接基礎較多</span><h2>Retrieval / Ranking / Recommendation</h2></div><span class="topic-index">01</span></div>
+<p class="topic-intro">先把候選找出來，再依分數排序與選取。Top-K、prefix lookup 和多路合併都有清楚的演算法對應；個人化、learning to rank 與 offline metrics 仍需另外實作。</p>
+
+<article class="problem-card" id="top-k-frequent-elements" data-topics="retrieval nlp" data-patterns="Hash Map|Bucket Sort" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 347 · 01 / 28</span><h3>Top K Frequent Elements</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/top-k-frequent-elements" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/top-k-frequent-elements/" target="_blank" rel="noopener noreferrer">LeetCode 347 ↗</a><a href="microsoft-ai-coding-interview-practice.html#top-k-frequent">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-retrieval">Retrieval / Ranking</a> · <a href="#topic-nlp">NLP / LLM</a></p><p><span>解題技術</span>Hash Map · Bucket Sort</p></div>
+  <p class="relation">頻率排名的直接基礎；熱門 item / query 統計。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>回傳陣列中出現次數最多的 k 個不同數字，結果順序不限。</p><pre><code>nums=[4,4,1,1,1,9], k=2 → [1,4]</code></pre>
+    <h4>解法說明</h4><p>先計數，再依頻率分桶，由高到低收集 k 個元素。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(n)</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為輸入元素數。</p>
+    <p><a href="microsoft-ai-coding-interview-practice.html#top-k-frequent">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+    <div class="concept-callout">Frequency 家族：<a href="#top-k-frequent-elements">Elements</a> 選數字、<a href="#top-k-frequent-words">Words</a> 加字典序 tie-break、<a href="#sort-characters-by-frequency">Characters</a> 重建全部字元。</div>
+  </details>
+</article>
+
+<article class="problem-card" id="top-k-frequent-words" data-topics="retrieval nlp" data-patterns="Hash Map|Sorting" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 692 · 02 / 28</span><h3>Top K Frequent Words</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><span class="unavailable">NeetCode 本題解題頁：未確認</span><a href="https://leetcode.com/problems/top-k-frequent-words/" target="_blank" rel="noopener noreferrer">LeetCode 692 ↗</a><a href="microsoft-ai-coding-interview-practice.html#top-k-frequent-words">既有繁中詳解 →</a></div>
+  <p class="small">可先複習 <a href="https://neetcode.io/solutions/top-k-frequent-elements" target="_blank" rel="noopener noreferrer">NeetCode：Top K Frequent Elements（相關題）</a>，再到本題既有詳解補字典序 tie-break。</p>
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-retrieval">Retrieval / Ranking</a> · <a href="#topic-nlp">NLP / LLM</a></p><p><span>解題技術</span>Hash Map · Sorting</p></div>
+  <p class="relation">詞頻榜加上穩定的字典序 tie-break。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>回傳頻率最高的 k 個字，先按頻率降序，再按字典序升序。</p><pre><code>words=[&quot;ml&quot;,&quot;ai&quot;,&quot;ml&quot;,&quot;ai&quot;,&quot;data&quot;], k=2 → [&quot;ai&quot;,&quot;ml&quot;]</code></pre>
+    <h4>解法說明</h4><p>用 (-frequency, word) 排序；平手規則是本題與 Elements 的主要差異。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(C + u log u · L)</div><div><b>Space</b><br>O(u)</div></div><p class="small">C 為所有輸入字元數，u 為不同單字數，L 為最長單字長度；字串比較最壞 O(L)。</p>
+    <p><a href="microsoft-ai-coding-interview-practice.html#top-k-frequent-words">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+    <div class="concept-callout">Frequency 家族：<a href="#top-k-frequent-elements">Elements</a> 選數字、<a href="#top-k-frequent-words">Words</a> 加字典序 tie-break、<a href="#sort-characters-by-frequency">Characters</a> 重建全部字元。</div>
+  </details>
+</article>
+
+<article class="problem-card" id="k-closest-points-to-origin" data-topics="retrieval vision" data-patterns="Heap" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 973 · 03 / 28</span><h3>K Closest Points to Origin</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/k-closest-points-to-origin" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/k-closest-points-to-origin/" target="_blank" rel="noopener noreferrer">LeetCode 973 ↗</a><a href="microsoft-ai-monetization-coding-screen-prep.html#k-closest">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-retrieval">Retrieval / Ranking</a> · <a href="#topic-vision">Multimodal / CV / Speech</a></p><p><span>解題技術</span>Heap</p></div>
+  <p class="relation">練習依距離保留候選；二維原點距離是簡化模型，並非 ANN 索引。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>回傳離原點最近的 k 個二維點，順序不限。</p><pre><code>points=[[3,0],[1,1],[-1,0]], k=2 → [[-1,0],[1,1]]</code></pre>
+    <h4>解法說明</h4><p>維持最多 k 個點的 max-heap；平方距離即可比較遠近。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(n log(k+1))</div><div><b>Space</b><br>O(k)</div></div><p class="small">n 為點數。</p>
+    <p><a href="microsoft-ai-monetization-coding-screen-prep.html#k-closest">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="search-suggestions-system" data-topics="retrieval nlp" data-patterns="Sorting|Binary Search" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 1268 · 04 / 28</span><h3>Search Suggestions System</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/search-suggestions-system" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/search-suggestions-system/" target="_blank" rel="noopener noreferrer">LeetCode 1268 ↗</a><a href="microsoft-ai-monetization-coding-screen-prep.html#search-suggestions">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-retrieval">Retrieval / Ranking</a> · <a href="#topic-nlp">NLP / LLM</a></p><p><span>解題技術</span>Sorting · Binary Search</p></div>
+  <p class="relation">直接對應 prefix autocomplete；排序規則是字典序，並非個人化分數。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>每輸入一個字元，輸出最多三個符合當前 prefix、字典序最小的商品名。</p><pre><code>products=[&quot;car&quot;,&quot;cat&quot;,&quot;cup&quot;], searchWord=&quot;ca&quot; → [[&quot;car&quot;,&quot;cat&quot;,&quot;cup&quot;],[&quot;car&quot;,&quot;cat&quot;]]</code></pre>
+    <h4>解法說明</h4><p>排序後，對各 prefix 用 lower_bound 找起點，只檢查接下來最多三個商品。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(nL log(n+1) + m² log(n+1))</div><div><b>Space</b><br>O(n + m)</div></div><p class="small">n 為商品數，L 為最長商品名，m 為查詢長度；計入 Python 排序空間與 prefix 字串，結果僅存字串參照。</p>
+    <p><a href="microsoft-ai-monetization-coding-screen-prep.html#search-suggestions">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="merge-k-sorted-lists" data-topics="retrieval production" data-patterns="Heap|Linked List" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 23 · 05 / 28</span><h3>Merge k Sorted Lists</h3></div><div class="badges"><span class="badge hard">Hard</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/merge-k-sorted-lists" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/merge-k-sorted-lists/" target="_blank" rel="noopener noreferrer">LeetCode 23 ↗</a><a href="coding-interview-practice.html#merge-k-lists">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-retrieval">Retrieval / Ranking</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Heap · Linked List</p></div>
+  <p class="relation">多路有序結果合併；可類比合併各 shard 的排序結果。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>把 k 條已排序 linked lists 合成一條排序串列。</p><pre><code>lists=[[1,4],[2,3],[0,5]] → [0,1,2,3,4,5]</code></pre>
+    <h4>解法說明</h4><p>Heap 只保存每條串列尚未輸出的最小節點；取出後補入該串列下一個。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(N log(k+1))</div><div><b>Space</b><br>O(k)</div></div><p class="small">N 為總節點數，k 為串列數；額外空間不含輸出。</p>
+    <p><a href="coding-interview-practice.html#merge-k-lists">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Retrieval / Ranking 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://mlcoding.net/problems/cosine-similarity">Cosine Similarity</a>：實作向量相似度，處理零向量。</li><li><a href="https://mlcoding.net/problems/bm25">BM25</a> → <a href="https://mlcoding.net/problems/two-stage-ranker">Two-Stage Ranker</a>：從詞頻檢索到候選篩選與 reranking。</li><li><a href="https://www.tensortonic.com/problems/precision-recall-at-k">Precision / Recall@K</a> 與 <a href="https://mlcoding.net/problems/ndcg">NDCG</a>：把「找出 top-k」延伸成「評估 top-k 品質」。</li></ul><p class="exercise">延伸練習：輸入 query、documents 與 relevance labels，回傳 top-k document IDs 和 NDCG@k。明定同分排序規則，測試沒有相關文件與 k 超過文件數。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-nlp"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">字串處理基礎</span><h2>NLP / LLM Applications</h2></div><span class="topic-index">02</span></div>
+<p class="topic-intro">字串題能練資料表示、解析與切分。Word Break 是字典切詞，Edit Distance 是字元編輯成本；兩者都能幫助理解 NLP 管線，但不涵蓋語意建模或 RAG 品質。</p>
+
+<article class="problem-card" id="group-anagrams" data-topics="nlp training" data-patterns="Hash Map" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 49 · 06 / 28</span><h3>Group Anagrams</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/group-anagrams" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/group-anagrams/" target="_blank" rel="noopener noreferrer">LeetCode 49 ↗</a><a href="microsoft-ai-coding-interview-practice.html#group-anagrams">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-nlp">NLP / LLM</a> · <a href="#topic-training">Training / Adaptation</a></p><p><span>解題技術</span>Hash Map</p></div>
+  <p class="relation">練習以特徵 signature 分組；anagram 不表示語意相同，不能直接當語意去重。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>把字母種類與次數完全相同的單字分為同組。</p><pre><code>[&quot;tea&quot;,&quot;eat&quot;,&quot;tan&quot;] → [[&quot;tea&quot;,&quot;eat&quot;],[&quot;tan&quot;]]</code></pre>
+    <h4>解法說明</h4><p>小寫英文可用 26 維頻率 tuple 當 key，避免反覆比較字串。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(C + n)</div><div><b>Space</b><br>O(n)</div></div><p class="small">C 為總字元數，n 為單字數；字母表固定 26，輸出持有原字串參照。</p>
+    <p><a href="microsoft-ai-coding-interview-practice.html#group-anagrams">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="encode-and-decode-strings" data-topics="nlp agents production" data-patterns="String Parsing|Design" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 271 · 07 / 28</span><h3>Encode and Decode Strings</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/encode-and-decode-strings" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/encode-and-decode-strings/" target="_blank" rel="noopener noreferrer">LeetCode 271 · Premium ↗</a><a href="coding-interview-practice.html#encode-decode-strings">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-nlp">NLP / LLM</a> · <a href="#topic-agents">Agents / Planning</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>String Parsing · Design</p></div>
+  <p class="relation">練習可靠的文字序列化；內容含分隔符也必須可還原。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>設計字串清單與單一字串之間可無損往返的 encode / decode。</p><pre><code>[&quot;a#b&quot;,&quot;&quot;] → &quot;3#a#b0#&quot; → [&quot;a#b&quot;,&quot;&quot;]</code></pre>
+    <h4>解法說明</h4><p>為每段寫入長度前綴；decode 讀完長度後，精確消耗該長度的內容。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(C + n)</div><div><b>Space</b><br>O(C + n)</div></div><p class="small">C 為總字元數，n 為字串數；包含輸出與空字串的記錄成本。</p>
+    <p><a href="coding-interview-practice.html#encode-decode-strings">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="word-break" data-topics="nlp" data-patterns="Dynamic Programming" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 139 · 08 / 28</span><h3>Word Break</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/word-break" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/word-break/" target="_blank" rel="noopener noreferrer">LeetCode 139 ↗</a><a href="microsoft-ai-monetization-coding-screen-prep.html#word-break">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-nlp">NLP / LLM</a></p><p><span>解題技術</span>Dynamic Programming</p></div>
+  <p class="relation">字典切詞的簡化模型；LLM 的 BPE 有不同的合併規則。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>判斷字串能否完全拆成字典中的單字，字典中的字可重複使用。</p><pre><code>s=&quot;aiml&quot;, dict=[&quot;ai&quot;,&quot;ml&quot;] → true</code></pre>
+    <h4>解法說明</h4><p>dp[i] 表示前 i 個字元可切分；從可達位置嘗試匹配字典單字。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(n · d · L)</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為字串長度，d 為字典大小，L 為最長單字；以逐詞 startswith 版本為準，不含輸入。</p>
+    <p><a href="microsoft-ai-monetization-coding-screen-prep.html#word-break">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="edit-distance" data-topics="nlp evaluation vision" data-patterns="Dynamic Programming" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 72 · 09 / 28</span><h3>Edit Distance</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/edit-distance" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/edit-distance/" target="_blank" rel="noopener noreferrer">LeetCode 72 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-nlp">NLP / LLM</a> · <a href="#topic-evaluation">Evaluation / Causal</a> · <a href="#topic-vision">Multimodal / CV / Speech</a></p><p><span>解題技術</span>Dynamic Programming</p></div>
+  <p class="relation">可延伸到 ASR 的 WER、OCR 的 CER；這題先處理字元級編輯次數。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>用插入、刪除、替換，把 word1 變成 word2，回傳最少操作數。</p><pre><code>word1=&quot;cat&quot;, word2=&quot;cut&quot; → 1</code></pre>
+    <h4>解法說明</h4><p>每個 prefix pair 的最佳答案只依賴插入、刪除、替換的較短 prefix；相同字元不需付費。</p>
+    <pre><code class="language-python">class Solution:
+    def minDistance(self, word1: str, word2: str) -&gt; int:
+        previous = list(range(len(word2) + 1))
+        for i, ch1 in enumerate(word1, 1):
+            current = [i]
+            for j, ch2 in enumerate(word2, 1):
+                if ch1 == ch2:
+                    current.append(previous[j - 1])
+                else:
+                    current.append(1 + min(
+                        previous[j],      # Delete from word1.
+                        current[j - 1],   # Insert into word1.
+                        previous[j - 1],  # Replace.
+                    ))
+            previous = current
+        return previous[-1]</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O(mn)</div><div><b>Space</b><br>O(n)</div></div><p class="small">m、n 為兩字串長度；只保留上一列與目前列。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm that each insertion, deletion, or substitution costs one, and that we need the count rather than the edit sequence.</li><li>I define dp[i][j] as the distance between two prefixes. Matching characters keep the diagonal cost; otherwise I add one to the cheapest neighboring state.</li><li>As I code, the first row and first column handle empty prefixes. Each row only needs its predecessor, so I keep two rows.</li><li>Time is O(mn), space is O(n). I would test two empty strings, one empty string, and identical strings. To return the edits, I would retain predecessor information.</li></ol><pre><code>&quot;cat&quot; → &quot;cut&quot;: replace a with u → 1
+&quot;&quot; → &quot;abc&quot;: insert a, b, c → 3</code></pre><p><b>中文：</b>先定義兩個 prefix 的距離，再解釋三種操作各自對應哪個相鄰狀態。</p></div>
+
+  </details>
+</article>
+
+<article class="problem-card" id="sort-characters-by-frequency" data-topics="nlp retrieval" data-patterns="Hash Map|Sorting" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 451 · 10 / 28</span><h3>Sort Characters By Frequency</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/sort-characters-by-frequency" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/sort-characters-by-frequency/" target="_blank" rel="noopener noreferrer">LeetCode 451 ↗</a><a href="microsoft-ai-coding-interview-practice.html#frequency-sort">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-nlp">NLP / LLM</a> · <a href="#topic-retrieval">Retrieval / Ranking</a></p><p><span>解題技術</span>Hash Map · Sorting</p></div>
+  <p class="relation">與兩題 Top K 同屬 frequency counting；本題要輸出全部字元。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>依出現次數由多至少重排全部字元；同頻率的字元順序不限。</p><pre><code>s=&quot;tree&quot; → &quot;eetr&quot;（&quot;eert&quot; 也合法）</code></pre>
+    <h4>解法說明</h4><p>先計數，再按頻率排序不同字元，按次數重複寫回。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(n + u log u)</div><div><b>Space</b><br>O(n + u)</div></div><p class="small">n 為字串長度，u 為不同字元數；計入輸出與暫存字串。</p>
+    <p><a href="microsoft-ai-coding-interview-practice.html#frequency-sort">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+    <div class="concept-callout">Frequency 家族：<a href="#top-k-frequent-elements">Elements</a> 選數字、<a href="#top-k-frequent-words">Words</a> 加字典序 tie-break、<a href="#sort-characters-by-frequency">Characters</a> 重建全部字元。</div>
+  </details>
+</article>
+<aside class="ml-extension" aria-label="NLP / LLM 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://mlcoding.net/problems/bpe-merge">BPE Merge</a>：實作指定 token pair 的合併，連回既有 <a href="build-gpt-ml-practice.html#bpe">BPE 繁中筆記</a>。</li><li><a href="https://mlcoding.net/problems/scaled-dot-product-attention">Scaled Dot-Product Attention</a>：練 Q/K/V、mask 與數值穩定性；已有 <a href="build-gpt-ml-practice.html#self-attention">Self Attention 詳解</a>。</li></ul><p class="exercise">延伸練習：為一組變長 token sequences 產生 padding 與 attention mask，再把 attention 接進小型 forward pass；測試空輸入、全部被 mask、極大 logits。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-agents"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">依賴與搜尋基礎</span><h2>Agentic Workflows / Planning</h2></div><span class="topic-index">03</span></div>
+<p class="topic-intro">固定 workflow 可先用 graph 表示：依賴是否可完成、執行順序是否合法、搜尋成本是多少。真正 agent 的工具回傳、重試、動態規劃與記憶要再用小型系統練習。</p>
+
+<article class="problem-card" id="course-schedule-ii" data-topics="agents production" data-patterns="Graph|Topological Sort" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 210 · 11 / 28</span><h3>Course Schedule II</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/course-schedule-ii" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/course-schedule-ii/" target="_blank" rel="noopener noreferrer">LeetCode 210 ↗</a><a href="coding-interview-practice.html#course-schedule-ii">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-agents">Agents / Planning</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Graph · Topological Sort</p></div>
+  <p class="relation">固定依賴的 workflow 排序；真實 agent 還需處理動態任務和失敗。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>給先修依賴，輸出可完成全部課程的順序；有 cycle 則回傳空清單。</p><pre><code>numCourses=3, prerequisites=[[1,0],[2,1]] → [0,1,2]</code></pre>
+    <h4>解法說明</h4><p>Kahn：只執行入度為 0 的節點，完成後解除後續依賴；輸出不足代表 cycle。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(V + E)</div><div><b>Space</b><br>O(V + E)</div></div><p class="small">V 為課程數，E 為依賴數。</p>
+    <p><a href="coding-interview-practice.html#course-schedule-ii">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="network-delay-time" data-topics="agents production" data-patterns="Graph|Heap" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 743 · 12 / 28</span><h3>Network Delay Time</h3></div><div class="badges"><span class="badge medium">Medium</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/network-delay-time" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/network-delay-time/" target="_blank" rel="noopener noreferrer">LeetCode 743 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-agents">Agents / Planning</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Graph · Heap</p></div>
+  <p class="relation">練習帶成本的 graph search；本題求所有節點收到訊號的最晚時間。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>有非負邊權的有向圖，從 k 發送訊號，回傳所有節點收到的最短所需時間；有人不可達則 -1。</p><pre><code>times=[[1,2,2],[2,3,1],[1,3,5]], n=3, k=1 → 3</code></pre>
+    <h4>解法說明</h4><p>Dijkstra 每次確認最小暫定距離；答案是所有最短距離的最大值。</p>
+    <pre><code class="language-python">from heapq import heappop, heappush
+
+
+class Solution:
+    def networkDelayTime(self, times: list[list[int]], n: int, k: int) -&gt; int:
+        graph = [[] for _ in range(n + 1)]
+        for source, target, weight in times:
+            graph[source].append((target, weight))
+
+        distance = [float(&quot;inf&quot;)] * (n + 1)
+        distance[k] = 0
+        heap = [(0, k)]
+        while heap:
+            cost, node = heappop(heap)
+            if cost != distance[node]:
+                continue  # Ignore a superseded candidate.
+            for neighbor, weight in graph[node]:
+                candidate = cost + weight
+                if candidate &lt; distance[neighbor]:
+                    distance[neighbor] = candidate
+                    heappush(heap, (candidate, neighbor))
+
+        answer = max(distance[1:])
+        return -1 if answer == float(&quot;inf&quot;) else answer</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O((V + E) log(V + E + 1))</div><div><b>Space</b><br>O(V + E)</div></div><p class="small">以允許 heap 保留過期候選的實作為準。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm directed edges and nonnegative weights. We need the largest shortest-path distance from the source, not the sum of edge costs.</li><li>I use Dijkstra: the heap exposes the smallest tentative distance, and relaxing an edge can improve a neighbor's distance.</li><li>As I code, I discard outdated heap entries and push a new candidate only on strict improvement. This also avoids looping on zero-cost cycles.</li><li>With lazy heap entries, the bound is O((V+E) log(V+E+1)) time and O(V+E) space. I would test a disconnected node, a zero-weight edge, and n=1.</li></ol><pre><code>1 → 2 costs 2; 2 → 3 costs 1; 1 → 3 costs 5
+After node 1: distances = [0,2,5]
+After node 2: distances = [0,2,3]
+Return max = 3; the heap's old (5,3) entry is ignored.</code></pre><p><b>中文：</b>區分每個節點的最短到達時間與所有節點都收到訊號的時間。</p></div>
+
+  </details>
+</article>
+
+<article class="problem-card" id="combination-sum" data-topics="agents" data-patterns="Backtracking" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 39 · 13 / 28</span><h3>Combination Sum</h3></div><div class="badges"><span class="badge medium">Medium</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/combination-sum" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/combination-sum/" target="_blank" rel="noopener noreferrer">LeetCode 39 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-agents">Agents / Planning</a></p><p><span>解題技術</span>Backtracking</p></div>
+  <p class="relation">練習候選探索、限制檢查與撤銷選擇；用作 planning 的搜尋基礎。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>從不同正整數中選數，可重複使用，列出總和等於 target 的不同組合；順序不產生新組合。</p><pre><code>candidates=[2,3], target=6 → [[2,2,2],[3,3]]</code></pre>
+    <h4>解法說明</h4><p>固定候選 index 的非遞減順序來避免排列重複；剩餘總和不足就剪枝。</p>
+    <pre><code class="language-python">class Solution:
+    def combinationSum(self, candidates: list[int], target: int) -&gt; list[list[int]]:
+        candidates.sort()
+        result = []
+        path = []
+
+        def search(start: int, remaining: int) -&gt; None:
+            if remaining == 0:
+                result.append(path.copy())
+                return
+            for index in range(start, len(candidates)):
+                value = candidates[index]
+                if value &gt; remaining:
+                    break
+                path.append(value)
+                search(index, remaining - value)
+                path.pop()  # Undo this choice before exploring another.
+
+        search(0, target)
+        return result</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O(c log c + c^(D+1) · D) 保守上界</div><div><b>Space</b><br>O(D + R·D)</div></div><p class="small">c 為候選數，D=⌊target/min(candidates)⌋，R 為結果數；包含輸出，排除輸出為 O(D)。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm positive, distinct candidates, unlimited reuse, and that order within a combination does not matter.</li><li>I search only in nondecreasing candidate order. Reusing the same index allows repetition, while never moving backward prevents permutation duplicates.</li><li>As I code, I append a choice, explore, and pop it. I copy the path when the remaining target reaches zero; sorted values let me stop early.</li><li>The search is exponential and output-sensitive. With c candidates and depth D, O(c^(D+1) D) is a conservative bound, plus sorting. Extra search space is O(D), and R results take up to O(RD) space.</li></ol><pre><code>[2,3], target=6
+choose 2 → 2 → 2: remaining 0 → save [2,2,2]
+undo choices; choose 3 → 3 → save [3,3]
+No [3,2,...] branch: indices never move backward.</code></pre><p><b>中文：</b>把「選擇、探索、撤銷」說清楚，也要解釋如何避免重複組合。</p></div>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Agents / Planning 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://huggingface.co/learn/agents-course/en/unit1/tutorial">Hugging Face：建立第一個 agent</a>：有工具定義與 agent 組裝的教學實作，屬於專案教材。</li><li>搭配 <a href="#course-schedule-ii">Course Schedule II</a> 的 DAG 思路，把「依賴已完成」當成執行前提。</li></ul><p class="exercise">自訂 coding case：輸入 task IDs、dependencies 與會成功／失敗的 mock tools，回傳每項任務狀態與執行紀錄。限制最多重試兩次；測試 cycle、失敗依賴、同一 request 重複送入時的 idempotency。此題是本頁延伸設計，不是 LeetCode 原題。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-training"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">LC 僅涵蓋周邊元件</span><h2>Model Training / Adaptation</h2></div><span class="topic-index">04</span></div>
+<p class="topic-intro">加權抽樣、資料池與分組是訓練管線的周邊能力。模型架構、loss、gradient、optimizer、fine-tuning 與蒸餾，應以 NumPy / PyTorch 實作為主要補強。</p>
+
+<article class="problem-card" id="random-pick-with-weight" data-topics="training rl" data-patterns="Prefix Sum|Binary Search|Randomized" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 528 · 14 / 28</span><h3>Random Pick with Weight</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/random-pick-with-weight" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/random-pick-with-weight/" target="_blank" rel="noopener noreferrer">LeetCode 528 ↗</a><a href="microsoft-ai-monetization-coding-screen-prep.html#random-pick">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-training">Training / Adaptation</a> · <a href="#topic-rl">RL / Decisions</a></p><p><span>解題技術</span>Prefix Sum · Binary Search · Randomized</p></div>
+  <p class="relation">訓練資料加權抽樣的基礎；固定權重抽樣本身不會學習 bandit policy。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>每次回傳一個 index，使機率等於該位置權重除以總權重。</p><pre><code>w=[1,3] → index 0 機率 1/4，index 1 機率 3/4（單次結果不固定）</code></pre>
+    <h4>解法說明</h4><p>把權重變成累積區間；均勻抽取票號，再二分找到所屬區間。</p>
+
+    <div class="complexity"><div><b>Time</b><br>初始化 O(n)；每次抽樣 O(log n)</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為權重數；這是有放回抽樣。</p>
+    <p><a href="microsoft-ai-monetization-coding-screen-prep.html#random-pick">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="insert-delete-getrandom-o1" data-topics="training rl production" data-patterns="Hash Map|Design|Randomized" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 380 · 15 / 28</span><h3>Insert Delete GetRandom O(1)</h3></div><div class="badges"><span class="badge medium">Medium</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/insert-delete-getrandom-o1" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/insert-delete-getrandom-o1/" target="_blank" rel="noopener noreferrer">LeetCode 380 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-training">Training / Adaptation</a> · <a href="#topic-rl">RL / Decisions</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Hash Map · Design · Randomized</p></div>
+  <p class="relation">可類比需要增刪與均勻抽樣的資料池；它是 set，不保留重複 transition。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>設計集合，支援插入、刪除與等機率隨機取值，平均每個操作 O(1)。</p><pre><code>insert(8) → true; insert(5) → true; remove(8) → true; getRandom() → 5</code></pre>
+    <h4>解法說明</h4><p>陣列提供隨機索引，map 記錄位置；刪除時以最後一個元素補洞並更新索引。</p>
+    <pre><code class="language-python">from random import choice
+
+
+class RandomizedSet:
+    def __init__(self):
+        self.values = []
+        self.positions = {}
+
+    def insert(self, val: int) -&gt; bool:
+        if val in self.positions:
+            return False
+        self.positions[val] = len(self.values)
+        self.values.append(val)
+        return True
+
+    def remove(self, val: int) -&gt; bool:
+        if val not in self.positions:
+            return False
+        index = self.positions[val]
+        last = self.values[-1]
+        self.values[index] = last
+        self.positions[last] = index
+        self.values.pop()
+        del self.positions[val]
+        return True
+
+    def getRandom(self) -&gt; int:
+        return choice(self.values)</code></pre>
+    <div class="complexity"><div><b>Time</b><br>平均 O(1)／操作</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為目前集合大小；getRandom 僅在非空集合呼叫。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm set semantics and that getRandom is called only when the set is nonempty.</li><li>A list gives uniform random indexing, while a hash map finds an element's position. Their invariant is positions[values[i]] = i.</li><li>For deletion, I move the last element into the removed slot and update its index before deleting the old key. This also works when the removed element is already last.</li><li>Each operation is O(1) on average, with O(n) space. I would test duplicate insertion, missing deletion, deleting the last element, and deleting the only element.</li></ol><pre><code>values=[8,5,9], positions={8:0,5:1,9:2}
+remove(5): put 9 in slot 1, update positions[9], pop last
+values=[8,9], positions={8:0,9:1}</code></pre><p><b>中文：</b>用最後一個元素補洞，避免陣列刪除造成整段搬移。</p></div>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Training / Adaptation 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://www.tensortonic.com/problems/logistic-regression-training">Logistic Regression Training Loop</a>：完整訓練迴圈練習。</li><li><a href="https://mlcoding.net/problems/torch-training-step">PyTorch Training Step</a>：forward、loss、backward、optimizer update。</li><li>既有 <a href="build-gpt-ml-practice.html#data-loader">GPT Data Loader</a> → <a href="build-gpt-ml-practice.html#train">Train Your GPT</a>；資料時間切分可練 <a href="https://mlcoding.net/problems/train-test-split-by-time">Time-Based Train/Test Split</a>。</li></ul><p class="exercise">延伸練習：對小型線性模型手算並實作一次梯度更新，再與 autograd 比對；接著加入 class/sample weights。測試 batch size 1、梯度是否歸零與固定 seed 重現。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-rl"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">DP 類比；需直接練 RL</span><h2>Reinforcement Learning / Decision Making</h2></div><span class="topic-index">05</span></div>
+<p class="topic-intro">House Robber 與 Minimum Path Sum 練的是已知規則下的最佳子結構。RL 還要從互動資料學習，處理未知結果、探索／利用、reward 與 credit assignment。</p>
+
+<article class="problem-card" id="house-robber" data-topics="rl" data-patterns="Dynamic Programming" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 198 · 16 / 28</span><h3>House Robber</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/house-robber" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/house-robber/" target="_blank" rel="noopener noreferrer">LeetCode 198 ↗</a><a href="databricks-interview-questions.html#house-robber">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-rl">RL / Decisions</a></p><p><span>解題技術</span>Dynamic Programming</p></div>
+  <p class="relation">練習 state、action、累積 reward 的定義；這是已知資料的 DP，不是 RL 訓練。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>從非負數列中選取互不相鄰的元素，求最大總和。</p><pre><code>nums=[2,7,9,3,1] → 12（2+9+1）</code></pre>
+    <h4>解法說明</h4><p>每一步比較跳過目前值，或取目前值加上前兩格最佳值。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(n)</div><div><b>Space</b><br>O(1)</div></div><p class="small">n 為元素數。</p>
+    <p><a href="databricks-interview-questions.html#house-robber">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="minimum-path-sum" data-topics="rl agents" data-patterns="Dynamic Programming" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 64 · 17 / 28</span><h3>Minimum Path Sum</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/minimum-path-sum" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/minimum-path-sum/" target="_blank" rel="noopener noreferrer">LeetCode 64 ↗</a><a href="coding-interview-practice.html#minimum-path-sum">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-rl">RL / Decisions</a> · <a href="#topic-agents">Agents / Planning</a></p><p><span>解題技術</span>Dynamic Programming</p></div>
+  <p class="relation">練習已知 transition 與 cost 的最佳決策；延伸才是 MDP / value iteration。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>從非負 grid 左上到右下，每次向右或向下，回傳沿途最小總和。</p><pre><code>grid=[[1,3],[2,1]] → 4</code></pre>
+    <h4>解法說明</h4><p>目前格子的最小成本 = 自身成本 + min(上方最佳, 左方最佳)。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(r·c)</div><div><b>Space</b><br>O(c)</div></div><p class="small">r、c 為列、欄數；選擇不修改輸入的一維 DP 版本。</p>
+    <p><a href="coding-interview-practice.html#minimum-path-sum">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="RL / Decisions 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://www.tensortonic.com/problems/value-iteration-step">Value Iteration Step</a>：給 transition、reward 與目前 value，計算一次 Bellman 更新。</li><li><a href="https://www.tensortonic.com/problems/q-learning-update">Tabular Q-Learning：Single Update</a>：從一筆 transition 更新 Q 值。</li><li>跨類別複習 <a href="#random-pick-with-weight">加權抽樣</a> 與 <a href="#insert-delete-getrandom-o1">均勻抽樣資料池</a>。</li></ul><p class="exercise">自訂 coding case：實作 ε-greedy bandit，輸出每個 arm 的 pull count、平均 reward 與累積 reward。固定 seed 比較 ε=0 與 ε&gt;0；另測試 terminal transition 的 Q target 不再 bootstrap。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-evaluation"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">統計聚合基礎</span><h2>Evaluation / Experimentation / Causal Inference</h2></div><span class="topic-index">06</span></div>
+<p class="topic-intro">Prefix Sum、Median 與 Sliding Window Maximum 是統計資料處理基礎；A/B testing、confidence intervals、因果識別與 ablation 的設計不能用它們替代。</p>
+
+<article class="problem-card" id="range-sum-query-immutable" data-topics="evaluation production" data-patterns="Prefix Sum" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 303 · 18 / 28</span><h3>Range Sum Query - Immutable</h3></div><div class="badges"><span class="badge easy">Easy</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/range-sum-query-immutable" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/range-sum-query-immutable/" target="_blank" rel="noopener noreferrer">LeetCode 303 ↗</a><a href="coding-interview-practice.html#range-sum-query">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-evaluation">Evaluation / Causal</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Prefix Sum</p></div>
+  <p class="relation">固定資料的區間聚合基礎；不涉及顯著性或因果效果。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>初始化不可變陣列後，多次查詢閉區間 [left,right] 的元素總和。</p><pre><code>nums=[2,4,6]; sumRange(1,2) → 10</code></pre>
+    <h4>解法說明</h4><p>prefix[i] 代表前 i 項總和，用 prefix[right+1] - prefix[left] 回答查詢。</p>
+
+    <div class="complexity"><div><b>Time</b><br>初始化 O(n)；查詢 O(1)</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為元素數。</p>
+    <p><a href="coding-interview-practice.html#range-sum-query">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="find-median-from-data-stream" data-topics="evaluation production" data-patterns="Heap|Design" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 295 · 19 / 28</span><h3>Find Median from Data Stream</h3></div><div class="badges"><span class="badge hard">Hard</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/find-median-from-data-stream" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/find-median-from-data-stream/" target="_blank" rel="noopener noreferrer">LeetCode 295 ↗</a><a href="microsoft-ai-monetization-coding-screen-prep.html#median-stream">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-evaluation">Evaluation / Causal</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Heap · Design</p></div>
+  <p class="relation">線上統計摘要；本題維持精確 median，需要保留所有值。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>支援新增數值與查詢目前全部數值的中位數。</p><pre><code>addNum(2), addNum(8) → median 5；再 addNum(3) → median 3</code></pre>
+    <h4>解法說明</h4><p>兩個 heap 分別保留較小半與較大半，維持順序與大小平衡。</p>
+
+    <div class="complexity"><div><b>Time</b><br>加入 O(log n)；查詢 O(1)</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為已加入數量；與近似 quantile sketch 不同。</p>
+    <p><a href="microsoft-ai-monetization-coding-screen-prep.html#median-stream">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="sliding-window-maximum" data-topics="evaluation production" data-patterns="Sliding Window|Monotonic Queue" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 239 · 20 / 28</span><h3>Sliding Window Maximum</h3></div><div class="badges"><span class="badge hard">Hard</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/sliding-window-maximum" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/sliding-window-maximum/" target="_blank" rel="noopener noreferrer">LeetCode 239 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-evaluation">Evaluation / Causal</a> · <a href="#topic-production">Production / Efficiency</a></p><p><span>解題技術</span>Sliding Window · Monotonic Queue</p></div>
+  <p class="relation">時間窗極值、監控尖峰的基礎；最大值不是 p95/p99。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>固定長度 k 的窗口依序向右滑動，回傳每個窗口的最大值。</p><pre><code>nums=[1,3,-1,2], k=2 → [3,3,2]</code></pre>
+    <h4>解法說明</h4><p>Deque 存 index 並保持對應值遞減；更晚且更大的元素會淘汰較早的小值。</p>
+    <pre><code class="language-python">from collections import deque
+
+
+class Solution:
+    def maxSlidingWindow(self, nums: list[int], k: int) -&gt; list[int]:
+        candidates = deque()
+        answer = []
+        for right, value in enumerate(nums):
+            while candidates and candidates[0] &lt;= right - k:
+                candidates.popleft()
+            while candidates and nums[candidates[-1]] &lt;= value:
+                candidates.pop()
+            candidates.append(right)
+            if right &gt;= k - 1:
+                answer.append(nums[candidates[0]])
+        return answer</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O(n)</div><div><b>Space</b><br>O(k) 額外；輸出 O(n-k+1)</div></div><p class="small">n 為陣列長度；每個 index 最多進出 deque 一次。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm that k is between one and the array length. Repeatedly scanning each window would cost O(nk).</li><li>An older element no larger than a newer one can never become the maximum again: the newer element is larger and expires later.</li><li>As I code, the deque stores indices. I remove expired entries at the front, dominated entries at the back, and read the answer from the front once a full window exists.</li><li>Each index is appended once and removed at most once, giving O(n) time and O(k) extra space. I would test k=1, k=n, decreasing values, and equal values.</li></ol><pre><code>nums=[1,3,-1,2], k=2
+r=0: deque values [1]
+r=1: 3 removes 1 → [3] → output 3
+r=2: [3,-1] → output 3
+r=3: expire 3; 2 removes -1 → [2] → output 2</code></pre><p><b>中文：</b>淘汰較舊又較小的元素是正確性核心，index 則負責判斷過期。</p></div>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Evaluation / Causal 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://mlcoding.net/problems/ndcg">NDCG</a> 與 <a href="https://mlcoding.net/problems/confusion-matrix-by-group">Confusion Matrix by Group</a>：整體與分群指標。</li><li><a href="https://mlcoding.net/problems/ips-weighting">IPS Weighting</a>：練 propensity clipping 與加權 loss；不等於完成因果推論，還需檢查可識別性、positivity 與估計偏差。</li><li><a href="https://mlcoding.net/problems/train-test-split-by-time">Time-Based Train/Test Split</a>：避免把未來資料混入訓練。</li></ul><p class="exercise">自訂 coding case：對同一批 query 的 A/B 分數做 paired bootstrap，回傳平均差與 percentile 95% interval；每次重抽相同 query indices 以保留配對。若同一 user 有多筆相依資料，改以 user 為抽樣單位。這是估計流程練習，因果解釋仍取決於實驗設計。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-production"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">系統元件直接基礎</span><h2>Production ML Systems / Efficiency</h2></div><span class="topic-index">07</span></div>
+<p class="topic-intro">快取、版本查詢、排程與串流聚合是很實用的 coding 題型。延伸到 ML serving 時，還要測 batch shape、記憶體與 latency，並區分 cache policy 和模型張量快取。</p>
+
+<article class="problem-card" id="lru-cache" data-topics="production agents" data-patterns="Hash Map|Linked List|Design" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 146 · 21 / 28</span><h3>LRU Cache</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/lru-cache" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/lru-cache/" target="_blank" rel="noopener noreferrer">LeetCode 146 ↗</a><a href="microsoft-ai-monetization-coding-screen-prep.html#lru-cache">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-production">Production / Efficiency</a> · <a href="#topic-agents">Agents / Planning</a></p><p><span>解題技術</span>Hash Map · Linked List · Design</p></div>
+  <p class="relation">有容量上限的查詢結果快取；LRU 淘汰政策和 transformer KV cache 是不同概念。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>支援 get / put；容量滿時淘汰最久未使用項目，各操作平均 O(1)。</p><pre><code>capacity=2; put(1,10), put(2,20), get(1), put(3,30) → key 2 被淘汰</code></pre>
+    <h4>解法說明</h4><p>Hash map 找 node，doubly linked list 維持新舊次序；讀寫後都移到最新端。</p>
+
+    <div class="complexity"><div><b>Time</b><br>平均 O(1)／操作</div><div><b>Space</b><br>O(capacity)</div></div><p class="small">需維護 map 與串列一致性；更新舊 key 不應增加項目數。</p>
+    <p><a href="microsoft-ai-monetization-coding-screen-prep.html#lru-cache">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="time-based-key-value-store" data-topics="production evaluation agents" data-patterns="Hash Map|Binary Search|Design" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 981 · 22 / 28</span><h3>Time Based Key-Value Store</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/time-based-key-value-store" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/time-based-key-value-store/" target="_blank" rel="noopener noreferrer">LeetCode 981 ↗</a><a href="databricks-interview-questions.html#time-map">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-production">Production / Efficiency</a> · <a href="#topic-evaluation">Evaluation / Causal</a> · <a href="#topic-agents">Agents / Planning</a></p><p><span>解題技術</span>Hash Map · Binary Search · Design</p></div>
+  <p class="relation">版本查詢與 point-in-time lookup 基礎；資料可用時間仍需另行建模。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>保存 key 的多個時間版本，查詢不晚於給定時間的最新值，沒有則回傳空字串。</p><pre><code>set(&quot;x&quot;,&quot;old&quot;,2), set(&quot;x&quot;,&quot;new&quot;,5); get(&quot;x&quot;,4) → &quot;old&quot;</code></pre>
+    <h4>解法說明</h4><p>每個 key 的版本按時間 append；二分找最後一個 timestamp ≤ query 的版本。</p>
+
+    <div class="complexity"><div><b>Time</b><br>set 均攤 O(1)；get O(log v)</div><div><b>Space</b><br>O(N)</div></div><p class="small">v 為該 key 的版本數，N 為總寫入數；前提是寫入時間遞增。</p>
+    <p><a href="databricks-interview-questions.html#time-map">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="task-scheduler" data-topics="production agents" data-patterns="Greedy|Hash Map" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 621 · 23 / 28</span><h3>Task Scheduler</h3></div><div class="badges"><span class="badge medium">Medium</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/task-scheduler" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/task-scheduler/" target="_blank" rel="noopener noreferrer">LeetCode 621 ↗</a><a href="coding-interview-practice.html#task-scheduler">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-production">Production / Efficiency</a> · <a href="#topic-agents">Agents / Planning</a></p><p><span>解題技術</span>Greedy · Hash Map</p></div>
+  <p class="relation">冷卻限制下的排程；是 rate-limit / throughput 思考的簡化模型。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>同字母任務之間需至少隔 n 個時間單位，任務各花一單位，求含 idle 的最短完成時間。</p><pre><code>tasks=[&quot;A&quot;,&quot;A&quot;,&quot;B&quot;], n=2 → 4（A,B,idle,A）</code></pre>
+    <h4>解法說明</h4><p>最高頻率 f 決定 (f-1)(n+1)+t 的框架，t 是同最高頻種類數；與任務總數取 max。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(T)</div><div><b>Space</b><br>O(1)</div></div><p class="small">T 為任務數；題目字母種類固定 26。</p>
+    <p><a href="coding-interview-practice.html#task-scheduler">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Production / Efficiency 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://mlcoding.net/problems/kv-cache-update">KV Cache Update</a>：保持 key/value 的位置同步；已有 <a href="build-gpt-ml-practice.html#kv-cache">KV-Cache 繁中詳解</a>。</li><li><a href="https://mlcoding.net/problems/feature-distribution-comparison">Feature Distribution Comparison</a>：實作分布變化比較。</li><li><a href="build-gpt-ml-practice.html#gqa">Grouped Query Attention 筆記</a>：複習共享 KV heads 的 shape 與儲存量。</li></ul><p class="exercise">自訂 coding case：實作有 max_batch_size 與 max_wait 的 mock request batcher，輸出 batches 和每筆等待時間。測試零請求、突發請求、timeout flush，再比較吞吐量與延遲。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-vision"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">網格與序列基礎</span><h2>Multimodal / Computer Vision / Speech</h2></div><span class="topic-index">08</span></div>
+<p class="topic-intro">影像部分先練座標、矩陣與連通區塊；speech 可以用 Edit Distance 延伸到 WER / CER。跨模態對齊、特徵抽取與生成模型需要另行練習。</p>
+
+<article class="problem-card" id="flood-fill" data-topics="vision" data-patterns="Graph" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 733 · 24 / 28</span><h3>Flood Fill</h3></div><div class="badges"><span class="badge easy">Easy</span><span class="badge start">起步題</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/flood-fill" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/flood-fill/" target="_blank" rel="noopener noreferrer">LeetCode 733 ↗</a><a href="coding-interview-practice.html#flood-fill">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-vision">Multimodal / CV / Speech</a></p><p><span>解題技術</span>Graph</p></div>
+  <p class="relation">像素連通區域操作；是 image processing 基礎，不是訓練 segmentation model。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>由起點把四方向連通、與起點原色相同的區域全部改色。</p><pre><code>image=[[1,1],[1,0]], sr=0, sc=0, color=2 → [[2,2],[2,0]]</code></pre>
+    <h4>解法說明</h4><p>BFS 入隊時改色當作 visited；原色等於新色時直接結束。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(r·c)</div><div><b>Space</b><br>O(r·c)</div></div><p class="small">r、c 為影像尺寸；BFS queue 最壞可佔相同量級。</p>
+    <p><a href="coding-interview-practice.html#flood-fill">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+
+<article class="problem-card" id="number-of-islands" data-topics="vision" data-patterns="Graph" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 200 · 25 / 28</span><h3>Number of Islands</h3></div><div class="badges"><span class="badge medium">Medium</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/number-of-islands" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/number-of-islands/" target="_blank" rel="noopener noreferrer">LeetCode 200 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-vision">Multimodal / CV / Speech</a></p><p><span>解題技術</span>Graph</p></div>
+  <p class="relation">二值 mask 的 connected-component 計數基礎。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>在字元 '1' / '0' 的網格中，計算四方向相連的陸地群數。</p><pre><code>grid=[[&quot;1&quot;,&quot;0&quot;],[&quot;0&quot;,&quot;1&quot;]] → 2</code></pre>
+    <h4>解法說明</h4><p>掃到未訪問陸地就建立一座島，再用 BFS 標記整個連通塊。</p>
+    <pre><code class="language-python">from collections import deque
+
+
+class Solution:
+    def numIslands(self, grid: list[list[str]]) -&gt; int:
+        if not grid or not grid[0]:
+            return 0
+        rows, cols = len(grid), len(grid[0])
+        seen = set()
+        count = 0
+        for r in range(rows):
+            for c in range(cols):
+                if grid[r][c] != &quot;1&quot; or (r, c) in seen:
+                    continue
+                count += 1
+                seen.add((r, c))
+                queue = deque([(r, c)])
+                while queue:
+                    x, y = queue.popleft()
+                    for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                        nx, ny = x + dx, y + dy
+                        if (0 &lt;= nx &lt; rows and 0 &lt;= ny &lt; cols
+                                and grid[nx][ny] == &quot;1&quot;
+                                and (nx, ny) not in seen):
+                            seen.add((nx, ny))
+                            queue.append((nx, ny))
+        return count</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O(r·c)</div><div><b>Space</b><br>O(r·c)</div></div><p class="small">r、c 為網格尺寸；這份解法以 seen 保存訪問記錄，保留輸入。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm that connectivity is only horizontal and vertical, and that the grid contains string values.</li><li>Every previously unseen land cell starts a new connected component. BFS marks all cells belonging to that island.</li><li>I mark cells when enqueuing them, so two neighbors cannot enqueue the same cell twice. A separate seen set preserves the input.</li><li>Time and space are O(rows times columns). I would test all water, all land, and diagonal land cells, which must count as separate islands.</li></ol><pre><code>grid=[[&quot;1&quot;,&quot;0&quot;],[&quot;0&quot;,&quot;1&quot;]]
+Start at (0,0): island 1, no adjacent land
+Start at (1,1): island 2 → return 2</code></pre><p><b>中文：</b>每次從未走過的陸地啟動 BFS，就找到一個新的連通區塊。</p></div>
+
+  </details>
+</article>
+
+<article class="problem-card" id="rotate-image" data-topics="vision" data-patterns="Matrix" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 48 · 26 / 28</span><h3>Rotate Image</h3></div><div class="badges"><span class="badge medium">Medium</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/rotate-image" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/rotate-image/" target="_blank" rel="noopener noreferrer">LeetCode 48 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-vision">Multimodal / CV / Speech</a></p><p><span>解題技術</span>Matrix</p></div>
+  <p class="relation">影像幾何操作的基礎；檢查座標映射與 in-place 約束。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>將 n×n 矩陣原地順時針旋轉 90 度。</p><pre><code>matrix=[[1,2],[3,4]] → [[3,1],[4,2]]</code></pre>
+    <h4>解法說明</h4><p>先轉置，再反轉每列；對應 (r,c) → (c,n-1-r)。</p>
+    <pre><code class="language-python">class Solution:
+    def rotate(self, matrix: list[list[int]]) -&gt; None:
+        n = len(matrix)
+        for r in range(n):
+            for c in range(r + 1, n):
+                matrix[r][c], matrix[c][r] = matrix[c][r], matrix[r][c]
+        for row in matrix:
+            row.reverse()</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O(n²)</div><div><b>Space</b><br>O(1)</div></div><p class="small">n 為正方形邊長；使用交換，不建立新矩陣。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm a square matrix, clockwise rotation, and the requirement to modify the original matrix without allocating another one.</li><li>The coordinate map is (r,c) to (c,n-1-r). A transpose followed by reversing every row implements that map.</li><li>While transposing, I visit only the upper triangle so each pair swaps once. Then I reverse each row in place.</li><li>Time is O(n squared) and extra space is O(1). I would test a one-cell matrix and a two-by-two matrix. A rectangular matrix needs different handling.</li></ol><pre><code>[[1,2],[3,4]]
+transpose → [[1,3],[2,4]]
+reverse rows → [[3,1],[4,2]]</code></pre><p><b>中文：</b>先用座標映射說明正確性，再拆成轉置與反轉每列。</p></div>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Multimodal / CV / Speech 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://www.tensortonic.com/problems/anchor-box-generation">Anchor Box Generation</a>：從網格與尺寸參數生成候選框。</li><li><a href="#edit-distance">Edit Distance</a>：把字元序列改成 word tokens，練 word-level edit distance，再計算 WER。</li><li><a href="https://mlcoding.net/problems/cosine-similarity">Cosine Similarity</a>：可延伸到已在共同 embedding space 的 image/text vectors；相似度函式本身不會建立跨模態對齊。</li></ul><p class="exercise">自訂 coding case：給已對齊的 image/text embeddings 和正確配對，回傳各 image 的 top-k texts 與 Recall@k。另練 WER=(S+D+I)/參考詞數，明定空 reference 的處理。</p></aside>
+</div></section>
+<section class="topic-section" id="topic-safety"><div class="wrap">
+<div class="topic-heading"><div><span class="badge topic-badge">LC 僅弱相關</span><h2>Safety / Robustness / Interpretability</h2></div><span class="topic-index">09</span></div>
+<p class="topic-intro">括號與 regex 題只練結構／格式驗證。它們無法評估 hallucination、fairness、adversarial robustness 或 interpretability；這類職缺應提高下方直接實作的優先度。</p>
+
+<article class="problem-card" id="valid-parentheses" data-topics="safety nlp" data-patterns="Stack" data-priority="true">
+  <div class="problem-head"><div><span class="eyebrow">LC 20 · 27 / 28</span><h3>Valid Parentheses</h3></div><div class="badges"><span class="badge easy">Easy</span><span class="badge start">起步題</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/valid-parentheses" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/valid-parentheses/" target="_blank" rel="noopener noreferrer">LeetCode 20 ↗</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-safety">Safety / Interpretability</a> · <a href="#topic-nlp">NLP / LLM</a></p><p><span>解題技術</span>Stack</p></div>
+  <p class="relation">只練結構合法性檢查；括號正確不能證明輸出安全或事實正確。</p>
+  <details class="practice-detail">
+    <summary>題目、Python 解法與面試講解</summary>
+    <h4>題目整理</h4><p>判斷只含 ()[]{} 的字串，括號類型與巢狀配對順序是否正確。</p><pre><code>&quot;([])&quot; → true；&quot;([)]&quot; → false</code></pre>
+    <h4>解法說明</h4><p>Stack 記錄尚未關閉的左括號；每個右括號必須匹配最後開啟的括號。</p>
+    <pre><code class="language-python">class Solution:
+    def isValid(self, s: str) -&gt; bool:
+        matching = {&quot;)&quot;: &quot;(&quot;, &quot;]&quot;: &quot;[&quot;, &quot;}&quot;: &quot;{&quot;}
+        stack = []
+        for char in s:
+            if char in matching:
+                if not stack or stack.pop() != matching[char]:
+                    return False
+            else:
+                stack.append(char)
+        return not stack</code></pre>
+    <div class="complexity"><div><b>Time</b><br>O(n)</div><div><b>Space</b><br>O(n)</div></div><p class="small">n 為字串長度。</p>
+    <h4>Interview Explanation Flow</h4><div class="interview-flow"><ol><li>I would confirm the input contains only the six bracket characters. Equal opening and closing counts alone do not prove validity.</li><li>A stack represents the openings still waiting to close. Each closing bracket must match the most recently opened one.</li><li>I check for an empty stack before popping, and require the stack to be empty at the end.</li><li>The scan takes O(n) time and O(n) space. I would test a leading closing bracket, unmatched openings, and cross-nested brackets.</li></ol><pre><code>&quot;([])&quot;: push (, push [, match ], match ) → true
+&quot;([)]&quot;: ) does not match the top [ → false</code></pre><p><b>中文：</b>配對需要最後開、最先關，因此使用 stack，而不是只計數。</p></div>
+
+  </details>
+</article>
+
+<article class="problem-card" id="regular-expression-matching" data-topics="safety nlp" data-patterns="Dynamic Programming|String Parsing" data-priority="false">
+  <div class="problem-head"><div><span class="eyebrow">LC 10 · 28 / 28</span><h3>Regular Expression Matching</h3></div><div class="badges"><span class="badge hard">Hard</span><span class="badge">已有詳解</span></div></div>
+  <div class="source-links"><a class="primary-link" href="https://neetcode.io/solutions/regular-expression-matching" target="_blank" rel="noopener noreferrer">NeetCode 解題 ↗</a><a href="https://leetcode.com/problems/regular-expression-matching/" target="_blank" rel="noopener noreferrer">LeetCode 10 ↗</a><a href="coding-interview-practice.html#regex-matching">既有繁中詳解 →</a></div>
+
+  <div class="tag-lines"><p><span>工作主題</span><a href="#topic-safety">Safety / Interpretability</a> · <a href="#topic-nlp">NLP / LLM</a></p><p><span>解題技術</span>Dynamic Programming · String Parsing</p></div>
+  <p class="relation">有限格式規則的匹配；regex 不是 prompt-injection 或幻覺防線。</p>
+  <details class="practice-detail">
+    <summary>題目、例子與複習提示</summary>
+    <h4>題目整理</h4><p>判斷字串是否整段符合 pattern：'.' 代表任一字元，'*' 使前一元素重複零次以上。</p><pre><code>s=&quot;aab&quot;, p=&quot;c*a*b&quot; → true</code></pre>
+    <h4>解法說明</h4><p>Memoized DP(i,j)：遇 x* 可跳過該組，或匹配一個字元後繼續留在同組。</p>
+
+    <div class="complexity"><div><b>Time</b><br>O(mn)</div><div><b>Space</b><br>O(mn)</div></div><p class="small">m、n 為字串與 pattern 長度；需記憶化避免重複子問題。</p>
+    <p><a href="coding-interview-practice.html#regex-matching">繼續閱讀 Python 解法與既有繁中說明 →</a></p>
+
+  </details>
+</article>
+<aside class="ml-extension" aria-label="Safety / Interpretability 直接實作延伸"><h3>接著練：直接的 ML／應用實作</h3><ul class="summary-list"><li><a href="https://mlcoding.net/problems/confusion-matrix-by-group">Confusion Matrix by Group</a>：檢查各群的 FP/FN 分布；單一指標不能獨自證明公平性。</li><li><a href="https://docs.pytorch.org/tutorials/beginner/fgsm_tutorial.html">PyTorch：Adversarial Example Generation</a>：用 FGSM 評估不同擾動強度的模型表現，屬於教學實作。</li><li><a href="https://www.tensorflow.org/tutorials/interpretability/integrated_gradients">TensorFlow：Integrated Gradients</a>：實作輸入特徵 attribution，屬於教學實作。</li></ul><p class="exercise">自訂 coding case：輸入 group、label、score 與 threshold，回傳各群 FPR/FNR 與樣本數；再把 threshold sweep 的結果畫成表。測試沒有正例／負例的群組，明定 undefined rate。</p></aside>
+</div></section>
+<section id="study-plan"><div class="wrap">
+<h2>依面試內容安排練習</h2>
+<p>若是一般 coding round，先做起步題並計時；若明確要求 NumPy / PyTorch / ML coding，從相應主題的直接實作開始。Applied / Research Scientist 的實際面試內容以該團隊提供的資訊為準。</p>
+<ol class="route">
+<li><b>Retrieval / LLM 應用：</b><a href="#top-k-frequent-elements">Top K</a> → <a href="#search-suggestions-system">Search Suggestions</a> → <a href="#word-break">Word Break</a> → <a href="#edit-distance">Edit Distance</a>，再做 BM25、NDCG、BPE 或 Attention。</li>
+<li><b>Agent / Production：</b><a href="#course-schedule-ii">Course Schedule II</a> → <a href="#lru-cache">LRU</a> → <a href="#time-based-key-value-store">TimeMap</a> → <a href="#task-scheduler">Task Scheduler</a>，再做 mock workflow 與 batching。</li>
+<li><b>Training / RL：</b><a href="#random-pick-with-weight">加權抽樣</a> → <a href="#house-robber">DP 狀態</a>，再做 training step、Value Iteration 與 Q-learning update。</li>
+<li><b>Evaluation / Safety / Multimodal：</b>選一題對應的演算法暖身，再直接實作分群 metrics、paired bootstrap、對抗評估、影像／語音資料處理。</li>
+</ol>
+<div class="concept-callout"><b>每題的面試練習流程：</b>確認輸入／輸出 → 手走小例子 → 說明資料結構與 invariant → 分析 complexity → 邊寫邊講 → 檢查邊界。完成 coding 後，再用一句話說明它對工作主題的用途與限制。</div>
+<p class="small">題目描述與延伸練習皆為原創摘要／整理。8 題新解法放在可展開區塊中；20 題重複內容連回既有 HTML。新解法採 Python 3；LeetCode 271 的題面需要 Premium，可先閱讀 NeetCode 對應頁。</p>
+</div></section>
+</main>
+<footer><div class="wrap">查核日期：2026-09-08 · NeetCode 本題解題頁已確認 27 題；Top K Frequent Words 僅提供已確認的 LeetCode 與既有筆記，相關 NeetCode 題另行標示。<br>來源連結附於資源表、題目卡與各主題延伸區。<a href="../../index.html">返回首頁</a></div></footer>
+<script>
+(() => {
+  const keywords = new Set([
+    "and", "as", "assert", "break", "class", "continue", "def", "del", "elif",
+    "else", "except", "False", "finally", "for", "from", "if", "import", "in",
+    "is", "lambda", "None", "nonlocal", "not", "or", "pass", "raise", "return",
+    "True", "try", "while", "with", "yield",
+  ]);
+  const builtins = new Set([
+    "abs", "chr", "dict", "enumerate", "float", "int", "len", "list", "max",
+    "min", "ord", "range", "set", "sorted", "str", "sum", "tuple",
+  ]);
+  const types = new Set([
+    "Counter", "DSU", "Excel", "FileSystem", "List", "ListNode", "MinStack",
+    "Node", "NumArray", "Optional", "Solution", "Tuple", "WordDistance",
+    "defaultdict", "deque",
+  ]);
+  const escapeHtml = (text) => text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+  const span = (className, text) => `<span class="${className}">${escapeHtml(text)}</span>`;
+
+  function readString(code, start) {
+    const prefixMatch = code.slice(start).match(/^([rRuUbBfF]{0,2})(?:"""|'''|"|')/);
+    if (!prefixMatch) return null;
+
+    const prefix = prefixMatch[1];
+    const quoteStart = start + prefix.length;
+    const quote = code.startsWith('"""', quoteStart) || code.startsWith("'''", quoteStart)
+      ? code.slice(quoteStart, quoteStart + 3)
+      : code[quoteStart];
+    let i = quoteStart + quote.length;
+
+    while (i < code.length) {
+      if (code.startsWith(quote, i)) {
+        i += quote.length;
+        break;
+      }
+      if (quote.length === 1 && code[i] === "\\") {
+        i += 2;
+      } else {
+        i += 1;
+      }
+    }
+
+    return i;
+  }
+
+  function highlightPython(code) {
+    let html = "";
+    let i = 0;
+
+    while (i < code.length) {
+      const ch = code[i];
+
+      if (ch === "#") {
+        const end = code.indexOf("\n", i);
+        const stop = end === -1 ? code.length : end;
+        html += span("py-comment", code.slice(i, stop));
+        i = stop;
+        continue;
+      }
+
+      const stringEnd = readString(code, i);
+      if (stringEnd !== null) {
+        html += span("py-string", code.slice(i, stringEnd));
+        i = stringEnd;
+        continue;
+      }
+
+      if (/\d/.test(ch)) {
+        const match = code.slice(i).match(/^(?:0[xX][\da-fA-F_]+|0[bB][01_]+|0[oO][0-7_]+|\d[\d_]*(?:\.\d[\d_]*)?)/);
+        html += span("py-number", match[0]);
+        i += match[0].length;
+        continue;
+      }
+
+      if (/[A-Za-z_]/.test(ch)) {
+        const match = code.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/);
+        const word = match[0];
+        const after = code.slice(i + word.length).match(/^\s*\(/);
+        let className = "";
+        if (keywords.has(word)) className = "py-keyword";
+        else if (builtins.has(word)) className = "py-builtin";
+        else if (types.has(word) || /^[A-Z]/.test(word)) className = "py-type";
+        else if (after) className = "py-function";
+
+        html += className ? span(className, word) : escapeHtml(word);
+        i += word.length;
+        continue;
+      }
+
+      if (/[-+*/%=!<>|&~^:,.()[\]{}]/.test(ch)) {
+        html += span("py-operator", ch);
+      } else {
+        html += escapeHtml(ch);
+      }
+      i += 1;
+    }
+
+    return html;
+  }
+
+  document.querySelectorAll("pre code.language-python").forEach((block) => {
+    block.innerHTML = highlightPython(block.textContent);
+  });
+})();
+</script>
+<script>
+(() => {
+  const cards = [...document.querySelectorAll(".problem-card")];
+  const groups = [...document.querySelectorAll(".topic-section")];
+  const search = document.getElementById("search");
+  const topic = document.getElementById("topic-filter");
+  const pattern = document.getElementById("pattern-filter");
+  const priority = document.getElementById("priority-filter");
+  const toc = document.querySelector(".toc");
+  const tocMenu = document.getElementById("toc-menu");
+  const tocSummary = tocMenu.querySelector("summary");
+  const currentTitle = document.getElementById("toc-current-title");
+  const chapterLinks = [...tocMenu.querySelectorAll('a[href^="#"]')];
+  const chapters = [...document.querySelectorAll("main > section[id]")];
+  let currentFrame = 0;
+
+  function updateCurrentChapter() {
+    currentFrame = 0;
+    const bar = toc.getBoundingClientRect();
+    let current = null;
+    if (bar.top <= 1) {
+      for (const section of chapters) {
+        if (!section.hidden && section.getBoundingClientRect().top <= bar.bottom + 32) {
+          current = section.id;
+        }
+      }
+    }
+    let title = "開始閱讀";
+    chapterLinks.forEach(link => {
+      if (link.hash === "#" + current) {
+        link.setAttribute("aria-current", "location");
+        title = (link.querySelector("span:last-child") || link).textContent.trim();
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+    currentTitle.textContent = title;
+    currentTitle.title = title;
+  }
+
+  function scheduleCurrentChapter() {
+    if (!currentFrame) currentFrame = requestAnimationFrame(updateCurrentChapter);
+  }
+
+  document.addEventListener("pointerdown", event => {
+    if (tocMenu.open && !tocMenu.contains(event.target)) tocMenu.open = false;
+  });
+  document.addEventListener("keydown", event => {
+    if (event.key === "Escape" && tocMenu.open) {
+      tocMenu.open = false;
+      tocSummary.focus({ preventScroll: true });
+      event.preventDefault();
+    }
+  });
+  tocMenu.addEventListener("focusout", () => {
+    requestAnimationFrame(() => {
+      if (!tocMenu.contains(document.activeElement)) tocMenu.open = false;
+    });
+  });
+  window.addEventListener("scroll", scheduleCurrentChapter, { passive: true });
+  window.addEventListener("resize", scheduleCurrentChapter);
+  window.addEventListener("hashchange", scheduleCurrentChapter);
+  window.addEventListener("pageshow", scheduleCurrentChapter);
+  scheduleCurrentChapter();
+  const normalize = value => value.toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ").trim();
+  const haystacks = new Map(cards.map(card => [card, normalize(card.textContent)]));
+  function filter() {
+    const query = normalize(search.value);
+    let shown = 0;
+    cards.forEach(card => {
+      const match = (!query || haystacks.get(card).includes(query))
+        && (!topic.value || card.dataset.topics.split(" ").includes(topic.value))
+        && (!pattern.value || card.dataset.patterns.split("|").includes(pattern.value))
+        && (!priority.checked || card.dataset.priority === "true");
+      card.hidden = !match;
+      if (match) shown++;
+    });
+    groups.forEach(group => {
+      group.hidden = ![...group.querySelectorAll(".problem-card")].some(card => !card.hidden);
+    });
+    document.getElementById("result-count").textContent = "顯示 " + shown + " / " + cards.length + " 題";
+    document.getElementById("no-results").hidden = shown !== 0;
+    scheduleCurrentChapter();
+  }
+  function clear() {
+    search.value = ""; topic.value = ""; pattern.value = ""; priority.checked = false;
+    filter();
+  }
+  search.addEventListener("input", filter);
+  [topic, pattern, priority].forEach(control => control.addEventListener("change", filter));
+  document.getElementById("clear-filters").addEventListener("click", clear);
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener("click", () => {
+      const target = document.getElementById(anchor.getAttribute("href").slice(1));
+      if (target && target.closest("[hidden]")) clear();
+      if (tocMenu.contains(anchor)) {
+        tocMenu.open = false;
+        tocSummary.focus({ preventScroll: true });
+      }
+    });
+  });
+  document.querySelectorAll('a[href^="https://"]').forEach(anchor => {
+    anchor.target = "_blank"; anchor.rel = "noopener noreferrer";
+  });
+})();
+</script>
+</body>
+</html>
