@@ -21,7 +21,7 @@
   --shadow: rgba(0, 0, 0, 0.35);
 }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 92px; }
 body {
   margin: 0;
   color: var(--ink);
@@ -79,28 +79,108 @@ h1 {
 .pill.easy { color: var(--success); border-color: rgba(61, 220, 151, 0.55); }
 .pill.hot { color: var(--accent); border-color: rgba(255, 176, 0, 0.55); }
 .pill.purple { color: var(--accent-3); border-color: rgba(197, 108, 255, 0.55); }
-nav.toc {
+.toc {
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 12px 0;
   border-bottom: 1px solid var(--line);
-  background: rgba(13, 17, 23, 0.88);
+  background: rgba(13, 17, 23, 0.97);
   backdrop-filter: blur(12px);
 }
-nav.toc .wrap {
+.toc > .wrap {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 72px;
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
-nav.toc a {
+.toc-current { min-width: 0; }
+.toc-caption {
+  display: block;
   color: var(--muted);
-  text-decoration: none;
-  padding: 5px 10px;
-  border-radius: 8px;
-  font-size: 13px;
+  font-size: 11px;
+  letter-spacing: 0.1em;
 }
-nav.toc a:hover { color: #fff; background: var(--panel-2); }
+.toc-current-title {
+  display: block;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.toc-actions { display: flex; align-items: center; gap: 18px; flex: 0 0 auto; }
+.toc a { text-decoration: none; }
+.toc-quick { font-size: 13px; white-space: nowrap; }
+.toc-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--panel);
+  color: var(--ink);
+  font-size: 14px;
+  list-style: none;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.toc-menu > summary::-webkit-details-marker { display: none; }
+.toc-menu > summary:hover,
+.toc-menu[open] > summary { border-color: #367f77; background: #10312d; color: #a2fff1; }
+.toc-icon { width: 16px; height: 16px; flex-shrink: 0; }
+.toc-chevron { width: 12px; height: 12px; transition: transform 0.18s ease; }
+.toc-menu[open] .toc-chevron { transform: rotate(180deg); }
+.toc-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 24px;
+  display: grid;
+  grid-template-columns: 0.75fr 1fr 1.15fr;
+  gap: 24px;
+  width: min(900px, calc(100% - 48px));
+  max-height: min(68vh, 590px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: #40526b var(--panel);
+  padding: 22px;
+  border: 1px solid #40526b;
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+}
+.toc-group h2 {
+  margin: 0 0 10px;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+.toc-group ul { list-style: none; margin: 0; padding: 0; }
+.toc-panel a {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: 7px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.toc-panel a:hover { background: var(--panel-2); color: #fff; }
+.toc-panel a[aria-current="location"] {
+  background: #10312d;
+  color: #a2fff1;
+  box-shadow: inset 2px 0 var(--accent-2);
+}
+.toc-number { flex: 0 0 19px; font: 11px/1.6 ui-monospace, Consolas, monospace; opacity: 0.75; }
 section { padding: 48px 0; border-bottom: 1px solid var(--line); }
 .section-title {
   display: flex;
@@ -184,6 +264,8 @@ th {
 }
 td { color: var(--muted); font-size: 14px; }
 td.problem { color: var(--ink); font-weight: 700; }
+td.problem a { color: var(--ink); text-decoration-color: rgba(88, 213, 201, 0.45); }
+td.problem a:hover { color: var(--accent-2); }
 tr:last-child td { border-bottom: none; }
 .problem-card {
   margin-top: 26px;
@@ -203,6 +285,20 @@ tr:last-child td { border-bottom: none; }
 }
 .problem-head h2 { font-size: clamp(24px, 3vw, 34px); }
 .badges { display: flex; flex-wrap: wrap; gap: 8px; }
+.source-links { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 18px; margin: 14px 0 20px; }
+.primary-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 13px;
+  border: 1px solid #367f77;
+  border-radius: 8px;
+  background: #10312d;
+  color: #a2fff1;
+  font-size: 14px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.primary-link:hover { border-color: var(--accent-2); background: #16443e; color: #fff; }
 .badge {
   padding: 4px 10px;
   border-radius: 999px;
@@ -277,7 +373,20 @@ footer {
   .wrap { padding: 0 16px; }
   .overview-grid, .complexity { grid-template-columns: 1fr; }
   .problem-card { padding: 22px 18px; }
+  .toc > .wrap { gap: 12px; min-height: 68px; }
+  .toc-quick { display: none; }
+  .toc-current-title { font-size: 13px; }
+  .toc-panel {
+    right: 12px;
+    width: calc(100% - 24px);
+    max-height: min(70vh, calc(100dvh - 100px));
+    grid-template-columns: 1fr;
+    gap: 18px;
+    padding: 16px;
+  }
+  .toc-group:first-child ul { display: grid; grid-template-columns: 1fr 1fr; }
 }
+@media print { .toc { display: none; } }
 </style>
 </head>
 <body>
@@ -287,37 +396,69 @@ footer {
     <h1>17 題 從 NLP 基礎到打造 GPT 的 Python 筆記</h1>
     <p class="subtitle">依學習順序分成三部分：NLP 基礎、Attention &amp; Transformers、Build a GPT。每題包含題目摘要、PyTorch 解法、繁體中文說明、Time / Space Complexity，以及 Interview Explanation Flow。適合 Top-tier AI lab 的 ML coding 面試練習。</p>
     <div class="meta">
-      <span class="pill easy">5 Easy</span>
-      <span class="pill hot">9 Medium</span>
+      <span class="pill easy">4 Easy</span>
+      <span class="pill hot">10 Medium</span>
       <span class="pill purple">3 Hard</span>
       <span class="pill">NLP · Embeddings · Attention · Transformer · Training · Inference</span>
       <span class="pill">PyTorch</span>
-      <span class="pill">Updated 2026-07-15</span>
+      <span class="pill">17 official practice links</span>
+      <span class="pill">Updated 2026-09-14</span>
     </div>
     <div class="note">題目描述是根據「NLP」「Attention &amp; Transformers」「Build a GPT」公開題名與常見實作版本（Karpathy nanoGPT / minBPE 系列、Attention Is All You Need）重新整理的原創摘要；重點放在面試時要能講清楚的張量形狀、資料流與設計取捨。</div>
   </div>
 </header>
 
-<nav class="toc">
+<nav class="toc" aria-label="頁面目錄">
   <div class="wrap">
-    <a href="#overview">總覽</a>
-    <a href="#intro-nlp">Intro to NLP</a>
-    <a href="#word-embeddings">Word Embeddings</a>
-    <a href="#sentiment">Sentiment Analysis</a>
-    <a href="#positional-encoding">Positional Encoding</a>
-    <a href="#self-attention">Self Attention</a>
-    <a href="#multi-head">Multi-Head Attention</a>
-    <a href="#transformer-block">Transformer Block</a>
-    <a href="#bpe">BPE Tokenizer</a>
-    <a href="#vocab">Build Vocabulary</a>
-    <a href="#edge-cases">Tokenization Edge Cases</a>
-    <a href="#data-loader">GPT Data Loader</a>
-    <a href="#dataset">GPT Dataset</a>
-    <a href="#code-gpt">Code GPT</a>
-    <a href="#train">Train Your GPT</a>
-    <a href="#generate">Make GPT Talk Back</a>
-    <a href="#kv-cache">KV-Cache</a>
-    <a href="#gqa">Grouped Query Attention</a>
+    <div class="toc-current">
+      <span class="toc-caption">正在閱讀</span>
+      <span class="toc-current-title" id="toc-current-title">開始閱讀</span>
+    </div>
+    <div class="toc-actions">
+      <a class="toc-quick" href="#overview">解題總覽 →</a>
+      <details class="toc-menu" id="toc-menu">
+        <summary aria-controls="toc-panel">
+          <svg class="toc-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M7 5h10M7 10h10M7 15h10M3 5h1M3 10h1M3 15h1"/></svg>
+          章節目錄
+          <svg class="toc-chevron" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m2 4 4 4 4-4"/></svg>
+        </summary>
+        <div class="toc-panel" id="toc-panel">
+          <div class="toc-group">
+            <h2>開始與總覽</h2>
+            <ul>
+              <li><a href="#overview">解題總覽</a></li>
+            </ul>
+          </div>
+          <div class="toc-group">
+            <h2>Part A–B · 基礎積木</h2>
+            <ul>
+              <li><a href="#intro-nlp"><span class="toc-number" aria-hidden="true">01</span><span>Intro to NLP</span></a></li>
+              <li><a href="#word-embeddings"><span class="toc-number" aria-hidden="true">02</span><span>Word Embeddings</span></a></li>
+              <li><a href="#sentiment"><span class="toc-number" aria-hidden="true">03</span><span>Sentiment Analysis</span></a></li>
+              <li><a href="#positional-encoding"><span class="toc-number" aria-hidden="true">04</span><span>Positional Encoding</span></a></li>
+              <li><a href="#self-attention"><span class="toc-number" aria-hidden="true">05</span><span>Self Attention</span></a></li>
+              <li><a href="#multi-head"><span class="toc-number" aria-hidden="true">06</span><span>Multi-Head Attention</span></a></li>
+              <li><a href="#transformer-block"><span class="toc-number" aria-hidden="true">07</span><span>Transformer Block</span></a></li>
+            </ul>
+          </div>
+          <div class="toc-group">
+            <h2>Part C · Build a GPT</h2>
+            <ul>
+              <li><a href="#bpe"><span class="toc-number" aria-hidden="true">08</span><span>BPE Tokenizer</span></a></li>
+              <li><a href="#vocab"><span class="toc-number" aria-hidden="true">09</span><span>Build Vocabulary</span></a></li>
+              <li><a href="#edge-cases"><span class="toc-number" aria-hidden="true">10</span><span>Tokenization Edge Cases</span></a></li>
+              <li><a href="#data-loader"><span class="toc-number" aria-hidden="true">11</span><span>GPT Data Loader</span></a></li>
+              <li><a href="#dataset"><span class="toc-number" aria-hidden="true">12</span><span>GPT Dataset</span></a></li>
+              <li><a href="#code-gpt"><span class="toc-number" aria-hidden="true">13</span><span>Code GPT</span></a></li>
+              <li><a href="#train"><span class="toc-number" aria-hidden="true">14</span><span>Train Your GPT</span></a></li>
+              <li><a href="#generate"><span class="toc-number" aria-hidden="true">15</span><span>Make GPT Talk Back</span></a></li>
+              <li><a href="#kv-cache"><span class="toc-number" aria-hidden="true">16</span><span>KV-Cache</span></a></li>
+              <li><a href="#gqa"><span class="toc-number" aria-hidden="true">17</span><span>Grouped Query Attention</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </details>
+    </div>
   </div>
 </nav>
 
@@ -328,7 +469,7 @@ footer {
         <h2>解題總覽</h2>
       </div>
       <div class="grid overview-grid">
-        <div class="card"><strong>三個學習階段</strong><p><b>Part A · NLP 基礎</b>：前處理、word embeddings、情感分類、positional encoding。<b>Part B · Attention</b>：self-attention → multi-head → transformer block。<b>Part C · Build a GPT</b>：tokenizer、資料、完整 GPT、訓練、生成與推論優化。</p></div>
+        <div class="card"><strong>三個學習階段</strong><p><b>Part A · NLP 基礎</b>：word-level tokenization、padding、word embeddings、情感分類、positional encoding。<b>Part B · Attention</b>：self-attention → multi-head → transformer block。<b>Part C · Build a GPT</b>：tokenizer、資料、完整 GPT、訓練、生成與推論優化。</p></div>
         <div class="card"><strong>面試重點</strong><p>能講清楚每個張量的 shape <code>(B, T, C)</code>、attention 為什麼要 <code>1/√d</code> 縮放與 causal <code>tril</code> mask、cross-entropy 對齊時 target 為何右移一格、以及 KV-Cache 與 GQA 各自省下什麼。</p></div>
         <div class="card"><strong>建議順序</strong><p>照表格 1→17 由淺入深：先把 NLP 與 attention 的積木練熟，第 5–7 題的 self-attention/transformer block 正是第 13 題 Code GPT 的零件，最後串起訓練、生成與推論優化。</p></div>
       </div>
@@ -344,29 +485,30 @@ footer {
               <th>核心想法</th>
               <th>Time</th>
               <th>Space</th>
+              <th>Practice</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td colspan="7" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part A · NLP 基礎</td></tr>
-            <tr><td>1</td><td class="problem">Intro to Natural Language Processing</td><td>NLP</td><td>Easy</td><td>normalize → tokenize → 建 vocab → bag-of-words 向量化。</td><td>O(N)</td><td>O(V)</td></tr>
-            <tr><td>2</td><td class="problem">Word Embeddings</td><td>NLP</td><td>Easy</td><td>用 embedding 查表得到 dense 向量，靠 cosine similarity 找近義詞。</td><td>O(V · d) 查詢</td><td>O(V · d)</td></tr>
-            <tr><td>3</td><td class="problem">Sentiment Analysis</td><td>NLP</td><td>Medium</td><td>masked mean-pool embedding → linear → cross-entropy 分類。</td><td>O(B · T · d)</td><td>O(params)</td></tr>
-            <tr><td>4</td><td class="problem">Positional Encoding</td><td>NLP</td><td>Medium</td><td>sinusoidal：even 維 sin、odd 維 cos，不同頻率注入位置資訊。</td><td>O(T · d)</td><td>O(T · d)</td></tr>
-            <tr><td colspan="7" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part B · Attention &amp; Transformers</td></tr>
-            <tr><td>5</td><td class="problem">Self Attention</td><td>Attention</td><td>Medium</td><td>scaled dot-product：<code>softmax(Q Kᵀ/√d) V</code>，可選 mask。</td><td>O(T² · d)</td><td>O(T²)</td></tr>
-            <tr><td>6</td><td class="problem">Multi Headed Self Attention</td><td>Attention</td><td>Medium</td><td>一次投影 QKV，reshape 成多頭平行運算，concat 後投影。</td><td>O(T² · C)</td><td>O(T² · h)</td></tr>
-            <tr><td>7</td><td class="problem">Transformer Block</td><td>Transformer</td><td>Medium</td><td>pre-norm 殘差：<code>x + attn(ln1(x))</code>、<code>x + ffn(ln2(x))</code>。</td><td>O(T² · C)</td><td>O(T² + params)</td></tr>
-            <tr><td colspan="7" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part C · Build a GPT</td></tr>
-            <tr><td>8</td><td class="problem">Tokenizer (Byte Pair Encoding)</td><td>Tokenization</td><td>Medium</td><td>從 UTF-8 bytes 出發，反覆合併出現頻率最高的相鄰 pair。</td><td>O(merges · N)</td><td>O(N + V)</td></tr>
-            <tr><td>9</td><td class="problem">Build Vocabulary</td><td>Tokenization</td><td>Easy</td><td>排序去重字元建立 <code>stoi</code> / <code>itos</code> 雙向映射。</td><td>O(N + Vlog V)</td><td>O(V)</td></tr>
-            <tr><td>10</td><td class="problem">Tokenization Edge Cases</td><td>Tokenization</td><td>Medium</td><td>保留 special token、未知字元回退到 <code>&lt;unk&gt;</code>、空字串安全處理。</td><td>O(N)</td><td>O(V)</td></tr>
-            <tr><td>11</td><td class="problem">GPT Data Loader</td><td>Data</td><td>Easy</td><td>隨機起點切出 <code>(B, T)</code> 的 x，y 是 x 右移一格。</td><td>O(B · T)</td><td>O(B · T)</td></tr>
-            <tr><td>12</td><td class="problem">GPT Dataset</td><td>Data</td><td>Easy</td><td>滑動視窗，每個 index 回傳長度 <code>block_size</code> 的 context 與 target。</td><td>O(T) / item</td><td>O(N)</td></tr>
-            <tr><td>13</td><td class="problem">Code GPT</td><td>Transformer</td><td>Hard</td><td>token+position embedding → 多層 causal self-attention block → LayerNorm → lm_head。</td><td>O(T² · C) / layer</td><td>O(T² + params)</td></tr>
-            <tr><td>14</td><td class="problem">Train Your GPT</td><td>Training</td><td>Medium</td><td>forward 算 cross-entropy loss，backward，AdamW step，週期性 eval。</td><td>O(iters · fwd)</td><td>O(params)</td></tr>
-            <tr><td>15</td><td class="problem">Make GPT Talk Back</td><td>Inference</td><td>Medium</td><td>自回歸：取最後位置 logits，softmax 後 multinomial 抽樣，接回序列。</td><td>O(K · T² · C)</td><td>O(T + params)</td></tr>
-            <tr><td>16</td><td class="problem">KV-Cache</td><td>Inference</td><td>Hard</td><td>快取過去的 K、V，新 token 只算自己的 Q/K/V 再 append。</td><td>O(K · T · C)</td><td>O(T · C)</td></tr>
-            <tr><td>17</td><td class="problem">Grouped Query Attention</td><td>Attention</td><td>Hard</td><td>KV head 數少於 Q head，數個 query 共用一組 KV，用 <code>repeat_kv</code> 展開。</td><td>O(T² · C)</td><td>O(T · C / g)</td></tr>
+            <tr><td colspan="8" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part A · NLP 基礎</td></tr>
+            <tr><td>1</td><td class="problem"><a href="#intro-nlp">Intro to Natural Language Processing</a></td><td>NLP · Tokenization</td><td>Medium</td><td>合併語料建 lexicographic vocab（ID 從 1），逐句編碼後 padding 成 <code>(2N, T)</code>。</td><td>O(W + V log V + 2N·T)</td><td>O(V + 2N·T)</td><td><a href="https://neetcode.io/problems/nlp-intro/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>2</td><td class="problem"><a href="#word-embeddings">Word Embeddings</a></td><td>NLP</td><td>Easy</td><td>用 embedding 查表得到 dense 向量，靠 cosine similarity 找近義詞。</td><td>O(V · d) 查詢</td><td>O(V · d)</td><td><a href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>3</td><td class="problem"><a href="#sentiment">Sentiment Analysis</a></td><td>NLP</td><td>Medium</td><td>masked mean-pool embedding → linear → cross-entropy 分類。</td><td>O(B · T · d)</td><td>O(params)</td><td><a href="https://neetcode.io/problems/sentiment-analysis/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>4</td><td class="problem"><a href="#positional-encoding">Positional Encoding</a></td><td>NLP</td><td>Medium</td><td>sinusoidal：even 維 sin、odd 維 cos，不同頻率注入位置資訊。</td><td>O(T · d)</td><td>O(T · d)</td><td><a href="https://neetcode.io/problems/positional-encoding/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td colspan="8" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part B · Attention &amp; Transformers</td></tr>
+            <tr><td>5</td><td class="problem"><a href="#self-attention">Self Attention</a></td><td>Attention</td><td>Medium</td><td>scaled dot-product：<code>softmax(Q Kᵀ/√d) V</code>，可選 mask。</td><td>O(T² · d)</td><td>O(T²)</td><td><a href="https://neetcode.io/problems/self-attention/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>6</td><td class="problem"><a href="#multi-head">Multi Headed Self Attention</a></td><td>Attention</td><td>Medium</td><td>一次投影 QKV，reshape 成多頭平行運算，concat 後投影。</td><td>O(T² · C)</td><td>O(T² · h)</td><td><a href="https://neetcode.io/problems/multi-headed-self-attention/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>7</td><td class="problem"><a href="#transformer-block">Transformer Block</a></td><td>Transformer</td><td>Medium</td><td>pre-norm 殘差：<code>x + attn(ln1(x))</code>、<code>x + ffn(ln2(x))</code>。</td><td>O(T² · C)</td><td>O(T² + params)</td><td><a href="https://neetcode.io/problems/transformer-block/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td colspan="8" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part C · Build a GPT</td></tr>
+            <tr><td>8</td><td class="problem"><a href="#bpe">Tokenizer (Byte Pair Encoding)</a></td><td>Tokenization</td><td>Medium</td><td>從 UTF-8 bytes 出發，反覆合併出現頻率最高的相鄰 pair。</td><td>O(merges · N)</td><td>O(N + V)</td><td><a href="https://neetcode.io/problems/tokenizer-bpe/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>9</td><td class="problem"><a href="#vocab">Build Vocabulary</a></td><td>Tokenization</td><td>Easy</td><td>排序去重字元建立 <code>stoi</code> / <code>itos</code> 雙向映射。</td><td>O(N + Vlog V)</td><td>O(V)</td><td><a href="https://neetcode.io/problems/build-vocabulary/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>10</td><td class="problem"><a href="#edge-cases">Tokenization Edge Cases</a></td><td>Tokenization</td><td>Medium</td><td>保留 special token、未知字元回退到 <code>&lt;unk&gt;</code>、空字串安全處理。</td><td>O(N)</td><td>O(V)</td><td><a href="https://neetcode.io/problems/tokenization-edge-cases/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>11</td><td class="problem"><a href="#data-loader">GPT Data Loader</a></td><td>Data</td><td>Easy</td><td>隨機起點切出 <code>(B, T)</code> 的 x，y 是 x 右移一格。</td><td>O(B · T)</td><td>O(B · T)</td><td><a href="https://neetcode.io/problems/gpt-data-loader/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>12</td><td class="problem"><a href="#dataset">GPT Dataset</a></td><td>Data</td><td>Easy</td><td>滑動視窗，每個 index 回傳長度 <code>block_size</code> 的 context 與 target。</td><td>O(T) / item</td><td>O(N)</td><td><a href="https://neetcode.io/problems/gpt-dataset/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>13</td><td class="problem"><a href="#code-gpt">Code GPT</a></td><td>Transformer</td><td>Hard</td><td>token+position embedding → 多層 causal self-attention block → LayerNorm → lm_head。</td><td>O(T² · C) / layer</td><td>O(T² + params)</td><td><a href="https://neetcode.io/problems/code-gpt/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>14</td><td class="problem"><a href="#train">Train Your GPT</a></td><td>Training</td><td>Medium</td><td>forward 算 cross-entropy loss，backward，AdamW step，週期性 eval。</td><td>O(iters · fwd)</td><td>O(params)</td><td><a href="https://neetcode.io/problems/train-your-gpt/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>15</td><td class="problem"><a href="#generate">Make GPT Talk Back</a></td><td>Inference</td><td>Medium</td><td>自回歸：取最後位置 logits，softmax 後 multinomial 抽樣，接回序列。</td><td>O(K · T² · C)</td><td>O(T + params)</td><td><a href="https://neetcode.io/problems/make-gpt-talk-back/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>16</td><td class="problem"><a href="#kv-cache">KV-Cache</a></td><td>Inference</td><td>Hard</td><td>快取過去的 K、V，新 token 只算自己的 Q/K/V 再 append。</td><td>O(K · T · C)</td><td>O(T · C)</td><td><a href="https://neetcode.io/problems/kv-cache/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>17</td><td class="problem"><a href="#gqa">Grouped Query Attention</a></td><td>Attention</td><td>Hard</td><td>KV head 數少於 Q head，數個 query 共用一組 KV，用 <code>repeat_kv</code> 展開。</td><td>O(T² · C)</td><td>O(T · C / g)</td><td><a href="https://neetcode.io/problems/grouped-query-attention/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
           </tbody>
         </table>
       </div>
@@ -378,12 +520,97 @@ footer {
       <article class="problem-card">
         <div class="problem-head">
           <h2>1. Intro to Natural Language Processing</h2>
-          <div class="badges"><span class="badge easy">Easy</span><span class="badge">NLP</span><span class="badge">Preprocessing</span><span class="badge">Bag-of-Words</span></div>
+          <div class="badges"><span class="badge medium">Medium</span><span class="badge">NLP</span><span class="badge">Tokenization</span><span class="badge">Padding</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/nlp-intro/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
-        <p>建立最基本的 NLP 前處理管線：把原始文字<b>正規化</b>（轉小寫、去標點）、<b>斷詞</b>成 token，從語料建立詞彙表，再把任意句子轉成 <b>bag-of-words</b> 計數向量（每個維度是某個字出現幾次）。這是文字進到任何模型前的第一步。</p>
+        <p>給定長度相同的正向句子 <code>positive</code> 與負向句子 <code>negative</code>，先收集所有句子的 unique words，按照<b>字典序</b>排列，並從 <code>1</code> 開始分配 token ID。接著把每句話轉成 ID sequence，再以 <code>0</code> 補齊到最長句子的 word count <code>T</code>。輸出 tensor shape 必須是 <code>(2N, T)</code>，而且 positive rows 全部在前、negative rows 全部在後，兩組內部皆維持原順序。</p>
+        <div class="concept-callout">
+          <strong>Prerequisite · Word Embeddings</strong>
+          <p>Embedding table 需要用整數 ID 查表；這題就是先定義 word token、建立 word → ID 映射，並把 variable-length sentences 整理成可進入 batch 的矩形 tensor。建議先完成 <a href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">Word Embeddings ↗</a>。</p>
+        </div>
         <h3>解法說明</h3>
-        <p><code>preprocess</code> 用 <code>lower()</code> 統一大小寫，再用正規表示式 <code>[a-z0-9']+</code> 抓出「連續字母數字」當作 word（順手把標點與空白當分隔）。<code>BagOfWords</code> 從語料收集排序後的 vocab 建 <code>stoi</code>，<code>vectorize</code> 掃過 token 累加對應維度；沒看過的字直接忽略。BoW 的特點是<b>只看字頻、不看順序</b>。</p>
+        <p>把兩組輸入串成 <code>sentences = positive + negative</code>，這一步同時保證輸出 row order。用 set comprehension 收集所有 <code>sentence.split()</code> 的 word，再 <code>sorted</code> 建立 deterministic vocabulary；<code>enumerate(..., start=1)</code> 特別把 <code>0</code> 保留給 padding。每句轉成一維 float tensor 後，交給 <code>pad_sequence(..., batch_first=True, padding_value=0)</code> 一次補齊。</p>
+<pre><code class="language-python">import torch
+import torch.nn as nn
+from torchtyping import TensorType
+from typing import List
+
+
+class Solution:
+    def get_dataset(
+        self,
+        positive: List[str],
+        negative: List[str],
+    ) -&gt; TensorType[float]:
+        sentences = positive + negative       # Positive rows must come first.
+
+        if not sentences:
+            return torch.empty((0, 0), dtype=torch.float32)
+
+        vocabulary = sorted({
+            word
+            for sentence in sentences
+            for word in sentence.split()
+        })
+        word_to_id = {
+            word: token_id
+            for token_id, word in enumerate(vocabulary, start=1)
+        }
+
+        encoded = [
+            torch.tensor(
+                [word_to_id[word] for word in sentence.split()],
+                dtype=torch.float32,
+            )
+            for sentence in sentences
+        ]
+
+        return nn.utils.rnn.pad_sequence(
+            encoded,
+            batch_first=True,
+            padding_value=0.0,
+        )</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(W + V log V + 2N·T)。W 是輸入 word occurrences，V 是 unique words；最後一項是建立 padded output。</div>
+          <div><b>Space:</b> O(V + 2N·T)，包含 vocabulary mapping 與輸出 tensor。</div>
+        </div>
+        <h3>Interview Explanation Flow</h3>
+        <div class="interview-flow">
+          <h4>Step 1: Define the representation</h4>
+          <p>"I will build one shared word-level vocabulary across both classes. Sorting the unique words makes token IDs deterministic, and I start IDs at 1 because 0 is reserved for padding."</p>
+          <h4>Step 2: Preserve the required row order</h4>
+          <p>"I concatenate <code>positive + negative</code> before encoding. That naturally places every positive sample first while preserving the original order within each list."</p>
+          <h4>Step 3: Walk through the example</h4>
+<pre><code>positive = ["Dogecoin to the moon"]
+negative = ["I will short Tesla today"]
+
+sorted vocabulary:
+Dogecoin=1, I=2, Tesla=3, moon=4, short=5,
+the=6, to=7, today=8, will=9
+
+encoded positive -> [1, 7, 6, 4]
+encoded negative -> [2, 9, 5, 3, 8]
+
+pad_sequence(..., batch_first=True, padding_value=0)
+-> [[1, 7, 6, 4, 0],
+    [2, 9, 5, 3, 8]]</code></pre>
+          <h4>Step 4: Explain padding</h4>
+          <p>"The sentences have different lengths, so <code>pad_sequence</code> writes a rectangular <code>(2N, T)</code> tensor. <code>batch_first=True</code> puts samples on axis 0, and padding ID 0 cannot collide with a real word because real IDs start at 1."</p>
+          <h4>Step 5: Complexity</h4>
+          <p>"Collecting and encoding words is linear in the input size, sorting costs O(V log V), and materializing the padded tensor costs O(2N·T)."</p>
+          <h4>Possible follow-ups</h4>
+          <ul class="summary-list">
+            <li><b>Case sensitivity?</b> "I follow the prompt literally, so sorting is case-sensitive; if normalization were required, I would apply it before both vocab construction and encoding."</li>
+            <li><b>Why return float?</b> "The provided signature expects <code>TensorType[float]</code>, so I explicitly create float32 tensors even though the values represent token IDs."</li>
+          </ul>
+          <p><b>中文：</b>重點是共用 vocab、字典序從 1 編號、positive rows 在前，以及用 0 padding 成 <code>(2N, T)</code>。</p>
+        </div>
+
+        <h3>額外題目：Bag of Words</h3>
+        <p>完成官方 tokenization 題後，再實作 Bag of Words：把原始文字正規化、斷詞、建立 vocabulary，並把句子轉成 word-count vector。與官方題輸出的 token sequence 不同，BoW 的每個維度代表某個 word 的<b>出現次數</b>，因此會丟失詞序。</p>
+        <h3>解法說明</h3>
+        <p><code>preprocess</code> 用 <code>lower()</code> 統一大小寫，再以正規表示式 <code>[a-z0-9']+</code> 抓出 word。<code>BagOfWords</code> 從 corpus 收集排序後的 vocab 建 <code>stoi</code>；<code>vectorize</code> 掃過 token 並累加對應維度，沒看過的 word 直接忽略。</p>
 <pre><code class="language-python">import re
 from typing import Dict, List
 
@@ -396,41 +623,33 @@ def preprocess(text: str) -&gt; List[str]:
 class BagOfWords:
     def __init__(self, corpus: List[str]):
         vocab = sorted({tok for doc in corpus for tok in preprocess(doc)})
-        self.stoi: Dict[str, int] = {w: i for i, w in enumerate(vocab)}
+        self.stoi: Dict[str, int] = {word: i for i, word in enumerate(vocab)}
 
     def vectorize(self, text: str) -&gt; List[int]:
-        vec = [0] * len(self.stoi)
-        for tok in preprocess(text):
-            if tok in self.stoi:             # Ignore out-of-vocab words.
-                vec[self.stoi[tok]] += 1
-        return vec</code></pre>
+        vector = [0] * len(self.stoi)
+        for token in preprocess(text):
+            if token in self.stoi:            # Ignore out-of-vocabulary words.
+                vector[self.stoi[token]] += 1
+        return vector</code></pre>
         <div class="complexity">
-          <div><b>Time:</b> 建 vocab O(total tokens + V log V)；<code>vectorize</code> O(句子長度)。</div>
-          <div><b>Space:</b> O(V)，vocab 映射與每個向量長度 V。</div>
+          <div><b>Time:</b> 建 vocab O(W + V log V)；每次 <code>vectorize</code> O(L)，L 是句子的 token 數。</div>
+          <div><b>Space:</b> O(V)，保存 word mapping 與長度 V 的 count vector。</div>
         </div>
-        <h3>Interview Explanation Flow</h3>
+        <h3>Extra Interview Flow · Bag of Words</h3>
         <div class="interview-flow">
-          <h4>Step 1: Name the pipeline stages</h4>
-          <p>"Classic NLP preprocessing is: normalize, tokenize, build a vocabulary, then vectorize. I'd state these four steps up front because every downstream model assumes them."</p>
-          <h4>Step 2: Walk one document</h4>
+          <h4>Step 1: Contrast it with the official task</h4>
+          <p>"The official tokenizer preserves word order as a sequence of token IDs. Bag of Words instead returns one fixed-size count vector whose dimensions correspond to vocabulary words."</p>
 <pre><code>corpus = ["The cat sat.", "The dog ran!"]
-preprocess("The cat sat.") -> ["the", "cat", "sat"]
-vocab = ["cat","dog","ran","sat","the"]  (sorted)
-stoi  = {cat:0, dog:1, ran:2, sat:3, the:4}
+vocab = ["cat", "dog", "ran", "sat", "the"]
 
-vectorize("the cat the") -> [1, 0, 0, 0, 2]
-#                            cat        the appears twice</code></pre>
-          <h4>Step 3: State the key limitation</h4>
-          <p>"Bag-of-words throws away order — 'dog bites man' and 'man bites dog' get identical vectors. It's also sparse and high-dimensional. That's exactly why dense word embeddings and, later, attention exist."</p>
-          <h4>Possible follow-ups</h4>
-          <ul class="summary-list">
-            <li><b>TF-IDF?</b> "Weight each count by how rare the word is across documents, downweighting common words like 'the'."</li>
-            <li><b>Handling unseen words?</b> "Ignore them, or reserve an UNK dimension — same idea as the tokenizer edge-cases problem."</li>
-          </ul>
-          <p><b>中文：</b>重點是 normalize → tokenize → vocab → vectorize 四步，並點出 BoW 丟失詞序、向量稀疏，鋪陳後面的 embeddings 與 attention。</p>
+vectorize("the cat the")
+-> [1, 0, 0, 0, 2]</code></pre>
+          <h4>Step 2: State the limitation</h4>
+          <p>"Because only counts remain, 'dog bites man' and 'man bites dog' produce the same vector. The representation is also sparse and grows with vocabulary size."</p>
+          <p><b>中文：</b>官方題保留 token 順序；Bag of Words 只保留每個字的次數，因此更簡單但失去詞序。</p>
         </div>
 
-        <h3>延伸練習：Unicode-aware preprocessing（follow-up）</h3>
+        <h3>額外延伸：Unicode-aware preprocessing</h3>
         <p>上面的 <code>preprocess</code> 只吃 ASCII：<code>[a-z0-9']</code> 遇到 <code>café</code>、<code>Zürich</code>、<code>北京</code>、<code>Москва</code> 會把重音字、非拉丁字母切爛或丟掉。以下是<b>不改動原題解</b>、額外提供的 Unicode 版本；Python 3 的 <code>\w</code> 對 <code>str</code> pattern 預設就是 Unicode。</p>
 <pre><code class="language-python">import re
 import unicodedata
@@ -471,6 +690,7 @@ preprocess_unicode(s)
           <h2>2. Word Embeddings</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">NLP</span><span class="badge">Embeddings</span><span class="badge">Cosine Similarity</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>把 bag-of-words 那種稀疏、彼此正交的表示，換成<b>稠密向量</b>：每個 token id 對應一列可學習的 embedding。實作 embedding 查表，並用 <b>cosine similarity</b> 找出與某個字最相近的 k 個字（word2vec / GloVe 的核心操作）。</p>
         <h3>解法說明</h3>
@@ -540,6 +760,7 @@ topk(sims, 5) -> ["queen","prince","monarch","throne","royal"]</code></pre>
           <h2>3. Sentiment Analysis</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">NLP</span><span class="badge">Classification</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/sentiment-analysis/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>做一個文字情感分類器（正面／負面）。輸入是一批 token id <code>(B, T)</code>（不等長的句子用 <code>&lt;pad&gt;</code> 補齊），模型要輸出每個類別的 logits。做法：查 embedding → 對每句<b>忽略 padding 做 mean-pooling</b>得到句向量 → 線性層分類 → 用 cross-entropy 訓練。</p>
         <h3>解法說明</h3>
@@ -615,6 +836,7 @@ pooled row 2 = embedding("Bad") / 1     # not / 4</code></pre>
           <h2>4. Positional Encoding</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">NLP</span><span class="badge">Transformer</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/positional-encoding/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>Self-attention 本身<b>對位置無感</b>（打亂 token 順序，輸出只是跟著換位置），所以要額外把「位置」資訊加進去。實作 <i>Attention Is All You Need</i> 的 <b>sinusoidal positional encoding</b>：產生一個 <code>(seq_len, d_model)</code> 矩陣，偶數維用 sin、奇數維用 cos，且不同維度用不同頻率，之後直接加到 token embedding 上。</p>
         <h3>解法說明</h3>
@@ -677,6 +899,7 @@ even index -> sin, odd index -> cos</code></pre>
           <h2>5. Self Attention</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Attention</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/self-attention/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>實作單頭的 <b>scaled dot-product self-attention</b>。輸入 <code>x</code>（shape <code>(B, T, n_embd)</code>），從 x 投影出 Query、Key、Value，用 <code>softmax(Q Kᵀ / √d) · V</code> 讓每個位置根據相關性聚合其他位置的資訊。支援可選的 mask（例如 causal 或 padding mask）。這是整個 Transformer 的最小積木。</p>
         <h3>解法說明</h3>
@@ -738,6 +961,7 @@ out = wei @ v -> (1, 3, 4)</code></pre>
           <h2>6. Multi Headed Self Attention</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Attention</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/multi-headed-self-attention/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>把單頭 attention 擴成 <b>multi-head</b>：把 <code>n_embd</code> 切成 <code>n_head</code> 份，每個 head 在自己的子空間獨立做 attention，讓模型能同時關注不同面向（語法、指代、距離…），最後把各 head 輸出 concat 再投影回 <code>n_embd</code>。要求用<b>張量 reshape</b>做平行運算，而不是 Python for-loop 逐 head 跑。</p>
         <h3>解法說明</h3>
@@ -809,6 +1033,7 @@ out -> transpose+view -> (B, T, 64) -> proj</code></pre>
           <h2>7. Transformer Block</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Transformer</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/transformer-block/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>把 multi-head attention 與 feed-forward 組成一個可堆疊的 <b>Transformer block</b>。用 <b>pre-norm 殘差</b>結構：<code>x = x + attn(ln1(x))</code>、<code>x = x + ffn(ln2(x))</code>。attention 負責跨位置「溝通」，feed-forward 負責每個位置獨立「思考」。堆 N 層就是 GPT / BERT 的主體。</p>
         <h3>解法說明</h3>
@@ -873,6 +1098,7 @@ class TransformerBlock(nn.Module):
           <h2>8. Tokenizer (Byte Pair Encoding)</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Tokenization</span><span class="badge">BPE</span><span class="badge">Bytes</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/tokenizer-bpe/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>實作一個 byte-level 的 BPE tokenizer。給一段訓練文字與目標 <code>vocab_size</code>，先把文字編成 UTF-8 bytes（0–255 共 256 個基礎 token），接著反覆找出<b>出現頻率最高的相鄰 token pair</b>，把它合併成一個新的 token id，直到達到目標詞彙量。之後要能用學到的 merges 對任意文字 <code>encode</code>，並能 <code>decode</code> 回原字串。</p>
         <h3>解法說明</h3>
@@ -984,6 +1210,7 @@ ids  = [X, d, X, a, c]                  merges[(Y,b)] = X</code></pre>
           <h2>9. Build Vocabulary</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">Tokenization</span><span class="badge">Mapping</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/build-vocabulary/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>建立字元級（character-level）詞彙表。給一段文字，取出所有<b>不重複字元</b>並排序，建立 <code>stoi</code>（字元 → 整數 id）與 <code>itos</code>（id → 字元）兩個對照表，並提供 <code>encode(str) -&gt; List[int]</code> 與 <code>decode(List[int]) -&gt; str</code>。這是最簡單的 tokenizer，也是 Karpathy「makemore / mini-GPT」教學的起點。</p>
         <h3>解法說明</h3>
@@ -1043,6 +1270,7 @@ decode([1,0,2,2]) -> "hell"</code></pre>
           <h2>10. Tokenization Edge Cases</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Tokenization</span><span class="badge">Special Tokens</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/tokenization-edge-cases/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>把基礎 vocab 強化成能處理真實輸入的邊界情況：(1) <b>special tokens</b> 如 <code>&lt;pad&gt;</code>、<code>&lt;unk&gt;</code>、<code>&lt;|endoftext|&gt;</code> 要保留固定 id；(2) 遇到訓練時沒看過的<b>未知字元</b>要回退到 <code>&lt;unk&gt;</code> 而不是 crash；(3) <b>空字串</b>要回傳空 list；(4) 文字中若出現 special token 字面字串，要當成單一 token 切出來，而不是逐字元拆開。</p>
         <h3>解法說明</h3>
@@ -1120,6 +1348,7 @@ encode("")  -> []</code></pre>
           <h2>11. GPT Data Loader</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">Data</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/gpt-data-loader/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>給一整串已編碼的 token（一維 tensor <code>data</code>）、<code>batch_size</code> 與 <code>block_size</code>（context 長度），寫一個 <code>get_batch</code> 隨機抽出訓練 batch。回傳 <code>x</code>（shape <code>(B, T)</code>）與 <code>y</code>；<code>y</code> 是 <code>x</code> 整體<b>右移一格</b>的下一個 token，也就是每個位置的預測目標。</p>
         <h3>解法說明</h3>
@@ -1172,6 +1401,7 @@ y = data[2:5] = [12, 13, 14]
           <h2>12. GPT Dataset</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">Data</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/gpt-dataset/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>把上一題的隨機抽樣，改寫成標準的 <code>torch.utils.data.Dataset</code>，好讓官方 <code>DataLoader</code> 負責 shuffle、batching、多進程載入。需要實作 <code>__len__</code> 與 <code>__getitem__</code>，每個 index 用滑動視窗回傳一組 <code>(x, y)</code>，兩者都長 <code>block_size</code> 且 y 相對 x 右移一格。</p>
         <h3>解法說明</h3>
@@ -1233,6 +1463,7 @@ y = chunk[1:]  = [t1, t2, t3, t4]</code></pre>
           <h2>13. Code GPT</h2>
           <div class="badges"><span class="badge hard">Hard</span><span class="badge">Transformer</span><span class="badge">Self-Attention</span><span class="badge">PyTorch</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/code-gpt/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>實作一個 decoder-only GPT。輸入 token id <code>idx</code>（shape <code>(B, T)</code>），輸出每個位置對整個 vocab 的 logits <code>(B, T, vocab_size)</code>；若提供 <code>targets</code> 也回傳 cross-entropy loss。要點：token embedding + position embedding、堆疊多個 transformer block（每個 block 含 <b>causal multi-head self-attention</b> 與 feed-forward，皆用 pre-LayerNorm + residual），最後接 LayerNorm 與線性 <code>lm_head</code>。</p>
         <h3>解法說明</h3>
@@ -1379,6 +1610,7 @@ out = wei @ v -> (B, T, 16); concat 4 heads -> (B, T, 64)</code></pre>
           <h2>14. Train Your GPT</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Training</span><span class="badge">Optimizer</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/train-your-gpt/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>寫出 GPT 的訓練迴圈：用 <code>AdamW</code> 當 optimizer，每個 step 抽一個 batch、forward 得到 loss、<code>zero_grad</code> → <code>backward</code> → <code>step</code>，並週期性用<b>不算梯度</b>的方式估計 train/val loss 監控是否過擬合。</p>
         <h3>解法說明</h3>
@@ -1451,6 +1683,7 @@ step 1000: train 2.10, val 2.19   # val lagging -> mild overfit starting
           <h2>15. Make GPT Talk Back</h2>
           <div class="badges"><span class="badge medium">Medium</span><span class="badge">Inference</span><span class="badge">Sampling</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/make-gpt-talk-back/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>實作自回歸生成 <code>generate</code>。給一段起始 context <code>idx</code>（shape <code>(B, T)</code>）與要生成的 <code>max_new_tokens</code>，反覆：把序列餵進模型 → 取<b>最後一個位置</b>的 logits → 用 <code>temperature</code>（與可選 <code>top_k</code>）調整 → softmax 成機率 → <code>multinomial</code> 抽下一個 token → 接回序列。注意每步都要把 context 裁到最多 <code>block_size</code> 個 token。</p>
         <h3>解法說明</h3>
@@ -1513,6 +1746,7 @@ idx = [[The, cat, sat]]      # append, repeat</code></pre>
           <h2>16. KV-Cache</h2>
           <div class="badges"><span class="badge hard">Hard</span><span class="badge">Inference</span><span class="badge">Optimization</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/kv-cache/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>上一題的生成每步都對整段 context 重算 attention，複雜度 O(T²)。KV-Cache 的洞見是：<b>過去 token 的 Key 與 Value 不會改變</b>，所以可以快取起來；每生成一個新 token，只需算它自己的 Q/K/V，把新的 K、V <b>append</b> 到快取，再讓新 Q 對「快取 + 自己」的 K、V 做 attention。實作一個吃 <code>cache</code>、回傳更新後 <code>cache</code> 的 self-attention。</p>
         <h3>解法說明</h3>
@@ -1596,6 +1830,7 @@ With cache:
           <h2>17. Grouped Query Attention (GQA)</h2>
           <div class="badges"><span class="badge hard">Hard</span><span class="badge">Attention</span><span class="badge">Efficiency</span></div>
         </div>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/grouped-query-attention/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
         <h3>題目整理</h3>
         <p>標準 multi-head attention 每個 query head 都有專屬的 KV head，KV-Cache 因此很大。GQA 讓 <code>n_kv_head &lt; n_head</code>：把 query head 分成 <code>n_kv_head</code> 組，<b>同一組的多個 query head 共用一組 K、V</b>。實作 GQA：Q 投影出 <code>n_head</code> 組、K/V 只投影出 <code>n_kv_head</code> 組，再用 <code>repeat_kv</code> 把 KV 複製到與 Q 對齊後做 attention。（<code>n_kv_head = 1</code> 就退化成 MQA，<code>n_kv_head = n_head</code> 就是原本的 MHA。）</p>
         <h3>解法說明</h3>
@@ -1684,7 +1919,7 @@ repeat_kv: (B, 2, T, d) -> expand -> (B, 8, T, d)   # aligns with Q</code></pre>
 </main>
 
 <footer>
-  Built for NLP · Attention &amp; Transformers · "Build a GPT" ML coding practice · PyTorch solutions with Traditional Chinese explanations and interview flows.
+  Built for NLP · Attention &amp; Transformers · "Build a GPT" ML coding practice · 17 official NeetCode question links verified 2026-09-14.
 </footer>
 <script>
 (() => {
@@ -1798,6 +2033,69 @@ repeat_kv: (B, 2, T, d) -> expand -> (B, 8, T, d)   # aligns with Q</code></pre>
   document.querySelectorAll("pre code.language-python").forEach((block) => {
     block.innerHTML = highlightPython(block.textContent);
   });
+})();
+</script>
+<script>
+(() => {
+  const toc = document.querySelector(".toc");
+  const tocMenu = document.getElementById("toc-menu");
+  const tocSummary = tocMenu.querySelector("summary");
+  const currentTitle = document.getElementById("toc-current-title");
+  const chapterLinks = [...tocMenu.querySelectorAll('a[href^="#"]')];
+  const chapters = [...document.querySelectorAll("main > section[id]")];
+  let currentFrame = 0;
+
+  function updateCurrentChapter() {
+    currentFrame = 0;
+    const bar = toc.getBoundingClientRect();
+    let current = null;
+    for (const section of chapters) {
+      if (section.getBoundingClientRect().top <= bar.bottom + 32) current = section.id;
+    }
+
+    let title = "開始閱讀";
+    chapterLinks.forEach((link) => {
+      if (link.hash === "#" + current) {
+        link.setAttribute("aria-current", "location");
+        title = (link.querySelector("span:last-child") || link).textContent.trim();
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    });
+    currentTitle.textContent = title;
+    currentTitle.title = title;
+  }
+
+  function scheduleCurrentChapter() {
+    if (!currentFrame) currentFrame = requestAnimationFrame(updateCurrentChapter);
+  }
+
+  document.addEventListener("pointerdown", (event) => {
+    if (tocMenu.open && !tocMenu.contains(event.target)) tocMenu.open = false;
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && tocMenu.open) {
+      tocMenu.open = false;
+      tocSummary.focus({ preventScroll: true });
+      event.preventDefault();
+    }
+  });
+  tocMenu.addEventListener("focusout", () => {
+    requestAnimationFrame(() => {
+      if (!tocMenu.contains(document.activeElement)) tocMenu.open = false;
+    });
+  });
+  chapterLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+      tocMenu.open = false;
+      tocSummary.focus({ preventScroll: true });
+    });
+  });
+  window.addEventListener("scroll", scheduleCurrentChapter, { passive: true });
+  window.addEventListener("resize", scheduleCurrentChapter);
+  window.addEventListener("hashchange", scheduleCurrentChapter);
+  window.addEventListener("pageshow", scheduleCurrentChapter);
+  scheduleCurrentChapter();
 })();
 </script>
 </body>
