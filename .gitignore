@@ -13,3 +13,8 @@ venv/
 # Build artifacts
 node_modules/
 dist/
+
+# Generated and local files
+/pdfs/
+/tmp/
+/references/

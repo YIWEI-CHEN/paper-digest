@@ -386,7 +386,396 @@ footer {
   }
   .toc-group:first-child ul { display: grid; grid-template-columns: 1fr 1fr; }
 }
-@media print { .toc { display: none; } }
+@page {
+  size: A4 portrait;
+  margin: 15mm 14mm 18mm;
+
+  @bottom-left {
+    content: "Build a GPT · ML Coding Practice";
+    color: #64748b;
+    font: 8pt/1.2 "Segoe UI", "Noto Sans TC", sans-serif;
+  }
+
+  @bottom-right {
+    content: counter(page);
+    color: #64748b;
+    font: 8pt/1.2 ui-monospace, Consolas, monospace;
+  }
+}
+@page:first {
+  margin: 0;
+
+  @bottom-left { content: none; }
+  @bottom-right { content: none; }
+}
+@media print {
+  :root {
+    --bg: #ffffff;
+    --panel: #ffffff;
+    --panel-2: #f1f5f9;
+    --ink: #172033;
+    --muted: #46556a;
+    --line: #cbd5e1;
+    --accent: #9a6700;
+    --accent-2: #0f766e;
+    --accent-3: #6d28d9;
+    --danger: #b42318;
+    --success: #067647;
+    --code: #f6f8fa;
+    --shadow: transparent;
+  }
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  html {
+    scroll-behavior: auto;
+    scroll-padding-top: 0;
+  }
+  body {
+    color: var(--ink);
+    background: #fff;
+    font-family: "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+    font-size: 10pt;
+    line-height: 1.52;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .wrap {
+    max-width: none;
+    padding: 0;
+  }
+  .toc,
+  script {
+    display: none !important;
+  }
+  header.hero {
+    display: flex;
+    align-items: center;
+    min-height: 297mm;
+    padding: 34mm 28mm 30mm;
+    border: 0;
+    background: #fff;
+    break-after: page;
+    page-break-after: always;
+  }
+  header.hero .wrap {
+    width: 100%;
+  }
+  .kicker {
+    margin-bottom: 8mm;
+    color: var(--accent-2);
+    font-size: 9pt;
+    letter-spacing: 0.18em;
+  }
+  h1 {
+    max-width: 150mm;
+    color: #0f172a;
+    font-size: 36pt;
+    line-height: 1.08;
+    letter-spacing: -0.035em;
+  }
+  .subtitle {
+    max-width: 150mm;
+    margin-top: 8mm;
+    color: #334155;
+    font-size: 13pt;
+    line-height: 1.65;
+  }
+  .meta {
+    gap: 2.5mm;
+    margin-top: 10mm;
+  }
+  .pill {
+    padding: 1.5mm 3mm;
+    border-color: #b8c4d4;
+    background: rgba(255, 255, 255, 0.72);
+    color: #334155;
+    font-size: 8.2pt;
+  }
+  header.hero .note {
+    max-width: 150mm;
+    margin-top: 12mm;
+    padding: 5mm 6mm;
+    border-color: #d6b45d;
+    border-left-width: 1.2mm;
+    border-radius: 2mm;
+    background: #fff;
+    color: #6b4f00;
+    font-size: 9.5pt;
+  }
+  section {
+    padding: 0;
+    border: 0;
+  }
+  #overview {
+    break-after: page;
+    page-break-after: always;
+  }
+  main > section:not(#overview) {
+    padding-top: 8mm;
+  }
+  #intro-nlp,
+  #self-attention,
+  #bpe {
+    break-before: page;
+    page-break-before: always;
+  }
+  .section-title {
+    margin-bottom: 5mm;
+    padding-bottom: 3mm;
+    border-bottom: 1.4pt solid #0f766e;
+  }
+  h2 {
+    color: #0f172a;
+    font-size: 22pt;
+    line-height: 1.18;
+  }
+  h3 {
+    margin: 7mm 0 2.5mm;
+    color: #0f766e;
+    font-size: 13pt;
+    line-height: 1.25;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  h4 {
+    margin: 4.5mm 0 1.5mm;
+    color: #172033;
+    font-size: 10.5pt;
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+  p {
+    margin: 2.5mm 0;
+    orphans: 3;
+    widows: 3;
+  }
+  li {
+    orphans: 3;
+    widows: 3;
+  }
+  a {
+    color: #0f5f59;
+    text-decoration: none;
+  }
+  .overview-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 3mm;
+  }
+  .card {
+    padding: 4mm;
+    border-color: #cbd5e1;
+    border-radius: 2mm;
+    background: #fff;
+    font-size: 8.4pt;
+    line-height: 1.45;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .card strong {
+    color: #172033;
+  }
+  .table-wrap {
+    overflow: visible;
+    border-color: #94a3b8;
+    border-radius: 0;
+    background: #fff;
+  }
+  table {
+    min-width: 0;
+    table-layout: fixed;
+  }
+  thead {
+    display: table-header-group;
+  }
+  th,
+  td {
+    padding: 2mm 2.2mm;
+    border-color: #cbd5e1;
+  }
+  th {
+    background: #fff;
+    color: #115e59;
+    font-size: 7.5pt;
+  }
+  td {
+    color: #334155;
+    font-size: 7.35pt;
+    line-height: 1.34;
+  }
+  td.problem,
+  td.problem a {
+    color: #172033;
+  }
+  tbody td[colspan] {
+    background: #fff !important;
+  }
+  th:nth-child(3),
+  td:nth-child(3),
+  th:nth-child(6),
+  td:nth-child(6),
+  th:nth-child(7),
+  td:nth-child(7),
+  th:nth-child(8),
+  td:nth-child(8) {
+    display: none;
+  }
+  th:nth-child(1) { width: 7%; }
+  th:nth-child(2) { width: 27%; }
+  th:nth-child(4) { width: 13%; }
+  th:nth-child(5) { width: 53%; }
+  tr {
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .problem-card {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+  }
+  .problem-head {
+    margin-bottom: 3mm;
+    padding-bottom: 3mm;
+    border-bottom: 1.4pt solid #0f766e;
+    break-inside: avoid-page;
+    break-after: avoid-page;
+    page-break-inside: avoid;
+    page-break-after: avoid;
+  }
+  .problem-head h2 {
+    font-size: 21pt;
+  }
+  .badges {
+    gap: 1.5mm;
+  }
+  .badge {
+    padding: 1mm 2.2mm;
+    border-color: #b8c4d4;
+    background: #fff;
+    font-size: 7.5pt;
+  }
+  .source-links {
+    display: block;
+    margin: 3mm 0 6mm;
+    padding: 3mm 4mm;
+    border-left: 1mm solid #0f766e;
+    background: #fff;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .primary-link {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #0f5f59;
+    font-size: 9pt;
+  }
+  .source-links a[href]::after {
+    content: "\A" attr(href);
+    display: block;
+    margin-top: 1mm;
+    color: #475569;
+    font: 7.3pt/1.35 ui-monospace, Consolas, monospace;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .note,
+  .concept-callout,
+  .interview-flow {
+    margin-top: 4mm;
+    padding: 4mm 4.5mm;
+    border-radius: 2mm;
+    background: #fff;
+  }
+  .note {
+    border-color: #d6b45d;
+    background: #fff;
+    color: #6b4f00;
+  }
+  .concept-callout {
+    border-color: #7cc7bf;
+    background: #fff;
+    color: #334155;
+  }
+  .concept-callout strong {
+    color: #172033;
+    font-size: 10.5pt;
+  }
+  .interview-flow {
+    border-color: #b8a3df;
+    background: #fff;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  .interview-flow p {
+    color: #334155;
+  }
+  .interview-flow h4 {
+    color: #5b21b6;
+  }
+  .summary-list {
+    margin-top: 2mm;
+    color: #334155;
+  }
+  .summary-list li {
+    margin: 1.5mm 0;
+  }
+  pre {
+    margin: 4mm 0;
+    padding: 3.5mm 4mm;
+    overflow: visible;
+    border-color: #b8c4d4;
+    border-radius: 1.5mm;
+    background: #fff;
+    color: #111827;
+    font-size: 7.4pt;
+    line-height: 1.38;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: normal;
+    break-inside: auto;
+    page-break-inside: auto;
+  }
+  :not(pre) > code {
+    color: #0f5f59;
+    background: #fff;
+    border-bottom: 0.5pt solid #cbd5e1;
+    padding: 0.2mm 1mm;
+  }
+  .py-keyword { color: #6f2da8; }
+  .py-builtin { color: #174ea6; }
+  .py-type { color: #8a5200; }
+  .py-function { color: #0f766e; }
+  .py-string { color: #8a3b12; }
+  .py-number { color: #b42318; }
+  .py-comment { color: #64748b; }
+  .py-operator { color: #0369a1; }
+  .complexity {
+    gap: 3mm;
+    margin-top: 4mm;
+    break-inside: avoid-page;
+    page-break-inside: avoid;
+  }
+  .complexity div {
+    padding: 3mm 3.5mm;
+    border-color: #cbd5e1;
+    border-radius: 1.5mm;
+    background: #fff;
+    color: #334155;
+  }
+  .complexity b {
+    color: #172033;
+  }
+  footer {
+    padding: 12mm 0 3mm;
+    color: #64748b;
+    font-size: 8pt;
+  }
+}
 </style>
 </head>
 <body>
@@ -491,7 +880,7 @@ footer {
           <tbody>
             <tr><td colspan="8" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part A · NLP 基礎</td></tr>
             <tr><td>1</td><td class="problem"><a href="#intro-nlp">Intro to Natural Language Processing</a></td><td>NLP · Tokenization</td><td>Medium</td><td>合併語料建 lexicographic vocab（ID 從 1），逐句編碼後 padding 成 <code>(2N, T)</code>。</td><td>O(W + V log V + 2N·T)</td><td>O(V + 2N·T)</td><td><a href="https://neetcode.io/problems/nlp-intro/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
-            <tr><td>2</td><td class="problem"><a href="#word-embeddings">Word Embeddings</a></td><td>NLP</td><td>Easy</td><td>用 embedding 查表得到 dense 向量，靠 cosine similarity 找近義詞。</td><td>O(V · d) 查詢</td><td>O(V · d)</td><td><a href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
+            <tr><td>2</td><td class="problem"><a href="#word-embeddings">Word Embeddings</a></td><td>NLP</td><td>Easy</td><td>理解 dense embedding 與 cosine similarity，再用 NumPy / PyTorch indexing 完成單批與 batched lookup。</td><td>O(N · d) lookup</td><td>O(N · d) output</td><td><a href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">NumPy 題 ↗</a> · <a href="https://mlcoding.net/problems/torch-batched-embedding" target="_blank" rel="noopener noreferrer">PyTorch 題 ↗</a></td></tr>
             <tr><td>3</td><td class="problem"><a href="#sentiment">Sentiment Analysis</a></td><td>NLP</td><td>Medium</td><td>masked mean-pool embedding → linear → cross-entropy 分類。</td><td>O(B · T · d)</td><td>O(params)</td><td><a href="https://neetcode.io/problems/sentiment-analysis/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
             <tr><td>4</td><td class="problem"><a href="#positional-encoding">Positional Encoding</a></td><td>NLP</td><td>Medium</td><td>sinusoidal：even 維 sin、odd 維 cos，不同頻率注入位置資訊。</td><td>O(T · d)</td><td>O(T · d)</td><td><a href="https://neetcode.io/problems/positional-encoding/question" target="_blank" rel="noopener noreferrer">NeetCode ↗</a></td></tr>
             <tr><td colspan="8" style="color:var(--accent-3);font-weight:700;background:rgba(197,108,255,0.08)">Part B · Attention &amp; Transformers</td></tr>
@@ -690,7 +1079,10 @@ preprocess_unicode(s)
           <h2>2. Word Embeddings</h2>
           <div class="badges"><span class="badge easy">Easy</span><span class="badge">NLP</span><span class="badge">Embeddings</span><span class="badge">Cosine Similarity</span></div>
         </div>
-        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
+        <div class="concept-callout">
+          <strong>概念延伸（非平台原題）</strong>
+          <p>以下原有內容保留為 embedding、cosine similarity 與 nearest-neighbor search 的背景教學；本節後半另外收錄兩道實際的 embedding lookup 題目與解法。</p>
+        </div>
         <h3>題目整理</h3>
         <p>把 bag-of-words 那種稀疏、彼此正交的表示，換成<b>稠密向量</b>：每個 token id 對應一列可學習的 embedding。實作 embedding 查表，並用 <b>cosine similarity</b> 找出與某個字最相近的 k 個字（word2vec / GloVe 的核心操作）。</p>
         <h3>解法說明</h3>
@@ -748,6 +1140,84 @@ topk(sims, 5) -> ["queen","prince","monarch","throne","royal"]</code></pre>
             <li><b>Why normalize before dot product?</b> "So the score reflects direction (semantics), not vector magnitude."</li>
           </ul>
           <p><b>中文：</b>重點：embedding 是查表矩陣，語意編碼在方向上，所以用 cosine similarity 找近義詞。</p>
+        </div>
+
+        <h3>原題：NumPy Embedding Lookup</h3>
+        <div class="source-links"><a class="primary-link" href="https://neetcode.io/problems/word-embeddings/question" target="_blank" rel="noopener noreferrer">NeetCode 題目 ↗</a></div>
+        <h4>題目整理</h4>
+        <p>給定二維 embedding matrix <code>embeddings</code>，shape 為 <code>(vocab_size, embed_dim)</code>，以及一維整數陣列 <code>token_ids</code>，回傳每個 token ID 對應的 embedding row。輸出依照 <code>token_ids</code> 的順序排列，並四捨五入至小數點後五位。</p>
+        <h4>解法說明</h4>
+        <p>NumPy advanced indexing 可以直接使用一個整數陣列當作 row indices。若 <code>token_ids.shape == (N,)</code>，則 <code>embeddings[token_ids]</code> 會逐一取出 N 個 row，輸出 shape 為 <code>(N, embed_dim)</code>；不需要手寫迴圈。</p>
+<pre><code class="language-python">import numpy as np
+from numpy.typing import NDArray
+
+
+class Solution:
+    def lookup(
+        self,
+        embeddings: NDArray[np.float64],
+        token_ids: NDArray[np.int64],
+    ) -&gt; NDArray[np.float64]:
+        # Advanced indexing selects one embedding row per token ID.
+        return np.round(embeddings[token_ids], 5)</code></pre>
+<pre><code>embeddings = [[0.0, 0.0],
+              [1.0, 1.5],
+              [2.0, 2.5]]
+token_ids  = [2, 0]
+
+embeddings[token_ids]
+→ [[2.0, 2.5],
+   [0.0, 0.0]]</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(N · d)，其中 N 是 token 數量、d 是 embedding dimension。</div>
+          <div><b>Space:</b> O(N · d) 為回傳結果；演算法額外空間 O(1)。</div>
+        </div>
+        <h4>Interview Explanation Flow</h4>
+        <div class="interview-flow">
+          <p>"The embedding matrix stores one vector per vocabulary item. NumPy advanced indexing accepts the entire token-ID array as row indices, preserves the order of those IDs, and appends the embedding dimension to the output."</p>
+          <p>"Therefore an input of shape <code>(N,)</code> produces an output of shape <code>(N, d)</code>. I round only once at the end, as required by the interface."</p>
+          <p><b>中文：</b>用整數陣列直接索引 embedding matrix，輸出順序與 <code>token_ids</code> 完全一致。</p>
+        </div>
+
+        <h3>PyTorch Batched Embedding Lookup</h3>
+        <div class="source-links"><a class="primary-link" href="https://mlcoding.net/problems/torch-batched-embedding" target="_blank" rel="noopener noreferrer">ML Coding 題目 ↗</a></div>
+        <h4>題目整理</h4>
+        <p>給定 embedding table <code>(vocab_size, embedding_dim)</code> 與一批 token IDs <code>(batch_size, seq_len)</code>，替 batch 中每個位置查出對應向量，回傳 <code>(batch_size, seq_len, embedding_dim)</code>。</p>
+        <h4>解法說明</h4>
+        <p><code>embedding_table[token_ids]</code> 是 PyTorch advanced indexing：它直接取出 batch 中每個 token ID 的 embedding vector，並保留 <code>token_ids</code> 原本的 batch/time shape，最後附加 <code>embedding_dim</code>。因此不需要巢狀迴圈，也不需要手動 reshape。</p>
+<pre><code class="language-python">import torch
+
+
+def batched_embedding_lookup(
+    embedding_table: torch.Tensor,
+    token_ids: torch.Tensor,
+) -&gt; torch.Tensor:
+    """Look up an embedding vector for every token ID in a batch."""
+    return embedding_table[token_ids]</code></pre>
+<pre><code>embedding_table.shape = (3, 2)
+token_ids.shape       = (2, 2)
+
+token_ids = [[1, 2],
+             [0, 1]]
+
+embedding_table[token_ids]
+→ [[[1.0, 1.5], [2.0, 2.5]],
+   [[0.0, 0.0], [1.0, 1.5]]]
+
+output.shape = (2, 2, 2)</code></pre>
+        <div class="complexity">
+          <div><b>Time:</b> O(B · T · d)，每個 batch/time 位置複製一個 d 維向量。</div>
+          <div><b>Space:</b> O(B · T · d) 為輸出 tensor；演算法額外空間 O(1)。</div>
+        </div>
+        <div class="concept-callout">
+          <strong>Shape 規則</strong>
+          <p>索引 tensor 的 shape 會被保留，embedding row 的尾端維度再接上去：<code>(B, T) + (d,) → (B, T, d)</code>。此外，<code>token_ids</code> 必須使用整數 dtype（通常是 <code>torch.long</code>），且每個 ID 必須落在 <code>[0, vocab_size)</code>。</p>
+        </div>
+        <h4>Interview Explanation Flow</h4>
+        <div class="interview-flow">
+          <p>"Each value in <code>token_ids</code> is a row index into the embedding table. PyTorch advanced indexing performs all lookups at once and preserves the index tensor's batch and sequence dimensions."</p>
+          <p>"For example, indexing a <code>(3, 2)</code> table with IDs of shape <code>(2, 2)</code> gives <code>(2, 2, 2)</code>: the first two dimensions come from the IDs, and the last dimension is the embedding width."</p>
+          <p><b>中文：</b><code>embedding_table[token_ids]</code> 直接批次查表，保留 ID tensor 的 shape，再加上 embedding 維度。</p>
         </div>
       </article>
     </div>
