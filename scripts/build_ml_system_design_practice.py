@@ -99,10 +99,6 @@ def render_case(c, i):
     h.append(f'<details class="case-detail"{opened}><summary class="case-summary"><span class="case-number">{i:02d}</span><span class="summary-copy"><span class="eyebrow">{label(*GROUPS[c["group"]])}</span><span class="case-title">{esc(c["title"])}</span><span class="topics">{esc(" / ".join(c["topics"]))}</span></span><span class="expand-mark" aria-hidden="true">+</span></summary>')
     h.append('<div class="case-body">')
     h.append(bilingual(c["P"], "prompt"))
-    if c["id"] == "ads":
-        h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
-        h.append(bilingual(("14 個章節、3 張原創架構圖、曝光與標籤成熟、抽樣校準、特徵與序列模型、訓練、實驗、serving、程式碼導讀與中英口說稿。", "14 chapters, 3 original diagrams, exposure and label maturity, sampling correction, features and sequence models, training, experiments, serving, code guides, and bilingual rehearsal answers.")))
-        h.append('<p style="margin-top:12px"><a class="deep-dive-link" href="meta-ad-click-prediction-deep-dive.html">Meta Ad Click Prediction — Deep Dive ↗</a></p></div>')
     if c["id"] == "shopping":
         h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
         h.append(bilingual(("14 個章節、重畫架構圖、資料與 loss、即時工具、贊助排序、評估與 45 分鐘口說流程。", "14 chapters, original diagrams, data and losses, live tools, sponsorship, evaluation, and a 45-minute rehearsal.")))
