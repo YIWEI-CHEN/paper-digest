@@ -1,0 +1,24 @@
+%% Reference: user-provided screenshot of
+%% https://github.com/khangich/machine-learning-interview/blob/master/images/system_design.png
+%% Mermaid preserves the graph; the companion SVG preserves the spatial layout.
+%% The source has a plain Model Store / Model Serving connection (no arrowhead).
+flowchart LR
+    candidates("Ad Candidates") --> stream("Stream data prep<br/>pipeline")
+    stream --> online[("Online feature<br/>store")]
+    online --> serving("Model Serving")
+    serving --> predictions["Ads predictions"]
+
+    lake[("Data Lake")] --> prep["Data prep job<br/>(Spark)"]
+    stream --> features[("Features store")]
+    prep --> features
+    prep --> trainingData[("Training data<br/>store")]
+    features --> training("Batch training job")
+    trainingData --> training
+    training --> models("Model Store")
+    models --- serving
+
+    classDef component fill:#ffffff,stroke:#202020,stroke-width:1.5px,color:#111111;
+    classDef output fill:transparent,stroke:transparent,color:#111111;
+    class candidates,stream,online,serving,lake,prep,features,trainingData,training,models component;
+    class predictions output;
+    linkStyle default stroke:#202020,stroke-width:1.5px;

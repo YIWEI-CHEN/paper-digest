@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="620" viewBox="0 0 1600 620" role="img" aria-labelledby="title description">
+  <title id="title">Ad click prediction — training and serving architecture</title>
+  <desc id="description">Editable vector redraw of the user-provided architecture. Ad candidates flow through a stream data preparation pipeline into an online feature store and model serving. The streaming pipeline also writes to a features store. A data lake feeds a Spark preparation job, which writes to both the features store and training data store. Both stores feed batch training, which writes to the model store. The model store is connected to model serving by a plain line, preserving the original image. Model serving outputs ads predictions.</desc>
+  <metadata>Reference: user-provided screenshot of https://github.com/khangich/machine-learning-interview/blob/master/images/system_design.png . Layout and connections preserved; capitalization standardized.</metadata>
+  <defs>
+    <pattern id="minorGrid" width="14" height="14" patternUnits="userSpaceOnUse">
+      <path d="M 14 0 H 0 V 14" fill="none" stroke="#edf0f2" stroke-width="0.65"/>
+    </pattern>
+    <pattern id="grid" width="70" height="70" patternUnits="userSpaceOnUse">
+      <rect width="70" height="70" fill="url(#minorGrid)"/>
+      <path d="M 70 0 H 0 V 70" fill="none" stroke="#dce0e3" stroke-width="0.8"/>
+    </pattern>
+    <marker id="arrow" markerWidth="11" markerHeight="11" refX="9" refY="5.5" orient="auto" markerUnits="userSpaceOnUse">
+      <path d="M 0 0 L 11 5.5 L 0 11 L 3 5.5 Z" fill="#202020"/>
+    </marker>
+    <style>
+      .node { fill: #fff; stroke: #202020; stroke-width: 1.7; }
+      .edge { fill: none; stroke: #202020; stroke-width: 1.7; marker-end: url(#arrow); }
+      .connection { fill: none; stroke: #202020; stroke-width: 1.7; }
+      .label { font-family: Arial, Helvetica, sans-serif; font-size: 17px; fill: #111; text-anchor: middle; }
+    </style>
+  </defs>
+  <rect width="1600" height="620" fill="#fff"/>
+  <rect width="1600" height="620" fill="url(#grid)"/>
+
+  <!-- Connectors are drawn first so node boundaries cleanly mask their ends. -->
+  <g id="connections">
+    <path id="candidates-to-stream" class="edge" d="M 211 137 H 350"/>
+    <path id="stream-to-online" class="edge" d="M 518 137 H 685"/>
+    <path id="online-to-serving" class="edge" d="M 811 140 L 1200 137"/>
+    <path id="stream-to-features" class="edge" d="M 434 179 L 682 303"/>
+    <path id="lake-to-prep" class="edge" d="M 211 360 L 364 359"/>
+    <path id="prep-to-features" class="edge" d="M 531 359 L 682 303"/>
+    <path id="prep-to-training-data" class="edge" d="M 531 359 L 685 514"/>
+    <path id="features-to-training" class="edge" d="M 825 303 L 923 358"/>
+    <path id="training-data-to-training" class="edge" d="M 811 514 L 923 364"/>
+    <path id="training-to-model-store" class="edge" d="M 1090 359 H 1200"/>
+    <path id="model-store-serving-link" class="connection" d="M 1284 319 V 214"/>
+    <path id="serving-to-predictions" class="edge" d="M 1395 156 H 1560"/>
+  </g>
+
+  <g id="ad-candidates">
+    <rect class="node" x="44" y="95" width="167" height="84" rx="14"/>
+    <text class="label" x="127.5" y="143">Ad Candidates</text>
+  </g>
+  <g id="stream-data-prep">
+    <rect class="node" x="350" y="95" width="168" height="84" rx="14"/>
+    <text class="label" x="434" y="134"><tspan x="434">Stream data prep</tspan><tspan x="434" dy="20">pipeline</tspan></text>
+  </g>
+  <g id="online-feature-store">
+    <path class="node" d="M 685 88 A 63 21 0 0 1 811 88 V 186 A 63 21 0 0 1 685 186 Z"/>
+    <ellipse class="node" cx="748" cy="88" rx="63" ry="21"/>
+    <text class="label" x="748" y="134"><tspan x="748">Online feature</tspan><tspan x="748" dy="20">store</tspan></text>
+  </g>
+  <g id="data-lake">
+    <path class="node" d="M 44 312 A 83.5 21 0 0 1 211 312 V 395 A 83.5 21 0 0 1 44 395 Z"/>
+    <ellipse class="node" cx="127.5" cy="312" rx="83.5" ry="21"/>
+    <text class="label" x="127.5" y="360">Data Lake</text>
+  </g>
+  <g id="spark-data-prep">
+    <rect class="node" x="364" y="317" width="167" height="84"/>
+    <text class="label" x="447.5" y="355"><tspan x="447.5">Data prep job</tspan><tspan x="447.5" dy="20">(Spark)</tspan></text>
+  </g>
+  <g id="features-store">
+    <path class="node" d="M 685 270 A 70 21 0 0 1 825 270 V 339 A 70 21 0 0 1 685 339 Z"/>
+    <ellipse class="node" cx="755" cy="270" rx="70" ry="21"/>
+    <text class="label" x="755" y="312">Features store</text>
+  </g>
+  <g id="training-data-store">
+    <path class="node" d="M 685 465 A 63 21 0 0 1 811 465 V 549 A 63 21 0 0 1 685 549 Z"/>
+    <ellipse class="node" cx="748" cy="465" rx="63" ry="21"/>
+    <text class="label" x="748" y="504"><tspan x="748">Training data</tspan><tspan x="748" dy="20">store</tspan></text>
+  </g>
+  <g id="batch-training">
+    <rect class="node" x="923" y="317" width="167" height="84" rx="14"/>
+    <text class="label" x="1006.5" y="365">Batch training job</text>
+  </g>
+  <g id="model-store">
+    <rect class="node" x="1200" y="319" width="168" height="80" rx="14"/>
+    <text class="label" x="1284" y="365">Model Store</text>
+  </g>
+  <g id="model-serving">
+    <rect class="node" x="1200" y="102" width="167" height="84" rx="14"/>
+    <rect class="node" x="1214" y="116" width="167" height="84" rx="14"/>
+    <rect class="node" x="1228" y="130" width="167" height="84" rx="14"/>
+    <text class="label" x="1311.5" y="178">Model Serving</text>
+  </g>
+  <text class="label" x="1454" y="129">Ads predictions</text>
+</svg>

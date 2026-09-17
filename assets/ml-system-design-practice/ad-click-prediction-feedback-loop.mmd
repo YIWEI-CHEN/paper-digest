@@ -1,0 +1,17 @@
+flowchart TD
+    A["廣告請求：user / context"] --> B["Eligibility + candidate retrieval"]
+    B --> C["Feature lookup + user representation"]
+    C --> D["CTR model → calibration"]
+    D --> E["Ranking / auction / constraints"]
+    E --> F["曝光"]
+
+    F --> G["曝光紀錄：ID、特徵版本、模型版本"]
+    H["點擊事件"] --> I["Event-time join + label maturity"]
+    G --> I
+    I --> J["Training data + sampling metadata"]
+    J --> K["Train → temporal evaluation → calibration"]
+    K --> L["Model validation → canary → registry"]
+    L --> D
+
+    H --> M["Streaming features / user history"]
+    M --> C
