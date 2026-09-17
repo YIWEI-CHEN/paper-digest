@@ -103,6 +103,10 @@ def render_case(c, i):
         h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
         h.append(bilingual(("14 個章節、3 張原創架構圖、曝光與標籤成熟、抽樣校準、特徵與序列模型、訓練、實驗、serving、程式碼導讀與中英口說稿。", "14 chapters, 3 original diagrams, exposure and label maturity, sampling correction, features and sequence models, training, experiments, serving, code guides, and bilingual rehearsal answers.")))
         h.append('<p style="margin-top:12px"><a class="deep-dive-link" href="meta-ad-click-prediction-deep-dive.html">Meta Ad Click Prediction — Deep Dive ↗</a></p></div>')
+    if c["id"] == "rag":
+        h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
+        h.append(bilingual(("14 個章節、3 張原創架構圖：資料與標籤、hybrid／contextual retrieval、訓練 loss、引用與權限、評估與 serving，附 6 個互動案例、程式碼導讀及中英口說稿。", "14 chapters and 3 original diagrams: data and labels, hybrid/contextual retrieval, training losses, citations and access, evaluation and serving, with 6 interactive scenarios, code guides, and bilingual rehearsal scripts.")))
+        h.append('<p style="margin-top:12px"><a class="deep-dive-link" href="anthropic-rag-system-deep-dive.html">Anthropic RAG System — Deep Dive ↗</a></p></div>')
     if c["id"] == "shopping":
         h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
         h.append(bilingual(("14 個章節、重畫架構圖、資料與 loss、即時工具、贊助排序、評估與 45 分鐘口說流程。", "14 chapters, original diagrams, data and losses, live tools, sponsorship, evaluation, and a 45-minute rehearsal.")))
