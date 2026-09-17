@@ -103,6 +103,10 @@ def render_case(c, i):
         h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
         h.append(bilingual(("14 個章節、3 張原創架構圖、曝光與標籤成熟、抽樣校準、特徵與序列模型、訓練、實驗、serving、程式碼導讀與中英口說稿。", "14 chapters, 3 original diagrams, exposure and label maturity, sampling correction, features and sequence models, training, experiments, serving, code guides, and bilingual rehearsal answers.")))
         h.append('<p style="margin-top:12px"><a class="deep-dive-link" href="meta-ad-click-prediction-deep-dive.html">Meta Ad Click Prediction — Deep Dive ↗</a></p></div>')
+    if c["id"] == "products":
+        h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
+        h.append(bilingual(("15 個章節、3 張原創架構圖：資料與成熟標籤、特徵工程、item-to-item、two-tower、精排、實驗與 serving，附程式碼導讀與中英口說稿。", "15 chapters and 3 original diagrams: data and mature labels, feature engineering, item-to-item, two towers, ranking, experiments, and serving, with code guides and bilingual rehearsal scripts.")))
+        h.append('<p style="margin-top:12px"><a class="deep-dive-link" href="amazon-product-recommendation-deep-dive.html">Amazon Product Recommendation System — Deep Dive ↗</a></p></div>')
     if c["id"] == "shopping":
         h.append('<div class="deep"><h4>' + label("完整深入篇", "Full deep dive") + '</h4>')
         h.append(bilingual(("14 個章節、重畫架構圖、資料與 loss、即時工具、贊助排序、評估與 45 分鐘口說流程。", "14 chapters, original diagrams, data and losses, live tools, sponsorship, evaluation, and a 45-minute rehearsal.")))
